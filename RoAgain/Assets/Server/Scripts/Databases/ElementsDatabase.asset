@@ -1,0 +1,835 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 513ab8c989388914c80f8290f744b0f0, type: 3}
+  m_Name: ElementsDatabase
+  m_EditorClassIdentifier: 
+  _entries:
+  - OffensiveElement: 1
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 1
+    - DefensiveElement: 6
+      Multiplier: 1
+    - DefensiveElement: 7
+      Multiplier: 1
+    - DefensiveElement: 8
+      Multiplier: 1
+    - DefensiveElement: 9
+      Multiplier: 1
+    - DefensiveElement: 10
+      Multiplier: 1
+    - DefensiveElement: 11
+      Multiplier: 1
+    - DefensiveElement: 12
+      Multiplier: 1
+    - DefensiveElement: 13
+      Multiplier: 1
+    - DefensiveElement: 14
+      Multiplier: 1
+    - DefensiveElement: 15
+      Multiplier: 1
+    - DefensiveElement: 16
+      Multiplier: 1
+    - DefensiveElement: 17
+      Multiplier: 1
+    - DefensiveElement: 18
+      Multiplier: 1
+    - DefensiveElement: 19
+      Multiplier: 1
+    - DefensiveElement: 20
+      Multiplier: 1
+    - DefensiveElement: 21
+      Multiplier: 1
+    - DefensiveElement: 22
+      Multiplier: 1
+    - DefensiveElement: 23
+      Multiplier: 1
+    - DefensiveElement: 24
+      Multiplier: 1
+    - DefensiveElement: 25
+      Multiplier: 1
+    - DefensiveElement: 26
+      Multiplier: 1
+    - DefensiveElement: 27
+      Multiplier: 1
+    - DefensiveElement: 28
+      Multiplier: 1
+    - DefensiveElement: 29
+      Multiplier: 1
+    - DefensiveElement: 30
+      Multiplier: 1
+    - DefensiveElement: 31
+      Multiplier: 1
+    - DefensiveElement: 32
+      Multiplier: 1
+    - DefensiveElement: 33
+      Multiplier: 0.25
+    - DefensiveElement: 34
+      Multiplier: 0.25
+    - DefensiveElement: 35
+      Multiplier: 0
+    - DefensiveElement: 36
+      Multiplier: 0
+    - DefensiveElement: 37
+      Multiplier: 1
+    - DefensiveElement: 38
+      Multiplier: 1
+    - DefensiveElement: 39
+      Multiplier: 1
+    - DefensiveElement: 40
+      Multiplier: 1
+  - OffensiveElement: 5
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 0.25
+    - DefensiveElement: 6
+      Multiplier: 0
+    - DefensiveElement: 7
+      Multiplier: -0.25
+    - DefensiveElement: 8
+      Multiplier: -0.5
+    - DefensiveElement: 9
+      Multiplier: 1
+    - DefensiveElement: 10
+      Multiplier: 1
+    - DefensiveElement: 11
+      Multiplier: 1
+    - DefensiveElement: 12
+      Multiplier: 1
+    - DefensiveElement: 13
+      Multiplier: 1.5
+    - DefensiveElement: 14
+      Multiplier: 1.75
+    - DefensiveElement: 15
+      Multiplier: 2
+    - DefensiveElement: 16
+      Multiplier: 2
+    - DefensiveElement: 17
+      Multiplier: 0.5
+    - DefensiveElement: 18
+      Multiplier: 0.25
+    - DefensiveElement: 19
+      Multiplier: 0
+    - DefensiveElement: 20
+      Multiplier: 0
+    - DefensiveElement: 21
+      Multiplier: 1
+    - DefensiveElement: 22
+      Multiplier: 1
+    - DefensiveElement: 23
+      Multiplier: 1
+    - DefensiveElement: 24
+      Multiplier: 0.75
+    - DefensiveElement: 25
+      Multiplier: 0.75
+    - DefensiveElement: 26
+      Multiplier: 0.5
+    - DefensiveElement: 27
+      Multiplier: 0.25
+    - DefensiveElement: 28
+      Multiplier: 0
+    - DefensiveElement: 29
+      Multiplier: 1
+    - DefensiveElement: 30
+      Multiplier: 0.75
+    - DefensiveElement: 31
+      Multiplier: 0.5
+    - DefensiveElement: 32
+      Multiplier: 0.25
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 1
+    - DefensiveElement: 35
+      Multiplier: 1
+    - DefensiveElement: 36
+      Multiplier: 1
+    - DefensiveElement: 37
+      Multiplier: 1
+    - DefensiveElement: 38
+      Multiplier: 1
+    - DefensiveElement: 39
+      Multiplier: 1.25
+    - DefensiveElement: 40
+      Multiplier: 1.5
+  - OffensiveElement: 9
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 1
+    - DefensiveElement: 6
+      Multiplier: 1
+    - DefensiveElement: 7
+      Multiplier: 1
+    - DefensiveElement: 8
+      Multiplier: 1
+    - DefensiveElement: 9
+      Multiplier: 1
+    - DefensiveElement: 10
+      Multiplier: 0.5
+    - DefensiveElement: 11
+      Multiplier: 0
+    - DefensiveElement: 12
+      Multiplier: -0.25
+    - DefensiveElement: 13
+      Multiplier: 0.5
+    - DefensiveElement: 14
+      Multiplier: 0.25
+    - DefensiveElement: 15
+      Multiplier: 0
+    - DefensiveElement: 16
+      Multiplier: 0
+    - DefensiveElement: 17
+      Multiplier: 1.5
+    - DefensiveElement: 18
+      Multiplier: 1.75
+    - DefensiveElement: 19
+      Multiplier: 2
+    - DefensiveElement: 20
+      Multiplier: 2
+    - DefensiveElement: 21
+      Multiplier: 1
+    - DefensiveElement: 22
+      Multiplier: 1
+    - DefensiveElement: 23
+      Multiplier: 1
+    - DefensiveElement: 24
+      Multiplier: 0.75
+    - DefensiveElement: 25
+      Multiplier: 0.75
+    - DefensiveElement: 26
+      Multiplier: 0.5
+    - DefensiveElement: 27
+      Multiplier: 0.25
+    - DefensiveElement: 28
+      Multiplier: 0
+    - DefensiveElement: 29
+      Multiplier: 1
+    - DefensiveElement: 30
+      Multiplier: 0.75
+    - DefensiveElement: 31
+      Multiplier: 0.5
+    - DefensiveElement: 32
+      Multiplier: 0.25
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 1
+    - DefensiveElement: 35
+      Multiplier: 1
+    - DefensiveElement: 36
+      Multiplier: 1
+    - DefensiveElement: 37
+      Multiplier: 1
+    - DefensiveElement: 38
+      Multiplier: 1
+    - DefensiveElement: 39
+      Multiplier: 0.75
+    - DefensiveElement: 40
+      Multiplier: 0.5
+  - OffensiveElement: 13
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 0.5
+    - DefensiveElement: 6
+      Multiplier: 0.25
+    - DefensiveElement: 7
+      Multiplier: 0
+    - DefensiveElement: 8
+      Multiplier: 0
+    - DefensiveElement: 9
+      Multiplier: 1.5
+    - DefensiveElement: 10
+      Multiplier: 1.75
+    - DefensiveElement: 11
+      Multiplier: 2
+    - DefensiveElement: 12
+      Multiplier: 2
+    - DefensiveElement: 13
+      Multiplier: 0.25
+    - DefensiveElement: 14
+      Multiplier: 0
+    - DefensiveElement: 15
+      Multiplier: -0.25
+    - DefensiveElement: 16
+      Multiplier: -0.5
+    - DefensiveElement: 17
+      Multiplier: 1
+    - DefensiveElement: 18
+      Multiplier: 1
+    - DefensiveElement: 19
+      Multiplier: 1
+    - DefensiveElement: 20
+      Multiplier: 1
+    - DefensiveElement: 21
+      Multiplier: 1
+    - DefensiveElement: 22
+      Multiplier: 1
+    - DefensiveElement: 23
+      Multiplier: 1
+    - DefensiveElement: 24
+      Multiplier: 0.75
+    - DefensiveElement: 25
+      Multiplier: 0.75
+    - DefensiveElement: 26
+      Multiplier: 0.5
+    - DefensiveElement: 27
+      Multiplier: 0.25
+    - DefensiveElement: 28
+      Multiplier: 0
+    - DefensiveElement: 29
+      Multiplier: 1
+    - DefensiveElement: 30
+      Multiplier: 0.75
+    - DefensiveElement: 31
+      Multiplier: 0.5
+    - DefensiveElement: 32
+      Multiplier: 0.25
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 1
+    - DefensiveElement: 35
+      Multiplier: 1
+    - DefensiveElement: 36
+      Multiplier: 1
+    - DefensiveElement: 37
+      Multiplier: 1.25
+    - DefensiveElement: 38
+      Multiplier: 1.5
+    - DefensiveElement: 39
+      Multiplier: 1.75
+    - DefensiveElement: 40
+      Multiplier: 2
+  - OffensiveElement: 17
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 1.75
+    - DefensiveElement: 6
+      Multiplier: 1.75
+    - DefensiveElement: 7
+      Multiplier: 2
+    - DefensiveElement: 8
+      Multiplier: 2
+    - DefensiveElement: 9
+      Multiplier: 0.5
+    - DefensiveElement: 10
+      Multiplier: 0.25
+    - DefensiveElement: 11
+      Multiplier: 0
+    - DefensiveElement: 12
+      Multiplier: 0
+    - DefensiveElement: 13
+      Multiplier: 1
+    - DefensiveElement: 14
+      Multiplier: 1
+    - DefensiveElement: 15
+      Multiplier: 1
+    - DefensiveElement: 16
+      Multiplier: 1
+    - DefensiveElement: 17
+      Multiplier: 0.25
+    - DefensiveElement: 18
+      Multiplier: 0
+    - DefensiveElement: 19
+      Multiplier: -0.25
+    - DefensiveElement: 20
+      Multiplier: -0.5
+    - DefensiveElement: 21
+      Multiplier: 1
+    - DefensiveElement: 22
+      Multiplier: 1
+    - DefensiveElement: 23
+      Multiplier: 1
+    - DefensiveElement: 24
+      Multiplier: 0.75
+    - DefensiveElement: 25
+      Multiplier: 0.75
+    - DefensiveElement: 26
+      Multiplier: 0.5
+    - DefensiveElement: 27
+      Multiplier: 0.25
+    - DefensiveElement: 28
+      Multiplier: 0
+    - DefensiveElement: 29
+      Multiplier: 1
+    - DefensiveElement: 30
+      Multiplier: 0.75
+    - DefensiveElement: 31
+      Multiplier: 0.5
+    - DefensiveElement: 32
+      Multiplier: 0.25
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 1
+    - DefensiveElement: 35
+      Multiplier: 1
+    - DefensiveElement: 36
+      Multiplier: 1
+    - DefensiveElement: 37
+      Multiplier: 1
+    - DefensiveElement: 38
+      Multiplier: 1
+    - DefensiveElement: 39
+      Multiplier: 1
+    - DefensiveElement: 40
+      Multiplier: 1
+  - OffensiveElement: 21
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 1
+    - DefensiveElement: 6
+      Multiplier: 0.75
+    - DefensiveElement: 7
+      Multiplier: 0.5
+    - DefensiveElement: 8
+      Multiplier: 0.25
+    - DefensiveElement: 9
+      Multiplier: 1.25
+    - DefensiveElement: 10
+      Multiplier: 1.25
+    - DefensiveElement: 11
+      Multiplier: 1
+    - DefensiveElement: 12
+      Multiplier: 0.75
+    - DefensiveElement: 13
+      Multiplier: 1.25
+    - DefensiveElement: 14
+      Multiplier: 1.25
+    - DefensiveElement: 15
+      Multiplier: 1
+    - DefensiveElement: 16
+      Multiplier: 0.75
+    - DefensiveElement: 17
+      Multiplier: 1.25
+    - DefensiveElement: 18
+      Multiplier: 1.25
+    - DefensiveElement: 19
+      Multiplier: 1
+    - DefensiveElement: 20
+      Multiplier: 0.75
+    - DefensiveElement: 21
+      Multiplier: 0
+    - DefensiveElement: 22
+      Multiplier: 0
+    - DefensiveElement: 23
+      Multiplier: 0
+    - DefensiveElement: 24
+      Multiplier: 0
+    - DefensiveElement: 25
+      Multiplier: 0.75
+    - DefensiveElement: 26
+      Multiplier: 0.5
+    - DefensiveElement: 27
+      Multiplier: 0.25
+    - DefensiveElement: 28
+      Multiplier: 0
+    - DefensiveElement: 29
+      Multiplier: 0.5
+    - DefensiveElement: 30
+      Multiplier: 0.25
+    - DefensiveElement: 31
+      Multiplier: 0
+    - DefensiveElement: 32
+      Multiplier: -0.25
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 0.75
+    - DefensiveElement: 35
+      Multiplier: 0.5
+    - DefensiveElement: 36
+      Multiplier: 0.25
+    - DefensiveElement: 37
+      Multiplier: -0.25
+    - DefensiveElement: 38
+      Multiplier: -0.5
+    - DefensiveElement: 39
+      Multiplier: -0.75
+    - DefensiveElement: 40
+      Multiplier: -1
+  - OffensiveElement: 25
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 1
+    - DefensiveElement: 6
+      Multiplier: 1
+    - DefensiveElement: 7
+      Multiplier: 1
+    - DefensiveElement: 8
+      Multiplier: 0.75
+    - DefensiveElement: 9
+      Multiplier: 1
+    - DefensiveElement: 10
+      Multiplier: 1
+    - DefensiveElement: 11
+      Multiplier: 1
+    - DefensiveElement: 12
+      Multiplier: 0.75
+    - DefensiveElement: 13
+      Multiplier: 1
+    - DefensiveElement: 14
+      Multiplier: 1
+    - DefensiveElement: 15
+      Multiplier: 1
+    - DefensiveElement: 16
+      Multiplier: 0.75
+    - DefensiveElement: 17
+      Multiplier: 1
+    - DefensiveElement: 18
+      Multiplier: 1
+    - DefensiveElement: 19
+      Multiplier: 1
+    - DefensiveElement: 20
+      Multiplier: 0.75
+    - DefensiveElement: 21
+      Multiplier: 1
+    - DefensiveElement: 22
+      Multiplier: 1
+    - DefensiveElement: 23
+      Multiplier: 1.25
+    - DefensiveElement: 24
+      Multiplier: 1.25
+    - DefensiveElement: 25
+      Multiplier: 0
+    - DefensiveElement: 26
+      Multiplier: -0.25
+    - DefensiveElement: 27
+      Multiplier: -0.5
+    - DefensiveElement: 28
+      Multiplier: -1
+    - DefensiveElement: 29
+      Multiplier: 1.25
+    - DefensiveElement: 30
+      Multiplier: 1.5
+    - DefensiveElement: 31
+      Multiplier: 1.75
+    - DefensiveElement: 32
+      Multiplier: 2
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 1
+    - DefensiveElement: 35
+      Multiplier: 1
+    - DefensiveElement: 36
+      Multiplier: 1
+    - DefensiveElement: 37
+      Multiplier: 1.5
+    - DefensiveElement: 38
+      Multiplier: 1.75
+    - DefensiveElement: 39
+      Multiplier: 2
+    - DefensiveElement: 40
+      Multiplier: 2
+  - OffensiveElement: 29
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 1
+    - DefensiveElement: 6
+      Multiplier: 1
+    - DefensiveElement: 7
+      Multiplier: 1
+    - DefensiveElement: 8
+      Multiplier: 0.75
+    - DefensiveElement: 9
+      Multiplier: 1
+    - DefensiveElement: 10
+      Multiplier: 1
+    - DefensiveElement: 11
+      Multiplier: 1
+    - DefensiveElement: 12
+      Multiplier: 0.75
+    - DefensiveElement: 13
+      Multiplier: 1
+    - DefensiveElement: 14
+      Multiplier: 1
+    - DefensiveElement: 15
+      Multiplier: 1
+    - DefensiveElement: 16
+      Multiplier: 0.75
+    - DefensiveElement: 17
+      Multiplier: 1
+    - DefensiveElement: 18
+      Multiplier: 1
+    - DefensiveElement: 19
+      Multiplier: 1
+    - DefensiveElement: 20
+      Multiplier: 0.75
+    - DefensiveElement: 21
+      Multiplier: 0.5
+    - DefensiveElement: 22
+      Multiplier: 0.25
+    - DefensiveElement: 23
+      Multiplier: 0
+    - DefensiveElement: 24
+      Multiplier: -0.25
+    - DefensiveElement: 25
+      Multiplier: 1.25
+    - DefensiveElement: 26
+      Multiplier: 1.5
+    - DefensiveElement: 27
+      Multiplier: 1.75
+    - DefensiveElement: 28
+      Multiplier: 2
+    - DefensiveElement: 29
+      Multiplier: 0
+    - DefensiveElement: 30
+      Multiplier: -0.25
+    - DefensiveElement: 31
+      Multiplier: -0.5
+    - DefensiveElement: 32
+      Multiplier: -1
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 1
+    - DefensiveElement: 35
+      Multiplier: 1
+    - DefensiveElement: 36
+      Multiplier: 1
+    - DefensiveElement: 37
+      Multiplier: -0.25
+    - DefensiveElement: 38
+      Multiplier: -0.5
+    - DefensiveElement: 39
+      Multiplier: -0.75
+    - DefensiveElement: 40
+      Multiplier: -1
+  - OffensiveElement: 33
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 0.25
+    - DefensiveElement: 2
+      Multiplier: 0
+    - DefensiveElement: 3
+      Multiplier: 0
+    - DefensiveElement: 4
+      Multiplier: 0
+    - DefensiveElement: 5
+      Multiplier: 1
+    - DefensiveElement: 6
+      Multiplier: 0.75
+    - DefensiveElement: 7
+      Multiplier: 0.5
+    - DefensiveElement: 8
+      Multiplier: 0.25
+    - DefensiveElement: 9
+      Multiplier: 1
+    - DefensiveElement: 10
+      Multiplier: 0.75
+    - DefensiveElement: 11
+      Multiplier: 0.5
+    - DefensiveElement: 12
+      Multiplier: 0.25
+    - DefensiveElement: 13
+      Multiplier: 1
+    - DefensiveElement: 14
+      Multiplier: 0.75
+    - DefensiveElement: 15
+      Multiplier: 0.5
+    - DefensiveElement: 16
+      Multiplier: 0.25
+    - DefensiveElement: 17
+      Multiplier: 1
+    - DefensiveElement: 18
+      Multiplier: 0.75
+    - DefensiveElement: 19
+      Multiplier: 0.5
+    - DefensiveElement: 20
+      Multiplier: 0.25
+    - DefensiveElement: 21
+      Multiplier: 1
+    - DefensiveElement: 22
+      Multiplier: 0.75
+    - DefensiveElement: 23
+      Multiplier: 0.5
+    - DefensiveElement: 24
+      Multiplier: 0.25
+    - DefensiveElement: 25
+      Multiplier: 0.75
+    - DefensiveElement: 26
+      Multiplier: 0.5
+    - DefensiveElement: 27
+      Multiplier: 0.25
+    - DefensiveElement: 28
+      Multiplier: 0
+    - DefensiveElement: 29
+      Multiplier: 0.75
+    - DefensiveElement: 30
+      Multiplier: 0.5
+    - DefensiveElement: 31
+      Multiplier: 0.25
+    - DefensiveElement: 32
+      Multiplier: 0
+    - DefensiveElement: 33
+      Multiplier: 1.25
+    - DefensiveElement: 34
+      Multiplier: 1.5
+    - DefensiveElement: 35
+      Multiplier: 1.75
+    - DefensiveElement: 36
+      Multiplier: 2
+    - DefensiveElement: 37
+      Multiplier: 1
+    - DefensiveElement: 38
+      Multiplier: 1.25
+    - DefensiveElement: 39
+      Multiplier: 1.5
+    - DefensiveElement: 40
+      Multiplier: 1.75
+  - OffensiveElement: 37
+    DefensiveElements:
+    - DefensiveElement: 1
+      Multiplier: 1
+    - DefensiveElement: 2
+      Multiplier: 1
+    - DefensiveElement: 3
+      Multiplier: 1
+    - DefensiveElement: 4
+      Multiplier: 1
+    - DefensiveElement: 5
+      Multiplier: 1
+    - DefensiveElement: 6
+      Multiplier: 0.75
+    - DefensiveElement: 7
+      Multiplier: 0.5
+    - DefensiveElement: 8
+      Multiplier: 0.25
+    - DefensiveElement: 9
+      Multiplier: 1
+    - DefensiveElement: 10
+      Multiplier: 0.75
+    - DefensiveElement: 11
+      Multiplier: 0.5
+    - DefensiveElement: 12
+      Multiplier: 0.25
+    - DefensiveElement: 13
+      Multiplier: 1
+    - DefensiveElement: 14
+      Multiplier: 0.75
+    - DefensiveElement: 15
+      Multiplier: 0.5
+    - DefensiveElement: 16
+      Multiplier: 0.25
+    - DefensiveElement: 17
+      Multiplier: 1
+    - DefensiveElement: 18
+      Multiplier: 0.75
+    - DefensiveElement: 19
+      Multiplier: 0.5
+    - DefensiveElement: 20
+      Multiplier: 0.25
+    - DefensiveElement: 21
+      Multiplier: 0.5
+    - DefensiveElement: 22
+      Multiplier: 0.25
+    - DefensiveElement: 23
+      Multiplier: 0
+    - DefensiveElement: 24
+      Multiplier: -0.25
+    - DefensiveElement: 25
+      Multiplier: 1
+    - DefensiveElement: 26
+      Multiplier: 1.25
+    - DefensiveElement: 27
+      Multiplier: 1.5
+    - DefensiveElement: 28
+      Multiplier: 1.75
+    - DefensiveElement: 29
+      Multiplier: 0
+    - DefensiveElement: 30
+      Multiplier: 0
+    - DefensiveElement: 31
+      Multiplier: 0
+    - DefensiveElement: 32
+      Multiplier: 0
+    - DefensiveElement: 33
+      Multiplier: 1
+    - DefensiveElement: 34
+      Multiplier: 1
+    - DefensiveElement: 35
+      Multiplier: 1
+    - DefensiveElement: 36
+      Multiplier: 1
+    - DefensiveElement: 37
+      Multiplier: 0
+    - DefensiveElement: 38
+      Multiplier: 0
+    - DefensiveElement: 39
+      Multiplier: 0
+    - DefensiveElement: 40
+      Multiplier: 0

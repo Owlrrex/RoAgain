@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d870c08c21bbaa848a6d624f820ec1fd, type: 3}
+  m_Name: SizeDatabase
+  m_EditorClassIdentifier: 
+  _entries:
+  - WeaponType: 1
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 2
+    Small: 0.5
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 3
+    Small: 0.75
+    Medium: 1
+    Large: 0.75
+  - WeaponType: 4
+    Small: 0.75
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 5
+    Small: 0.75
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 6
+    Small: 0.75
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 7
+    Small: 0.5
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 8
+    Small: 0.5
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 9
+    Small: 0.75
+    Medium: 1
+    Large: 1
+  - WeaponType: 10
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 11
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 12
+    Small: 1
+    Medium: 1
+    Large: 0.75
+  - WeaponType: 13
+    Small: 1
+    Medium: 0.75
+    Large: 0.5
+  - WeaponType: 14
+    Small: 0.75
+    Medium: 1
+    Large: 0.75
+  - WeaponType: 15
+    Small: 0.75
+    Medium: 1
+    Large: 0.5
+  - WeaponType: 16
+    Small: 1
+    Medium: 1
+    Large: 0.5
+  - WeaponType: 17
+    Small: 0.75
+    Medium: 1
+    Large: 0.75
+  - WeaponType: 18
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 19
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 20
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 21
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 22
+    Small: 1
+    Medium: 1
+    Large: 1
+  - WeaponType: 23
+    Small: 1
+    Medium: 1
+    Large: 1

@@ -1,0 +1,18 @@
+{
+    "name": "Global",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8482f96b38cc5cc4fad1df61463f8e3a",
+        "GUID:9afc1ad19f47a7c4ea69b58e3bc13733",
+        "GUID:95ddb4f2ada8b3f4f9adc47d27c66cc4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

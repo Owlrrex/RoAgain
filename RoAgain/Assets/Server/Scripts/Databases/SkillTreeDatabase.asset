@@ -1,0 +1,584 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7f18f7b4a6ee3241b4e341732ec2f29, type: 3}
+  m_Name: SkillTreeDatabase
+  m_EditorClassIdentifier: 
+  _entries:
+  - Job: 1
+    SkillTree:
+    - Skill: 3
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 0
+      Requirements: []
+    - Skill: 5
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 1
+      Requirements: []
+    - Skill: 4
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 1
+      Requirements: []
+    - Skill: 1
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 3
+      Requirements: []
+    - Skill: 2
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 5
+      Requirements: []
+  - Job: 2
+    SkillTree:
+    - Skill: 12
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 0
+      Requirements: []
+    - Skill: 13
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 0
+      Requirements:
+      - RequirementId: 12
+        RequirementLevel: 1
+    - Skill: 10
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 1
+      Requirements: []
+    - Skill: 11
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 1
+      Requirements:
+      - RequirementId: 10
+        RequirementLevel: 5
+    - Skill: 15
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 2
+      Requirements: []
+    - Skill: 16
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 2
+      Requirements:
+      - RequirementId: 15
+        RequirementLevel: 5
+    - Skill: 14
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 3
+      Requirements: []
+    - Skill: 17
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 5
+      Requirements: []
+    - Skill: 18
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 5
+      Requirements: []
+    - Skill: 19
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 2
+      Position: 5
+      Requirements: []
+  - Job: 3
+    SkillTree:
+    - Skill: 30
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 0
+      Requirements: []
+    - Skill: 31
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 0
+      Requirements:
+      - RequirementId: 30
+        RequirementLevel: 4
+    - Skill: 33
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 0
+      Requirements:
+      - RequirementId: 31
+        RequirementLevel: 5
+      - RequirementId: 32
+        RequirementLevel: 1
+    - Skill: 32
+      MaxLevel: 1
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 1
+      Requirements: []
+    - Skill: 34
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 2
+      Requirements: []
+    - Skill: 35
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 2
+      Requirements:
+      - RequirementId: 34
+        RequirementLevel: 4
+    - Skill: 36
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 3
+      Requirements: []
+    - Skill: 37
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 3
+      Requirements:
+      - RequirementId: 36
+        RequirementLevel: 5
+    - Skill: 38
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 4
+      Requirements: []
+    - Skill: 39
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 4
+      Requirements:
+      - RequirementId: 38
+        RequirementLevel: 4
+    - Skill: 40
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 4
+      Requirements:
+      - RequirementId: 38
+        RequirementLevel: 7
+      - RequirementId: 39
+        RequirementLevel: 5
+    - Skill: 42
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 1
+      Requirements: []
+    - Skill: 41
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 5
+      Requirements: []
+    - Skill: 43
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 5
+      Requirements: []
+  - Job: 6
+    SkillTree:
+    - Skill: 50
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 0
+      Requirements: []
+    - Skill: 51
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 0
+      Requirements:
+      - RequirementId: 50
+        RequirementLevel: 3
+    - Skill: 52
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 0
+      Requirements:
+      - RequirementId: 51
+        RequirementLevel: 1
+    - Skill: 53
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 1
+      Requirements: []
+    - Skill: 54
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 1
+      Requirements:
+      - RequirementId: 53
+        RequirementLevel: 5
+    - Skill: 55
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 3
+      Requirements: []
+    - Skill: 56
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 3
+      Requirements: []
+  - Job: 5
+    SkillTree:
+    - Skill: 90
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 0
+      Requirements: []
+    - Skill: 91
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 0
+      Requirements: []
+    - Skill: 92
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 1
+      Requirements: []
+    - Skill: 93
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 1
+      Requirements:
+      - RequirementId: 93
+        RequirementLevel: 5
+    - Skill: 94
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 2
+      Requirements: []
+    - Skill: 95
+      MaxLevel: 1
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 2
+      Requirements: []
+    - Skill: 96
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 3
+      Requirements: []
+    - Skill: 99
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 3
+      Requirements: []
+    - Skill: 97
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 4
+      Requirements: []
+    - Skill: 98
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 4
+      Requirements: []
+  - Job: 4
+    SkillTree:
+    - Skill: 110
+      MaxLevel: 1
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 0
+      Requirements: []
+    - Skill: 111
+      MaxLevel: 2
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 0
+      Requirements:
+      - RequirementId: 110
+        RequirementLevel: 1
+    - Skill: 112
+      MaxLevel: 4
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 0
+      Requirements:
+      - RequirementId: 111
+        RequirementLevel: 2
+    - Skill: 113
+      MaxLevel: 1
+      CanPointLearn: 1
+      Category: 0
+      Tier: 3
+      Position: 0
+      Requirements:
+      - RequirementId: 112
+        RequirementLevel: 4
+    - Skill: 120
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 1
+      Requirements: []
+    - Skill: 121
+      MaxLevel: 1
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 2
+      Requirements:
+      - RequirementId: 120
+        RequirementLevel: 2
+    - Skill: 122
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 1
+      Requirements:
+      - RequirementId: 120
+        RequirementLevel: 3
+    - Skill: 123
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 1
+      Requirements:
+      - RequirementId: 122
+        RequirementLevel: 1
+    - Skill: 119
+      MaxLevel: 1
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 2
+      Requirements: []
+    - Skill: 115
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 3
+      Requirements: []
+    - Skill: 114
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 3
+      Requirements:
+      - RequirementId: 115
+        RequirementLevel: 3
+    - Skill: 116
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 3
+      Requirements:
+      - RequirementId: 114
+        RequirementLevel: 3
+    - Skill: 118
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 4
+      Requirements:
+      - RequirementId: 115
+        RequirementLevel: 5
+    - Skill: 117
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 4
+      Requirements:
+      - RequirementId: 115
+        RequirementLevel: 3
+    - Skill: 124
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 5
+      Requirements: []
+  - Job: 7
+    SkillTree:
+    - Skill: 70
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 0
+      Requirements: []
+    - Skill: 71
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 0
+      Requirements:
+      - RequirementId: 70
+        RequirementLevel: 3
+    - Skill: 72
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 0
+      Requirements:
+      - RequirementId: 71
+        RequirementLevel: 3
+    - Skill: 73
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 1
+      Requirements:
+      - RequirementId: 70
+        RequirementLevel: 5
+    - Skill: 74
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 2
+      Position: 1
+      Requirements:
+      - RequirementId: 73
+        RequirementLevel: 3
+    - Skill: 76
+      MaxLevel: 1
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 2
+      Requirements: []
+    - Skill: 75
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 1
+      Position: 2
+      Requirements: []
+    - Skill: 77
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 0
+      Position: 4
+      Requirements: []
+    - Skill: 78
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 1
+      Position: 4
+      Requirements: []
+    - Skill: 79
+      MaxLevel: 1
+      CanPointLearn: 0
+      Category: 0
+      Tier: 2
+      Position: 4
+      Requirements: []

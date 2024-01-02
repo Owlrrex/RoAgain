@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3405a59bb72fac4598952e486d9d604, type: 3}
+  m_Name: SpawnDatabase
+  m_EditorClassIdentifier: 
+  _entries:
+  - MapId: test_map
+    Sets:
+    - Tag: default
+      SpawnAreas:
+      - AreaId: 1
+        MobCount: 30
+        MobSpeciesId: 2001
+        BoundsMin: {x: -1, y: -1}
+        BoundsMax: {x: -1, y: -1}
+        Delay: 0
+  - MapId: test_map2
+    Sets:
+    - Tag: default
+      SpawnAreas:
+      - AreaId: 1
+        MobCount: 5
+        MobSpeciesId: 2002
+        BoundsMin: {x: 10, y: 10}
+        BoundsMax: {x: 20, y: 20}
+        Delay: 3

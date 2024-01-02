@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46e31f21d59c9114e8df15ea142355ae, type: 3}
+  m_Name: CellEffectTable
+  m_EditorClassIdentifier: 
+  _entries:
+  - Type: 1
+    Prefab: {fileID: 175469360580055655, guid: 67ed4c739351e9046b176b9b475ce9ae, type: 3}
+  _cellEffectTypes: 01000000
+  _prefabs:
+  - {fileID: 175469360580055655, guid: 67ed4c739351e9046b176b9b475ce9ae, type: 3}
