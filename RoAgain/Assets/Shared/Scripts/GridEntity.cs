@@ -42,6 +42,9 @@ public class GridEntity
 
     public void ClearPath()
     {
+        if (Path != null)
+            HasNewPath = true;
+
         Path = null;
         PathCellIndex = -1;
     }

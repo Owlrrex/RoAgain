@@ -24,6 +24,9 @@ public class PlayerUI : MonoBehaviour
     [field: SerializeField]
     public SkillTreeWindow SkillTreeWindow { get; private set; }
 
+    [field: SerializeField]
+    public DeathWindow DeathWindow { get; private set; }
+
     public GraphicRaycaster uiRaycaster;
     private List<RaycastResult> _raycastResults = new();
 
@@ -51,6 +54,9 @@ public class PlayerUI : MonoBehaviour
 
         if (!OwlLogger.PrefabNullCheckAndLog(SkillTreeWindow, "SkillTreeWindow", this, GameComponent.UI))
             SkillTreeWindow.gameObject.SetActive(false);
+
+        if(!OwlLogger.PrefabNullCheckAndLog(DeathWindow, "DeathWindow", this, GameComponent.UI))
+            DeathWindow.gameObject.SetActive(false);
     }
 
     public bool IsHoveringUI(Vector2 position)
@@ -62,9 +68,7 @@ public class PlayerUI : MonoBehaviour
         _raycastResults.Clear();
         uiRaycaster.Raycast(eventData, _raycastResults);
         return _raycastResults.Count > 0;
-    }
-
-    
+    }    
 
     private void Update()
     {
@@ -115,6 +119,26 @@ public class PlayerUI : MonoBehaviour
             {
                 // TODO: Read hotbar data from config?
                 _hotbar.gameObject.SetActive(true);
+            }
+        }
+
+        if(ClientMain.Instance?.CurrentCharacterData != null)
+        {
+            if (ClientMain.Instance.CurrentCharacterData.IsDead())
+            {
+                if (!DeathWindow.gameObject.activeSelf)
+                {
+                    DeathWindow.gameObject.SetActive(true);
+                    PlayerMain.Instance?.DisplayDeathAnimation(true);
+                }
+            }
+            else
+            {
+                if (DeathWindow.gameObject.activeSelf)
+                {
+                    DeathWindow.gameObject.SetActive(false);
+                    PlayerMain.Instance?.DisplayDeathAnimation(false);
+                }
             }
         }
     }

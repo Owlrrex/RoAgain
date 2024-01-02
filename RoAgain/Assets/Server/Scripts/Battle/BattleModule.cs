@@ -115,6 +115,21 @@ namespace Server
             }
         }
 
+        private void ClearQueuedSkill(BattleEntity bEntity)
+        {
+            bEntity.QueuedSkill = null;
+
+            if (bEntity is not CharacterRuntimeData character)
+                return;
+
+            LocalPlayerEntitySkillQueuedPacket packet = new()
+            {
+                SkillId = SkillId.Unknown,
+                TargetId = -1
+            };
+            character.Connection.Send(packet);
+        }
+
         private void StartCast(ASkillExecution skill)
         {
             // Send packet:
@@ -252,6 +267,34 @@ namespace Server
         private void FinishCast(ASkillExecution skill, bool interrupted)
         {
             skill.OnCastEnd(interrupted);
+
+            if(interrupted)
+            {
+                CastProgressPacket packet = new()
+                {
+                    CasterId = skill.User.Id,
+                    SkillId = skill.SkillId,
+                    CastTimeTotal = skill.CastTime.MaxValue,
+                    CastTimeRemaining = 0
+                };
+
+                List<GridEntity> sent = new();
+                List<CharacterRuntimeData> observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.User.Coordinates);
+                foreach (CharacterRuntimeData observer in observers)
+                {
+                    observer.Connection.Send(packet);
+                    sent.Add(observer);
+                }
+
+                if(skill is AEntitySkillExecution eSkill)
+                {
+                    observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(eSkill.Target.Coordinates, sent);
+                    foreach (CharacterRuntimeData observer in observers)
+                    {
+                        observer.Connection.Send(packet);
+                    }
+                }
+            }
         }
 
         private void CompleteSkill(ASkillExecution skill)
@@ -440,26 +483,13 @@ namespace Server
                             if (!pathFound)
                             {
                                 // Some error occured during pathing - abort pathing
-                                skill.User.QueuedSkill = null;
+                                ClearQueuedSkill(skill.User);
                             }
                         }
-                        else if (targetReason == SkillFailReason.TargetDead)
+                        else if (targetReason == SkillFailReason.Death)
                         {
                             // Discard skill that was queued for dead unit
-                            bEntity.QueuedSkill = null;
-                        }
-                    }
-
-                    if(bEntity.QueuedSkill == null)
-                    {
-                        if(bEntity is CharacterRuntimeData charData)
-                        {
-                            LocalPlayerEntitySkillQueuedPacket packet = new()
-                            {
-                                SkillId = SkillId.Unknown,
-                                TargetId = -1
-                            };
-                            charData.Connection.Send(packet);
+                            ClearQueuedSkill(bEntity);
                         }
                     }
                 }
@@ -470,29 +500,30 @@ namespace Server
 
                     if (!skill.HasExecuted)
                     {
-                        if (skill.CastTime.MaxValue > 0 && skill.CastTime.RemainingValue > 0)
+                        if(!skill.User.IsDead())
                         {
-                            //Debug.Log($"Cast ongoing: EntityId {bEntity.Id} skill {skill.SkillId}");
-                            continue;
+                            if (skill.CastTime.MaxValue > 0 && skill.CastTime.RemainingValue > 0)
+                            {
+                                continue;
+                            }
+
+                            if (skill.CastTime.MaxValue > 0 && skill.CastTime.IsFinished())
+                            {
+                                // If skill had a cast-time preceeding it
+                                FinishCast(skill, false);
+                            }
+
+                            if (bEntity.CanExecuteSkill(skill) == SkillFailReason.None)
+                            {
+                                ExecuteSkill(skill);
+                                continue;
+                            }
                         }
 
-                        if (skill.CastTime.MaxValue > 0 && skill.CastTime.RemainingValue <= 0)
-                        {
-                            // If skill had a cast-time preceeding it
-                            FinishCast(skill, false);
-                        }
-
-                        // TODO: Check/Handle: Conditions for execution no longer fulfilled -> fail after Cast
-                        if (bEntity.CanExecuteSkill(skill) == SkillFailReason.None)
-                        {
-                            ExecuteSkill(skill);
-                        }
-                        else
-                        {
-                            OwlLogger.Log($"Entity {bEntity.Id} no longer fulfils conditions to execute skill {skill.SkillId}", GameComponent.Skill);
-                            // Forcefully complete/abort skill execution without causing any effect
-                            skill.AnimationCooldown.RemainingValue = 0; // Might wanna put this into a function "Abort()" eventually
-                        }
+                        OwlLogger.Log($"Entity {bEntity.Id} no longer fulfils conditions to execute skill {skill.SkillId}", GameComponent.Skill);
+                        // Forcefully complete/abort skill execution without causing any effect
+                        skill.AnimationCooldown.RemainingValue = 0; // Might wanna put this into a function "Abort()" eventually
+                        FinishCast(skill, true);
                     }
 
                     if (skill.IsFinishedExecuting())
@@ -552,6 +583,16 @@ namespace Server
             return true;
         }
 
+        private void HandleEntityDropToZeroHp(ServerBattleEntity bEntity, ServerBattleEntity source)
+        {
+            // Pre-death effects here
+
+            bEntity.Death?.Invoke(bEntity, source);
+            ClearQueuedSkill(bEntity);
+            bEntity.ClearPath();
+            // TODO: Experience Penalty
+        }
+
         // TODO: Expand handling of damage: Chains, crits, etc
         public int ApplyHpDamage(int damage, ServerBattleEntity target, ServerBattleEntity source)
         {
@@ -594,7 +635,10 @@ namespace Server
             }
 
             if (target.CurrentHp == 0 && oldValue > 0)
-                target.Death?.Invoke(target, source);
+            {
+                HandleEntityDropToZeroHp(target, source);
+            }
+                
 
             return 0;
         }
@@ -649,7 +693,9 @@ namespace Server
             // TODO: Battle contribution here?
 
             if (target.CurrentHp == 0 && oldValue > 0)
-                target.Death?.Invoke(target, source);
+            {
+                HandleEntityDropToZeroHp(target, source);
+            }
 
             foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
             {
@@ -688,6 +734,9 @@ namespace Server
             foreach (GridEntity entity in _map.Grid.GetAllOccupants())
             {
                 if (entity is not ServerBattleEntity bEntity)
+                    continue;
+
+                if (bEntity.IsDead())
                     continue;
 
                 if (bEntity.HpRegenAmount.Total == 0

@@ -48,9 +48,6 @@ namespace Server
         {
             base.OnExecute();
 
-            // Attack logic
-            Map.BattleModule.PerformPhysicalAttack(User, Target, 1.0f);
-
             // Indicates an auto-attack with Sticky-Attacking enabled, and last auto-attack succeeded
             if (SkillLvl == 2)
             {
@@ -58,6 +55,9 @@ namespace Server
                 // Depending on system, queueing up skill this early may not even have been possible for the user - which is fine.
                 User.QueuedSkill ??= Create(2, User, Target, Map);
             }
+
+            // Attack logic
+            Map.BattleModule.PerformPhysicalAttack(User, Target, 1.0f);
         }
     }
 

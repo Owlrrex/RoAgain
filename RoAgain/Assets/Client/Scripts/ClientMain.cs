@@ -1122,6 +1122,22 @@ namespace Client
             return _zeroButtonNotification;
         }
 
+        public void RequestReturnToSave()
+        {
+            if (CurrentCharacterData == null)
+            {
+                OwlLogger.LogError("Tried to request return to savepoint when local character data was null!", GameComponent.Other);
+                return;
+            }
+
+            ReturnAfterDeathRequestPacket packet = new()
+            {
+                CharacterId = CurrentCharacterData.Id
+            };
+
+            ConnectionToServer.Send(packet);
+        }
+
         private void OnGUI()
         {
             if (!string.IsNullOrEmpty(LoadingMessage))

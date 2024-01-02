@@ -39,6 +39,9 @@ namespace Server
             if (!HasFinishedPath())
                 return;
 
+            if (IsDead())
+                return;
+
             Vector2Int nextSquareLeg = _nextDirection.ToVector();
             if (nextSquareLeg == Vector2Int.zero)
             {

@@ -13,7 +13,7 @@ namespace Shared
         NotLearned,
         OutOfRange,
         OnCooldown,
-        TargetDead
+        Death
     }
 
     public static class Skills
@@ -90,7 +90,7 @@ namespace Shared
 
         // Called when CastTime (if any) is finished, contains main skill effect, animationdelay is about to start
         public virtual void OnExecute() { HasExecuted = true; }
-        // Called when CastTime & AnimationDelay of this skill are over, execution is completely complete, skill is about to be removed from entity
+        // Called when CastTime & AnimationDelay of this skill are over, execution is completely complete, skill is about to be removed from entity. Will be called for interrupted skills as well!
         public virtual void OnCompleted() { }
     }
 
@@ -125,8 +125,8 @@ namespace Shared
 
         public override SkillFailReason CanTarget()
         {
-            if (Target.CurrentHp <= 0) // TODO: REplace with "IsDead()"
-                return SkillFailReason.TargetDead;
+            if (Target.IsDead())
+                return SkillFailReason.Death;
 
             if (Target.MapId != User.MapId
                 || Extensions.GridDistanceSquare(User.Coordinates, Target.Coordinates) > Range)

@@ -36,7 +36,7 @@ namespace Client
 
         // tmp for scaling
         [SerializeField]
-        private GameObject _model;
+        protected GameObject _model;
 
         public int Initialize(ClientBattleEntity entity)
         {

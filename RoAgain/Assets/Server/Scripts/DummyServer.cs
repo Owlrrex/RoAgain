@@ -190,6 +190,9 @@ namespace Server
             charData.MapInstance = mapInstance;
             charData.Connection.CharacterId = characterId;
 
+            if (charData.IsDead())
+                ReceivedReturnAfterDeathRequest(connection, characterId);
+
             LocalCharacterDataPacket localCharacterPacket = charData.ToLocalDataPacket();
             connection.Send(localCharacterPacket);
 
@@ -232,11 +235,20 @@ namespace Server
                 CurrentHp = persData.CurrentHP,
                 CurrentSp = persData.CurrentSP,
                 RemainingSkillPoints = persData.SkillPoints,
+                SaveMapId = persData.SaveMapId,
+                SaveCoords = persData.SaveCoords,
             };
             charData.Gender.Value = persData.Gender;
             charData.Movespeed.Value = 6; // close to default RO movespeed of 0.15 s/tile
-            charData.CurrentHp = Math.Clamp(charData.CurrentHp, 1, charData.MaxHp.Total);
-            charData.CurrentSp = Math.Clamp(charData.CurrentSp, 1, charData.MaxSp.Total);
+            charData.CurrentHp = Math.Clamp(charData.CurrentHp, 0, charData.MaxHp.Total);
+            charData.CurrentSp = Math.Clamp(charData.CurrentSp, 0, charData.MaxSp.Total);
+
+            //tmp: autocorrect savepoint for old characters
+            if(string.IsNullOrEmpty(charData.SaveMapId))
+            {
+                charData.SaveMapId = "test_map";
+                charData.SaveCoords = new(5, 5);
+            }
 
             foreach (PersistentSkillListEntry entry in persData.PermanentSkillList)
             {
@@ -263,6 +275,11 @@ namespace Server
             if (!TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData characterData))
             {
                 OwlLogger.LogError($"Could not find logged in character for Id {connection.CharacterId} - dropping MovementRequest!", GameComponent.Other);
+                return;
+            }
+
+            if(characterData.IsDead())
+            {
                 return;
             }
 
@@ -578,6 +595,39 @@ namespace Server
             connection.Send(responsePacket);
         }
 
+        private void ReceivedReturnAfterDeathRequest(ClientConnection connection, int characterId)
+        {
+            if (!TryGetLoggedInCharacter(characterId, out CharacterRuntimeData charData))
+            {
+                OwlLogger.LogError($"Received ReturnTosave for characterId {characterId} that wasn't logged in!", GameComponent.Other);
+                return;
+            }
+
+            if (ReturnCharacterToSavePoint(charData) == 0)
+            {
+                // TODO: Configurable amount of heal after death
+
+                _mapModule.GetMapInstance(charData.MapId)?.BattleModule?.UpdateHp(charData, (int)(charData.MaxHp.Total * 0.5f), charData);
+            }
+        }
+
+        private int ReturnCharacterToSavePoint(CharacterRuntimeData charData)
+        {
+            if(charData == null)
+            {
+                OwlLogger.LogError($"Tried to return null character to save point", GameComponent.Other);
+                return -1;
+            }
+
+            if (string.IsNullOrEmpty(charData.SaveMapId) || charData.SaveCoords == GridData.INVALID_COORDS)
+            {
+                OwlLogger.LogError($"Tried to return character {charData.Id} to save point, but its savepoint isn't set!", GameComponent.Other);
+                return -2;
+            }
+
+            return ServerMain.Instance.Server.MoveEntityBetweenMaps(charData.Id, charData.MapId, charData.SaveMapId, charData.SaveCoords);
+        }
+
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
         {
             if(newConnection == null)
@@ -599,6 +649,7 @@ namespace Server
             newConnection.CharacterCreationRequestReceived += ReceiveCharCreationRequest;
             newConnection.CharacterDeletionRequestReceived += ReceiveCharacterDeletionRequest;
             newConnection.SkillPointAllocateRequestReceived += ReceiveSkillPointAllocateRequest;
+            newConnection.ReturnAfterDeathRequestReceived += ReceivedReturnAfterDeathRequest;
             
             return 0;
         }

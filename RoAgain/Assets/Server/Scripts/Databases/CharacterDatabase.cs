@@ -46,6 +46,9 @@ namespace Server
         // TODO: Skill distribution
         public int SkillPoints = -1;
 
+        public string SaveMapId;
+        public Vector2Int SaveCoords;
+
 
         public static CharacterPersistenceData FromRuntimeData(CharacterRuntimeData runtimeData)
         {
@@ -78,6 +81,8 @@ namespace Server
                 Coordinates = runtimeData.Coordinates,
                 SkillPoints = runtimeData.RemainingSkillPoints,
                 Gender = runtimeData.Gender.Value,
+                SaveMapId = runtimeData.SaveMapId,
+                SaveCoords = runtimeData.SaveCoords,
             };
 
             foreach(KeyValuePair<SkillId, int> kvp in runtimeData.PermanentSkills)
@@ -165,7 +170,8 @@ namespace Server
                 CurrentHP = 99999,
                 CurrentSP = 9999,
                 MapId = "test_map", // TODO: Better system for a starting-pos
-                
+                SaveMapId = "test_map", // TODO: Better system for initial save point
+                SaveCoords = new(5, 5)
             };
 
             int charPersistResult = Persist(charPersData);

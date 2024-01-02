@@ -244,6 +244,9 @@ abstract public class Packet
             case 57:
                 packet = JsonUtility.FromJson<SkillPointUpdatePacket>(json);
                 break;
+            case 58:
+                packet = JsonUtility.FromJson<ReturnAfterDeathRequestPacket>(json);
+                break;
             default:
                 OwlLogger.LogError($"Invalid Packet type {packetType} received!", GameComponent.Network);
                 return null;
@@ -873,6 +876,13 @@ public class SkillPointUpdatePacket : Packet
     public int RemainingSkillPoints;
 }
 
+public class ReturnAfterDeathRequestPacket : Packet
+{
+    public override int PacketType => 58;
+
+    public int CharacterId;
+}
+
 // Move & adjust this comment when adding new packets, to make dev easier
-// Next PacketType = 58
+// Next PacketType = 59
 // Unused Ids: 8, 9, 12, 15

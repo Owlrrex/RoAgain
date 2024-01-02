@@ -15,6 +15,7 @@ public class PlayerMain : BattleEntityModelMain
     private HashSet<BattleEntityModelMain> _activeSkillIndicators = new();
     private HashSet<BattleEntityModelMain> _skillIndicatorBuffer = new();
 
+    private bool _isDisplayingDeadState = false;
 
     public int Initialize(ACharacterEntity charData)
     {
@@ -149,5 +150,37 @@ public class PlayerMain : BattleEntityModelMain
     public void DisplayJobLvlUp()
     {
         SetSkilltext("Job Level UP!", 5);
+    }
+
+    public void DisplayDeathAnimation(bool newValue)
+    {
+        if (newValue == _isDisplayingDeadState)
+            return;
+
+        _isDisplayingDeadState = newValue;
+        UpdateDeathStateDisplay();
+    }
+
+    private void UpdateDeathStateDisplay()
+    {
+        if (_model == null)
+            return;
+
+        if(_isDisplayingDeadState)
+        {
+            Vector3 angles = _model.transform.rotation.eulerAngles;
+            Vector3 pos = _model.transform.localPosition;
+            angles.x = -90;
+            pos.y = 0;
+            _model.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(angles));
+        }
+        else
+        {
+            Vector3 angles = _model.transform.rotation.eulerAngles;
+            Vector3 pos = _model.transform.localPosition;
+            angles.x = 0;
+            pos.y = 1;
+            _model.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(angles));
+        }
     }
 }

@@ -48,6 +48,9 @@ namespace Server
 
         public bool IsTranscendent;
 
+        public string SaveMapId = string.Empty;
+        public Vector2Int SaveCoords = GridData.INVALID_COORDS;
+
         public CharacterRuntimeData(ClientConnection connection, int id)
         {
             // TODO error checks

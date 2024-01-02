@@ -28,6 +28,9 @@ namespace Shared
         // This function should only have logic applicable to most skills generally
         public virtual SkillFailReason CanExecuteSkill(ASkillExecution skill)
         {
+            if (IsDead())
+                return SkillFailReason.Death;
+
             if (!CanAct())
                 return SkillFailReason.CantAct;
 
@@ -47,13 +50,23 @@ namespace Shared
 
         public override bool CanMove()
         {
-            return base.CanMove() && !IsInAnimationCooldown() && !IsCasting(); // TODO: More advanced conditions: Statuses, FreeCast, etc
+            return base.CanMove() && !IsInAnimationCooldown() && !IsCasting() && !IsDead(); // TODO: More advanced conditions: Statuses, FreeCast, etc
         }
 
         // Don't reference CanMove() here since CanMove may include some statuses like Ankle Snare that root, but don't incapacitate
         public virtual bool CanAct()
         {
-            return MovementCooldown <= 0 && !IsInAnimationCooldown();
+            return MovementCooldown <= 0 && !IsInAnimationCooldown() && !IsDead();
+        }
+
+        public void MarkAsDead(bool newValue)
+        {
+
+        }
+
+        public bool IsDead()
+        {
+            return CurrentHp <= 0;
         }
 
         public bool IsInAnimationCooldown()
