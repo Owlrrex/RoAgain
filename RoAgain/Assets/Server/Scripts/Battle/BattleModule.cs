@@ -95,21 +95,21 @@ namespace Server
             if (skill.User is not CharacterRuntimeData playerUser)
                 return;
 
-            if(skill is AGroundSkillExecution groundSkill)
+            if(skill.Target.IsGroundTarget())
             {
                 LocalPlayerGroundSkillQueuedPacket packet = new()
                 {
                     SkillId = skill.SkillId,
-                    Target = groundSkill.Target
+                    Target = skill.Target.GroundTarget
                 };
                 playerUser.Connection.Send(packet);
             }
-            else if (skill is AEntitySkillExecution entitySkill)
+            else
             {
                 LocalPlayerEntitySkillQueuedPacket packet = new()
                 {
                     SkillId = skill.SkillId,
-                    TargetId = entitySkill.Target.Id
+                    TargetId = skill.Target.EntityTarget.Id
                 };
                 playerUser.Connection.Send(packet);
             }
@@ -153,21 +153,11 @@ namespace Server
                 sent.Add(observer);
             }
 
-            if (skill is AGroundSkillExecution groundSkill)
+            if (skill.Target.IsGroundTarget())
             {
-                packet.TargetCoords = groundSkill.Target;
+                packet.TargetCoords = skill.Target.GroundTarget;
                 packet.TargetId = -1;
-                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(groundSkill.Target, sent);
-                foreach (CharacterRuntimeData observer in observers)
-                {
-                    observer.Connection.Send(packet);
-                }
-            }
-            else if (skill is AEntitySkillExecution entitySkill)
-            {
-                packet.TargetId = entitySkill.Target.Id;
-                packet.TargetCoords = GridData.INVALID_COORDS;
-                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(entitySkill.Target.Coordinates, sent);
+                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.Target.GroundTarget, sent);
                 foreach (CharacterRuntimeData observer in observers)
                 {
                     observer.Connection.Send(packet);
@@ -175,7 +165,13 @@ namespace Server
             }
             else
             {
-                OwlLogger.LogError($"Tried to execut skill of unknown type - can't send packet!", GameComponent.Skill);
+                packet.TargetId = skill.Target.EntityTarget.Id;
+                packet.TargetCoords = GridData.INVALID_COORDS;
+                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.Target.EntityTarget.Coordinates, sent);
+                foreach (CharacterRuntimeData observer in observers)
+                {
+                    observer.Connection.Send(packet);
+                }
             }
 
             skill.OnCastStart();
@@ -190,13 +186,13 @@ namespace Server
             // Improvement over RO: Also send this packet to players in vision of the _target_,
             // so that people offscreen casting at sth onscreen can be displayed        
             Packet packet;
-            if (skill is AGroundSkillExecution groundSkill)
+            if (skill.Target.IsGroundTarget())
             {
                 packet = new GroundSkillExecutePacket()
                 {
                     SkillId = skill.SkillId,
                     UserId = skill.User.Id,
-                    TargetCoords = groundSkill.Target,
+                    TargetCoords = skill.Target.GroundTarget,
                     AnimCd = animCd,
                     Speak = skill.SkillId != SkillId.AutoAttack,
                 };
@@ -209,32 +205,7 @@ namespace Server
                     sent.Add(observer);
                 }
 
-                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(groundSkill.Target, sent);
-                foreach (CharacterRuntimeData observer in observers)
-                {
-                    observer.Connection.Send(packet);
-                }
-            }
-            else if (skill is AEntitySkillExecution entitySkill)
-            {
-                packet = new EntitySkillExecutePacket()
-                {
-                    SkillId = skill.SkillId,
-                    UserId = skill.User.Id,
-                    TargetId = entitySkill.Target.Id,
-                    AnimCd = animCd,
-                    Speak = skill.SkillId != SkillId.AutoAttack,
-                };
-
-                List<GridEntity> sent = new();
-                List<CharacterRuntimeData> observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.User.Coordinates);
-                foreach (CharacterRuntimeData observer in observers)
-                {
-                    observer.Connection.Send(packet);
-                    sent.Add(observer);
-                }
-
-                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(entitySkill.Target.Coordinates, sent);
+                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.Target.GroundTarget, sent);
                 foreach (CharacterRuntimeData observer in observers)
                 {
                     observer.Connection.Send(packet);
@@ -242,7 +213,28 @@ namespace Server
             }
             else
             {
-                OwlLogger.LogError($"Tried to execut skill of unknown type - can't send packet!", GameComponent.Skill);
+                packet = new EntitySkillExecutePacket()
+                {
+                    SkillId = skill.SkillId,
+                    UserId = skill.User.Id,
+                    TargetId = skill.Target.EntityTarget.Id,
+                    AnimCd = animCd,
+                    Speak = skill.SkillId != SkillId.AutoAttack,
+                };
+
+                List<GridEntity> sent = new();
+                List<CharacterRuntimeData> observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.User.Coordinates);
+                foreach (CharacterRuntimeData observer in observers)
+                {
+                    observer.Connection.Send(packet);
+                    sent.Add(observer);
+                }
+
+                observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.Target.EntityTarget.Coordinates, sent);
+                foreach (CharacterRuntimeData observer in observers)
+                {
+                    observer.Connection.Send(packet);
+                }
             }
 
             // TODO: properly carry correct type
@@ -286,9 +278,17 @@ namespace Server
                     sent.Add(observer);
                 }
 
-                if(skill is AEntitySkillExecution eSkill)
+                if(skill.Target.IsGroundTarget())
                 {
-                    observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(eSkill.Target.Coordinates, sent);
+                    observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.Target.GroundTarget, sent);
+                    foreach (CharacterRuntimeData observer in observers)
+                    {
+                        observer.Connection.Send(packet);
+                    }
+                }
+                else
+                {
+                    observers = _map.Grid.GetObserversSquare<CharacterRuntimeData>(skill.Target.EntityTarget.Coordinates, sent);
                     foreach (CharacterRuntimeData observer in observers)
                     {
                         observer.Connection.Send(packet);
@@ -306,41 +306,36 @@ namespace Server
         // This function should handle a skill-execution once it's been confirmed to actually be executed: 
         // Resolve its actual effect, register it to the relevant entities, etc.
         // If I allow checking here, the checks can be removed from Receive...-functions, where they don't _really_ belong anyway?
-        private int HandleGroundSkill(AGroundSkillExecution groundSkill)
+        private int PreHandleSkill(ASkillExecution skill)
         {
-            if (!_map.Grid.AreCoordinatesValid(groundSkill.Target))
+            if(skill.Target.IsGroundTarget())
             {
-                OwlLogger.LogError($"Tried to target ground skill on invalid coordinates {groundSkill.Target}", GameComponent.Skill);
-                return -1;
+                if (!_map.Grid.AreCoordinatesValid(skill.Target.GroundTarget))
+                {
+                    OwlLogger.LogError($"Tried to target ground skill on invalid coordinates {skill.Target.GroundTarget}", GameComponent.Skill);
+                    return -1;
+                }
             }
+            else
+            {
+                BattleEntity targetEntity = skill.Target.EntityTarget;
+                if (targetEntity == null)
+                {
+                    OwlLogger.LogError($"Tried to target entity skill on null entity", GameComponent.Skill);
+                    return -1;
+                }
+            }
+            
+            // TODO: More checking, maybe draw it in from the Receive-functions?
 
-            // TODO?
-            HandleSkill(groundSkill);
+            HandleSkill(skill);
 
             return 0;
         }
 
-        // This function should handle a skill-execution once it's been confirmed to actually be executed: 
-        // Resolve its actual effect, register it to the relevant entities, etc.
-        // If I allow checking here, the checks can be removed from Receive...-functions, where they don't _really_ belong anyway?
-        private int HandleEntitySkill(AEntitySkillExecution entitySkill)
+        private AServerSkillExecution CreateSkillExecution(SkillId skillId, int skillLvl, BattleEntity user, SkillTarget target)
         {
-            BattleEntity targetEntity = entitySkill.Target;
-            if (targetEntity == null)
-            {
-                OwlLogger.LogError($"Tried to target entity skill on null entity", GameComponent.Skill);
-                return -1;
-            }
-
-            // TODO?
-            HandleSkill(entitySkill);
-
-            return 0;
-        }
-
-        private AEntitySkillExecution CreateEntitySkillExecution(SkillId skillId, int skillLvl, BattleEntity user, BattleEntity target)
-        {
-            AEntitySkillExecution skill;
+            AServerSkillExecution skill;
             switch (skillId)
             {
                 case SkillId.AutoAttack:
@@ -349,24 +344,11 @@ namespace Server
                 case SkillId.FireBolt:
                     skill = FireBoltSkillExecution.Create(skillLvl, user, target, _map);
                     break;
-                default:
-                    OwlLogger.LogError($"Tried to create execution of unknown entity-skillId {skillId}!", GameComponent.Skill);
-                    return null;
-            }
-
-            return skill;
-        }
-
-        private AGroundSkillExecution CreateGroundSkillExecution(SkillId skillId, int skillLvl, BattleEntity user, Vector2Int target)
-        {
-            AGroundSkillExecution skill;
-            switch (skillId)
-            {
                 case SkillId.PlaceWarp:
                     skill = PlaceWarpSkillExecution.Create(skillLvl, user, target, _map);
                     break;
                 default:
-                    OwlLogger.LogError($"Tried to create execution of unknown ground-skillId {skillId}!", GameComponent.Skill);
+                    OwlLogger.LogError($"Tried to create execution of unknown skillId {skillId}!", GameComponent.Skill);
                     return null;
             }
 
@@ -381,48 +363,47 @@ namespace Server
                 return;
             }
 
-            if (_map.Grid.FindOccupant(targetId) is not BattleEntity target)
+            if (_map.Grid.FindOccupant(targetId) is not BattleEntity targetEntity)
             {
                 OwlLogger.LogError($"Received Skill request for invalid targetId {targetId}", GameComponent.Skill);
                 return;
             }
 
-            ReceiveEntitySkillRequest(skillId, skillLvl, user, target);
-        }
+            SkillTarget target = new(targetEntity);
 
-        public void ReceiveEntitySkillRequest(SkillId skillId, int skillLvl, BattleEntity user, BattleEntity target)
-        {
-            AEntitySkillExecution skill = CreateEntitySkillExecution(skillId, skillLvl, user, target);
+            AServerSkillExecution skill = CreateSkillExecution(skillId, skillLvl, user, target);
             if (skill == null)
             {
-                OwlLogger.LogError($"Skill Execution creation failed: SkillId {skillId}, SkillLvl {skillLvl}, UserId {user.Id}, TargetId {target.Id}", GameComponent.Skill);
+                OwlLogger.LogError($"Skill Execution creation failed: SkillId {skillId}, SkillLvl {skillLvl}, UserId {user.Id}, TargetId {targetId}", GameComponent.Skill);
                 return;
             }
 
             if (!CheckSkillWithQueue(skill)) // Should this maybe be in the HandleEntitySkill function instead of the Receive-function?
                 return;
 
-            int result = HandleEntitySkill(skill);
+            int result = PreHandleSkill(skill);
             if (result != 0)
             {
-                OwlLogger.LogError($"Skill execution handling failed: SkillId {skillId}, SkillLvl {skillLvl}, UserId {user.Id}, TargetId {target.Id}", GameComponent.Skill);
+                OwlLogger.LogError($"Skill execution handling failed: SkillId {skillId}, SkillLvl {skillLvl}, UserId {user.Id}, TargetId {targetId}", GameComponent.Skill);
             }
         }
 
-        public void ReceiveGroundSkillRequest(SkillId skillId, int skillLvl, int userId, Vector2Int target)
+        public void ReceiveGroundSkillRequest(SkillId skillId, int skillLvl, int userId, Vector2Int targetCoords)
         {
+            if (!_map.Grid.AreCoordinatesValid(targetCoords))
+            {
+                OwlLogger.LogError($"Received Skill request for invalid target coordinates {targetCoords}", GameComponent.Skill);
+            }
+
             if (_map.Grid.FindOccupant(userId) is not BattleEntity user)
             {
                 OwlLogger.LogError($"Received Skill request for invalid userId {userId}", GameComponent.Skill);
                 return;
             }
 
-            ReceiveGroundSkillRequest(skillId, skillLvl, user, target);
-        }
+            SkillTarget target = new(targetCoords);
 
-        public void ReceiveGroundSkillRequest(SkillId skillId, int skillLvl, BattleEntity user, Vector2Int targetCoords)
-        {
-            AGroundSkillExecution skill = CreateGroundSkillExecution(skillId, skillLvl, user, targetCoords);
+            AServerSkillExecution skill = CreateSkillExecution(skillId, skillLvl, user, target);
             if (skill == null)
             {
                 OwlLogger.LogError($"Skill Execution creation failed: SkillId {skillId}, SkillLvl {skillLvl}, UserId {user.Id}, Target {targetCoords}", GameComponent.Skill);
@@ -432,7 +413,7 @@ namespace Server
             if (!CheckSkillWithQueue(skill)) // Should this maybe be in the HandleGroundSkill function instead of the Receive-function?
                 return;
 
-            int result = HandleGroundSkill(skill);
+            int result = PreHandleSkill(skill);
             if (result != 0)
             {
                 OwlLogger.LogError($"Skill execution handling failed: SkillId {skillId}, SkillLvl {skillLvl}, UserId {user.Id}, Target {targetCoords}", GameComponent.Skill);
@@ -442,7 +423,7 @@ namespace Server
         private bool CheckSkillWithQueue(ASkillExecution skill)
         {
             SkillFailReason executeReason = skill.User.CanExecuteSkill(skill);
-            SkillFailReason targetReason = skill.CanTarget();
+            SkillFailReason targetReason = skill.CheckTarget();
             if (executeReason != SkillFailReason.None
                 || targetReason != SkillFailReason.None)
             {
@@ -474,7 +455,7 @@ namespace Server
                     if (executeReason == SkillFailReason.None)
                     {
                         ASkillExecution skill = bEntity.QueuedSkill;
-                        SkillFailReason targetReason = skill.CanTarget();
+                        SkillFailReason targetReason = skill.CheckTarget();
                         if (targetReason == SkillFailReason.None) // No matter if we're auto-pathing or not: If we can execute & target, we fire the skill
                         {
                             bEntity.QueuedSkill = null;
@@ -551,25 +532,24 @@ namespace Server
             }
         }
 
+        // Auto-path towards target if and only if:
+        // - The faulting condition is "out of range", execution would otherwise be allowed
+        // - Don't calc new path when can't move
         private bool TrySetPathToSkillTarget(ASkillExecution skill)
         {
-            // Auto-path towards target if and only if:
-            // - The faulting condition is "out of range", execution would otherwise be allowed
-            // - Don't calc new path when can't move
             Vector2Int targetCoords = GridData.INVALID_COORDS;
-            if (skill is AGroundSkillExecution groundSkill)
+            if (skill.Target.IsGroundTarget())
             {
-                targetCoords = groundSkill.Target;
-
+                targetCoords = skill.Target.GroundTarget;
             }
-            else if (skill is AEntitySkillExecution entitySkill)
+            else
             {
-                targetCoords = entitySkill.Target.Coordinates;
+                targetCoords = skill.Target.EntityTarget.Coordinates;
             }
 
             if (targetCoords == GridData.INVALID_COORDS)
             {
-                OwlLogger.LogError($"Error processing queued skill of unknown type: {skill.SkillId}!", GameComponent.Battle);
+                OwlLogger.LogError($"Error processing queued skill of unknown type: {skill.SkillId}!", GameComponent.Skill);
                 return false;
             }
 
@@ -642,7 +622,6 @@ namespace Server
                 HandleEntityDropToZeroHp(target, source);
             }
                 
-
             return 0;
         }
 
@@ -692,8 +671,6 @@ namespace Server
 
             int oldValue = target.CurrentHp;
             target.CurrentHp = newValue;
-
-            // TODO: Battle contribution here?
 
             if (target.CurrentHp == 0 && oldValue > 0)
             {
@@ -749,7 +726,7 @@ namespace Server
                 }
 
                 float increaseAmount = deltaTime;
-                // if(IsSitting(bEntity)) increaseAmount *= 2; // Make sitting regen faster, not higher amount
+                // TODO: if(IsSitting(bEntity)) increaseAmount *= 2; // Make sitting regen faster, not higher amount
 
                 bEntity.HpRegenCounter += increaseAmount;
                 if (bEntity.HpRegenCounter >= bEntity.HpRegenTime)
@@ -786,7 +763,6 @@ namespace Server
                     foreach (CharacterRuntimeData observer in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
                     {
                         observer.Connection.Send(packet);
-                        //observer.NetworkQueue.DamageTaken();
                     }
                     return 2;
                 }
@@ -908,7 +884,6 @@ namespace Server
             return baseDamage * modifier;
         }
 
-        // TODO: Make this an editor-editable table instead, maybe? or even a config-file?
         private float GetSizeMultiplierForAttackType(AttackWeaponType weaponType, EntitySize targetSize)
         {
             float modifier = SizeDatabase.GetMultiplierForWeaponAndSize(weaponType, targetSize);

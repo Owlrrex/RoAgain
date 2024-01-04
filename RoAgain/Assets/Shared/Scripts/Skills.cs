@@ -1,3 +1,4 @@
+using OwlLogging;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +14,8 @@ namespace Shared
         NotLearned,
         OutOfRange,
         OnCooldown,
-        Death
+        Death,
+        TargetInvalid
     }
 
     public static class Skills
@@ -25,6 +27,62 @@ namespace Shared
                 SkillId.PlaceWarp => true,
                 _ => false,
             };
+        }
+    }
+
+    public struct SkillTarget
+    {
+        public Vector2Int GroundTarget { get; private set; }
+        public BattleEntity EntityTarget { get; private set; }
+
+        public SkillTarget(Vector2Int groundTarget)
+        {
+            GroundTarget = groundTarget;
+            EntityTarget = null;
+        }
+
+        public SkillTarget(BattleEntity entityTarget)
+        {
+            GroundTarget = GridData.INVALID_COORDS;
+            EntityTarget = entityTarget;
+        }
+
+        public void SetGroundTarget(Vector2Int groundTarget)
+        {
+            if(EntityTarget != null)
+            {
+                OwlLogger.LogError($"GroundTarget is being set when EntityTarget is already set!", GameComponent.Skill);
+            }
+            GroundTarget = groundTarget;
+        }
+
+        public void SetEntityTarget(BattleEntity entityTarget)
+        {
+            if(GroundTarget != GridData.INVALID_COORDS)
+            {
+                OwlLogger.LogError($"EntityTarget is being set when GroundTarget is already set!", GameComponent.Skill);
+            }
+            EntityTarget = entityTarget;
+        }
+
+        public bool IsSet()
+        {
+            return IsGroundTarget() || IsEntityTarget();
+        }
+
+        public bool IsValid()
+        {
+            return IsGroundTarget() ^ IsEntityTarget();
+        }
+
+        public bool IsGroundTarget()
+        {
+            return GroundTarget != GridData.INVALID_COORDS;
+        }
+
+        public bool IsEntityTarget()
+        {
+            return EntityTarget != null;
         }
     }
 
@@ -46,10 +104,12 @@ namespace Shared
 
         public int Range;
 
+        public SkillTarget Target;
+
         // Not sure if this is ideal
         public bool HasExecuted { get; private set; }
 
-        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd)
+        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, SkillTarget target)
         {
             // TODO: Validate inputs
 
@@ -59,6 +119,7 @@ namespace Shared
             Range = range;
             CastTime.Initialize(castTime);
             AnimationCooldown.Initialize(animCd);
+            Target = target;
             return 0;
         }
 
@@ -68,9 +129,27 @@ namespace Shared
             return SkillFailReason.None;
         }
 
-        public virtual SkillFailReason CanTarget()
+        public virtual SkillFailReason CheckTarget()
         {
-            return SkillFailReason.NotLearned;
+            if(!Target.IsValid())
+                return SkillFailReason.TargetInvalid;
+            
+            if(Target.IsGroundTarget())
+            {
+                if (Extensions.GridDistanceSquare(User.Coordinates, Target.GroundTarget) > Range)
+                    return SkillFailReason.OutOfRange;
+            }
+            else
+            {
+                if (Target.EntityTarget.IsDead())
+                    return SkillFailReason.Death;
+
+                if (Target.EntityTarget.MapId != User.MapId
+                    || Extensions.GridDistanceSquare(User.Coordinates, Target.EntityTarget.Coordinates) > Range)
+                    return SkillFailReason.OutOfRange;
+            }
+
+            return SkillFailReason.None;
         }
 
         // Which skills will go on a cooldown other than AnimationDelay
@@ -92,47 +171,5 @@ namespace Shared
         public virtual void OnExecute() { HasExecuted = true; }
         // Called when CastTime & AnimationDelay of this skill are over, execution is completely complete, skill is about to be removed from entity. Will be called for interrupted skills as well!
         public virtual void OnCompleted() { }
-    }
-
-    public abstract class AGroundSkillExecution : ASkillExecution
-    {
-        public Vector2Int Target;
-
-        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, Vector2Int targetCoords)
-        {
-            Target = targetCoords;
-            return Initialize(skillLvl, user, spCost, range, castTime, animCd);
-        }
-
-        public override SkillFailReason CanTarget()
-        {
-            // TODO: Sightline-check?
-            if (Extensions.GridDistanceSquare(User.Coordinates, Target) > Range)
-                return SkillFailReason.OutOfRange;
-            return SkillFailReason.None;
-        }
-    }
-
-    public abstract class AEntitySkillExecution : ASkillExecution
-    {
-        public BattleEntity Target;
-
-        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, BattleEntity target)
-        {
-            Target = target;
-            return Initialize(skillLvl, user, spCost, range, castTime, animCd);
-        }
-
-        public override SkillFailReason CanTarget()
-        {
-            if (Target.IsDead())
-                return SkillFailReason.Death;
-
-            if (Target.MapId != User.MapId
-                || Extensions.GridDistanceSquare(User.Coordinates, Target.Coordinates) > Range)
-                return SkillFailReason.OutOfRange;
-
-            return SkillFailReason.None;
-        }
     }
 }

@@ -65,16 +65,16 @@ public class PlayerMain : BattleEntityModelMain
 
         if(_entity.QueuedSkill != null)
         {
-            if(_entity.QueuedSkill is AEntitySkillExecution entitySkill)
+            if(_entity.QueuedSkill.Target.IsEntityTarget())
             {
-                BattleEntityModelMain bTarget = ClientMain.Instance.MapModule.GetComponentFromEntityDisplay<BattleEntityModelMain>(entitySkill.Target.Id);
+                BattleEntityModelMain bTarget = ClientMain.Instance.MapModule.GetComponentFromEntityDisplay<BattleEntityModelMain>(_entity.QueuedSkill.Target.EntityTarget.Id);
                 if (bTarget == null)
                 {
-                    OwlLogger.Log($"Player can't find BattleEntityModel for id {entitySkill.Target.Id} to show SkillTargetIndicator!", GameComponent.Character, LogSeverity.VeryVerbose);
+                    OwlLogger.Log($"Player can't find BattleEntityModel for id {_entity.QueuedSkill.Target.EntityTarget.Id} to show SkillTargetIndicator!", GameComponent.Character, LogSeverity.VeryVerbose);
                 }
                 else
                 {
-                    bTarget.DisplaySkillTargetIndicator(entitySkill.SkillId);
+                    bTarget.DisplaySkillTargetIndicator(_entity.QueuedSkill.SkillId);
                     _skillIndicatorBuffer.Add(bTarget);
                 }
             }

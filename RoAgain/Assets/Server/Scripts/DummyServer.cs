@@ -310,10 +310,10 @@ namespace Server
         {
             // needing an entity-lookup for each skill isn't super efficient, but it may be ok for now.
             // create lookup-tables entityId -> mapInstance if profiling shows it's needed
-            GridEntity user = _mapModule.FindEntityOnAllMaps(connection.CharacterId);
+            TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData user);
             if(user == null)
             {
-                OwlLogger.LogError($"Received EntitySkillRequest for user {connection.CharacterId} that's not found on any map!", GameComponent.Skill);
+                OwlLogger.LogError($"Received EntitySkillRequest for user {connection.CharacterId} that's not logged in!", GameComponent.Skill);
                 return;
             }
 

@@ -4,40 +4,37 @@ using UnityEngine;
 
 namespace Server
 {
-    public abstract class AServerGroundSkillExecution : AGroundSkillExecution
+    public abstract class AServerSkillExecution : ASkillExecution
     {
         public ServerMapInstance Map;
         public new ServerBattleEntity User => base.User as ServerBattleEntity;
+        //public int[] Var1 = null;
 
-        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, Vector2Int targetCoords, ServerMapInstance map)
-        {
-            Map = map;
-            return Initialize(skillLvl, user, spCost, range, castTime, animCd, targetCoords);
-        }
-    }
-
-    public abstract class AServerEntitySkillExecution : AEntitySkillExecution
-    {
-        public ServerMapInstance Map;
-        public new ServerBattleEntity Target => base.Target as ServerBattleEntity;
-        public new ServerBattleEntity User => base.User as ServerBattleEntity;
-
-        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, BattleEntity target, ServerMapInstance map)
+        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, SkillTarget target, ServerMapInstance map)
         {
             Map = map;
             return Initialize(skillLvl, user, spCost, range, castTime, animCd, target);
         }
+
+        //public int InitializeFromStatic(int skillLvl, ServerBattleEntity user, SkillTarget target, ServerMapInstance map)
+        //{
+        //    // TODO: (Optional) Clear values in case of pooled SkillExecutions
+        //    // TODO: Look up static data from skill db
+        //    // TODO: Modify Static values based on user
+        //}
     }
 
-    public class AutoAttackSkillExecution : AServerEntitySkillExecution
+    public class AutoAttackSkillExecution : AServerSkillExecution
     {
         public override SkillId SkillId => SkillId.AutoAttack;
 
-        public static AutoAttackSkillExecution Create(int skillLvl, BattleEntity user, BattleEntity target, ServerMapInstance map)
+        public static AutoAttackSkillExecution Create(int skillLvl, BattleEntity user, SkillTarget target, ServerMapInstance map)
         {
             int range = 1;
             // TODO: Calculate range based on equip & Co.
             // TODO: Move creation-code for physical attacks into common base-class, like with Magical Attack
+
+            // TODO: Validate Target (or somewhere in a base class)
 
             AutoAttackSkillExecution skill = new();
             if (skill.Initialize(skillLvl, user, 0, range, 0f, user.GetDefaultAnimationCooldown(), target, map) != 0)
@@ -58,18 +55,18 @@ namespace Server
             }
 
             // Attack logic
-            Map.BattleModule.PerformPhysicalAttack(User, Target, 1.0f);
+            Map.BattleModule.PerformPhysicalAttack(User, Target.EntityTarget as ServerBattleEntity, 1.0f);
         }
     }
 
-    public abstract class AMagicAttackSkillExecution : AServerEntitySkillExecution
+    public abstract class AMagicAttackSkillExecution : AServerSkillExecution
     {
         public override SkillId SkillId => _skillId;
         protected SkillId _skillId;
         protected EntityElement _attackElement;
         protected float _skillFactor;
 
-        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, BattleEntity target, ServerMapInstance map,
+        protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, SkillTarget target, ServerMapInstance map,
             SkillId skillId, float skillFactor, float baseCastTime, EntityElement attackElement)
         {
             int initResult = Initialize(skillLvl, user, skillLvl * 7, 9, 0, user.GetDefaultAnimationCooldown(), target, map);
@@ -115,13 +112,13 @@ namespace Server
         {
             base.OnExecute();
 
-            Map.BattleModule.PerformMagicalAttack(User, Target, _skillFactor, _attackElement, false, false, false);
+            Map.BattleModule.PerformMagicalAttack(User, Target.EntityTarget as ServerBattleEntity, _skillFactor, _attackElement, false, false, false);
         }
     }
 
     public class FireBoltSkillExecution : AMagicAttackSkillExecution
     {
-        public static FireBoltSkillExecution Create(int skillLvl, BattleEntity user, BattleEntity target, ServerMapInstance map)
+        public static FireBoltSkillExecution Create(int skillLvl, BattleEntity user, SkillTarget target, ServerMapInstance map)
         {
             FireBoltSkillExecution skill = new();
 
@@ -132,13 +129,13 @@ namespace Server
         }
     }
 
-    public class PlaceWarpSkillExecution : AServerGroundSkillExecution
+    public class PlaceWarpSkillExecution : AServerSkillExecution
     {
         public override SkillId SkillId => SkillId.PlaceWarp;
         public Vector2Int WarpTargetCoords;
         public string TargetMap;
 
-        public static PlaceWarpSkillExecution Create(int skillLvl, BattleEntity user, Vector2Int placementCoords, ServerMapInstance map)
+        public static PlaceWarpSkillExecution Create(int skillLvl, BattleEntity user, SkillTarget target, ServerMapInstance map)
         {
             PlaceWarpSkillExecution skill = new();
 
@@ -149,7 +146,7 @@ namespace Server
                 castTime = Mathf.Max(0, castTime * character.CastTime.Total);
             }
 
-            if (skill.Initialize(skillLvl, user, 5 * skillLvl, 10, castTime, user.GetDefaultAnimationCooldown(), placementCoords, map) != 0)
+            if (skill.Initialize(skillLvl, user, 5 * skillLvl, 10, castTime, user.GetDefaultAnimationCooldown(), target, map) != 0)
                 return null;
 
             skill.TargetMap = user.MapId;
@@ -161,7 +158,7 @@ namespace Server
         {
             base.OnExecute();
 
-            RectangleCenterGridShape shape = new() { Center = Target, Radius = SkillLvl-1 };
+            RectangleCenterGridShape shape = new() { Center = Target.GroundTarget, Radius = SkillLvl-1 };
             WarpCellEffectGroup cellEffectGroup = new();
             cellEffectGroup.Create(Map.Grid, shape, TargetMap, WarpTargetCoords, SkillLvl * 10f);
         }

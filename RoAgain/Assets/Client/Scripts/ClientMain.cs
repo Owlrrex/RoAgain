@@ -716,20 +716,15 @@ namespace Client
                 return;
             }
 
-            ASkillExecution skill;
-            if (Skills.IsGroundSkill(skillId))
-            {
-                ClientGroundSkill groundSkill = new();
-                groundSkill.Initialize(skillId, -1, entity, -1, -1, 0, -1, targetCoords);
-                skill = groundSkill;
-            }
-            else
+            ClientSkillExecution skill = new();
+            SkillTarget target = new(targetCoords);
+            if(targetId > 0)
             {
                 ClientBattleEntity bTarget = MapModule.Grid.Data.FindOccupant(targetId) as ClientBattleEntity;
-                ClientEntitySkill entitySkill = new();
-                entitySkill.Initialize(skillId, -1, entity, -1, -1, 0, -1, bTarget);
-                skill = entitySkill;
+                target.SetEntityTarget(bTarget);
             }
+
+            skill.Initialize(skillId, -1, entity, -1, -1, 0, -1, target);
 
             skill.CastTime = castTime; // overwrite casttime, in case the packet sent partly-completed cast-times, which the initialize-function can't handle
 
@@ -758,8 +753,8 @@ namespace Client
 
             GridEntity target = MapModule.Grid.Data.FindOccupant(targetId);
             ClientBattleEntity bTarget = target as ClientBattleEntity;
-            ClientEntitySkill entitySkill = new();
-            entitySkill.Initialize(skillId, -1, entity, -1, -1, 0, animCd, bTarget);
+            ClientSkillExecution skill = new();
+            skill.Initialize(skillId, -1, entity, -1, -1, 0, animCd, new(bTarget));
 
             // TODO: fill out other values as best we can
 
@@ -767,7 +762,7 @@ namespace Client
             // Execution-animation should be handled by EntityDisplay component/sytsem
 
             // this skill-object only needs to have its anim-Cd related values filled out
-            entity.CurrentlyExecutingSkills.Add(entitySkill);
+            entity.CurrentlyExecutingSkills.Add(skill);
         }
 
         private void OnGroundSkillReceived(int userId, SkillId skillId, Vector2Int targetCoords, float animCd)
@@ -780,8 +775,8 @@ namespace Client
                 return;
             }
 
-            ClientGroundSkill groundSkill = new();
-            groundSkill.Initialize(skillId, -1, entity, -1, -1, 0, animCd, targetCoords);
+            ClientSkillExecution groundSkill = new();
+            groundSkill.Initialize(skillId, -1, entity, -1, -1, 0, animCd, new(targetCoords));
 
             // TODO: fill out other values as best we can
 
@@ -997,8 +992,8 @@ namespace Client
 
             OwlLogger.Log($"Updating SkillQueue for local player with skill {skillId}", GameComponent.Character, LogSeverity.Verbose);
             ClientBattleEntity bTarget = MapModule.Grid.Data.FindOccupant(targetId) as ClientBattleEntity;
-            ClientEntitySkill skill = new();
-            skill.Initialize(skillId, -1, CurrentCharacterData, -1, -1, -1, -1, bTarget);
+            ClientSkillExecution skill = new();
+            skill.Initialize(skillId, -1, CurrentCharacterData, -1, -1, -1, -1, new(bTarget));
             CurrentCharacterData.QueuedSkill = skill;
         }
 
@@ -1017,8 +1012,8 @@ namespace Client
             }
 
             OwlLogger.Log($"Updating SkillQueue for local player with skill {skillId}", GameComponent.Character, LogSeverity.Verbose);
-            ClientGroundSkill skill = new();
-            skill.Initialize(skillId, -1, CurrentCharacterData, -1, -1, -1, -1, target);
+            ClientSkillExecution skill = new();
+            skill.Initialize(skillId, -1, CurrentCharacterData, -1, -1, -1, -1, new(target));
             CurrentCharacterData.QueuedSkill = skill;
         }
 
