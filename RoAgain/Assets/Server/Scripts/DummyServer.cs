@@ -80,6 +80,9 @@ namespace Server
             _characterDatabase = new CharacterDatabase();
             int charDbError = 100000 * _characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
 
+            Configuration config = new();
+            int configError = 1000000 * config.LoadConfig();
+
             int aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError;
             return aggregateError;
         }

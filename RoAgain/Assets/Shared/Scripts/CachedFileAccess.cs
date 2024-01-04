@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Client
+namespace Shared
 {
     public static class CachedFileAccess
     {

@@ -41,7 +41,7 @@ MonoBehaviour:
       CanPointLearn: 0
       Category: 0
       Tier: 0
-      Position: 3
+      Position: 5
       Requirements: []
     - Skill: 2
       MaxLevel: 1
@@ -50,6 +50,15 @@ MonoBehaviour:
       Tier: 1
       Position: 5
       Requirements: []
+    - Skill: 30
+      MaxLevel: 10
+      CanPointLearn: 1
+      Category: 0
+      Tier: 0
+      Position: 4
+      Requirements:
+      - RequirementId: 3
+        RequirementLevel: 5
   - Job: 2
     SkillTree:
     - Skill: 12
