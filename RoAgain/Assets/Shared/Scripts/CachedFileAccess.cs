@@ -81,7 +81,7 @@ namespace Shared
                 int loadResult = Load<T>(key, createIfEmpty);
                 if(loadResult != 0)
                 {
-                    OwlLogger.LogError($"Load failed for GetOrLoad of config {typeof(T).Name}", GameComponent.Config);
+                    OwlLogger.LogError($"Load failed for GetOrLoad of config {key}", GameComponent.Config);
                     return null;
                 }
             }

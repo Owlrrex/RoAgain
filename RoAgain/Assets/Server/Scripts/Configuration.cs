@@ -30,7 +30,7 @@ namespace Server
 
             bool changedAnyConfig = false;
 
-            MainConfigPersistent mainPers = CachedFileAccess.GetOrLoad<MainConfigPersistent>(CONFIG_FILE_KEY, false);
+            MainConfigPersistent mainPers = CachedFileAccess.GetOrLoad<MainConfigPersistent>(CONFIG_FILE_KEY, true);
             if (mainPers == null) // indicates file didn't exist
             {
                 LoadDefaultMiscConfig();
