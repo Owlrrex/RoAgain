@@ -346,6 +346,9 @@ namespace Server
                 case SkillId.AutoAttack:
                     skill = AutoAttackSkillExecution.Create(skillLvl, user, target, _map);
                     break;
+                case SkillId.FireBolt:
+                    skill = FireBoltSkillExecution.Create(skillLvl, user, target, _map);
+                    break;
                 default:
                     OwlLogger.LogError($"Tried to create execution of unknown entity-skillId {skillId}!", GameComponent.Skill);
                     return null;
