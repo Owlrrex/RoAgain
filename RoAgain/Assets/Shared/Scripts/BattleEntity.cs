@@ -6,6 +6,8 @@ namespace Shared
     [Serializable]
     public class BattleEntity : GridEntity
     {
+        static List<SkillId> _skillCooldownsToRemove_Reuse = new();
+
         public Stat MaxHp = new();
         public int CurrentHp; // Watchable? Not for packet sending, since we need distinction between HpUpdate and DamageTaken!
         public Stat MaxSp = new();
@@ -13,12 +15,12 @@ namespace Shared
         //public Status Status;
         // Some form of reference to Skill-List
 
-        private bool _isInAnimationCooldown = false;
+        private bool _isAnimationLocked = false;
 
         [NonSerialized]
         public ASkillExecution QueuedSkill = null;
         [NonSerialized]
-        public List<ASkillExecution> CurrentlyExecutingSkills = new();
+        public List<ASkillExecution> CurrentlyResolvingSkills = new();
         [NonSerialized]
         public Dictionary<SkillId, TimerFloat> SkillCooldowns = new();
 
@@ -32,9 +34,12 @@ namespace Shared
                 return SkillFailReason.Death;
 
             if (!CanAct())
-                return SkillFailReason.CantAct;
+                return SkillFailReason.AnimationLocked;
 
-            if (SkillCooldowns.ContainsKey(skill.SkillId)
+            if (SkillCooldowns.ContainsKey(SkillId.ALL_EXCEPT_AUTO)
+                && !SkillCooldowns[SkillId.ALL_EXCEPT_AUTO].IsFinished())
+                return SkillFailReason.OnCooldown;
+            else if (SkillCooldowns.ContainsKey(skill.SkillId)
                 && !SkillCooldowns[skill.SkillId].IsFinished())
                 return SkillFailReason.OnCooldown;
 
@@ -50,13 +55,13 @@ namespace Shared
 
         public override bool CanMove()
         {
-            return base.CanMove() && !IsInAnimationCooldown() && !IsCasting() && !IsDead(); // TODO: More advanced conditions: Statuses, FreeCast, etc
+            return base.CanMove() && !IsAnimationLocked() && !IsCasting() && !IsDead(); // TODO: More advanced conditions: Statuses, FreeCast, etc
         }
 
         // Don't reference CanMove() here since CanMove may include some statuses like Ankle Snare that root, but don't incapacitate
         public virtual bool CanAct()
         {
-            return MovementCooldown <= 0 && !IsInAnimationCooldown() && !IsDead();
+            return MovementCooldown <= 0 && !IsAnimationLocked() && !IsDead();
         }
 
         public void MarkAsDead(bool newValue)
@@ -69,14 +74,14 @@ namespace Shared
             return CurrentHp <= 0;
         }
 
-        public bool IsInAnimationCooldown()
+        public bool IsAnimationLocked()
         {
-            return _isInAnimationCooldown;
+            return _isAnimationLocked;
         }
 
         public bool IsCasting()
         {
-            foreach (ASkillExecution skill in CurrentlyExecutingSkills)
+            foreach (ASkillExecution skill in CurrentlyResolvingSkills)
             {
                 if (skill.CastTime.MaxValue > 0 && skill.CastTime.RemainingValue > 0)
                     return true;
@@ -86,17 +91,37 @@ namespace Shared
 
         public virtual void UpdateSkills(float deltaTime)
         {
-            _isInAnimationCooldown = false;
-            for (int i = CurrentlyExecutingSkills.Count - 1; i >= 0; i--)
+            _isAnimationLocked = false;
+            for (int i = CurrentlyResolvingSkills.Count - 1; i >= 0; i--)
             {
-                ASkillExecution skill = CurrentlyExecutingSkills[i];
-                skill.CastTime.Update(deltaTime);
-                skill.AnimationCooldown.Update(deltaTime);
-
-                if (!skill.IsFinishedExecuting())
+                ASkillExecution skill = CurrentlyResolvingSkills[i];
+                if(!skill.CastTime.IsFinished())
                 {
-                    _isInAnimationCooldown |= skill.AnimationCooldown.RemainingValue > 0;
+                    skill.CastTime.Update(deltaTime);
                 }
+
+                if(skill.HasExecutionStarted)
+                {
+                    skill.AnimationCooldown.Update(deltaTime);
+                }
+
+                if (!skill.HasFinishedResolving())
+                {
+                    _isAnimationLocked |= skill.CastTime.IsFinished() && skill.AnimationCooldown.RemainingValue > 0;
+                }
+            }
+
+            _skillCooldownsToRemove_Reuse.Clear();
+            foreach (KeyValuePair<SkillId, TimerFloat> kvp in SkillCooldowns)
+            {
+                kvp.Value.Update(deltaTime);
+                if (kvp.Value.IsFinished())
+                    _skillCooldownsToRemove_Reuse.Add(kvp.Key);
+            }
+
+            foreach (SkillId skillId in _skillCooldownsToRemove_Reuse)
+            {
+                SkillCooldowns.Remove(skillId);
             }
         }
 

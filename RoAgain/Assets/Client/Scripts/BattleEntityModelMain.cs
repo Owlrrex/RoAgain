@@ -77,7 +77,6 @@ namespace Client
 
         private void OnTookDamage(BattleEntity entity, int damage, bool isSpDamage)
         {
-            // TODO: Cast to ClientBattleEntity here?
             if (_entity != entity)
             {
                 OwlLogger.LogError($"BattleEntityModelMain received TookDamage for wrong entity! registered entity {_entity.Id}, received entity {entity.Id}", GameComponent.UI);
@@ -111,13 +110,13 @@ namespace Client
             }
 
             // TODO: make this whole block event-driven, we don't need UI-updates every frame for SetActive() & text-calls
-            if (_entity.CurrentlyExecutingSkills.Count > 0)
+            if (_entity.CurrentlyResolvingSkills.Count > 0)
             {
-                ASkillExecution skillToShowName = _entity.CurrentlyExecutingSkills[0];
+                ASkillExecution skillToShowName = _entity.CurrentlyResolvingSkills[0];
                 if (_castTimeSlider != null)
                 {
                     bool anyCast = false;
-                    foreach (var skill in _entity.CurrentlyExecutingSkills)
+                    foreach (var skill in _entity.CurrentlyResolvingSkills)
                     {
                         if (skill.CastTime.MaxValue > 0)
                         {

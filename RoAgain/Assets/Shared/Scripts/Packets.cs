@@ -420,6 +420,20 @@ public class CastProgressPacket : Packet
     public Vector2Int TargetCoords;
     public float CastTimeTotal;
     public float CastTimeRemaining;
+
+    public void EncodeTarget(SkillTarget target)
+    {
+        if(target.IsGroundTarget())
+        {
+            TargetId = -1;
+            TargetCoords = target.GroundTarget;
+        }
+        else
+        {
+            TargetId = target.EntityTarget.Id;
+            TargetCoords = GridData.INVALID_COORDS;
+        }
+    }
 }
 
 // TODO: CastInterruptPacket? Or make that a special configuration of CastProgressPacket?

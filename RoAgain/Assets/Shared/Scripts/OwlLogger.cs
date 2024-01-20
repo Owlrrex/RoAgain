@@ -45,7 +45,7 @@ namespace OwlLogging
         public static LogSeverity CurrentLogVerbosity = LogSeverity.Verbose;
         //public static LogDetail CurrentLogDetail = LogDetail.CallerNames | LogDetail.CallLocation;
         public static LogDetail CurrentLogDetail = LogDetail.CallerNames;
-        public static GameComponent EnabledComponents = GameComponent.All;        
+        public static GameComponent EnabledComponents = GameComponent.All;
         //public static GameComponent EnabledComponents = GameComponent.Grid | GameComponent.Network;
 
         public static void LogError(string message, GameComponent component, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
@@ -113,12 +113,22 @@ namespace OwlLogging
 
         public static bool PrefabNullCheckAndLog(object o, string oName, object caller, GameComponent component)
         {
-            if(o == null)
+            if (o == null)
             {
                 LogError($"{caller.GetType()} doesn't have {oName} set!", component);
                 return true;
             }
             return false;
+        }
+
+        public static void LogFunctionEntry(GameComponent component, [CallerMemberName] string memberName = "")
+        {
+            Log($"Function starting: {memberName}", component, LogSeverity.VeryVerbose);
+        }
+
+        public static void LogFunctionExit(GameComponent component, [CallerMemberName] string memberName = "")
+        {
+            Log($"Function exiting: {memberName}", component, LogSeverity.VeryVerbose);
         }
 
 

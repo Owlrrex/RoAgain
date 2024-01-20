@@ -38,8 +38,6 @@ namespace Server
     {
         private ServerMapInstance _map;
 
-        private List<SkillId> _skillIdsFinishedReuse = new(4); // Not predicted that a unit finishes more cooldowns than this on a single tick
-
         public int Initialize(ServerMapInstance mapInstance)
         {
             if (mapInstance == null)
@@ -64,7 +62,7 @@ namespace Server
                 return -4;
             }
 
-            battleUser.CurrentlyExecutingSkills.Add(skill);
+            battleUser.CurrentlyResolvingSkills.Add(skill);
             if (skill.CastTime.RemainingValue > 0)
             {
                 StartCast(skill);
@@ -79,7 +77,7 @@ namespace Server
 
         private bool ShouldQueueSkill(ASkillExecution skill, SkillFailReason executeReason, SkillFailReason targetReason)
         {
-            if (executeReason == SkillFailReason.CantAct) // User is animation-locked (attacking or moving)
+            if (executeReason == SkillFailReason.AnimationLocked) // User is animation-locked (attacking or moving)
                 return true;
 
             if (targetReason == SkillFailReason.OutOfRange) // Target is out-of-range: Allow Queueing for autopathing logic
@@ -177,7 +175,6 @@ namespace Server
             skill.OnCastStart();
         }
 
-        // Ideally this function can be reusable for execution-after-cast
         private void ExecuteSkill(ASkillExecution skill)
         {
             float animCd = skill.User.GetDefaultAnimationCooldown(); // TODO: Custom animCd system
@@ -299,8 +296,8 @@ namespace Server
 
         private void CompleteSkill(ASkillExecution skill)
         {
-            skill.OnCompleted();
-            skill.User.CurrentlyExecutingSkills.Remove(skill);
+            skill.OnCompleted(true);
+            skill.User.CurrentlyResolvingSkills.Remove(skill);
         }
 
         // This function should handle a skill-execution once it's been confirmed to actually be executed: 
@@ -478,11 +475,11 @@ namespace Server
                     }
                 }
 
-                for (int i = bEntity.CurrentlyExecutingSkills.Count - 1; i >= 0; i--)
+                for (int i = bEntity.CurrentlyResolvingSkills.Count - 1; i >= 0; i--)
                 {
-                    ASkillExecution skill = bEntity.CurrentlyExecutingSkills[i];
+                    ASkillExecution skill = bEntity.CurrentlyResolvingSkills[i];
 
-                    if (!skill.HasExecuted)
+                    if (!skill.HasExecutionStarted)
                     {
                         if(!skill.User.IsDead())
                         {
@@ -510,24 +507,10 @@ namespace Server
                         FinishCast(skill, true);
                     }
 
-                    if (skill.IsFinishedExecuting())
+                    if (skill.HasFinishedResolving())
                     {
                         CompleteSkill(skill);
                     }
-                }
-
-                // Update skill-specific cooldowns
-                _skillIdsFinishedReuse.Clear();
-                foreach (KeyValuePair<SkillId, TimerFloat> kvp in bEntity.SkillCooldowns)
-                {
-                    kvp.Value.Update(deltaTime);
-                    if (kvp.Value.IsFinished())
-                        _skillIdsFinishedReuse.Add(kvp.Key);
-                }
-
-                foreach (SkillId skillId in _skillIdsFinishedReuse)
-                {
-                    bEntity.SkillCooldowns.Remove(skillId);
                 }
             }
         }
@@ -562,8 +545,8 @@ namespace Server
                 return true;
             }
 
-            skill.User.ParentGrid.FindAndSetPathTo(skill.User, targetCoords);
-            return true;
+            int pathResult = skill.User.ParentGrid.FindAndSetPathTo(skill.User, targetCoords);
+            return pathResult == 0;
         }
 
         private void HandleEntityDropToZeroHp(ServerBattleEntity bEntity, ServerBattleEntity source)
@@ -906,6 +889,7 @@ namespace Server
         public int PerformMagicalAttack(ServerBattleEntity source, ServerBattleEntity target, float skillFactor, EntityElement overrideElement = EntityElement.Unknown, bool canCrit = false, bool canMiss = true, bool ignoreDefense = false)
         {
             float damage;
+            // Crit
             if (canCrit)
             {
                 float critChance = source.Crit.Total - target.CritShield.Total;

@@ -232,7 +232,7 @@ namespace Server
         }
     }
 
-    // TODO: The file-based format has to re-save the whole database every time. This doesn't scale.
+    // The file-based format has to re-save the whole character every time. This may cause scaling issues.
     // We need a storage format that can save individual characters, otherwise we'll be in deep trouble.
     public class CharacterDatabase : ACharacterDatabase
     {

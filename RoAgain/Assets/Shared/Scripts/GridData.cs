@@ -8,7 +8,7 @@ using UnityEngine.TextCore.Text;
 // This class currently mixes client-only-functions (World Positions, Ray casts, etc) with Shared functionality
 public class GridData
 {
-    // TODO: Move to a config-system
+    // Can't move to Config system - Shared-assembly has no config system
     public const int MAX_VISION_RANGE = 20;
 
     public enum Direction
@@ -649,7 +649,11 @@ public class GridData
     {
         Path path = FindPath(entity.Coordinates, targetCoords);
         if (path == null || path.AllCells.Count == 0 || path.AllCells.Count == 1) // 0 & null are error cases, 1 is "no path found"
+        {
+            entity.SetPath(null);
             return -1;
+        }
+            
 
         entity.SetPath(path);
         return 0;

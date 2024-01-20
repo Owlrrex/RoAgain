@@ -62,9 +62,8 @@ namespace Client
 
         public ClientMapModule MapModule { get; private set; }
 
-        // TODO: Move to config
-        public string IpInput = "127.0.0.1";
-        private readonly string _port = "13337";
+        public string IpInput;
+        private string _port;
 
         private int _characterLoginId;
 
@@ -93,6 +92,9 @@ namespace Client
             ClientConfiguration config = new();
             config.LoadConfig();
             // TODO: Check for errors 
+
+            IpInput = config.GetMiscConfig(ConfigurationKey.ServerIp);
+            _port = config.GetMiscConfig(ConfigurationKey.ServerPort);
 
             KeyboardInput keyboardInput = new();
             keyboardInput.Initialize(config);
@@ -729,7 +731,7 @@ namespace Client
             skill.CastTime = castTime; // overwrite casttime, in case the packet sent partly-completed cast-times, which the initialize-function can't handle
 
             // this skill-object only needs to have its cast-time related values filled out
-            entity.CurrentlyExecutingSkills.Add(skill);
+            entity.CurrentlyResolvingSkills.Add(skill);
         }
 
         private void OnEntitySkillReceived(int userId, SkillId skillId, int targetId, float animCd)
@@ -762,7 +764,7 @@ namespace Client
             // Execution-animation should be handled by EntityDisplay component/sytsem
 
             // this skill-object only needs to have its anim-Cd related values filled out
-            entity.CurrentlyExecutingSkills.Add(skill);
+            entity.CurrentlyResolvingSkills.Add(skill);
         }
 
         private void OnGroundSkillReceived(int userId, SkillId skillId, Vector2Int targetCoords, float animCd)
@@ -784,7 +786,7 @@ namespace Client
             // Execution-animation should be handled by EntityDisplay component/sytsem
 
             // this skill-object only needs to have its anim-Cd related values filled out
-            entity.CurrentlyExecutingSkills.Add(groundSkill);
+            entity.CurrentlyResolvingSkills.Add(groundSkill);
         }
 
         private void OnChatMessageReceived(ChatMessageData data)
@@ -1150,7 +1152,14 @@ namespace Client
                 working.y += 40;
                 GUI.Label(working, "Server IP:");
                 working.y += 20;
-                IpInput = GUI.TextField(working, IpInput);
+                string newIp = GUI.TextField(working, IpInput);
+                if(newIp != IpInput)
+                {
+                    IpInput = newIp;
+                    ClientConfiguration.Instance.SetMiscConfig(ConfigurationKey.ServerIp, newIp);
+                    ClientConfiguration.Instance.SaveConfig();
+                }
+                
             }
 
             //// Disconnect-Button/Label

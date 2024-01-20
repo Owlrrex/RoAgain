@@ -9,7 +9,7 @@ namespace Shared
     {
         None,
         NotEnoughSp,
-        CantAct,
+        AnimationLocked,
         AlreadyCasting,
         NotLearned,
         OutOfRange,
@@ -84,6 +84,14 @@ namespace Shared
         {
             return EntityTarget != null;
         }
+
+        public Vector2Int GetTargetCoordinates()
+        {
+            if (IsEntityTarget())
+                return EntityTarget.Coordinates;
+            else
+                return GroundTarget;
+        }
     }
 
     // This class represents a single use of a given skill.
@@ -95,7 +103,7 @@ namespace Shared
 
         // These are the values modified by the user's stats & any other circumstance
         public TimerFloat CastTime = new();
-        public bool CanInterruptCast = true;
+        public bool CanBeInterrupted = true;
         public TimerFloat AnimationCooldown = new();
         // Field will be needed to deduct SP correctly
         // Using field for the "canExecute" check is uncertain - could check in this class' CanBeExecutedBy()
@@ -107,11 +115,47 @@ namespace Shared
         public SkillTarget Target;
 
         // Not sure if this is ideal
-        public bool HasExecuted { get; private set; }
+        public bool HasExecutionStarted { get; private set; }
 
         protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, SkillTarget target)
         {
-            // TODO: Validate inputs
+            if(skillLvl <= 0)
+            {
+                OwlLogger.LogError($"Can't create SkillExecution with skillLvl {skillLvl}", GameComponent.Skill);
+                return -1;
+            }
+
+            if(user == null)
+            {
+                OwlLogger.LogError("Can't create SkillExecution with null user!", GameComponent.Skill);
+                return -1;
+            }
+
+            // allow negative SP cost for sp healing skills
+
+            if(range < 0)
+            {
+                OwlLogger.LogError($"Can't create SkillExecution with range {range}", GameComponent.Skill);
+                return -1;
+            }
+
+            if(castTime < 0)
+            {
+                OwlLogger.LogError($"Can't create SkillExecution with castTime {castTime}", GameComponent.Skill);
+                return -1;
+            }
+
+            if(animCd < 0)
+            {
+                OwlLogger.LogError($"Can't create SkillExecution with animCd {animCd}", GameComponent.Skill);
+                return -1;
+            }
+
+            if(!target.IsSet())
+            {
+                OwlLogger.LogError("Can't create SkillExecution with unset target!", GameComponent.Skill);
+                return -1;
+            }
 
             SkillLvl = skillLvl;
             User = user;
@@ -158,18 +202,31 @@ namespace Shared
             return null;
         }
 
-        public virtual bool IsFinishedExecuting()
+        public virtual bool HasFinishedResolving()
         {
             return CastTime.IsFinished() && AnimationCooldown.IsFinished();
+        }
+
+        public virtual bool IsExecutionFinished()
+        {
+            return HasExecutionStarted;
+        }
+
+        // Does/did this execution require a cast time, no matter its progress state?
+        public bool HasCastTime()
+        {
+            return CastTime.MaxValue == 0;
         }
 
         // Not called for skills with 0 cast time
         public virtual void OnCastStart() { }
         public virtual void OnCastEnd(bool wasInterrupted) { }
 
-        // Called when CastTime (if any) is finished, contains main skill effect, animationdelay is about to start
-        public virtual void OnExecute() { HasExecuted = true; }
+        // Called when CastTime (if any) & animation delay is about to start
+        // contains main skill effect
+        // Will be called repeatedly for skills that don't have 
+        public virtual void OnExecute() { HasExecutionStarted = true; }
         // Called when CastTime & AnimationDelay of this skill are over, execution is completely complete, skill is about to be removed from entity. Will be called for interrupted skills as well!
-        public virtual void OnCompleted() { }
+        public virtual void OnCompleted(bool wasSuccessful) { }
     }
 }

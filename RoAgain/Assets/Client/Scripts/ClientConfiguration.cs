@@ -39,7 +39,9 @@ namespace Client
     public enum ConfigurationKey
     {
         Unknown,
-        TestMiscConfigEntry
+        TestMiscConfigEntry,
+        ServerIp,
+        ServerPort
         // Used for settings that aren't related to hotkeys, like audio Volume
     }
 
@@ -186,7 +188,9 @@ namespace Client
             _miscConfig.Clear();
 
             _miscConfig.Add(ConfigurationKey.TestMiscConfigEntry, "testValue1");
-            // TODO: Config entries here
+            _miscConfig.Add(ConfigurationKey.ServerIp, "127.0.0.1");
+            _miscConfig.Add(ConfigurationKey.ServerPort, "13337");
+            // Config entries here
 
             return 0;
         }
@@ -195,7 +199,9 @@ namespace Client
         {
             bool anyChange = false;
             anyChange |= _miscConfig.TryAdd(ConfigurationKey.TestMiscConfigEntry, "testValue1");
-            // TODO: Config entries here
+            anyChange |= _miscConfig.TryAdd(ConfigurationKey.ServerIp, "127.0.0.1");
+            anyChange |= _miscConfig.TryAdd(ConfigurationKey.ServerPort, "13337");
+            // Config entries here
 
             return anyChange;
         }
@@ -259,6 +265,32 @@ namespace Client
         public Dictionary<ConfigurableHotkey, HotkeyConfigEntry> GetHotkeyConfig()
         {
             return _hotkeyConfig;
+        }
+
+        public void SetHotkey(ConfigurableHotkey hotkey, HotkeyConfigEntry entry)
+        {
+            if (entry == null)
+                return;
+
+            _hotkeyConfig[hotkey] = entry;
+        }
+
+        public string GetMiscConfig(ConfigurationKey key)
+        {
+            if(!_miscConfig.ContainsKey(key))
+            {
+                return null;
+            }
+
+            return _miscConfig[key];
+        }
+
+        public void SetMiscConfig(ConfigurationKey key, string value)
+        {
+            if (value == null)
+                return;
+
+            _miscConfig[key] = value;
         }
     }
 }

@@ -58,6 +58,7 @@ namespace Server
             foreach(ServerBattleEntity bEntity in _battleEntityUpdates.Values)
             {
                 _connection.Send(bEntity.ToDataPacket());
+                // TODO: Send Cast Progress Update here
             }
 
             foreach(CharacterRuntimeData remoteChar in _remoteCharacterUpdates.Values)

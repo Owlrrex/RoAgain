@@ -2,7 +2,6 @@ namespace Shared
 {
     public enum SkillId
     {
-        // TODO: Padding to make sure serialized values are more stable
         Unknown,
         AutoAttack,
         PlaceWarp,
@@ -80,6 +79,8 @@ namespace Shared
         Cure,
         IncreaseAgi,
         DecreaseAgi,
-        HolyLight
+        HolyLight,
+
+        ALL_EXCEPT_AUTO,
     }
 }

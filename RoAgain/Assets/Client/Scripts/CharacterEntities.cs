@@ -72,7 +72,6 @@ namespace Client
         public int DexIncreaseCost;
         public int LukIncreaseCost;
 
-        // TODO: Replace with lists of special Entry type that contains which class a skill belongs to (or other data)
         public Dictionary<SkillId, SkillTreeEntry> SkillTree = new();
         public Action SkillTreeUpdated;
         // Do we still need these? Leave around for now.

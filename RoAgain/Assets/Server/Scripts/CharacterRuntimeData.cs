@@ -53,7 +53,16 @@ namespace Server
 
         public CharacterRuntimeData(ClientConnection connection, int id)
         {
-            // TODO error checks
+            if(connection == null)
+            {
+                OwlLogger.LogError("Can't create CharacterRuntimeData with null connection!", GameComponent.Character);
+            }
+
+            if (id <= 0)
+            {
+                OwlLogger.LogError($"Can't create CharacterRuntimeDAta with id {id}", GameComponent.Character);
+            }
+
             Connection = connection;
             Id = id;
 
@@ -321,7 +330,7 @@ namespace Server
 
         public void CalculateHp()
         {
-            // TODO: tmp: Hardcoded swordman values
+            // TODO: Create Job-Db with these values
             float jobValueA = 0.7f;
             float jobValueB = 5.0f;
 
@@ -354,7 +363,7 @@ namespace Server
 
         public void CalculateSp()
         {
-            // TODO: tmp: Hardcoded swordman value
+            // TODO: Create Job-Db with these values
             float jobValue = 2.0f;
 
             // Formula https://irowiki.org/classic/Max_SP
@@ -389,14 +398,14 @@ namespace Server
 
             // TODO: Explore impact of current modifier-structure on variation being set at base-level (instead of as part of skill)
 
-            // tmp: Static variation
+            // TODO: replace Static variation with dex-based variation
             MeleeAtkMax.SetBase((int)(baseMelee * 1.1f));
             MeleeAtkMin.SetBase((int)(baseMelee * 0.9f));
 
             float dexRanged = Dex.Total + (Dex.Total * Dex.Total / 100.0f);
             float strRanged = Str.Total * 0.2f;
             float baseRanged = dexRanged + strRanged + lukAtk;
-            // tmp: Static variation
+            // TODO: replace Static variation with dex-based variation
             RangedAtkMax.SetBase((int)(baseRanged * 1.1f));
             RangedAtkMin.SetBase((int)(baseRanged * 0.9f));
 
@@ -479,7 +488,7 @@ namespace Server
 
         public void CalculateWeightLimit()
         {
-            // TODO: Job-specific variations
+            // TODO: Job-specific values from JobDb
             WeightLimit.SetBase(2000 + Str.Base * 20);
         }
 
@@ -506,8 +515,15 @@ namespace Server
             else if (TemporarySkills.ContainsKey(id))
                 return TemporarySkills[id];
 
-            OwlLogger.LogError($"No Skilllevel found for owned Skill {id}! Entity Id = {Id}", GameComponent.Character);
             return int.MinValue;
+        }
+
+        public override SkillFailReason CanExecuteSkill(ASkillExecution skill)
+        {
+            if (GetSkillLevel(skill.SkillId) < skill.SkillLvl)
+                return SkillFailReason.NotLearned;
+
+            return base.CanExecuteSkill(skill);
         }
 
         public RemoteCharacterDataPacket ToRemoteDataPacket()

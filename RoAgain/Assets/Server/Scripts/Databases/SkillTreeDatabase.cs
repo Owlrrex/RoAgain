@@ -41,6 +41,8 @@ namespace Server
                 packet.LearnedSkillLvl = character.PermanentSkills[Skill];
             }
 
+            // TODO: Also check Temporary Skills here?
+
             if (Requirements.Count > 0)
             {
                 packet.Requirement1Id = Requirements[0].RequirementId;
@@ -111,7 +113,7 @@ namespace Server
             // TODO: Build tree for every class & keep them in memory for more efficient runtime access?
             // Dictionary<JobId, List<SkillTreeEntry> runtimeDb = new();
             // For each JobId jobid in JobId (except unknown):
-            //   runtimeDb[jobId] = StoreToGetSkillTreeForJob(jobId);
+            //   runtimeDb[jobId] = GetSkillTreeForJob(jobId);
 
             _instance = this;
         }

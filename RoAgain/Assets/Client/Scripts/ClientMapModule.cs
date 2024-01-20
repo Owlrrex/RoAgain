@@ -90,16 +90,16 @@ public class ClientMapModule
 
                 // No need to handle Queued skill on client side - client does not delay sending skill requests
 
-                for (int i = bEntity.CurrentlyExecutingSkills.Count - 1; i >= 0; i--)
+                for (int i = bEntity.CurrentlyResolvingSkills.Count - 1; i >= 0; i--)
                 {
-                    ASkillExecution skill = bEntity.CurrentlyExecutingSkills[i];
+                    ASkillExecution skill = bEntity.CurrentlyResolvingSkills[i];
 
                     // remove skills that have finished casting from list
                     // When a skill transitions from casting to animating (=anim-cd), it will be re-added via a SkillExecution packet
                     // Using IsFinishedExecuting() (instead of separate ifs) relies on the assumption that a casting-skill's anim-cd will finish before the cast, and vice versa
-                    if (skill.IsFinishedExecuting())
+                    if (skill.HasFinishedResolving())
                     {
-                        bEntity.CurrentlyExecutingSkills.RemoveAt(i);
+                        bEntity.CurrentlyResolvingSkills.RemoveAt(i);
                     }
                 }
 
