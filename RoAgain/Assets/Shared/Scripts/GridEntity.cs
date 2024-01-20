@@ -51,6 +51,13 @@ public class GridEntity
 
     public void SetPath(GridData.Path newPath, int currentCellIndex = 0, bool overrideCoordinates = false)
     {
+        if(newPath == null)
+        {
+            OwlLogger.LogError($"SetPath(null) called for Entity {Id} - you have to use ClearPath() instead!", GameComponent.Grid);
+            ClearPath();
+            return;
+        }
+
         if (newPath == Path)
             return;
 

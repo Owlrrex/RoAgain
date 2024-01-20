@@ -650,7 +650,7 @@ public class GridData
         Path path = FindPath(entity.Coordinates, targetCoords);
         if (path == null || path.AllCells.Count == 0 || path.AllCells.Count == 1) // 0 & null are error cases, 1 is "no path found"
         {
-            entity.SetPath(null);
+            entity.ClearPath();
             return -1;
         }
             
@@ -702,6 +702,7 @@ public class GridData
         if (entity.Path == null)
         {
             OwlLogger.LogWarning($"GridEntity {entity.Id} can't proceed along path: No path given.", GameComponent.Grid);
+            entity.ClearPath();
             return;
         }
 
