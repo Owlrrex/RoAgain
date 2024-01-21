@@ -64,7 +64,7 @@ namespace Server
             else
             {
                 if(!_mapInstance.Grid.AreCoordinatesValid(target.GroundTarget)
-                    || !_mapInstance.Grid.GetDataAtCoords(target.GroundTarget).IsVoidCell())
+                    || _mapInstance.Grid.GetDataAtCoords(target.GroundTarget).IsVoidCell())
                 {
                     OwlLogger.LogError($"Received SkillRequest for targetCoords {target.GroundTarget} that's not valid!", GameComponent.Skill);
                     return 1;
@@ -232,7 +232,7 @@ namespace Server
                 StartCast(skillExec);
         }
 
-        private void ClearQueuedSkill(ASkillExecution skillExec)
+        public void ClearQueuedSkill(ASkillExecution skillExec)
         {
             if(skillExec.User.QueuedSkill != skillExec)
             {
@@ -258,7 +258,7 @@ namespace Server
             Vector2Int targetCoords = skillExec.Target.GetTargetCoordinates();
 
             if (targetCoords == GridData.INVALID_COORDS
-                || _mapInstance.Grid.AreCoordinatesValid(targetCoords))
+                || !_mapInstance.Grid.AreCoordinatesValid(targetCoords))
             {
                 OwlLogger.LogError($"Invalid Target coordinates for skill {skillExec.SkillId}: {targetCoords}!", GameComponent.Skill);
                 return false;
@@ -466,8 +466,9 @@ namespace Server
                 return false;
 
             bool anyInterrupt = false;
-            foreach(ASkillExecution skillExec in bEntity.CurrentlyResolvingSkills)
+            for(int i = bEntity.CurrentlyResolvingSkills.Count -1; i >= 0;  i--)
             {
+                ASkillExecution skillExec = bEntity.CurrentlyResolvingSkills[i];
                 if (skillExec.CastTime.IsFinished())
                     continue;
 

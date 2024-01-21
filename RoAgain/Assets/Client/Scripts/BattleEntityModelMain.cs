@@ -57,10 +57,15 @@ namespace Client
 
             UpdateDisplay();
 
-            if(_entity is not LocalCharacterEntity)
+            if(_entity is not ACharacterEntity)
             {
                 float scaleFactor = _entity.MaxHp.Total / 90.0f;
                 _model.transform.localScale = new(transform.localScale.x * scaleFactor, transform.localScale.y, transform.localScale.z * scaleFactor);
+            }
+            else
+            {
+                float scaleFactor = 1 + _entity.BaseLvl / 100f;
+                _model.transform.localScale = new(transform.localScale.x, transform.localScale.y * scaleFactor, transform.localScale.z);
             }
 
             return 0;

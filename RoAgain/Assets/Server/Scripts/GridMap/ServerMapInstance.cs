@@ -15,6 +15,8 @@ public class ServerMapInstance
 
     public MapMobManager MobManager { get; private set; }
 
+    public SkillModule SkillModule { get; private set; }
+
 
     // This loads the actual map data in the future, I guess?
     public int Initialize(string mapId, ExperienceModule expModule)
@@ -29,6 +31,9 @@ public class ServerMapInstance
 
         MobManager = new();
         MobManager.Initialize(this, expModule);
+
+        SkillModule = new();
+        SkillModule.Initialize(this);
 
         // Pre-place stuff
         if(mapId == "test_map")
@@ -150,7 +155,7 @@ public class ServerMapInstance
     public void Update(float deltaTime)
     {
         UpdateEntityMovementStupid(deltaTime);
-        BattleModule?.UpdateBattleUnitSkills(deltaTime);
+        SkillModule?.UpdateSkillExecutions(deltaTime);
         BattleModule?.UpdateRegenerations(deltaTime);
         Grid?.UpdateCellEffects(deltaTime);
         MobManager?.UpdateMobSpawns(deltaTime);

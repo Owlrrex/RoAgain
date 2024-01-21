@@ -215,7 +215,7 @@ namespace Shared
         // Does/did this execution require a cast time, no matter its progress state?
         public bool HasCastTime()
         {
-            return CastTime.MaxValue == 0;
+            return CastTime.MaxValue != 0;
         }
 
         // Not called for skills with 0 cast time

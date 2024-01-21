@@ -113,13 +113,13 @@ namespace Shared
             {
                 File.WriteAllText(path, json);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 OwlLogger.LogError($"Failed to write savedata to file for data {typeof(T).Name}, key {key}: {e.Message}", GameComponent.Config);
                 return -2;
             }
 
-            _loadedSets.Add(key, newData);
+            _loadedSets[key] = newData;
             return 0;
         }
 

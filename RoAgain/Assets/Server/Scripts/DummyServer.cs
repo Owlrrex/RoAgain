@@ -95,18 +95,27 @@ namespace Server
 
         public override void Shutdown()
         {
-            _centralConnection?.Shutdown();
-
+            // Before shutting down, persist all relevant data
             if(_characterDatabase != null)
             {
                 foreach(CharacterRuntimeData character in _loggedInCharacters)
                 {
                     _characterDatabase.Persist(character);
                 }
-                _characterDatabase.Shutdown();
             }
 
+            if(_accountDatabase != null)
+            {
+                _accountDatabase.Persist();
+            }
+
+            // Saving complete, shutdown systems now
+
+            _characterDatabase?.Shutdown();
+
             _accountDatabase?.Shutdown();
+
+            _centralConnection?.Shutdown();
         }
 
         private void ReceiveLoginAttempt(ClientConnection connection, string username, string password)
@@ -324,21 +333,21 @@ namespace Server
                 return;
             }
 
-            GridEntity target = map.Grid.FindOccupant(targetId);
+            ServerBattleEntity target = map.Grid.FindOccupant(targetId) as ServerBattleEntity;
             if(target == null)
             {
                 OwlLogger.LogWarning($"TargetId {targetId} not found on map {user.MapId} for skill!", GameComponent.Other);
                 return;
             }
 
-            map.BattleModule.ReceiveEntitySkillRequest(skillId, skillLvl, connection.CharacterId, targetId);
+            map.SkillModule.ReceiveSkillExecutionRequest(skillId, skillLvl, user, new(target));
         }
 
         private void ReceiveGroundSkillRequest(ClientConnection connection, SkillId skillId, int skillLvl, Vector2Int target)
         {
             // needing an entity-lookup for each skill isn't super efficient, but it may be ok for now.
             // create lookup-tables entityId -> mapInstance if profiling shows it's needed
-            GridEntity user = _mapModule.FindEntityOnAllMaps(connection.CharacterId);
+            TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData user);
             if (user == null)
             {
                 OwlLogger.LogError($"Received EntitySkillRequest for user {connection.CharacterId} that's not found on any map!", GameComponent.Skill);
@@ -352,7 +361,7 @@ namespace Server
                 return;
             }
 
-            map.BattleModule.ReceiveGroundSkillRequest(skillId, skillLvl, connection.CharacterId, target);
+            map.SkillModule.ReceiveSkillExecutionRequest(skillId, skillLvl, user, new(target));
         }
 
         private void ReceiveChatMessageRequest(ClientConnection connection, ChatMessageRequestData data)

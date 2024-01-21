@@ -718,20 +718,48 @@ namespace Client
                 return;
             }
 
-            ClientSkillExecution skill = new();
-            SkillTarget target = new(targetCoords);
-            if(targetId > 0)
+            // TODO: We either need skillexecution-ids to know which skillexecution to overwrite (if any, in case of a cast-time update for a cast the client already knows about, like an interruption)
+            // Or we simply assume that a single entity can only ever _cast_ a given skill-Id a single time, so if we have a cast-update for skillId X and we find a skill-execution for SkillId X that's currently casting,
+            // we overwrite its casttime instead of placing a new skill into the resolve-list.
+
+            ASkillExecution matchingSkillExec = null;
+            foreach(ASkillExecution skillExec in entity.CurrentlyResolvingSkills)
             {
-                ClientBattleEntity bTarget = MapModule.Grid.Data.FindOccupant(targetId) as ClientBattleEntity;
-                target.SetEntityTarget(bTarget);
+                // Don't use IsCasting() here since it causes an additional iteration over CurrentResolvingSkills - unnecessary
+                if (skillExec.SkillId == skillId
+                    && !skillExec.CastTime.IsFinished())
+                {
+                    matchingSkillExec = skillExec;
+                    break;
+                }
             }
 
-            skill.Initialize(skillId, -1, entity, -1, -1, 0, -1, target);
+            if(matchingSkillExec != null)
+            {
+                matchingSkillExec.CastTime = castTime;
+                // don't change target here because it's impossible & makes the client more complicated
+            }
+            else
+            {
+                ClientSkillExecution skill = new();
+                SkillTarget target = new(targetCoords);
+                if (targetId > 0)
+                {
+                    ClientBattleEntity bTarget = MapModule.Grid.Data.FindOccupant(targetId) as ClientBattleEntity;
+                    target.SetEntityTarget(bTarget);
+                }
 
-            skill.CastTime = castTime; // overwrite casttime, in case the packet sent partly-completed cast-times, which the initialize-function can't handle
+                skill.Initialize(skillId, 1, entity, 0, 1, 0, 0, target);
 
-            // this skill-object only needs to have its cast-time related values filled out
-            entity.CurrentlyResolvingSkills.Add(skill);
+                skill.CastTime = castTime; // overwrite casttime, in case the packet sent partly-completed cast-times, which the initialize-function can't handle
+
+                
+
+                // this skill-object only needs to have its cast-time related values filled out
+                entity.CurrentlyResolvingSkills.Add(skill);
+            }
+
+            
         }
 
         private void OnEntitySkillReceived(int userId, SkillId skillId, int targetId, float animCd)
@@ -756,7 +784,8 @@ namespace Client
             GridEntity target = MapModule.Grid.Data.FindOccupant(targetId);
             ClientBattleEntity bTarget = target as ClientBattleEntity;
             ClientSkillExecution skill = new();
-            skill.Initialize(skillId, -1, entity, -1, -1, 0, animCd, new(bTarget));
+            skill.Initialize(skillId, 1, entity, 0, 1, 0, animCd, new(bTarget));
+            skill.OnExecute();
 
             // TODO: fill out other values as best we can
 
@@ -778,7 +807,8 @@ namespace Client
             }
 
             ClientSkillExecution groundSkill = new();
-            groundSkill.Initialize(skillId, -1, entity, -1, -1, 0, animCd, new(targetCoords));
+            groundSkill.Initialize(skillId, 1, entity, 0, 1, 0, animCd, new(targetCoords));
+            groundSkill.OnExecute();
 
             // TODO: fill out other values as best we can
 
@@ -995,7 +1025,7 @@ namespace Client
             OwlLogger.Log($"Updating SkillQueue for local player with skill {skillId}", GameComponent.Character, LogSeverity.Verbose);
             ClientBattleEntity bTarget = MapModule.Grid.Data.FindOccupant(targetId) as ClientBattleEntity;
             ClientSkillExecution skill = new();
-            skill.Initialize(skillId, -1, CurrentCharacterData, -1, -1, -1, -1, new(bTarget));
+            skill.Initialize(skillId, 1, CurrentCharacterData, 0, 1, 0, 0, new(bTarget));
             CurrentCharacterData.QueuedSkill = skill;
         }
 
@@ -1015,7 +1045,7 @@ namespace Client
 
             OwlLogger.Log($"Updating SkillQueue for local player with skill {skillId}", GameComponent.Character, LogSeverity.Verbose);
             ClientSkillExecution skill = new();
-            skill.Initialize(skillId, -1, CurrentCharacterData, -1, -1, -1, -1, new(target));
+            skill.Initialize(skillId, 1, CurrentCharacterData, 0, 1, 0, 0, new(target));
             CurrentCharacterData.QueuedSkill = skill;
         }
 

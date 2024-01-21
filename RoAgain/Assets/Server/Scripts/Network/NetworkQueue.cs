@@ -1,8 +1,5 @@
 using OwlLogging;
-using Shared;
 using System.Collections.Generic;
-using UnityEditor;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Server
 {
@@ -63,7 +60,7 @@ namespace Server
 
             foreach(CharacterRuntimeData remoteChar in _remoteCharacterUpdates.Values)
             {
-                _connection.Send(remoteChar.ToDataPacket());
+                _connection.Send(remoteChar.ToRemoteDataPacket());
             }
 
             if (_localCharacterUpdate != null)

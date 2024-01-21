@@ -27,6 +27,12 @@ namespace Server
     public class AutoAttackSkillExecution : AServerSkillExecution
     {
         public override SkillId SkillId => SkillId.AutoAttack;
+        private bool _hasQueuedFollowup = false;
+
+        public override bool IsExecutionFinished()
+        {
+            return _hasQueuedFollowup;
+        }
 
         public static AutoAttackSkillExecution Create(int skillLvl, BattleEntity user, SkillTarget target, ServerMapInstance map)
         {
@@ -37,6 +43,12 @@ namespace Server
             // TODO: Validate Target (or somewhere in a base class)
 
             AutoAttackSkillExecution skill = new();
+
+            if(skillLvl != 2)
+            {
+                skill._hasQueuedFollowup = true;
+            }
+
             if (skill.Initialize(skillLvl, user, 0, range, 0f, user.GetDefaultAnimationCooldown(), target, map) != 0)
                 return null;
             return skill;
@@ -44,18 +56,21 @@ namespace Server
 
         public override void OnExecute()
         {
-            base.OnExecute();
-
-            // Indicates an auto-attack with Sticky-Attacking enabled, and last auto-attack succeeded
-            if (SkillLvl == 2)
+            if(!HasExecutionStarted)
             {
+                // Attack logic
+                Map.BattleModule.PerformPhysicalAttack(User, Target.EntityTarget as ServerBattleEntity, 1.0f);
+                base.OnExecute();
+            }
+            else if(!_hasQueuedFollowup)
+            {
+                // Indicates an auto-attack with Sticky-Attacking enabled, and last auto-attack succeeded
                 // Have entity attack again if no other skill has been queued up
                 // Depending on system, queueing up skill this early may not even have been possible for the user - which is fine.
-                User.QueuedSkill ??= Create(2, User, Target, Map);
+                if (User.QueuedSkill == null)
+                    Map.SkillModule.ReceiveSkillExecutionRequest(SkillId, 2, User, Target);
+                _hasQueuedFollowup = true;
             }
-
-            // Attack logic
-            Map.BattleModule.PerformPhysicalAttack(User, Target.EntityTarget as ServerBattleEntity, 1.0f);
         }
     }
 

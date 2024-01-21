@@ -107,7 +107,7 @@ namespace Shared
 
                 if (!skill.HasFinishedResolving())
                 {
-                    _isAnimationLocked |= skill.CastTime.IsFinished() && skill.AnimationCooldown.RemainingValue > 0;
+                    _isAnimationLocked |= skill.HasExecutionStarted && skill.AnimationCooldown.RemainingValue > 0;
                 }
             }
 

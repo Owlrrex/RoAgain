@@ -348,6 +348,12 @@ namespace Server
                 return -3;
             }
 
+            if (charData.Coordinates == GridData.INVALID_COORDS)
+            {
+                OwlLogger.LogError($"Can't persist character with invalid coordinates!", GameComponent.Persistence);
+                return -4;
+            }
+
             string path = MakeFilePathForCharacter(charData.CharacterId);
 
             string data = JsonUtility.ToJson(charData);
