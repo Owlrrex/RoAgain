@@ -82,5 +82,6 @@ namespace Shared
         HolyLight,
 
         ALL_EXCEPT_AUTO,
+        END
     }
 }

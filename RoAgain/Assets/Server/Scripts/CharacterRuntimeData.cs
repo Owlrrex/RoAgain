@@ -518,14 +518,6 @@ namespace Server
             return int.MinValue;
         }
 
-        public override SkillFailReason CanExecuteSkill(ASkillExecution skill)
-        {
-            if (GetSkillLevel(skill.SkillId) < skill.SkillLvl)
-                return SkillFailReason.NotLearned;
-
-            return base.CanExecuteSkill(skill);
-        }
-
         public RemoteCharacterDataPacket ToRemoteDataPacket()
         {
             return new RemoteCharacterDataPacket()

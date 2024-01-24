@@ -5,7 +5,6 @@ using static ChatModule;
 using Shared;
 using System.IO;
 using System;
-using UnityEditor;
 
 // This class currently mixes DummyNetwork-logic (managing DummyClient, Receive-functions) with Game-logic.
 // I'll need to split this up eventually before I introduce actual Netcode.
@@ -50,6 +49,8 @@ namespace Server
 
         private ACharacterDatabase _characterDatabase;
 
+        private SkillStaticDataDatabase _skillStaticDataDatabase;
+
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
 
@@ -66,6 +67,10 @@ namespace Server
             _chatModule = new();
             _expModule = new();
             _centralConnection.CharacterDisconnected += OnCharacterDisconnected;
+
+            Configuration config = new();
+            int configError = 1000000 * config.LoadConfig();
+
             int connectionInitError = _centralConnection.Initialize(this, "0.0.0.0:13337");
 
             int mapModuleError = 10 * _mapModule.Initialize(_expModule);
@@ -80,8 +85,8 @@ namespace Server
             _characterDatabase = new CharacterDatabase();
             int charDbError = 100000 * _characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
 
-            Configuration config = new();
-            int configError = 1000000 * config.LoadConfig();
+            _skillStaticDataDatabase = new();
+            _skillStaticDataDatabase.Register();
 
             int aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError;
             return aggregateError;

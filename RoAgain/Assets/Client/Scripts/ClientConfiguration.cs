@@ -47,8 +47,8 @@ namespace Client
 
     public class ClientConfiguration
     {
-        private const string HOTKEY_FILE_KEY = "HotkeyConfig";
-        private const string MISC_FILE_KEY = "MiscConfig";
+        private const string HOTKEY_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "HotkeyConfig";
+        private const string MISC_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "MiscConfig";
 
         public static ClientConfiguration Instance { get; private set; }
 

@@ -6,11 +6,22 @@ using UnityEngine;
 
 namespace Shared
 {
+    public enum FileAccessDirectory
+    {
+        Unknown,
+        Config,
+        Database
+    }
+
     public static class CachedFileAccess
     {
+        public const string CONFIG_PREFIX = "CFG_";
+        public const string SERVER_DB_PREFIX = "SDB_";
+        public const string CLIENT_DB_PREFIX = "CDB_";
+
         private static Dictionary<string, object> _loadedSets = new();
 
-        public static int Load<T>(string key, bool createIfEmpty) where T : class, new()
+        public static int Load<T>(string key, bool createIfNotFound) where T : class, new()
         {
             if(string.IsNullOrWhiteSpace(key))
             {
@@ -35,7 +46,7 @@ namespace Shared
             }
             else
             {
-                if(createIfEmpty)
+                if(createIfNotFound)
                 {
                     // No savefile available: Create default config & write it to disk
                     file = new();
@@ -74,11 +85,11 @@ namespace Shared
             return _loadedSets[key] as T;
         }
 
-        public static T GetOrLoad<T>(string key, bool createIfEmpty) where T : class, new()
+        public static T GetOrLoad<T>(string key, bool createIfNotFound) where T : class, new()
         {
             if (!IsLoaded(key))
             {
-                int loadResult = Load<T>(key, createIfEmpty);
+                int loadResult = Load<T>(key, createIfNotFound);
                 if(loadResult != 0)
                 {
                     OwlLogger.LogError($"Load failed for GetOrLoad of config {key}", GameComponent.Config);
@@ -122,10 +133,28 @@ namespace Shared
             _loadedSets[key] = newData;
             return 0;
         }
-
+        
         private static string MakePath(string key)
         {
-            return Path.Combine(Application.persistentDataPath, "Config", key + ".cfg");
+            Debug.Log("persistentDataPath: " + Application.persistentDataPath);
+            Debug.Log("consoleLogPath: " + Application.consoleLogPath);
+            Debug.Log("dataPath: " + Application.dataPath);
+            Debug.Log("streamingAssetsPath: " + Application.streamingAssetsPath);
+            Debug.Log("temporaryCachePath: " + Application.temporaryCachePath);
+
+            if (key.StartsWith(CONFIG_PREFIX))
+            {
+                return Path.Combine(Application.persistentDataPath, "Config", key.Remove(0, CONFIG_PREFIX.Length) + ".cfg");
+            }
+            else if(key.StartsWith(SERVER_DB_PREFIX))
+            {
+                return Path.Combine(Application.dataPath, "Server", "Databases", key.Remove(0, SERVER_DB_PREFIX.Length) + ".db");
+            }
+            else if(key.StartsWith(CLIENT_DB_PREFIX))
+            {
+                return Path.Combine(Application.dataPath, "Client", "Databases", key.Remove(0, CLIENT_DB_PREFIX.Length) + ".db");
+            }
+            return "";
         }
 
         public static int Purge(string key)

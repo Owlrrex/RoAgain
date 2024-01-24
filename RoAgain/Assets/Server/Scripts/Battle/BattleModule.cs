@@ -56,7 +56,7 @@ namespace Server
 
             bEntity.Death?.Invoke(bEntity, source);
             if(bEntity.QueuedSkill != null)
-                _map.SkillModule.ClearQueuedSkill(bEntity.QueuedSkill);
+                _map.SkillModule.ClearQueuedSkill(bEntity.QueuedSkill as ServerSkillExecution);
             bEntity.ClearPath();
             // TODO: Experience Penalty
         }
@@ -229,7 +229,14 @@ namespace Server
             }
         }
 
+        public int StandardPhysicalAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown)
+        {
+            return PerformPhysicalAttack(skillExec.User as ServerBattleEntity,
+                skillExec.Target.EntityTarget as ServerBattleEntity, skillFactor, overrideElement, false, true, false);
+        }
+
         // Return values:
+        // 3 = Crit
         // 2 = Perfect Dodge
         // 1 = natural Miss
         // 0 = hit
@@ -319,7 +326,11 @@ namespace Server
             if (damage == 0)
                 return 0;
 
-            return DealPhysicalHitDamage(source, target, (int)damage);
+            DealPhysicalHitDamage(source, target, (int)damage);
+            if (isCrit)
+                return 3;
+            else
+                return 0;
         }
 
         private float ModifyDamageForElement(ServerBattleEntity source, ServerBattleEntity target, float baseDamage, EntityElement attackElement, bool isMagical)
@@ -389,7 +400,18 @@ namespace Server
             return 0;
         }
 
-        public int PerformMagicalAttack(ServerBattleEntity source, ServerBattleEntity target, float skillFactor, EntityElement overrideElement = EntityElement.Unknown, bool canCrit = false, bool canMiss = true, bool ignoreDefense = false)
+        public int StandardMagicAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown)
+        {
+            return PerformMagicalAttack(skillExec.User as ServerBattleEntity,
+                skillExec.Target.EntityTarget as ServerBattleEntity, skillFactor, overrideElement, false, false, false);
+        }
+
+        // Return values:
+        // 3 = Crit
+        // 1 = natural Miss
+        // 0 = hit
+        public int PerformMagicalAttack(ServerBattleEntity source, ServerBattleEntity target, float skillFactor,
+            EntityElement overrideElement = EntityElement.Unknown, bool canCrit = false, bool canMiss = true, bool ignoreDefense = false)
         {
             float damage;
             // Crit
@@ -401,7 +423,8 @@ namespace Server
                 {
                     // Crit: Maxi atk, ignore Def
                     damage = source.MatkMax.Total * skillFactor;
-                    return DealMagicalHitDamage(source, target, (int)damage);
+                    DealMagicalHitDamage(source, target, (int)damage);
+                    return 3;
                 }
             }
 
@@ -447,7 +470,8 @@ namespace Server
             damage = ModifyDamageForRace(source, target, damage, true);
             damage = ModifyDamageForSize(source, target, damage, true);
 
-            return DealMagicalHitDamage(source, target, (int)damage);
+            DealMagicalHitDamage(source, target, (int)damage);
+            return 0;
         }
 
         public int DealMagicalHitDamage(ServerBattleEntity source, ServerBattleEntity target, int damage)

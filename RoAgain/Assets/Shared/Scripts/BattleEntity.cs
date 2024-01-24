@@ -27,32 +27,6 @@ namespace Shared
         public Action<BattleEntity, int, bool> TookDamage;
         public Action<BattleEntity, BattleEntity> Death;
 
-        // This function should only have logic applicable to most skills generally
-        public virtual SkillFailReason CanExecuteSkill(ASkillExecution skill)
-        {
-            if (IsDead())
-                return SkillFailReason.Death;
-
-            if (!CanAct())
-                return SkillFailReason.AnimationLocked;
-
-            if (SkillCooldowns.ContainsKey(SkillId.ALL_EXCEPT_AUTO)
-                && !SkillCooldowns[SkillId.ALL_EXCEPT_AUTO].IsFinished())
-                return SkillFailReason.OnCooldown;
-            else if (SkillCooldowns.ContainsKey(skill.SkillId)
-                && !SkillCooldowns[skill.SkillId].IsFinished())
-                return SkillFailReason.OnCooldown;
-
-            if (IsCasting())
-                return SkillFailReason.AlreadyCasting;
-
-            if (CurrentSp < skill.SpCost)
-                return SkillFailReason.NotEnoughSp;
-
-            // Check for statuses like Silence, other general conditions like Ammo
-            return skill.CanBeExecutedBy(this); // Otherwise, this function may contain special checks for unusual item requirements, etc
-        }
-
         public override bool CanMove()
         {
             return base.CanMove() && !IsAnimationLocked() && !IsCasting() && !IsDead(); // TODO: More advanced conditions: Statuses, FreeCast, etc
@@ -105,10 +79,7 @@ namespace Shared
                     skill.AnimationCooldown.Update(deltaTime);
                 }
 
-                if (!skill.HasFinishedResolving())
-                {
-                    _isAnimationLocked |= skill.HasExecutionStarted && skill.AnimationCooldown.RemainingValue > 0;
-                }
+                _isAnimationLocked |= skill.HasExecutionStarted && skill.AnimationCooldown.IsFinished();
             }
 
             _skillCooldownsToRemove_Reuse.Clear();

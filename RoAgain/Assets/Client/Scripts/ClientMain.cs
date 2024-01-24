@@ -753,13 +753,9 @@ namespace Client
 
                 skill.CastTime = castTime; // overwrite casttime, in case the packet sent partly-completed cast-times, which the initialize-function can't handle
 
-                
-
                 // this skill-object only needs to have its cast-time related values filled out
                 entity.CurrentlyResolvingSkills.Add(skill);
             }
-
-            
         }
 
         private void OnEntitySkillReceived(int userId, SkillId skillId, int targetId, float animCd)
@@ -785,7 +781,7 @@ namespace Client
             ClientBattleEntity bTarget = target as ClientBattleEntity;
             ClientSkillExecution skill = new();
             skill.Initialize(skillId, 1, entity, 0, 1, 0, animCd, new(bTarget));
-            skill.OnExecute();
+            skill.HasExecutionStarted = true;
 
             // TODO: fill out other values as best we can
 
@@ -808,7 +804,7 @@ namespace Client
 
             ClientSkillExecution groundSkill = new();
             groundSkill.Initialize(skillId, 1, entity, 0, 1, 0, animCd, new(targetCoords));
-            groundSkill.OnExecute();
+            groundSkill.HasExecutionStarted = true;
 
             // TODO: fill out other values as best we can
 

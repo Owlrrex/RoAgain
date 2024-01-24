@@ -9,6 +9,8 @@ namespace Server
     {
         private ServerMapInstance _mapInstance;
 
+        private ASkillImpl[] _skillLogicListFast;
+
         public int Initialize(ServerMapInstance mapInstance)
         {
             if(mapInstance == null)
@@ -17,8 +19,26 @@ namespace Server
                 return -1;
             }
 
+            SetupSkillLogicObjects();
+
             _mapInstance = mapInstance;
             return 0;
+        }
+
+        private void SetupSkillLogicObjects()
+        {
+            _skillLogicListFast = new ASkillImpl[(int)SkillId.END]; // this allocates more memory than needed due to sparse enum - should be fine
+
+            // TODO: Add one object for each skill Id
+            _skillLogicListFast[(int)SkillId.AutoAttack] = new AutoAttackSkillImpl();
+            _skillLogicListFast[(int)SkillId.PlaceWarp] = new PlaceWarpSkillImpl();
+
+            _skillLogicListFast[(int)SkillId.FireBolt] = new FireBoltSkillImpl();
+        }
+
+        public ASkillImpl GetSkillLogic(SkillId skillId)
+        {
+            return _skillLogicListFast[(int)skillId];
         }
 
         public int ReceiveSkillExecutionRequest(SkillId skillId, int skillLvl, ServerBattleEntity user, SkillTarget target)
@@ -71,12 +91,16 @@ namespace Server
                 }
             }
 
+            ASkillImpl logic = GetSkillLogic(skillId);
+            if(logic == null)
+                return -10; // Already logged in GetSkillLogic
+
             // Here: Other checks that can be done before allocating a SkillExecution
 
-            AServerSkillExecution skillExec = CreateSkillExecution(skillId, skillLvl, user, target);
+            ServerSkillExecution skillExec = CreateSkillExecution(skillId, skillLvl, user, target);
 
-            SkillFailReason executeReason = skillExec.User.CanExecuteSkill(skillExec);
-            SkillFailReason targetReason = skillExec.CheckTarget();
+            SkillFailReason executeReason = logic.CanBeExecuted(skillExec, user);
+            SkillFailReason targetReason = logic.CheckTarget(skillExec);
             
             if(executeReason != SkillFailReason.None
                 && executeReason != SkillFailReason.AnimationLocked)
@@ -110,29 +134,20 @@ namespace Server
             return 0;
         }
 
-        private AServerSkillExecution CreateSkillExecution(SkillId skillId, int skillLvl, ServerBattleEntity user, SkillTarget target)
+        private ServerSkillExecution CreateSkillExecution(SkillId skillId, int skillLvl, ServerBattleEntity user, SkillTarget target)
         {
-            AServerSkillExecution skill;
-            switch (skillId)
+            ServerSkillExecution skillExec = new();
+            int initError = skillExec.InitializeFromStatic(skillId, skillLvl, user, target, _mapInstance);
+            if (initError != 0)
             {
-                case SkillId.AutoAttack:
-                    skill = AutoAttackSkillExecution.Create(skillLvl, user, target, _mapInstance);
-                    break;
-                case SkillId.FireBolt:
-                    skill = FireBoltSkillExecution.Create(skillLvl, user, target, _mapInstance);
-                    break;
-                case SkillId.PlaceWarp:
-                    skill = PlaceWarpSkillExecution.Create(skillLvl, user, target, _mapInstance);
-                    break;
-                default:
-                    OwlLogger.LogError($"Tried to create execution of unknown skillId {skillId}!", GameComponent.Skill);
-                    return null;
+                OwlLogger.LogError($"SkillExecution initialization error {initError}!", GameComponent.Skill);
+                return null;
             }
 
-            return skill;
+            return skillExec;
         }
 
-        private void EnqueueSkill(AServerSkillExecution skillExec)
+        private void EnqueueSkill(ServerSkillExecution skillExec)
         {
             skillExec.User.QueuedSkill = skillExec;
 
@@ -173,30 +188,34 @@ namespace Server
 
                 if(bEntity.QueuedSkill != null)
                 {
-                    UpdateQueuedSkill(bEntity.QueuedSkill);
+                    UpdateQueuedSkill(bEntity.QueuedSkill as ServerSkillExecution);
                 }
 
                 for(int i = bEntity.CurrentlyResolvingSkills.Count -1; i >= 0; i--)
                 {
-                    if (bEntity.CurrentlyResolvingSkills[i].HasFinishedResolving())
+                    ASkillImpl logic = GetSkillLogic(bEntity.CurrentlyResolvingSkills[i].SkillId);
+                    ServerSkillExecution skillExec = bEntity.CurrentlyResolvingSkills[i] as ServerSkillExecution;
+                    if (logic.HasFinishedResolving(skillExec))
                     {
                         // Skill completed successfully
-                        bEntity.CurrentlyResolvingSkills[i].OnCompleted(true);
+                        logic.OnCompleted(skillExec, true);
                         bEntity.CurrentlyResolvingSkills.RemoveAt(i);
                     }
                 }
 
                 for(int i = bEntity.CurrentlyResolvingSkills.Count -1; i >= 0; i--)
                 {
-                    UpdateSkillResolution(bEntity.CurrentlyResolvingSkills[i]);
+                    UpdateSkillResolution(bEntity.CurrentlyResolvingSkills[i] as ServerSkillExecution);
                 }
             }
         }
 
-        private void UpdateQueuedSkill(ASkillExecution skillExec)
+        private void UpdateQueuedSkill(ServerSkillExecution skillExec)
         {
-            SkillFailReason executeReason = skillExec.User.CanExecuteSkill(skillExec);
-            SkillFailReason targetReason = skillExec.CheckTarget();
+            ASkillImpl logic = GetSkillLogic(skillExec.SkillId);
+
+            SkillFailReason executeReason = logic.CanBeExecuted(skillExec, skillExec.User);
+            SkillFailReason targetReason = logic.CheckTarget(skillExec);
 
             if (executeReason != SkillFailReason.None
                 && executeReason != SkillFailReason.AnimationLocked)
@@ -232,7 +251,7 @@ namespace Server
                 StartCast(skillExec);
         }
 
-        public void ClearQueuedSkill(ASkillExecution skillExec)
+        public void ClearQueuedSkill(ServerSkillExecution skillExec)
         {
             if(skillExec.User.QueuedSkill != skillExec)
             {
@@ -253,7 +272,7 @@ namespace Server
             character.Connection.Send(packet);
         }
 
-        private bool UpdateQueuedSkillPathing(ASkillExecution skillExec)
+        private bool UpdateQueuedSkillPathing(ServerSkillExecution skillExec)
         {
             Vector2Int targetCoords = skillExec.Target.GetTargetCoordinates();
 
@@ -277,7 +296,7 @@ namespace Server
             return pathResult == 0;
         }
 
-        private void UpdateSkillResolution(ASkillExecution skillExec)
+        private void UpdateSkillResolution(ServerSkillExecution skillExec)
         {
             if(skillExec.HasCastTime())
             {
@@ -287,9 +306,11 @@ namespace Server
                 FinishCast(skillExec, false);
             }
 
+            ASkillImpl logic = GetSkillLogic(skillExec.SkillId);
+
             if (!skillExec.HasExecutionStarted)
             {
-                SkillFailReason executeReason = skillExec.User.CanExecuteSkill(skillExec);
+                SkillFailReason executeReason = logic.CanBeExecuted(skillExec, skillExec.User);
                 if(executeReason != SkillFailReason.None)
                 {
                     AbortSkill(skillExec);
@@ -297,7 +318,7 @@ namespace Server
                     return;
                 }
 
-                SkillFailReason targetReason = skillExec.CheckTarget();
+                SkillFailReason targetReason = logic.CheckTarget(skillExec);
                 if(targetReason != SkillFailReason.None)
                 {
                     AbortSkill(skillExec);
@@ -309,12 +330,12 @@ namespace Server
             }
             else
             {
-                if(!skillExec.IsExecutionFinished())
-                    skillExec.OnExecute();
+                if(!logic.IsExecutionFinished(skillExec))
+                    logic.OnExecute(skillExec);
             }
         }
 
-        private void StartCast(ASkillExecution skillExec)
+        private void StartCast(ServerSkillExecution skillExec)
         {
             // Improvement over RO: Also send this packet to players in vision of the _target_,
             // so that targeting indicators from casters happening offscreen can be displayed
@@ -344,12 +365,12 @@ namespace Server
                 observer.Connection.Send(packet);
             }
 
-            skillExec.OnCastStart();
+            GetSkillLogic(skillExec.SkillId).OnCastStart(skillExec);
         }
 
-        private void FinishCast(ASkillExecution skillExec, bool interrupted)
+        private void FinishCast(ServerSkillExecution skillExec, bool interrupted)
         {
-            skillExec.OnCastEnd(interrupted);
+            GetSkillLogic(skillExec.SkillId).OnCastEnd(skillExec, interrupted);
 
             if (interrupted)
             {
@@ -378,7 +399,7 @@ namespace Server
             }
         }
 
-        private void ExecuteSkill(ASkillExecution skill)
+        private void ExecuteSkill(ServerSkillExecution skill)
         {
             float animCd = skill.User.GetDefaultAnimationCooldown(); // TODO: animCd system
 
@@ -439,7 +460,9 @@ namespace Server
             // TODO: System for other costs
             _mapInstance.BattleModule.UpdateSp(skill.User as ServerBattleEntity, -skill.SpCost);
 
-            Dictionary<SkillId, float> skillCooldownsToSet = skill.GetSkillCoolDowns();
+            ASkillImpl logic = GetSkillLogic(skill.SkillId);
+
+            Dictionary<SkillId, float> skillCooldownsToSet = logic.GetSkillCoolDowns();
             if (skillCooldownsToSet != null)
             {
                 foreach (var kvp in skillCooldownsToSet)
@@ -452,7 +475,7 @@ namespace Server
                 }
             }
 
-            skill.OnExecute();
+            logic.OnExecute(skill);
         }
 
         /// <summary>
@@ -468,7 +491,7 @@ namespace Server
             bool anyInterrupt = false;
             for(int i = bEntity.CurrentlyResolvingSkills.Count -1; i >= 0;  i--)
             {
-                ASkillExecution skillExec = bEntity.CurrentlyResolvingSkills[i];
+                ServerSkillExecution skillExec = bEntity.CurrentlyResolvingSkills[i] as ServerSkillExecution;
                 if (skillExec.CastTime.IsFinished())
                     continue;
 
@@ -482,7 +505,7 @@ namespace Server
             return anyInterrupt;
         }
 
-        private void AbortSkill(ASkillExecution skillExec)
+        private void AbortSkill(ServerSkillExecution skillExec)
         {
             if(skillExec.HasCastTime())
             {
@@ -490,7 +513,7 @@ namespace Server
             }
 
             skillExec.AnimationCooldown.RemainingValue = 0;
-            skillExec.OnCompleted(false);
+            GetSkillLogic(skillExec.SkillId).OnCompleted(skillExec, false);
 
             skillExec.User.CurrentlyResolvingSkills.Remove(skillExec);
         }

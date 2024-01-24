@@ -97,7 +97,7 @@ public class ClientMapModule
                     // remove skills that have finished casting from list
                     // When a skill transitions from casting to animating (=anim-cd), it will be re-added via a SkillExecution packet
                     // Using IsFinishedExecuting() (instead of separate ifs) relies on the assumption that a casting-skill's anim-cd will finish before the cast, and vice versa
-                    if (skill.HasFinishedResolving())
+                    if (skill.CastTime.IsFinished() && skill.AnimationCooldown.IsFinished())
                     {
                         bEntity.CurrentlyResolvingSkills.RemoveAt(i);
                     }

@@ -95,11 +95,12 @@ namespace Shared
     }
 
     // This class represents a single use of a given skill.
-    public abstract class ASkillExecution
+    public abstract class ASkillExecution : IAutoInitPoolObject
     {
         public abstract SkillId SkillId { get; }
         public int SkillLvl;
         public BattleEntity User;
+        public SkillTarget Target;
 
         // These are the values modified by the user's stats & any other circumstance
         public TimerFloat CastTime = new();
@@ -112,10 +113,7 @@ namespace Shared
 
         public int Range;
 
-        public SkillTarget Target;
-
-        // Not sure if this is ideal
-        public bool HasExecutionStarted { get; private set; }
+        public bool HasExecutionStarted;
 
         protected int Initialize(int skillLvl, BattleEntity user, int spCost, int range, float castTime, float animCd, SkillTarget target)
         {
@@ -167,66 +165,34 @@ namespace Shared
             return 0;
         }
 
-        // This function should only contain skill-specific logic, like FreeCast, movement-skills being blocked by conditions, etc.
-        public virtual SkillFailReason CanBeExecutedBy(BattleEntity entity)
-        {
-            return SkillFailReason.None;
-        }
-
-        public virtual SkillFailReason CheckTarget()
-        {
-            if(!Target.IsValid())
-                return SkillFailReason.TargetInvalid;
-            
-            if(Target.IsGroundTarget())
-            {
-                if (Extensions.GridDistanceSquare(User.Coordinates, Target.GroundTarget) > Range)
-                    return SkillFailReason.OutOfRange;
-            }
-            else
-            {
-                if (Target.EntityTarget.IsDead())
-                    return SkillFailReason.Death;
-
-                if (Target.EntityTarget.MapId != User.MapId
-                    || Extensions.GridDistanceSquare(User.Coordinates, Target.EntityTarget.Coordinates) > Range)
-                    return SkillFailReason.OutOfRange;
-            }
-
-            return SkillFailReason.None;
-        }
-
-        // Which skills will go on a cooldown other than AnimationDelay
-        public virtual Dictionary<SkillId, float> GetSkillCoolDowns()
-        {
-            return null;
-        }
-
-        public virtual bool HasFinishedResolving()
-        {
-            return CastTime.IsFinished() && AnimationCooldown.IsFinished();
-        }
-
-        public virtual bool IsExecutionFinished()
-        {
-            return HasExecutionStarted;
-        }
-
         // Does/did this execution require a cast time, no matter its progress state?
         public bool HasCastTime()
         {
             return CastTime.MaxValue != 0;
         }
 
-        // Not called for skills with 0 cast time
-        public virtual void OnCastStart() { }
-        public virtual void OnCastEnd(bool wasInterrupted) { }
+        //// Not called for skills with 0 cast time
+        //public virtual void OnCastStart() { }
+        //public virtual void OnCastEnd(bool wasInterrupted) { }
 
-        // Called when CastTime (if any) & animation delay is about to start
-        // contains main skill effect
-        // Will be called repeatedly for skills that don't have 
-        public virtual void OnExecute() { HasExecutionStarted = true; }
-        // Called when CastTime & AnimationDelay of this skill are over, execution is completely complete, skill is about to be removed from entity. Will be called for interrupted skills as well!
-        public virtual void OnCompleted(bool wasSuccessful) { }
+        //// Called when CastTime (if any) & animation delay is about to start
+        //// contains main skill effect
+        //// Will be called repeatedly for skills that don't have 
+        //public virtual void OnExecute() {  }
+        //// Called when CastTime & AnimationDelay of this skill are over, execution is completely complete, skill is about to be removed from entity. Will be called for interrupted skills as well!
+        //public virtual void OnCompleted(bool wasSuccessful) { }
+
+        public virtual void Reset()
+        {
+            SkillLvl = 0;
+            User = null;
+            Target = default;
+            CastTime.Initialize(0);
+            CanBeInterrupted = true;
+            AnimationCooldown.Initialize(0);
+            SpCost = 0;
+            Range = 0;
+            HasExecutionStarted = false;
+        }
     }
 }

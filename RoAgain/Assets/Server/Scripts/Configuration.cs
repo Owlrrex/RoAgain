@@ -14,7 +14,7 @@ namespace Server
 
     public class Configuration
     {
-        private const string CONFIG_FILE_KEY = "ServerConfig";
+        private const string CONFIG_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "ServerConfig";
 
         public static Configuration Instance { get; private set; }
 
