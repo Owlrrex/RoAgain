@@ -65,27 +65,27 @@ namespace Shared
             EntityTarget = entityTarget;
         }
 
-        public bool IsSet()
+        public readonly bool IsSet()
         {
             return IsGroundTarget() || IsEntityTarget();
         }
 
-        public bool IsValid()
+        public readonly bool IsValid()
         {
             return IsGroundTarget() ^ IsEntityTarget();
         }
 
-        public bool IsGroundTarget()
+        public readonly bool IsGroundTarget()
         {
             return GroundTarget != GridData.INVALID_COORDS;
         }
 
-        public bool IsEntityTarget()
+        public readonly bool IsEntityTarget()
         {
             return EntityTarget != null;
         }
 
-        public Vector2Int GetTargetCoordinates()
+        public readonly Vector2Int GetTargetCoordinates()
         {
             if (IsEntityTarget())
                 return EntityTarget.Coordinates;
@@ -170,17 +170,6 @@ namespace Shared
         {
             return CastTime.MaxValue != 0;
         }
-
-        //// Not called for skills with 0 cast time
-        //public virtual void OnCastStart() { }
-        //public virtual void OnCastEnd(bool wasInterrupted) { }
-
-        //// Called when CastTime (if any) & animation delay is about to start
-        //// contains main skill effect
-        //// Will be called repeatedly for skills that don't have 
-        //public virtual void OnExecute() {  }
-        //// Called when CastTime & AnimationDelay of this skill are over, execution is completely complete, skill is about to be removed from entity. Will be called for interrupted skills as well!
-        //public virtual void OnCompleted(bool wasSuccessful) { }
 
         public virtual void Reset()
         {
