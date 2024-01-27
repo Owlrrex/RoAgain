@@ -59,9 +59,9 @@ namespace Server
                             contributor.CurrentBaseExp = 0;
                             break;
                         }
-                        contributor.CurrentBaseExp = newBaseExp;
                     }
-                    
+
+                    contributor.CurrentBaseExp = newBaseExp;
                     anyExpChanged = true;
                 }
 
@@ -80,9 +80,8 @@ namespace Server
                             contributor.CurrentJobExp = 0;
                             break;
                         }
-                        contributor.CurrentJobExp = newJobExp;
                     }
-                    
+                    contributor.CurrentJobExp = newJobExp;
                     anyExpChanged = true;
                 }
 
@@ -104,8 +103,8 @@ namespace Server
 
             bEntity.BaseLvl.Value += 1;
             // Non-player Stat-changes here
-            map.BattleModule.UpdateHp(bEntity, bEntity.MaxHp.Total, bEntity);
-            map.BattleModule.UpdateSp(bEntity, bEntity.MaxSp.Total);
+            map.BattleModule.ChangeHp(bEntity, bEntity.MaxHp.Total, bEntity);
+            map.BattleModule.ChangeSp(bEntity, bEntity.MaxSp.Total);
 
             if (bEntity is CharacterRuntimeData character)
             {

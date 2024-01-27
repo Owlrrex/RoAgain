@@ -732,9 +732,9 @@ public class GridData
         //    //return;
         //}
 
-        if (entity.MovementCooldown > 0)
+        if (!entity.CanMove())
         {
-            OwlLogger.LogError($"GridEntity {entity.Id} can't proceed along path: Movement still on cooldown!", GameComponent.Grid);
+            OwlLogger.LogError($"GridEntity {entity.Id} can't proceed along path: Can't move!", GameComponent.Grid);
             return;
         }
 

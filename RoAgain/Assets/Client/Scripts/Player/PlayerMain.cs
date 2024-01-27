@@ -80,6 +80,23 @@ public class PlayerMain : BattleEntityModelMain
             }
         }
 
+        foreach(ASkillExecution skillExec in _entity.CurrentlyResolvingSkills)
+        {
+            if(skillExec.Target.IsEntityTarget())
+            {
+                BattleEntityModelMain bTarget = ClientMain.Instance.MapModule.GetComponentFromEntityDisplay<BattleEntityModelMain>(skillExec.Target.EntityTarget.Id);
+                if (bTarget == null)
+                {
+                    OwlLogger.Log($"Player can't find BattleEntityModel for id {skillExec.Target.EntityTarget.Id} to show SkillTargetIndicator!", GameComponent.Character, LogSeverity.VeryVerbose);
+                }
+                else
+                {
+                    bTarget.DisplaySkillTargetIndicator(skillExec.SkillId);
+                    _skillIndicatorBuffer.Add(bTarget);
+                }
+            }
+        }
+
         // buffer now contains all units that still should have active indicators,
         // while _activeSkillIndicators contains old ones.
 

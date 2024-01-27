@@ -44,6 +44,7 @@ namespace Server
         public readonly Stat SoftMDef = new();
         public readonly StatFloat Crit = new();
         public readonly StatFloat CritShield = new();
+        public readonly StatFloat PerfectFlee = new();
         public readonly Stat Flee = new();
         public readonly Stat Hit = new();
 

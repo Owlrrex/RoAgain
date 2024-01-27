@@ -146,7 +146,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
             if (categoryButton == null)
                 continue;
 
-            OwlLogger.Log($"SkillTreeWindow discovered CategoryButton for category {categoryButton.Category}: {categoryButton.gameObject.name}", GameComponent.UI);
+            OwlLogger.Log($"SkillTreeWindow discovered CategoryButton for category {categoryButton.Category}: {categoryButton.gameObject.name}", GameComponent.UI, LogSeverity.VeryVerbose);
 
             categoryButton.OnClick += OnCategoryButtonClicked;
         }
@@ -400,6 +400,12 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
     private bool PlanSkillPoints(SkillTreeEntry skillEntry, int planAmount)
     {
+        if(planAmount <= 0)
+        {
+            OwlLogger.LogError($"Tried to plan invalid amount {planAmount} of skillpoints into skill {skillEntry.SkillId}!", GameComponent.UI);
+            return false;
+        }    
+
         if(_plannedSkillPoints.TryGetValue(skillEntry.SkillId, out int alreadyPlannedPoints))
         {
             if (alreadyPlannedPoints >= planAmount)
@@ -410,25 +416,31 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
             return false;
 
         bool allRequirementsFulfilled = true;
-        foreach(SkillId reqId in skillEntry.Requirements.Keys)
+        foreach (SkillId reqId in skillEntry.Requirements.Keys)
         {
-            if (_plannedSkillPoints.ContainsKey(reqId)
-                && (_plannedSkillPoints[reqId] >= skillEntry.Requirements[reqId]
-                    || _entries[reqId].LearnedSkillLvl >= skillEntry.Requirements[reqId]))
+            SkillTreeEntry reqEntry = ClientMain.Instance.CurrentCharacterData.SkillTree[reqId];
+            if (reqEntry.Category == SkillCategory.Temporary)
+                continue; // TODO: This WILL break the skill window once Temporary skills are used. Fix clientside storage of permanent & temporary skills
+
+            int alreadyLearendReqPoints = reqEntry.LearnedSkillLvl;
+            if (alreadyLearendReqPoints >= skillEntry.Requirements[reqId]
+                || (_plannedSkillPoints.ContainsKey(reqId)
+                    && alreadyLearendReqPoints + _plannedSkillPoints[reqId] >= skillEntry.Requirements[reqId]))
             {
                 // requirement is already fulfilled or planned to fulfill
             }
             else
             {
-                allRequirementsFulfilled &= PlanSkillPoints(_entries[reqId], skillEntry.Requirements[reqId]);
+                allRequirementsFulfilled &= PlanSkillPoints(_entries[reqId], skillEntry.Requirements[reqId] - alreadyLearendReqPoints);
             }
         }
 
         UpdateRemainingSkillPoints();
-        if(_projectedRemaining == 0)
-            return false;
 
         if(!allRequirementsFulfilled)
+            return false;
+
+        if (_projectedRemaining == 0)
             return false;
 
         int requiredSkillPointsForPlan = planAmount - alreadyPlannedPoints;

@@ -15,7 +15,8 @@ namespace Shared
         OutOfRange,
         OnCooldown,
         Death,
-        TargetInvalid
+        TargetInvalid,
+        WrongMap
     }
 
     public static class Skills

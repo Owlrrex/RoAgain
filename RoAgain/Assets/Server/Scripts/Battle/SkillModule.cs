@@ -186,7 +186,7 @@ namespace Server
 
                 bEntity.UpdateSkills(deltaTime);
 
-                if(bEntity.QueuedSkill != null)
+                if (bEntity.QueuedSkill != null)
                 {
                     UpdateQueuedSkill(bEntity.QueuedSkill as ServerSkillExecution);
                 }
@@ -207,6 +207,7 @@ namespace Server
                 {
                     UpdateSkillResolution(bEntity.CurrentlyResolvingSkills[i] as ServerSkillExecution);
                 }
+                bEntity.UpdateAnimationLockedState();
             }
         }
 
@@ -319,7 +320,10 @@ namespace Server
                 }
 
                 SkillFailReason targetReason = logic.CheckTarget(skillExec);
-                if(targetReason != SkillFailReason.None)
+                // TODO: Config value that allows out-of-range executes after cast
+                bool allowOutOfRangeFinish = false;
+                if(targetReason != SkillFailReason.None
+                    && !(allowOutOfRangeFinish && targetReason == SkillFailReason.OutOfRange))
                 {
                     AbortSkill(skillExec);
                     // TODO: Send SkillFail packet
@@ -349,6 +353,15 @@ namespace Server
                 CastTimeTotal = skillExec.CastTime.MaxValue,
                 CastTimeRemaining = skillExec.CastTime.RemainingValue
             };
+
+            if(skillExec.Target.IsEntityTarget())
+            {
+                packet.TargetId = skillExec.Target.EntityTarget.Id;
+            }
+            else
+            {
+                packet.TargetCoords = skillExec.Target.GroundTarget;
+            }
 
             List<GridEntity> sent = new();
             List<CharacterRuntimeData> observers = _mapInstance.Grid.GetObserversSquare<CharacterRuntimeData>(skillExec.User.Coordinates);
@@ -381,6 +394,15 @@ namespace Server
                     CastTimeTotal = skillExec.CastTime.MaxValue,
                     CastTimeRemaining = 0
                 };
+
+                if (skillExec.Target.IsEntityTarget())
+                {
+                    packet.TargetId = skillExec.Target.EntityTarget.Id;
+                }
+                else
+                {
+                    packet.TargetCoords = skillExec.Target.GroundTarget;
+                }
 
                 List<GridEntity> sent = new();
                 List<CharacterRuntimeData> observers = _mapInstance.Grid.GetObserversSquare<CharacterRuntimeData>(skillExec.User.Coordinates);
@@ -439,7 +461,7 @@ namespace Server
                     UserId = skill.User.Id,
                     TargetId = skill.Target.EntityTarget.Id,
                     AnimCd = animCd,
-                    Speak = skill.SkillId != SkillId.AutoAttack,
+                    Speak = skill.SkillId != SkillId.AutoAttack, // TODO: Account for other skills & conditions that aren't spoken (Double-Attack, autocasts?)
                 };
 
                 List<GridEntity> sent = new();
@@ -458,7 +480,7 @@ namespace Server
             }
 
             // TODO: System for other costs
-            _mapInstance.BattleModule.UpdateSp(skill.User as ServerBattleEntity, -skill.SpCost);
+            _mapInstance.BattleModule.ChangeSp(skill.User as ServerBattleEntity, -skill.SpCost);
 
             ASkillImpl logic = GetSkillLogic(skill.SkillId);
 

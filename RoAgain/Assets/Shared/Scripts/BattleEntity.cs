@@ -24,7 +24,7 @@ namespace Shared
         [NonSerialized]
         public Dictionary<SkillId, TimerFloat> SkillCooldowns = new();
 
-        public Action<BattleEntity, int, bool> TookDamage;
+        public Action<BattleEntity, int, bool, bool, int> TookDamage;
         public Action<BattleEntity, BattleEntity> Death;
 
         public override bool CanMove()
@@ -32,10 +32,10 @@ namespace Shared
             return base.CanMove() && !IsAnimationLocked() && !IsCasting() && !IsDead(); // TODO: More advanced conditions: Statuses, FreeCast, etc
         }
 
-        // Don't reference CanMove() here since CanMove may include some statuses like Ankle Snare that root, but don't incapacitate
+        // Don't reference our own CanMove() here since CanMove may include some statuses like Ankle Snare that root, but don't incapacitate
         public virtual bool CanAct()
         {
-            return MovementCooldown <= 0 && !IsAnimationLocked() && !IsDead();
+            return base.CanMove() && !IsAnimationLocked() && !IsDead();
         }
 
         public void MarkAsDead(bool newValue)
@@ -74,12 +74,10 @@ namespace Shared
                     skill.CastTime.Update(deltaTime);
                 }
 
-                if(skill.HasExecutionStarted)
+                if (skill.HasExecutionStarted)
                 {
                     skill.AnimationCooldown.Update(deltaTime);
                 }
-
-                _isAnimationLocked |= skill.HasExecutionStarted && skill.AnimationCooldown.IsFinished();
             }
 
             _skillCooldownsToRemove_Reuse.Clear();
@@ -93,6 +91,15 @@ namespace Shared
             foreach (SkillId skillId in _skillCooldownsToRemove_Reuse)
             {
                 SkillCooldowns.Remove(skillId);
+            }
+        }
+
+        public void UpdateAnimationLockedState()
+        {
+            _isAnimationLocked = false;
+            foreach(ASkillExecution skillExec in CurrentlyResolvingSkills)
+            {
+                _isAnimationLocked |= skillExec.HasExecutionStarted && !skillExec.AnimationCooldown.IsFinished();
             }
         }
 

@@ -43,7 +43,6 @@ namespace Server
 
         public readonly StatFloat CastTime = new();
         public readonly Stat CritDamage = new();
-        public readonly StatFloat PerfectFlee = new();
         public readonly Stat WeightLimit = new();
 
         public bool IsTranscendent;
@@ -399,15 +398,15 @@ namespace Server
             // TODO: Explore impact of current modifier-structure on variation being set at base-level (instead of as part of skill)
 
             // TODO: replace Static variation with dex-based variation
-            MeleeAtkMax.SetBase((int)(baseMelee * 1.1f));
-            MeleeAtkMin.SetBase((int)(baseMelee * 0.9f));
+            MeleeAtkMax.SetBase((int)(baseMelee * 1.2f));
+            MeleeAtkMin.SetBase((int)(baseMelee * 1.0f));
 
             float dexRanged = Dex.Total + (Dex.Total * Dex.Total / 100.0f);
             float strRanged = Str.Total * 0.2f;
             float baseRanged = dexRanged + strRanged + lukAtk;
             // TODO: replace Static variation with dex-based variation
-            RangedAtkMax.SetBase((int)(baseRanged * 1.1f));
-            RangedAtkMin.SetBase((int)(baseRanged * 0.9f));
+            RangedAtkMax.SetBase((int)(baseRanged * 1.2f));
+            RangedAtkMin.SetBase((int)(baseRanged * 1.0f));
 
             // Original AtkDiff is only for weapon-damage (not str-damage), based on dex & weapon level
             // While the concept of "dex & higher level weapons make your damage spread less" is easy to grasp, it's poorly explained and a VERY weird formula. 

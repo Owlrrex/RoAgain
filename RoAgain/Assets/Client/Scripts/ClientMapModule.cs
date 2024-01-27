@@ -57,16 +57,6 @@ public class ClientMapModule
 
             foreach (GridEntity entity in enteredVisible)
             {
-                // This is somewhat hacky code-reuse: We simulate a EntityData-received packet by building for an entity that already exists locally
-                // TODO: Clean up mover-creation & make it independent of EntityDataPacket
-                // Ideally, the EntityDataPacket enters an entity onto the Grid only, and the Mover gets created on the next visibility-update
-                //OwlLogger.Log($"Simulating OnEntityData for entity {entity.Id} that has entered visibility.", GameComponent.Other, LogSeverity.VeryVerbose);
-                //GridEntityData pseudodata = new()
-                //{
-
-                //};
-                //// TODO: Fill in data
-                //OnGridEntityData(pseudodata);
                 if (entity == ClientMain.Instance.CurrentCharacterData)
                     continue;
 
@@ -96,12 +86,20 @@ public class ClientMapModule
 
                     // remove skills that have finished casting from list
                     // When a skill transitions from casting to animating (=anim-cd), it will be re-added via a SkillExecution packet
-                    // Using IsFinishedExecuting() (instead of separate ifs) relies on the assumption that a casting-skill's anim-cd will finish before the cast, and vice versa
-                    if (skill.CastTime.IsFinished() && skill.AnimationCooldown.IsFinished())
+                    if (skill.CastTime.IsFinished())
                     {
-                        bEntity.CurrentlyResolvingSkills.RemoveAt(i);
+                        if(skill.AnimationCooldown.IsFinished())
+                        {
+                            bEntity.CurrentlyResolvingSkills.RemoveAt(i);
+                        }
+                        else
+                        {
+                            skill.HasExecutionStarted = true;
+                        }
                     }
                 }
+
+                bEntity.UpdateAnimationLockedState();
 
                 // Tick & remove skill-cooldowns (used for UI)
                 _skillIdsFinishedReuse.Clear();

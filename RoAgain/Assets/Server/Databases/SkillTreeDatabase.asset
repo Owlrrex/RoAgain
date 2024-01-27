@@ -58,7 +58,7 @@ MonoBehaviour:
       Position: 4
       Requirements:
       - RequirementId: 3
-        RequirementLevel: 5
+        RequirementLevel: 3
   - Job: 2
     SkillTree:
     - Skill: 12

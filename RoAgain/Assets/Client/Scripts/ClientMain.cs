@@ -689,7 +689,7 @@ namespace Client
             MapModule.OnCellEffectGroupRemoved(groupId);
         }
 
-        private void OnDamageTakenReceived(int entityId, int damage, bool isSpDamage)
+        private void OnDamageTakenReceived(int entityId, int damage, bool isSpDamage, bool isCrit, int chainCount)
         {
             // This being handled in ClientMain directly feels wrong. Maybe move to different class later
             if (MapModule.Grid.Data.FindOccupant(entityId) is not ClientBattleEntity entity)
@@ -707,7 +707,7 @@ namespace Client
             {
                 entity.CurrentHp = Math.Clamp(entity.CurrentHp - damage, 0, entity.MaxHp.Total);
             }
-            entity.TookDamage?.Invoke(entity, damage, isSpDamage);
+            entity.TookDamage?.Invoke(entity, damage, isSpDamage, isCrit, chainCount);
         }
 
         private void OnCastProgressReceived(int casterId, SkillId skillId, TimerFloat castTime, int targetId, Vector2Int targetCoords)
@@ -742,14 +742,18 @@ namespace Client
             else
             {
                 ClientSkillExecution skill = new();
-                SkillTarget target = new(targetCoords);
+                SkillTarget target;
                 if (targetId > 0)
                 {
                     ClientBattleEntity bTarget = MapModule.Grid.Data.FindOccupant(targetId) as ClientBattleEntity;
-                    target.SetEntityTarget(bTarget);
+                    target = new(bTarget);
+                }
+                else
+                {
+                    target = new(targetCoords);
                 }
 
-                skill.Initialize(skillId, 1, entity, 0, 1, 0, 0, target);
+                skill.Initialize(skillId, 1, entity, 0, 1, 0, 0.1f, target);
 
                 skill.CastTime = castTime; // overwrite casttime, in case the packet sent partly-completed cast-times, which the initialize-function can't handle
 

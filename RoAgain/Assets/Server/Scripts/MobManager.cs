@@ -162,10 +162,9 @@ namespace Server
             };
             mob.Movespeed.Value = 2;
             mob.BaseLvl.Value = (int)(5 * factor);
-            mob.MaxHp.SetBase((int)(30.0f * factor));
+            mob.MaxHp.SetBase((int)(15.0f * factor * factor));
             mob.MaxSp.SetBase(10);
             mob.Flee.SetBase((int)(10.0f * factor));
-            mob.SoftDef.SetBase((int)(3.0f * factor));
             mob.HardDef.SetBase((int)(0.2f * factor));
 
             mob.Death += OnEntityDeath;

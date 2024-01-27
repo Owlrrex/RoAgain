@@ -168,8 +168,12 @@ namespace Server
                 if (skillExec.Target.EntityTarget.IsDead())
                     return SkillFailReason.Death;
 
-                if (skillExec.Target.EntityTarget.MapId != skillExec.User.MapId
-                    || Extensions.GridDistanceSquare(skillExec.User.Coordinates, skillExec.Target.EntityTarget.Coordinates) > skillExec.Range)
+                if (skillExec.Target.EntityTarget.MapId != skillExec.User.MapId)
+                    return SkillFailReason.WrongMap;
+
+                int distance = Extensions.GridDistanceSquare(skillExec.User.Coordinates, skillExec.Target.EntityTarget.Coordinates);
+                // TODO: Divide this into "OutOfRange_Near" & "OutOfRange_Far" for purposes of allowing out-of-range cast finishes
+                if (distance > skillExec.Range)
                     return SkillFailReason.OutOfRange;
             }
 
@@ -242,8 +246,17 @@ namespace Server
         {
             if (!skillExec.HasExecutionStarted)
             {
-                // Don't use StandardAttack here - Auto-attacks can crit!
-                skillExec.Map.BattleModule.PerformPhysicalAttack(skillExec.User as ServerBattleEntity, skillExec.Target.EntityTarget as ServerBattleEntity, 1.0f, EntityElement.Unknown, true, true, false);
+                // Don't use StandardPhysicalAttack here - Auto-attacks can crit!
+                AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
+                parameters.Source = skillExec.User as ServerBattleEntity;
+                parameters.AttackType = AttackType.Physical;
+                parameters.CanCrit = true;
+                parameters.CanMiss = true;
+                parameters.IgnoreDefense = false;
+                parameters.ChainCount = 0;
+
+                skillExec.Map.BattleModule.PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
+                AutoInitResourcePool<AttackParams>.Return(parameters);
                 base.OnExecute(skillExec);
             }
             else if (skillExec.Var1 == 0)
@@ -264,10 +277,11 @@ namespace Server
     public class FireBoltSkillImpl : ASkillImpl
     {
         // Var1: Skill Ratio in %: 100 = 100%
+        // Var2: Number of hits
         public override void OnExecute(ServerSkillExecution skillExec)
         {
             base.OnExecute(skillExec);
-            skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1 / 100.0f, EntityElement.Fire1);
+            skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1 / 100.0f, EntityElement.Fire1, skillExec.Var2);
         }
     }
 

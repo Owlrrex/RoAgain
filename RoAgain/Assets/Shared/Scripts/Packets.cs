@@ -39,7 +39,7 @@ abstract public class Packet
 
         // rudimentary check that we _could_ be looking at a properly aligned start of a packet
         int i = 0;
-        if (!int.TryParse(strPieces[0], out int candidatePacketType))
+        if (!int.TryParse(strPieces[0], out _))
         {
             // First segment can't be a packetType - misaligned!
             // We skip the first segment & hope that fixes it.
@@ -523,12 +523,27 @@ public class ChatMessageRequestPacket : Packet
 // Should this packet also contain new HP/SP value? or do we rely on the client applying the difference itself?
 public class DamageTakenPacket : Packet
 {
+    public const int DAMAGE_MISS = -1;
+    public const int DAMAGE_PDODGE = -2;
     public override int PacketType => 20;
 
     public int EntityId;
-    public int Damage; // For now: -1 = miss, -2 perfect dodge
+    public int Damage;
     public bool IsSpDamage;
-    // TODO: Additional display params: Crit, Chain
+    public bool IsCrit;
+    public int ChainCount; // 0 = no chain, positive = number of chain hits (can be 1)
+
+    public override bool Validate()
+    {
+        if (!base.Validate())
+            return false;
+
+        if(ChainCount > 1
+            && Damage % ChainCount != 0)
+            return false;
+
+        return true;
+    }
 }
 
 public class HpUpdatePacket : Packet

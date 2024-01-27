@@ -15,14 +15,10 @@ namespace Server
             if(MaxHp.Base == 0)
                 MaxHp.SetBase(50);
             CurrentHp = MaxHp.Total;
-            HpRegenAmount.ModifyAdd(10);
-            HpRegenTime = 10;
 
             if(MaxSp.Base == 0)
                 MaxSp.SetBase(30);
             CurrentSp = MaxSp.Total;
-            SpRegenAmount.ModifyAdd(15);
-            SpRegenTime = 20;
 
             _squareSidelength = squareSidelength;
             _nextDirection = nextDirection;

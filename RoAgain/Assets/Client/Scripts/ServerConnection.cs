@@ -23,7 +23,7 @@ namespace Client
         //public Action<string, Vector2Int> MapChangeReceived;
         public Action<CellEffectData> CellEffectGroupPlacedReceived;
         public Action<int> CellEffectGroupRemovedReceived;
-        public Action<int, int, bool> DamageTakenReceived;
+        public Action<int, int, bool, bool, int> DamageTakenReceived;
         public Action<int, SkillId, TimerFloat, int, Vector2Int> CastProgressReceived;
         public Action<int, SkillId, int, float> EntitySkillExecutionReceived;
         public Action<int, SkillId, Vector2Int, float> GroundSkillExecutionReceived;
@@ -503,7 +503,7 @@ namespace Client
         private void ReceiveDamageTakenPacket(DamageTakenPacket packet)
         {
             // TODO: Create proper DamageTaken object
-            DamageTakenReceived?.Invoke(packet.EntityId, packet.Damage, packet.IsSpDamage);
+            DamageTakenReceived?.Invoke(packet.EntityId, packet.Damage, packet.IsSpDamage, packet.IsCrit, packet.ChainCount);
         }
 
         private void ReceiveCastProgressPacket(CastProgressPacket packet)

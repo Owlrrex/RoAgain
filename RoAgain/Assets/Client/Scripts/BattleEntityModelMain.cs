@@ -59,7 +59,7 @@ namespace Client
 
             if(_entity is not ACharacterEntity)
             {
-                float scaleFactor = _entity.MaxHp.Total / 90.0f;
+                float scaleFactor = Mathf.Sqrt(_entity.MaxHp.Total / 100.0f);
                 _model.transform.localScale = new(transform.localScale.x * scaleFactor, transform.localScale.y, transform.localScale.z * scaleFactor);
             }
             else
@@ -80,7 +80,7 @@ namespace Client
             }
         }
 
-        private void OnTookDamage(BattleEntity entity, int damage, bool isSpDamage)
+        private void OnTookDamage(BattleEntity entity, int damage, bool isSpDamage, bool isCrit, int chainCount)
         {
             if (_entity != entity)
             {
@@ -90,7 +90,7 @@ namespace Client
 
             if (_damageNumberEmitter != null)
             {
-                _damageNumberEmitter.DisplayDamageNumber(damage);
+                _damageNumberEmitter.DisplayDamageNumber(damage, isSpDamage, isCrit, chainCount, entity == ClientMain.Instance.CurrentCharacterData);
             }
         }
 

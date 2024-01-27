@@ -34,6 +34,64 @@ namespace Server
         FuumaShuriken
     }
 
+    public enum AttackType
+    {
+        Unknown,
+        Physical,
+        Magical
+    }
+
+    public class AttackParams : IAutoInitPoolObject
+    {
+        private static readonly EntityElement[] validElements = {
+            EntityElement.Unknown,
+            EntityElement.Earth1,
+            EntityElement.Fire1,
+            EntityElement.Ghost1,
+            EntityElement.Holy1,
+            EntityElement.Neutral1,
+            EntityElement.Poison1,
+            EntityElement.Shadow1,
+            EntityElement.Undead1,
+            EntityElement.Water1,
+            EntityElement.Wind1
+        };
+
+        public ServerBattleEntity Source;
+        // SkillFactor is per hit!
+        public float SkillFactor = 1.0f;
+        public AttackType AttackType;
+        public EntityElement OverrideElement = EntityElement.Unknown;
+        public bool CanCrit = false;
+        public bool CanMiss = true;
+        public bool IgnoreDefense = false;
+        public int ChainCount = 0;
+
+        public bool IsValid()
+        {
+            return Source != null
+                && SkillFactor >= 0.0f
+                && AttackType != AttackType.Unknown
+                && Array.IndexOf(validElements, OverrideElement) != -1
+                // All CanCrit values are valid
+                // All CanMiss values are valid
+                // All IgnoreDefense values are valid
+                && ChainCount >= 0;
+        }
+
+        public void Reset()
+        {
+            Source = null;
+            SkillFactor = 1.0f;
+            AttackType = AttackType.Unknown;
+            OverrideElement = EntityElement.Unknown;
+            CanCrit = false;
+            CanMiss = true;
+            IgnoreDefense = false;
+            ChainCount = 0;
+        }
+    }
+
     public class BattleModule
     {
         private ServerMapInstance _map;
@@ -47,147 +105,6 @@ namespace Server
             }
 
             _map = mapInstance;
-            return 0;
-        }
-
-        private void HandleEntityDropToZeroHp(ServerBattleEntity bEntity, ServerBattleEntity source)
-        {
-            // Pre-death effects here
-
-            bEntity.Death?.Invoke(bEntity, source);
-            if(bEntity.QueuedSkill != null)
-                _map.SkillModule.ClearQueuedSkill(bEntity.QueuedSkill as ServerSkillExecution);
-            bEntity.ClearPath();
-            // TODO: Experience Penalty
-        }
-
-        // TODO: Expand handling of damage: Chains, crits, etc
-        public int ApplyHpDamage(int damage, ServerBattleEntity target, ServerBattleEntity source)
-        {
-            if (target == null)
-            {
-                OwlLogger.LogError("Can't apply Hp Damage to null target!", GameComponent.Battle);
-                return -1;
-            }
-
-            if (damage <= 0)
-            {
-                OwlLogger.LogError($"Can't apply invalid hp damage {damage} to entity {target.Id}", GameComponent.Battle);
-                return -2;
-            }
-
-            int oldValue = target.CurrentHp;
-            target.CurrentHp = Math.Clamp(target.CurrentHp - damage, 0, target.MaxHp.Total);
-            target.TookDamage?.Invoke(target, damage, false);
-
-            int contribution = Math.Min(oldValue, damage); // this may not always work?
-            if (!target.BattleContributions.ContainsKey(source.Id))
-            {
-                target.BattleContributions[source.Id] = contribution;
-            }
-            else
-            {
-                target.BattleContributions[source.Id] += contribution;
-            }
-
-            DamageTakenPacket packet = new()
-            {
-                EntityId = target.Id,
-                Damage = damage,
-                IsSpDamage = false,
-            };
-
-            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
-            {
-                character.Connection.Send(packet);
-            }
-
-            if (target.CurrentHp == 0 && oldValue > 0)
-            {
-                HandleEntityDropToZeroHp(target, source);
-            }
-                
-            return 0;
-        }
-
-        public int ApplySpDamage(int damage, ServerBattleEntity target)
-        {
-            if (target == null)
-            {
-                OwlLogger.LogError("Can't apply Sp Damage to null target!", GameComponent.Battle);
-                return -1;
-            }
-
-            if (damage <= 0)
-            {
-                OwlLogger.LogError($"Can't apply invalid sp damage {damage} to entity {target.Id}", GameComponent.Battle);
-                return -2;
-            }
-
-            target.CurrentSp = Math.Clamp(target.CurrentSp - damage, 0, target.MaxSp.Total);
-            target.TookDamage?.Invoke(target, damage, true);
-
-            DamageTakenPacket packet = new()
-            {
-                EntityId = target.Id,
-                Damage = damage,
-                IsSpDamage = true,
-            };
-
-            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
-            {
-                character.Connection.Send(packet);
-            }
-
-            return 0;
-        }
-
-        public int UpdateHp(ServerBattleEntity target, int change, ServerBattleEntity source)
-        {
-            if (target == null)
-            {
-                OwlLogger.LogError("Can't update HP of null target!", GameComponent.Battle);
-                return -1;
-            }
-
-            int newValue = Mathf.Clamp(target.CurrentHp + change, 0, target.MaxHp.Total);
-            if (newValue == target.CurrentHp)
-                return 0;
-
-            int oldValue = target.CurrentHp;
-            target.CurrentHp = newValue;
-
-            if (target.CurrentHp == 0 && oldValue > 0)
-            {
-                HandleEntityDropToZeroHp(target, source);
-            }
-
-            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
-            {
-                character.NetworkQueue.HpUpdate(target);
-            }
-
-            return 0;
-        }
-
-        public int UpdateSp(ServerBattleEntity target, int change)
-        {
-            if (target == null)
-            {
-                OwlLogger.LogError("Can't update SP of null target!", GameComponent.Battle);
-                return -1;
-            }
-
-            int newValue = Mathf.Clamp(target.CurrentSp + change, 0, target.MaxSp.Total);
-            if (newValue == target.CurrentSp)
-                return 0;
-
-            target.CurrentSp = newValue;
-
-            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
-            {
-                character.NetworkQueue.SpUpdate(target);
-            }
             return 0;
         }
 
@@ -216,23 +133,53 @@ namespace Server
                 bEntity.HpRegenCounter += increaseAmount;
                 if (bEntity.HpRegenCounter >= bEntity.HpRegenTime)
                 {
-                    UpdateHp(bEntity, bEntity.HpRegenAmount.Total, bEntity);
+                    ChangeHp(bEntity, bEntity.HpRegenAmount.Total, bEntity);
                     bEntity.HpRegenCounter -= bEntity.HpRegenTime;
                 }
 
                 bEntity.SpRegenCounter += increaseAmount;
                 if (bEntity.SpRegenCounter >= bEntity.SpRegenTime)
                 {
-                    UpdateSp(bEntity, bEntity.SpRegenAmount.Total);
+                    ChangeSp(bEntity, bEntity.SpRegenAmount.Total);
                     bEntity.SpRegenCounter -= bEntity.SpRegenTime;
                 }
             }
         }
 
-        public int StandardPhysicalAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown)
+        // skillFactor is per Hit!
+        public int StandardPhysicalAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown, int hitCount = 0)
         {
-            return PerformPhysicalAttack(skillExec.User as ServerBattleEntity,
-                skillExec.Target.EntityTarget as ServerBattleEntity, skillFactor, overrideElement, false, true, false);
+            AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
+            parameters.Source = skillExec.User as ServerBattleEntity;
+            parameters.SkillFactor = skillFactor;
+            parameters.OverrideElement = overrideElement;
+            parameters.AttackType = AttackType.Physical;
+            parameters.CanCrit = false; // because only autohits can crit by default // TODO: Config value for skill-crits? Balancing-impact!
+            parameters.CanMiss = true;
+            parameters.IgnoreDefense = false;
+            parameters.ChainCount = hitCount;
+
+            int result = PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
+            AutoInitResourcePool<AttackParams>.Return(parameters);
+            return result;
+        }
+
+        // skillFactor is per Hit!
+        public int StandardMagicAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown, int hitCount = 0)
+        {
+            AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
+            parameters.Source = skillExec.User as ServerBattleEntity;
+            parameters.SkillFactor = skillFactor;
+            parameters.OverrideElement = overrideElement;
+            parameters.AttackType = AttackType.Magical;
+            parameters.CanCrit = false; // TODO: Config value for skill-crits? Balancing-impact!
+            parameters.CanMiss = false;
+            parameters.IgnoreDefense = false;
+            parameters.ChainCount = hitCount;
+
+            int result = PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
+            AutoInitResourcePool<AttackParams>.Return(parameters);
+            return result;
         }
 
         // Return values:
@@ -240,17 +187,27 @@ namespace Server
         // 2 = Perfect Dodge
         // 1 = natural Miss
         // 0 = hit
-        public int PerformPhysicalAttack(ServerBattleEntity source, ServerBattleEntity target, float skillFactor, EntityElement overrideElement = EntityElement.Unknown, bool canCrit = false, bool canMiss = true, bool ignoreDefense = false)
+        // -1 = invalid Parameters
+        public int PerformAttack(ServerBattleEntity target, AttackParams parameters)
         {
-            if (source is CharacterRuntimeData character)
+            if (parameters == null || !parameters.IsValid())
             {
-                if (UnityEngine.Random.Range(0.0f, 1.0f) < character.PerfectFlee.Total)
+                OwlLogger.LogError($"Tried to perform attack at target {target.Id} with invalid Parameters!", GameComponent.Battle);
+                return -1;
+            }
+
+            bool isPhysical = parameters.AttackType == AttackType.Physical;
+
+            if (isPhysical && CanPerfectFlee(target, parameters.Source))
+            {
+                if (UnityEngine.Random.Range(0.0f, 1.0f) < target.PerfectFlee.Total)
                 {
                     DamageTakenPacket packet = new()
                     {
-                        Damage = -2,
+                        Damage = DamageTakenPacket.DAMAGE_PDODGE,
                         EntityId = target.Id,
                         IsSpDamage = false,
+                        IsCrit = false,
                     };
                     foreach (CharacterRuntimeData observer in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
                     {
@@ -260,92 +217,189 @@ namespace Server
                 }
             }
 
-            float damage;
-            float atkRoll = -1;
             bool isCrit = false;
-            if (canCrit)
+            if (parameters.CanCrit)
             {
-                float critChance = source.Crit.Total - target.CritShield.Total;
+                float critChance = parameters.Source.Crit.Total - target.CritShield.Total;
 
-                if (UnityEngine.Random.Range(0.0f, 1.0f) < critChance)
-                {
-                    // Crit: Maxi atk, ignore Def
-                    atkRoll = source.CurrentAtkMax.Total * skillFactor;
-                    canMiss = false;
-                    ignoreDefense = true;
-                    isCrit = true;
-                }
+                isCrit = UnityEngine.Random.Range(0.0f, 1.0f) < critChance;
+            }
+
+            float attackPower;
+
+            // Copy values in case parameters-object is reused between calls & not pass-by-value, since we may change these
+            bool canMiss = parameters.CanMiss;
+            bool ignoreDefense = parameters.IgnoreDefense;
+
+            int maxAttack;
+            int minAttack;
+            if (isPhysical)
+            {
+                maxAttack = parameters.Source.CurrentAtkMax.Total;
+                minAttack = parameters.Source.CurrentAtkMin.Total;
+            }
+            else
+            {
+                maxAttack = parameters.Source.MatkMax.Total;
+                minAttack = parameters.Source.MatkMin.Total;
+            }
+
+            if (isCrit)
+            {
+                // Crit: Max atk, ignore Def
+                canMiss = false;
+                ignoreDefense = true;
+                attackPower = maxAttack;
+            }
+            else
+            {
+                attackPower = UnityEngine.Random.Range(minAttack, maxAttack + 1);
             }
 
             // Noncrit
             if (canMiss)
             {
                 int equalHit = 80; // TODO: move this value to config
-                float hitChance = (source.Hit.Total - target.Flee.Total + equalHit) / 100.0f;
+                float hitChance = (parameters.Source.Hit.Total - target.Flee.Total + equalHit) / 100.0f;
                 if (UnityEngine.Random.Range(0.0f, 1.0f) >= hitChance)
                 {
                     // Miss
                     DamageTakenPacket packet = new()
                     {
-                        Damage = -1,
+                        Damage = DamageTakenPacket.DAMAGE_MISS,
                         EntityId = target.Id,
                         IsSpDamage = false,
+                        IsCrit = false,
                     };
                     foreach (CharacterRuntimeData observer in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
                     {
                         observer.Connection.Send(packet);
-                        //observer.NetworkQueue.DamageTaken();
                     }
                     return 1;
                 }
             }
 
-            // Hit
-            if(!isCrit)
-                atkRoll = UnityEngine.Random.Range(source.CurrentAtkMin.Total, source.CurrentAtkMax.Total + 1) * skillFactor;
+            attackPower *= parameters.SkillFactor;
 
-            if (ignoreDefense)
+            float damage;
+            float hardDefense;
+            int softDefense;
+            if (isPhysical)
             {
-                damage = atkRoll;
+                hardDefense = target.HardDef.Total;
+                softDefense = target.SoftDef.Total;
             }
             else
             {
-                // This clamp means low defense cannot increase damage
-                damage = Math.Clamp(atkRoll * (1.0f - target.HardDef.Total) - target.SoftDef.Total, 0, atkRoll);
+                hardDefense = target.HardMDef.Total;
+                softDefense = target.SoftMDef.Total;
             }
 
-            EntityElement attackElement = overrideElement;
+            // Hit
+            if (ignoreDefense)
+            {
+                damage = attackPower;
+            }
+            else
+            {
+                // Ensure Defenses don't reduce damage into negative
+                damage = Math.Max(attackPower * (1.0f - hardDefense) - softDefense, 0);
+            }
+
+            // Cases could be made for or against calculating cards & elements before / after Soft-Def
+            // Softdef first: Increased SoftDef effect when modifiers overall increase damage
+            // Softdef last: Increased SoftDef effect when modifiers overall decrease damage
+            EntityElement attackElement = parameters.OverrideElement;
             if (attackElement == EntityElement.Unknown)
-                attackElement = source.GetOffensiveElement();
-            damage = ModifyDamageForElement(source, target, damage, attackElement, false);
-            damage = ModifyDamageForRace(source, target, damage, false);
-            damage = ModifyDamageForSize(source, target, damage, false);
+                attackElement = parameters.Source.GetOffensiveElement();
+
+            // TODO: Configurable stacking behaviour: Multiply modifiers together (like RO) or add their magnitudes
+            bool multiplicativeModifierStacking = false;
+
+            float modifier = GetModifierForElements(parameters.Source, target, attackElement, !isPhysical);
+            if(multiplicativeModifierStacking)
+            {
+                modifier *= GetModifierForRace(parameters.Source, target, !isPhysical);
+                modifier *= GetModifierForSize(parameters.Source, target, !isPhysical);
+            }
+            else
+            {
+                modifier += GetModifierForRace(parameters.Source, target, !isPhysical) -1;
+                modifier += GetModifierForSize(parameters.Source, target, !isPhysical) -1;
+            }
+
+            // In RO, the elemental damage bonus multiplies in at the very end, multiplicative with all other effects.
+            // I think that's not too complicated, and doesn't need to be changed,
+            // but it's worth noting that this _could_ also be changed via the above config value
+            EntityElement defElement = target.GetDefensiveElement();
+            modifier *= GetMultiplierForElementCombination(attackElement, defElement);
+
+            damage *= modifier;
 
             // TODO: Handle absorb
 
-            if (damage == 0)
+            int damageInt = (int)damage;
+
+            if (damageInt == 0)
                 return 0;
 
-            DealPhysicalHitDamage(source, target, (int)damage);
+            // TODO: Make configurable whether or not Soft-Def gets applied before or after multiplying bit HitCount
+            if (parameters.ChainCount > 1)
+                damageInt *= parameters.ChainCount;
+
+            if (isPhysical)
+                DealPhysicalHitDamage(parameters.Source, target, damageInt, isCrit, parameters.ChainCount);
+            else
+                DealMagicalHitDamage(parameters.Source, target, damageInt, isCrit, parameters.ChainCount);
+
             if (isCrit)
                 return 3;
             else
                 return 0;
         }
 
-        private float ModifyDamageForElement(ServerBattleEntity source, ServerBattleEntity target, float baseDamage, EntityElement attackElement, bool isMagical)
+        private bool CanPerfectFlee(ServerBattleEntity source, ServerBattleEntity target)
         {
-            if (source is CharacterRuntimeData character)
-            {
-                // TODO: Read player's element-specific bonuses
-            }
-
-            EntityElement def = target.GetDefensiveElement();
-
-            return baseDamage * GetMultiplierForElements(attackElement, def);
+            // TODO: Config-value that allows Monsters to perfect-flee
+            return target is CharacterRuntimeData;
         }
 
-        private float GetMultiplierForElements(EntityElement attack, EntityElement def)
+        private float GetModifierForElements(ServerBattleEntity source, ServerBattleEntity target, EntityElement attackElement, bool isMagical)
+        {
+            float modifier = 1.0f;
+
+            if (isMagical)
+            {
+                if (source is CharacterRuntimeData charSource)
+                {
+                    // TODO: Read player's "increased magic damage vs element" bonuses
+                }
+
+                if (target is CharacterRuntimeData charTarget)
+                {
+                    // TODO: Read player's "reduced magic damage from element" bonuses
+                }
+            }
+            else
+            {
+                if (source is CharacterRuntimeData charSource)
+                {
+                    // TODO: Read player's "increased physical damage vs element" bonuses
+                }
+
+                if (target is CharacterRuntimeData charTarget)
+                {
+                    // TODO: Read player's "reduced physical damage with element" bonuses
+                    // TODO: Config value that makes monster's attacks count as their def-element when no override-element is given
+                }
+            }
+
+            
+
+            return modifier;
+        }
+
+        private float GetMultiplierForElementCombination(EntityElement attack, EntityElement def)
         {
             float modifier = ElementsDatabase.GetMultiplierForElements(attack, def);
             if (modifier <= -10.0f)
@@ -357,30 +411,77 @@ namespace Server
             return modifier;
         }
 
-        private float ModifyDamageForRace(ServerBattleEntity source, ServerBattleEntity target, float baseDamage, bool isMagical)
+        private float GetModifierForRace(ServerBattleEntity source, ServerBattleEntity target, bool isMagical)
         {
-            if (source is not CharacterRuntimeData character)
-                return baseDamage;
+            float modifier = 1.0f;
 
-            // TODO: Read player's race-specific bonuses
-            return baseDamage;
-        }
-
-        private float ModifyDamageForSize(ServerBattleEntity source, ServerBattleEntity target, float baseDamage, bool isMagical)
-        {
-            if(isMagical)
+            if (isMagical)
             {
-                // TODO: Player-specific bonuses from equip
-                return 1.0f;
+                if (source is CharacterRuntimeData charSource)
+                {
+                    // TODO: Read player's "increased magic damage vs race" bonuses
+                }
+
+                if (target is CharacterRuntimeData charTarget)
+                {
+                    // TODO: Read player's "reduced magic damage from race" bonuses
+                }
+            }
+            else
+            {
+                if (source is CharacterRuntimeData charSource)
+                {
+                    // TODO: Read player's "increased physical damage vs race" bonuses
+                }
+
+                if (target is CharacterRuntimeData charTarget)
+                {
+                    // TODO: Read player's "reduced physical damage from race" bonuses
+                }
             }
 
-            AttackWeaponType weaponType = AttackWeaponType.Unarmed; // TODO: Get weaponType from entity
-            float modifier = GetSizeMultiplierForAttackType(weaponType, target.Size);
-            // TODO: Player-specific bonuses from equip & such
-            return baseDamage * modifier;
+            return modifier;
         }
 
-        private float GetSizeMultiplierForAttackType(AttackWeaponType weaponType, EntitySize targetSize)
+        private float GetModifierForSize(ServerBattleEntity source, ServerBattleEntity target, bool isMagical)
+        {
+            float modifier = 1.0f;
+
+            if (isMagical)
+            {
+                if (source is CharacterRuntimeData charSource)
+                {
+                    // TODO: Read player's "increased damage vs size" bonuses
+                }
+
+                if (target is CharacterRuntimeData charTarget)
+                {
+                    // TODO: Read player's "reduced damage from size" bonuses
+                }
+            }
+            else
+            {
+                if (source is CharacterRuntimeData charSource)
+                {
+                    // TODO: In RO, this modifier is _hecking weird_, applying only to weapon-atk & potential other stuff
+                    // We probably don't want to keep that, but we have to decide whether to lump this mod
+                    // together with card-&equip-effects here, or make it global like the ElementCombination-mod.
+                    AttackWeaponType weaponType = AttackWeaponType.Unarmed; // TODO: Get weaponType from entity
+                    modifier = GetSizeMultiplierForWeaponType(weaponType, target.Size);
+
+                    // TODO: Read player's "increased physical damage vs size" bonuses
+                }
+
+                if (target is CharacterRuntimeData charTarget)
+                {
+                    // TODO: Read player's "reduced physical damage from size" bonuses
+                }
+            }
+            
+            return modifier;
+        }
+
+        private float GetSizeMultiplierForWeaponType(AttackWeaponType weaponType, EntitySize targetSize)
         {
             float modifier = SizeDatabase.GetMultiplierForWeaponAndSize(weaponType, targetSize);
             if (modifier < 0)
@@ -392,94 +493,164 @@ namespace Server
             return modifier;
         }
 
-        public int DealPhysicalHitDamage(ServerBattleEntity source, ServerBattleEntity target, int damage)
+        public int DealPhysicalHitDamage(ServerBattleEntity source, ServerBattleEntity target, int damage, bool isCrit, int chainCount)
         {
             // TODO: Handling of "on physical damage" effects
             _map.SkillModule.InterruptAnyCasts(target);
-            ApplyHpDamage(damage, target, source);
+            ApplyHpDamage(damage, target, source, isCrit, chainCount);
             return 0;
         }
 
-        public int StandardMagicAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown)
-        {
-            return PerformMagicalAttack(skillExec.User as ServerBattleEntity,
-                skillExec.Target.EntityTarget as ServerBattleEntity, skillFactor, overrideElement, false, false, false);
-        }
-
-        // Return values:
-        // 3 = Crit
-        // 1 = natural Miss
-        // 0 = hit
-        public int PerformMagicalAttack(ServerBattleEntity source, ServerBattleEntity target, float skillFactor,
-            EntityElement overrideElement = EntityElement.Unknown, bool canCrit = false, bool canMiss = true, bool ignoreDefense = false)
-        {
-            float damage;
-            // Crit
-            if (canCrit)
-            {
-                float critChance = source.Crit.Total - target.CritShield.Total;
-
-                if (UnityEngine.Random.Range(0.0f, 1.0f) < critChance)
-                {
-                    // Crit: Maxi atk, ignore Def
-                    damage = source.MatkMax.Total * skillFactor;
-                    DealMagicalHitDamage(source, target, (int)damage);
-                    return 3;
-                }
-            }
-
-            // Noncrit
-            if (canMiss)
-            {
-                int equalHit = 80; // TODO: move this value to config
-                float hitChance = (source.Hit.Total - target.Flee.Total + equalHit) / 100.0f;
-                if (UnityEngine.Random.Range(0.0f, 1.0f) >= hitChance)
-                {
-                    // Miss
-                    DamageTakenPacket packet = new()
-                    {
-                        Damage = -1,
-                        EntityId = target.Id,
-                        IsSpDamage = false,
-                    };
-                    foreach (CharacterRuntimeData observer in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
-                    {
-                        observer.Connection.Send(packet);
-                        //observer.NetworkQueue.DamageTaken();
-                    }
-                    return 1;
-                }
-            }
-
-            // Hit
-            float matkRoll = UnityEngine.Random.Range(source.MatkMin.Total, source.MatkMax.Total + 1) * skillFactor;
-            if (ignoreDefense)
-            {
-                damage = matkRoll;
-            }
-            else
-            {
-                // This clamp means low defense cannot increase damage
-                damage = Math.Clamp(matkRoll * (1 - target.HardMDef.Total) - target.SoftMDef.Total, 0, matkRoll);
-            }
-
-            EntityElement attackElement = overrideElement;
-            if (attackElement == EntityElement.Unknown)
-                attackElement = source.GetOffensiveElement();
-            damage = ModifyDamageForElement(source, target, damage, attackElement, true);
-            damage = ModifyDamageForRace(source, target, damage, true);
-            damage = ModifyDamageForSize(source, target, damage, true);
-
-            DealMagicalHitDamage(source, target, (int)damage);
-            return 0;
-        }
-
-        public int DealMagicalHitDamage(ServerBattleEntity source, ServerBattleEntity target, int damage)
+        public int DealMagicalHitDamage(ServerBattleEntity source, ServerBattleEntity target, int damage, bool isCrit, int chainCount)
         {
             // TODO: Handling of "on magical damage" effects
             _map.SkillModule.InterruptAnyCasts(target);
-            ApplyHpDamage(damage, target, source);
+            ApplyHpDamage(damage, target, source, isCrit, chainCount);
             return 0;
+        }
+
+        private int ApplyHpDamage(int damage, ServerBattleEntity target, ServerBattleEntity source, bool isCrit, int chainCount)
+        {
+            if (target == null)
+            {
+                OwlLogger.LogError("Can't apply Hp Damage to null target!", GameComponent.Battle);
+                return -1;
+            }
+
+            if (damage <= 0)
+            {
+                OwlLogger.LogError($"Can't apply invalid hp damage {damage} to entity {target.Id}", GameComponent.Battle);
+                return -2;
+            }
+
+            int oldValue = target.CurrentHp;
+            target.CurrentHp = Math.Clamp(target.CurrentHp - damage, 0, target.MaxHp.Total);
+            target.TookDamage?.Invoke(target, damage, false, isCrit, chainCount);
+
+            int contribution = Math.Min(oldValue, damage); // this may not always work?
+            if (!target.BattleContributions.ContainsKey(source.Id))
+            {
+                target.BattleContributions[source.Id] = contribution;
+            }
+            else
+            {
+                target.BattleContributions[source.Id] += contribution;
+            }
+
+            DamageTakenPacket packet = new()
+            {
+                EntityId = target.Id,
+                Damage = damage,
+                IsSpDamage = false,
+                IsCrit = isCrit,
+                ChainCount = chainCount
+            };
+
+            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
+            {
+                character.Connection.Send(packet);
+            }
+
+            if (target.CurrentHp == 0 && oldValue > 0)
+            {
+                HandleEntityDropToZeroHp(target, source);
+            }
+
+            return 0;
+        }
+
+        private int ApplySpDamage(int damage, ServerBattleEntity target)
+        {
+            if (target == null)
+            {
+                OwlLogger.LogError("Can't apply Sp Damage to null target!", GameComponent.Battle);
+                return -1;
+            }
+
+            if (damage <= 0)
+            {
+                OwlLogger.LogError($"Can't apply invalid sp damage {damage} to entity {target.Id}", GameComponent.Battle);
+                return -2;
+            }
+
+            target.CurrentSp = Math.Clamp(target.CurrentSp - damage, 0, target.MaxSp.Total);
+            target.TookDamage?.Invoke(target, damage, true, false, 0);
+
+            DamageTakenPacket packet = new()
+            {
+                EntityId = target.Id,
+                Damage = damage,
+                IsSpDamage = true,
+                IsCrit = false,
+                ChainCount = 0
+            };
+
+            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
+            {
+                character.Connection.Send(packet);
+            }
+
+            return 0;
+        }
+
+        public int ChangeHp(ServerBattleEntity target, int change, ServerBattleEntity source)
+        {
+            if (target == null)
+            {
+                OwlLogger.LogError("Can't update HP of null target!", GameComponent.Battle);
+                return -1;
+            }
+
+            int newValue = Mathf.Clamp(target.CurrentHp + change, 0, target.MaxHp.Total);
+            if (newValue == target.CurrentHp)
+                return 0;
+
+            int oldValue = target.CurrentHp;
+            target.CurrentHp = newValue;
+
+            if (target.CurrentHp == 0 && oldValue > 0)
+            {
+                HandleEntityDropToZeroHp(target, source);
+            }
+
+            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
+            {
+                character.NetworkQueue.HpUpdate(target);
+            }
+
+            return 0;
+        }
+
+        public int ChangeSp(ServerBattleEntity target, int change)
+        {
+            if (target == null)
+            {
+                OwlLogger.LogError("Can't update SP of null target!", GameComponent.Battle);
+                return -1;
+            }
+
+            int newValue = Mathf.Clamp(target.CurrentSp + change, 0, target.MaxSp.Total);
+            if (newValue == target.CurrentSp)
+                return 0;
+
+            target.CurrentSp = newValue;
+
+            foreach (CharacterRuntimeData character in _map.Grid.GetObserversSquare<CharacterRuntimeData>(target.Coordinates))
+            {
+                character.NetworkQueue.SpUpdate(target);
+            }
+            return 0;
+        }
+
+        private void HandleEntityDropToZeroHp(ServerBattleEntity bEntity, ServerBattleEntity source)
+        {
+            // Pre-death effects here
+
+            bEntity.Death?.Invoke(bEntity, source);
+            if (bEntity.QueuedSkill != null)
+                _map.SkillModule.ClearQueuedSkill(bEntity.QueuedSkill as ServerSkillExecution);
+            bEntity.ClearPath();
+            // TODO: Experience Penalty
         }
 
         public void Shutdown()

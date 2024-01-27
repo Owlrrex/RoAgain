@@ -598,7 +598,9 @@ namespace Server
             }
 
             characterData.RemainingSkillPoints -= amount;
-            if(characterData.PermanentSkills.ContainsKey(skillId))
+            responsePacket.RemainingSkillPoints = characterData.RemainingSkillPoints;
+
+            if (characterData.PermanentSkills.ContainsKey(skillId))
             {
                 characterData.PermanentSkills[skillId] += amount;
             }
@@ -624,7 +626,7 @@ namespace Server
             {
                 // TODO: Configurable amount of heal after death
 
-                _mapModule.GetMapInstance(charData.MapId)?.BattleModule?.UpdateHp(charData, (int)(charData.MaxHp.Total * 0.5f), charData);
+                _mapModule.GetMapInstance(charData.MapId)?.BattleModule?.ChangeHp(charData, (int)(charData.MaxHp.Total * 0.5f), charData);
             }
         }
 

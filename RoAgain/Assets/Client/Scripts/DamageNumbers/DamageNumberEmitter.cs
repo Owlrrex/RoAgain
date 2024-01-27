@@ -33,20 +33,6 @@ namespace Client
                 Destroy(this);
                 return;
             }
-
-            // tmp testing
-            //StartCoroutine(TestDamageCoroutine());
-        }
-
-        private IEnumerator TestDamageCoroutine()
-        {
-            int damage = 1;
-            while (true)
-            {
-                DisplayDamageNumber(damage);
-                damage++;
-                yield return new WaitForSeconds(Random.Range(0.5f, 3));
-            }
         }
 
         private void Update()
@@ -67,22 +53,20 @@ namespace Client
         }
 
         // TODO: support a more advanced damage number object for things like crits, chain-hits, etc
-        public void DisplayDamageNumber(int damage)
+        public void DisplayDamageNumber(int damage, bool isSpDamage, bool isCrit, int chainCount, bool isLocalChar)
         {
+            if (isSpDamage)
+                return; // TODO: Figure out how to display SP damage onscreen
+
             GameObject instance = Instantiate(DamageNumberPrefab, transform.position, Quaternion.identity);
             instance.transform.LookAt(Camera.main.transform);
 
             DamageNumberDisplay display = instance.GetComponentInChildren<DamageNumberDisplay>();
-            if (damage >= 0)
-                display.Initialize(damage.ToString());
-            else if (damage == -1)
-                display.Initialize("Miss");
-            else if (damage == -2)
-                display.Initialize("PDodge");
-            else
-                display.Initialize("Unknown");
+            display.Initialize(damage, isSpDamage, isCrit, isLocalChar, chainCount);
 
             // TODO: Set Velocity here instead of in Initialize() so we can have texts in a chain be the same, or do other stuff
+
+            // TODO: Display chains
 
             _spawnedObjects.Add(instance);
             _deathTimes.Add(Time.time + DamageNumberLifetime);

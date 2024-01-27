@@ -31,8 +31,6 @@ namespace Client
 
     public class LocalCharacterEntity : ACharacterEntity
     {
-        public static LocalCharacterEntity Current = null;
-
         public int JobLvl;
 
         public Stat Str;
@@ -72,6 +70,7 @@ namespace Client
         public int DexIncreaseCost;
         public int LukIncreaseCost;
 
+        // TODO: Accomodate skills existing in the tree multiple times (permanent & temporary)
         public Dictionary<SkillId, SkillTreeEntry> SkillTree = new();
         public Action SkillTreeUpdated;
         // Do we still need these? Leave around for now.
