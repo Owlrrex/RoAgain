@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 namespace Client
 {
+    // TODO: Pool damagenumbers
+    // Note: Disable gameobject first, then reparent into pool. Reparent to new hirarchy, then enable. This avoids some unnecessary UI updates
     public class DamageNumberDisplay : MonoBehaviour
     {
         [SerializeField]

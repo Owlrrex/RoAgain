@@ -65,7 +65,6 @@ namespace Shared
 
         public virtual void UpdateSkills(float deltaTime)
         {
-            _isAnimationLocked = false;
             for (int i = CurrentlyResolvingSkills.Count - 1; i >= 0; i--)
             {
                 ASkillExecution skill = CurrentlyResolvingSkills[i];
