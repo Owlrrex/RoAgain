@@ -65,5 +65,10 @@ namespace Client
             _rb.velocity = new(2, 5, 0);
             _canvas.worldCamera = PlayerMain.Instance.UiCamera;
         }
+
+        public void UpdateTextAlpha(float alpha)
+        {
+            _text.alpha = alpha;
+        }
     }
 }

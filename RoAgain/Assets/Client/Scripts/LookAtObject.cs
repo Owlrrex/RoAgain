@@ -25,6 +25,15 @@ public class LookAtObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.LookAt(Target.position);
+        if (_usePlayerUiCamera)
+        {
+            // Special aligning method that avoids perspective skew
+            transform.rotation = PlayerMain.Instance.UiCanvasNonSkewRotation;
+        }
+        else
+        {
+            transform.LookAt(Target.position);
+        }
+        
     }
 }

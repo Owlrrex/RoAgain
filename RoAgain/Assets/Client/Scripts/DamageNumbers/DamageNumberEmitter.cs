@@ -13,18 +13,19 @@ namespace Client
         [SerializeField]
         private float DamageNumberLifetime;
 
-        private List<GameObject> _spawnedObjects = new();
-        private List<float> _deathTimes = new();
+        [SerializeField]
+        private AnimationCurve _sizeCurve;
+
+        [SerializeField]
+        private AnimationCurve _alphaCurve;
+
+        private List<DamageNumberDisplay> _spawnedObjects = new();
+        private List<float> _ages = new();
 
         // Start is called before the first frame update
         void Start()
         {
-            if (DamageNumberPrefab == null)
-            {
-                OwlLogger.LogError($"DamageNumberEmitter can't operate without DamageNumberPrefab", GameComponent.UI);
-                Destroy(this);
-                return;
-            }
+            OwlLogger.PrefabNullCheckAndLog(DamageNumberPrefab, "DamageNumberPrefab", this, GameComponent.UI);
 
             DamageNumberDisplay display = DamageNumberPrefab.GetComponentInChildren<DamageNumberDisplay>();
             if (display == null)
@@ -39,27 +40,27 @@ namespace Client
         {
             for (int i = _spawnedObjects.Count - 1; i >= 0; i--)
             {
-                if (Time.time >= _deathTimes[i])
+                if (_ages[i] >= DamageNumberLifetime)
                 {
-                    Destroy(_spawnedObjects[i]);
+                    Destroy(_spawnedObjects[i].gameObject);
                     _spawnedObjects.RemoveAt(i);
-                    _deathTimes.RemoveAt(i);
+                    _ages.RemoveAt(i);
                 }
                 else
                 {
-                    _spawnedObjects[i].transform.localScale *= 1 - 0.5f * Time.deltaTime;
+                    _ages[i] += Time.deltaTime;
+                    float normalizedAge = _ages[i] / DamageNumberLifetime;
+                    float value = _sizeCurve.Evaluate(normalizedAge);
+                    _spawnedObjects[i].transform.localScale = new Vector3(value, value, value);
+                    _spawnedObjects[i].UpdateTextAlpha(_alphaCurve.Evaluate(normalizedAge));
                 }
             }
         }
 
-        // TODO: support a more advanced damage number object for things like crits, chain-hits, etc
         public void DisplayDamageNumber(int damage, bool isSpDamage, bool isCrit, int chainCount, bool isLocalChar)
         {
-            if (isSpDamage)
-                return; // TODO: Figure out how to display SP damage onscreen
-
             GameObject instance = Instantiate(DamageNumberPrefab, transform.position, Quaternion.identity);
-            instance.transform.LookAt(Camera.main.transform);
+            instance.transform.LookAt(PlayerMain.Instance.UiCamera.transform, PlayerMain.Instance.UiCamera.transform.up);
 
             DamageNumberDisplay display = instance.GetComponentInChildren<DamageNumberDisplay>();
             display.Initialize(damage, isSpDamage, isCrit, isLocalChar, chainCount);
@@ -68,19 +69,20 @@ namespace Client
 
             // TODO: Display chains
 
-            _spawnedObjects.Add(instance);
-            _deathTimes.Add(Time.time + DamageNumberLifetime);
+            _spawnedObjects.Add(display);
+            _ages.Add(0);
         }
 
         private void OnDisable()
         {
-            for (int i = _spawnedObjects.Count - 1; i >= 0; i--)
-            {
-                Destroy(_spawnedObjects[i]);
-            }
+            //for (int i = _spawnedObjects.Count - 1; i >= 0; i--)
+            //{
+            //    if (_spawnedObjects[i] != null)
+            //        Destroy(_spawnedObjects[i].gameObject);
+            //}
 
             _spawnedObjects.Clear();
-            _deathTimes.Clear();
+            _ages.Clear();
         }
     }
 }

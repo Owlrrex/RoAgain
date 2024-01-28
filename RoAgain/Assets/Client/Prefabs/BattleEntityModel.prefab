@@ -138,7 +138,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1295143047227872677}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalPosition: {x: 0, y: -0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -201,7 +201,7 @@ RectTransform:
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!223 &5116932925196014837
 Canvas:
   m_ObjectHideFlags: 0
@@ -309,7 +309,82 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DamageNumberPrefab: {fileID: 1965164245321916275, guid: 17fb4b3e918f89b4cb79968825c1ebbe,
     type: 3}
-  DamageNumberLifetime: 2
+  DamageNumberLifetime: 1.5
+  _sizeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1.2
+      inSlope: 11.979101
+      outSlope: 11.979101
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.219637
+    - serializedVersion: 3
+      time: 0.05
+      value: 1.5
+      inSlope: 0.018862838
+      outSlope: 0.018862838
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.8752056
+      outWeight: 0.11511138
+    - serializedVersion: 3
+      time: 0.2
+      value: 1
+      inSlope: -0.3377752
+      outSlope: -0.3377752
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.1311325
+    - serializedVersion: 3
+      time: 1.0019531
+      value: 0.5
+      inSlope: -0.98288745
+      outSlope: -0.98288745
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.09857863
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _alphaCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0.022362038
+      outSlope: 0.022362038
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.2109375
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -3.4805772
+      outSlope: -3.4805772
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.06640625
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &2232214598902854742
 GameObject:
   m_ObjectHideFlags: 0
@@ -848,7 +923,7 @@ RectTransform:
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 150}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!223 &567952615136139831
 Canvas:
   m_ObjectHideFlags: 0
@@ -1139,7 +1214,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6580206503974182333}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.75, z: 0}
+  m_LocalPosition: {x: 0, y: 2.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

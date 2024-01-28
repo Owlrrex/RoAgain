@@ -8,6 +8,13 @@ public class PlayerMain : BattleEntityModelMain
 {
     public static PlayerMain Instance;
 
+    /// <summary>
+    /// The rotation that a canvas needs to face to be flat with the Ui Camera,
+    /// since using LookAt() will skew/rotate UIElements that aren't in the center of the screen
+    /// Mathematically, this is the rotation that points in the -forward direction of the UiCamera
+    /// </summary>
+    public Quaternion UiCanvasNonSkewRotation => _uiCanvasNonSkewRotation;
+    private Quaternion _uiCanvasNonSkewRotation;
     public Camera UiCamera => _uiCamera;
     [SerializeField]
     private Camera _uiCamera;
@@ -44,24 +51,7 @@ public class PlayerMain : BattleEntityModelMain
     {
         base.Update();
 
-        /*
-        // This makes skill icons linger until after the attack's anim-Cd is finished - looks a bit weird atm, but keep it in mind
-        foreach (ASkillExecution skill in _entity.CurrentlyExecutingSkills)
-        {
-            if (skill is not AEntitySkillExecution entitySkill)
-                continue;
-
-            BattleEntityModelMain bTarget = ClientMain.Instance.MapModule.GetComponentFromEntityDisplay<BattleEntityModelMain>(entitySkill.Target.Id);
-            if(bTarget == null)
-            {
-                OwlLogger.LogWarning($"Player can't find BattleEntityModel for id {entitySkill.Target.Id} to show SkillTargetIndicator!", GameComponent.Character);
-                continue;
-            }
-
-            bTarget.DisplaySkillTargetIndicator(skill.SkillId);
-            _skillIndicatorBuffer.Add(bTarget);
-        }
-        */
+        _uiCanvasNonSkewRotation.SetLookRotation(-UiCamera.transform.forward, UiCamera.transform.up);
 
         if(_entity.QueuedSkill != null)
         {
