@@ -1,8 +1,6 @@
 using OwlLogging;
 using Shared;
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Server
 {
@@ -11,7 +9,8 @@ namespace Server
         private SkillId _skillId;
         public override SkillId SkillId => _skillId;
         public ServerMapInstance Map;
-        //public new ServerBattleEntity User => base.User as ServerBattleEntity;
+        public ServerBattleEntity UserTyped => User as ServerBattleEntity;
+        public ServerBattleEntity EntityTargetTyped => Target.EntityTarget as ServerBattleEntity;
         public int Var1, Var2, Var3, Var4, Var5;
         public object[] runtimeVar = null;
 
@@ -248,12 +247,8 @@ namespace Server
             {
                 // Don't use StandardPhysicalAttack here - Auto-attacks can crit!
                 AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
-                parameters.Source = skillExec.User as ServerBattleEntity;
-                parameters.AttackType = AttackType.Physical;
+                parameters.InitForPhysicalSkill(skillExec);
                 parameters.CanCrit = true;
-                parameters.CanMiss = true;
-                parameters.IgnoreDefense = false;
-                parameters.ChainCount = 0;
 
                 skillExec.Map.BattleModule.PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
                 AutoInitResourcePool<AttackParams>.Return(parameters);
@@ -268,20 +263,9 @@ namespace Server
                 // Have entity attack again if no other skill has been queued up
                 // Depending on system, queueing up skill this early may not even have been possible for the user - which is fine.
                 if (skillExec.User.QueuedSkill == null)
-                    skillExec.Map.SkillModule.ReceiveSkillExecutionRequest(skillExec.SkillId, skillExec.SkillLvl, skillExec.User as ServerBattleEntity, skillExec.Target);
+                    skillExec.Map.SkillModule.ReceiveSkillExecutionRequest(skillExec.SkillId, skillExec.SkillLvl, skillExec.UserTyped, skillExec.Target);
                 skillExec.Var1 = 1;
             }
-        }
-    }
-
-    public class FireBoltSkillImpl : ASkillImpl
-    {
-        // Var1: Skill Ratio in %: 100 = 100%
-        // Var2: Number of hits
-        public override void OnExecute(ServerSkillExecution skillExec)
-        {
-            base.OnExecute(skillExec);
-            skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1 / 100.0f, EntityElement.Fire1, skillExec.Var2);
         }
     }
 
@@ -295,6 +279,98 @@ namespace Server
             RectangleCenterGridShape shape = new() { Center = skillExec.Target.GroundTarget, Radius = skillExec.Var1 };
             WarpCellEffectGroup cellEffectGroup = new();
             cellEffectGroup.Create(skillExec.Map.Grid, shape, skillExec.User.MapId, skillExec.User.Coordinates, skillExec.Var2);
+        }
+    }
+
+    // Basic Skill
+
+    // PlayDead
+
+    // FirstAid
+
+    public class BashSkillImpl : ASkillImpl
+    {
+        // Var1: SkillRatio in %: 100 = 100%
+        // Var2: bonus Hit amount in points
+
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
+            param.InitForPhysicalSkill(skillExec);
+            param.PostAttackCallback = PostAttackCallback;
+            param.PreAttackCallback = PreAttackCallback;
+
+            skillExec.Map.BattleModule.PerformAttack(skillExec.EntityTargetTyped, param);
+            AutoInitResourcePool<AttackParams>.Return(param);
+        }
+
+        private void PreAttackCallback(ServerSkillExecution skillExec)
+        {
+            skillExec.UserTyped.Hit.ModifyAdd(skillExec.Var2);
+        }
+
+        private void PostAttackCallback(ServerSkillExecution skillExec)
+        {
+            skillExec.UserTyped.Hit.ModifyAdd(-skillExec.Var2);
+        }
+    }
+
+    public class MagnumBreakSkillImpl : ASkillImpl
+    {
+        // Var1: SkillRatio in %: 100 = 100%
+        // Var2: bonus Hit amount in points
+        // Var3: Range of AoE
+        // Var4: Atk Buff strength in percent
+        // Var5: Atk Buff duration in seconds
+
+        public override SkillFailReason CheckTarget(ServerSkillExecution skillExec)
+        {
+            if(skillExec.Target.EntityTarget != skillExec.User)
+                return SkillFailReason.TargetInvalid;
+
+            return base.CheckTarget(skillExec);
+        }
+
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
+            param.InitForPhysicalSkill(skillExec);
+
+            param.OverrideElement = EntityElement.Fire1;
+            param.PostAttackCallback = PostAttackCallback;
+            param.PreAttackCallback = PreAttackCallback;
+
+            foreach(ServerBattleEntity target in skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.User.Coordinates, skillExec.Var3))
+            {
+                skillExec.Map.BattleModule.PerformAttack(target, param);
+            }
+
+            // TODO: Apply buff
+            
+            AutoInitResourcePool<AttackParams>.Return(param);
+        }
+
+        private void PreAttackCallback(ServerSkillExecution skillExec)
+        {
+            skillExec.UserTyped.Hit.ModifyAdd(skillExec.Var2);
+        }
+
+        private void PostAttackCallback(ServerSkillExecution skillExec)
+        {
+            skillExec.UserTyped.Hit.ModifyAdd(-skillExec.Var2);
+        }
+    }
+
+    public class FireBoltSkillImpl : ASkillImpl
+    {
+        // Var1: Skill Ratio in %: 100 = 100%
+        // Var2: Number of hits
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Fire1, skillExec.Var2);
         }
     }
 }

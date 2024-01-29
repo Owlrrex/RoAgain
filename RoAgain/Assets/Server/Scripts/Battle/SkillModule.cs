@@ -33,6 +33,9 @@ namespace Server
             _skillLogicListFast[(int)SkillId.AutoAttack] = new AutoAttackSkillImpl();
             _skillLogicListFast[(int)SkillId.PlaceWarp] = new PlaceWarpSkillImpl();
 
+            _skillLogicListFast[(int)SkillId.Bash] = new BashSkillImpl();
+            _skillLogicListFast[(int)SkillId.MagnumBreak] = new MagnumBreakSkillImpl();
+
             _skillLogicListFast[(int)SkillId.FireBolt] = new FireBoltSkillImpl();
         }
 

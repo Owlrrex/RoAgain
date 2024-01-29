@@ -57,6 +57,7 @@ namespace Server
             EntityElement.Wind1
         };
 
+        public ServerSkillExecution SourceSkillExec;
         public ServerBattleEntity Source;
         // SkillFactor is per hit!
         public float SkillFactor = 1.0f;
@@ -66,10 +67,13 @@ namespace Server
         public bool CanMiss = true;
         public bool IgnoreDefense = false;
         public int ChainCount = 0;
+        public Action<ServerSkillExecution> PreAttackCallback = null;
+        public Action<ServerSkillExecution> PostAttackCallback = null;
 
         public bool IsValid()
         {
             return Source != null
+                && SourceSkillExec != null
                 && SkillFactor >= 0.0f
                 && AttackType != AttackType.Unknown
                 && Array.IndexOf(validElements, OverrideElement) != -1
@@ -77,11 +81,12 @@ namespace Server
                 // All CanMiss values are valid
                 // All IgnoreDefense values are valid
                 && ChainCount >= 0;
+                // All Callbacks are valid
         }
 
         public void Reset()
         {
-            Source = null;
+            SourceSkillExec = null;
             SkillFactor = 1.0f;
             AttackType = AttackType.Unknown;
             OverrideElement = EntityElement.Unknown;
@@ -89,6 +94,32 @@ namespace Server
             CanMiss = true;
             IgnoreDefense = false;
             ChainCount = 0;
+            PreAttackCallback = null;
+            PostAttackCallback = null;
+        }
+
+        public void InitForPhysicalSkill(ServerSkillExecution skillExec)
+        {
+            AttackType = AttackType.Physical;
+            CanCrit = false; // because only autohits can crit by default // TODO: Config value for skill-crits? Balancing-impact!
+            CanMiss = true;
+            ChainCount = 0;
+            IgnoreDefense = false;
+            SkillFactor = skillExec.Var1 / 100.0f;
+            Source = skillExec.UserTyped;
+            SourceSkillExec = skillExec;
+        }
+
+        public void InitForMagicalSkill(ServerSkillExecution skillExec)
+        {
+            AttackType = AttackType.Magical;
+            CanCrit = false;
+            CanMiss = false;
+            ChainCount = 0;
+            IgnoreDefense = false;
+            SkillFactor = skillExec.Var1 / 100.0f;
+            Source = skillExec.UserTyped;
+            SourceSkillExec = skillExec;
         }
     }
 
@@ -146,17 +177,16 @@ namespace Server
             }
         }
 
-        // skillFactor is per Hit!
-        public int StandardPhysicalAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown, int hitCount = 0)
+        // skillRatioPercent is given in percent: 100 = 100%
+        // skillRatioPercent is per Hit!
+        public int StandardPhysicalAttack(ServerSkillExecution skillExec, int skillRatioPercent, EntityElement overrideElement = EntityElement.Unknown, int hitCount = 0)
         {
             AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
-            parameters.Source = skillExec.User as ServerBattleEntity;
-            parameters.SkillFactor = skillFactor;
+
+            parameters.InitForPhysicalSkill(skillExec);
+
+            parameters.SkillFactor = skillRatioPercent / 100.0f;
             parameters.OverrideElement = overrideElement;
-            parameters.AttackType = AttackType.Physical;
-            parameters.CanCrit = false; // because only autohits can crit by default // TODO: Config value for skill-crits? Balancing-impact!
-            parameters.CanMiss = true;
-            parameters.IgnoreDefense = false;
             parameters.ChainCount = hitCount;
 
             int result = PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
@@ -164,17 +194,16 @@ namespace Server
             return result;
         }
 
-        // skillFactor is per Hit!
-        public int StandardMagicAttack(ServerSkillExecution skillExec, float skillFactor, EntityElement overrideElement = EntityElement.Unknown, int hitCount = 0)
+        // skillRatioPercent is given in percent: 100 = 100%
+        // skillRatioPercent is per Hit!
+        public int StandardMagicAttack(ServerSkillExecution skillExec, int skillRatioPercent, EntityElement overrideElement = EntityElement.Unknown, int hitCount = 0)
         {
             AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
-            parameters.Source = skillExec.User as ServerBattleEntity;
-            parameters.SkillFactor = skillFactor;
+
+            parameters.InitForMagicalSkill(skillExec);
+
+            parameters.SkillFactor = skillRatioPercent / 100.0f;
             parameters.OverrideElement = overrideElement;
-            parameters.AttackType = AttackType.Magical;
-            parameters.CanCrit = false; // TODO: Config value for skill-crits? Balancing-impact!
-            parameters.CanMiss = false;
-            parameters.IgnoreDefense = false;
             parameters.ChainCount = hitCount;
 
             int result = PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
@@ -195,6 +224,8 @@ namespace Server
                 OwlLogger.LogError($"Tried to perform attack at target {target.Id} with invalid Parameters!", GameComponent.Battle);
                 return -1;
             }
+
+            parameters.PreAttackCallback?.Invoke(parameters.SourceSkillExec);
 
             bool isPhysical = parameters.AttackType == AttackType.Physical;
 
@@ -346,6 +377,8 @@ namespace Server
             // TODO: Make configurable whether or not Soft-Def gets applied before or after multiplying bit HitCount
             if (parameters.ChainCount > 1)
                 damageInt *= parameters.ChainCount;
+
+            parameters.PostAttackCallback.Invoke(parameters.SourceSkillExec);
 
             if (isPhysical)
                 DealPhysicalHitDamage(parameters.Source, target, damageInt, isCrit, parameters.ChainCount);

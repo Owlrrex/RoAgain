@@ -352,10 +352,7 @@ namespace Client
 
         private void ReceiveCharacterSelectionData(CharacterSelectionDataPacket packet)
         {
-            if (_characterSelectionBuffer == null)
-            {
-                _characterSelectionBuffer = new List<CharacterSelectionData>(new CharacterSelectionData[packet.Count]);
-            }
+            _characterSelectionBuffer ??= new List<CharacterSelectionData>(new CharacterSelectionData[packet.Count]);
 
             // Verify buffer & packet seem to match
             if (packet.Count != _characterSelectionBuffer.Capacity)
