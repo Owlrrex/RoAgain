@@ -2,7 +2,6 @@ using OwlLogging;
 using Shared;
 using System;
 using UnityEngine;
-using static ChatModule;
 
 namespace Server
 {
@@ -18,7 +17,7 @@ namespace Server
         public Action<ClientConnection, Vector2Int> MovementRequestReceived;
         public Action<ClientConnection, SkillId, int, Vector2Int> GroundSkillRequestReceived;
         public Action<ClientConnection, SkillId, int, int> EntitySkillRequestReceived;
-        public Action<ClientConnection, ChatMessageRequestData> ChatMessageRequestReceived;
+        public Action<ClientConnection, ChatModule.ChatMessageRequestData> ChatMessageRequestReceived;
         public Action<ClientConnection, EntityPropertyType> StatIncreaseRequestReceived;
         public Action<ClientConnection, string, string> AccountCreationRequestReceived;
         public Action<ClientConnection, string, int /*TODO more params*/> CharacterCreationRequestReceived;

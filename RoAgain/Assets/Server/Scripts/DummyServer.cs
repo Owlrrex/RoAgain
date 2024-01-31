@@ -1,7 +1,6 @@
 using UnityEngine;
 using OwlLogging;
 using System.Collections.Generic;
-using static ChatModule;
 using Shared;
 using System.IO;
 using System;
@@ -366,7 +365,7 @@ namespace Server
             map.SkillModule.ReceiveSkillExecutionRequest(skillId, skillLvl, user, new(target));
         }
 
-        private void ReceiveChatMessageRequest(ClientConnection connection, ChatMessageRequestData data)
+        private void ReceiveChatMessageRequest(ClientConnection connection, ChatModule.ChatMessageRequestData data)
         {
             _chatModule.HandleChatMessage(data);
         }
