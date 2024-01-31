@@ -127,7 +127,7 @@ namespace Server
             else if(packetType == typeof(ChatMessageRequestPacket))
             {
                 ChatMessageRequestPacket chatPacket = packet as ChatMessageRequestPacket;
-                ChatMessageRequestData data = new()
+                ChatModule.ChatMessageRequestData data = new()
                 {
                     Message = chatPacket.Message,
                     SenderId = chatPacket.SenderId,
