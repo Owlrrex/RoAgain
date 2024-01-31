@@ -135,7 +135,7 @@ public class ClientMapModule
         return 0;
     }
 
-    private int DestroyCurrentMap()
+    public int DestroyCurrentMap()
     {
         if (_currentMapInstance == null)
             return -1;

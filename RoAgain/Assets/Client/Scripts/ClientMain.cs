@@ -40,24 +40,18 @@ namespace Client
         private Vector4 LoadingMessagePlacement;
 
         // Runtime set fields
-        // TODO: Move more of these into their own classes. ClientMain is WAY too bloated.
         public static ClientMain Instance;
-
-        // TODO: Is this still used?
-        public MainMenu MainMenu;
-        public CharacterSelectionUI CharacterSelection;
-        private bool _uiSetupDone = false;
 
         // TODO: Replace with proper Loading-screen flow
         private string LoadingMessage;
 
-        // TODO: Make statically available easiesr then ClientMain.Instance.ConnectionToServer ?
+        // TODO: Make statically available easier then ClientMain.Instance.ConnectionToServer ?
         public ServerConnection ConnectionToServer;
         // TODO: replace this with LocalCharacterEntity.Current or similar
         // TODO: Reduce access to this on hot paths
         public LocalCharacterEntity CurrentCharacterData { get; private set; }
         
-        // TODO: move to MapModule, since that one manages movers?
+        // TODO: move to MapModule, since that one manages movers
         private GridEntityMover _characterGridMover;
 
         public ClientMapModule MapModule { get; private set; }
@@ -129,13 +123,6 @@ namespace Client
 
         private void Update()
         {
-            if(!_uiSetupDone && MainMenu != null && CharacterSelection != null)
-            {
-                MainMenu.gameObject.SetActive(true);
-                CharacterSelection.gameObject.SetActive(false);
-                _uiSetupDone = true;
-            }
-
             // Ensure OnDisconnected runs on main thread
             if(ConnectionToServer != null && !ConnectionToServer.IsAlive)
             {
@@ -201,6 +188,7 @@ namespace Client
                 return;
             }
 
+            // TODO: Make submodules subscribe to the Connection instead where appropriate, to remove routing-functions from ClientMain
             ConnectionToServer.SessionReceived += OnSessionReceived;
             ConnectionToServer.LoginResponseReceived += OnLoginResponseReceived;
             ConnectionToServer.UnitMovementReceived += OnUnitMovementReceived;
@@ -245,6 +233,7 @@ namespace Client
                 return;
             }
             
+            // TODO: Make submodules subscribe to the Connection instead where appropriate, to remove routing-functions from ClientMain
             ConnectionToServer.SessionReceived -= OnSessionReceived;
             ConnectionToServer.LoginResponseReceived -= OnLoginResponseReceived;
             ConnectionToServer.UnitMovementReceived -= OnUnitMovementReceived;
@@ -308,6 +297,9 @@ namespace Client
                 // We can't cleanup the server here, because it's in a different namespace
                 SceneManager.LoadScene(0);
             }
+
+            CurrentCharacterData = null;
+            MapModule?.DestroyCurrentMap();
         }
 
         public void CreateSessionWithServer(Action callback)

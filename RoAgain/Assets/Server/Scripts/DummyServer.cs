@@ -685,10 +685,12 @@ namespace Server
             ServerMapInstance mapInstance = charData.MapInstance;
 
             // Tell MapInstance to remove character from Grid
+            // This should automatically send the EntityRemoved event (only to people in range?)
             mapInstance.Grid.RemoveOccupant(charData);
-            // That should automatically send the EntityRemoved event (only to people in range?)
 
-            // missing: Cleanup of ClientConnection
+            _loggedInCharacters.Remove(charData);
+
+            // TODO: Cleanup of ClientConnection
         }
 
         public override void Update(float deltaTime)

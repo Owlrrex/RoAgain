@@ -30,6 +30,7 @@ namespace Client
         private CursorEntry _attackCursor;
         [SerializeField]
         private CursorEntry _warpCursor;
+        // TODO: Speak cursor
 
         [SerializeField]
         private Camera _camera;
