@@ -67,6 +67,9 @@ namespace Client
         private Action _sessionCreationCallback;
         private List<CharacterSelectionData> _charData;
 
+        private AccountLoginPhase _accountLoginPhase;
+        private CharacterLoginPhase _characterLoginPhase;
+
         void Awake()
         {
             if (Instance == this)
@@ -97,6 +100,10 @@ namespace Client
 
             MapModule = new();
             MapModule.Initialize();
+
+            _accountLoginPhase = new();
+
+            _characterLoginPhase = new();
 
             DontDestroyOnLoad(gameObject);
         }
