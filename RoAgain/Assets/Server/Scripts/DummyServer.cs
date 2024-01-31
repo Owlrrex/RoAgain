@@ -109,10 +109,7 @@ namespace Server
                 }
             }
 
-            if(_accountDatabase != null)
-            {
-                _accountDatabase.Persist();
-            }
+            _accountDatabase?.Persist();
 
             // Saving complete, shutdown systems now
 

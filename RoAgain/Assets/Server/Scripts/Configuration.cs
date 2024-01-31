@@ -9,7 +9,8 @@ namespace Server
     public enum ConfigurationKey
     {
         Unknown,
-        TestServerConfigEntry
+        TestServerConfigEntry,
+        ChatCommandSymbol
     }
 
     public class Configuration
@@ -96,6 +97,16 @@ namespace Server
             }
 
             return 0;
+        }
+
+        public string GetMainConfig(ConfigurationKey key)
+        {
+            if (!_mainConfig.ContainsKey(key))
+            {
+                return null;
+            }
+
+            return _mainConfig[key];
         }
     }
 }
