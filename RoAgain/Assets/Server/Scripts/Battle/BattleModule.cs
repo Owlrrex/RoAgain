@@ -378,7 +378,7 @@ namespace Server
             if (parameters.ChainCount > 1)
                 damageInt *= parameters.ChainCount;
 
-            parameters.PostAttackCallback.Invoke(parameters.SourceSkillExec);
+            parameters.PostAttackCallback?.Invoke(parameters.SourceSkillExec);
 
             if (isPhysical)
                 DealPhysicalHitDamage(parameters.Source, target, damageInt, isCrit, parameters.ChainCount);
