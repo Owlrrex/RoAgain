@@ -249,6 +249,7 @@ namespace Server
                 AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
                 parameters.InitForPhysicalSkill(skillExec);
                 parameters.CanCrit = true;
+                parameters.SkillFactor = 1.0f;
 
                 skillExec.Map.BattleModule.PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
                 AutoInitResourcePool<AttackParams>.Return(parameters);
