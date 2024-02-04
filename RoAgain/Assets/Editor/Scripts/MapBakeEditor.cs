@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using Client;
 using OwlLogging;
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -11,6 +12,8 @@ using UnityEngine.SceneManagement;
 [CustomEditor(typeof(GridComponent))]
 public class GridComponentEditor : Editor
 {
+    private static Vector3[] _raycastPointBuffer = new Vector3[5];
+
     public override void OnInspectorGUI()
     {
         GridComponent myGrid = (GridComponent)target;
@@ -119,30 +122,30 @@ public class GridComponentEditor : Editor
         float cellXOffsetLocal = grid.CellSize * x;
         float cellZOffsetLocal = grid.CellSize * y;
 
-        Vector3[] raycastStarts = new Vector3[5];
+        Array.Clear(_raycastPointBuffer, 0, _raycastPointBuffer.Length);
         // calculate cell center x/z, this has to be first in the array
-        raycastStarts[0] = new Vector3(0.5f, 0, 0.5f);
+        _raycastPointBuffer[0] = new Vector3(0.5f, 0, 0.5f);
         // calculate auxiliary raycast x/z
-        raycastStarts[1] = new Vector3(0.25f, 0, 0.75f);
-        raycastStarts[2] = new Vector3(0.75f, 0, 0.75f);
-        raycastStarts[3] = new Vector3(0.25f, 0, 0.25f);
-        raycastStarts[4] = new Vector3(0.75f, 0, 0.25f);
+        _raycastPointBuffer[1] = new Vector3(0.25f, 0, 0.75f);
+        _raycastPointBuffer[2] = new Vector3(0.75f, 0, 0.75f);
+        _raycastPointBuffer[3] = new Vector3(0.25f, 0, 0.25f);
+        _raycastPointBuffer[4] = new Vector3(0.75f, 0, 0.25f);
         // offset all of them by cell indices & other constant ones
-        for (int i = 0; i < raycastStarts.Length; i++)
+        for (int i = 0; i < _raycastPointBuffer.Length; i++)
         {
             // Scale to cell size
-            raycastStarts[i] *= grid.CellSize;
+            _raycastPointBuffer[i] *= grid.CellSize;
             // Offset for cell position
-            raycastStarts[i].x += cellXOffsetLocal;
-            raycastStarts[i].z += cellZOffsetLocal;
+            _raycastPointBuffer[i].x += cellXOffsetLocal;
+            _raycastPointBuffer[i].z += cellZOffsetLocal;
             // Move to Ray starting height
-            raycastStarts[i].y = raycastStartY;
+            _raycastPointBuffer[i].y = raycastStartY;
         }
 
         // transform into world space
-        for(int i = 0; i < raycastStarts.Length; i++)
+        for(int i = 0; i < _raycastPointBuffer.Length; i++)
         {
-            raycastStarts[i] = grid.transform.TransformPoint(raycastStarts[i]);
+            _raycastPointBuffer[i] = grid.transform.TransformPoint(_raycastPointBuffer[i]);
         }
 
         // perform raycasts & navmesh checks, aggregate results
@@ -150,9 +153,9 @@ public class GridComponentEditor : Editor
         float cellMidHeight = float.NaN;
         float cellAverageHeight = 0;
 
-        for (int i = 0; i < raycastStarts.Length; i++)
+        for (int i = 0; i < _raycastPointBuffer.Length; i++)
         {
-            if (Physics.Raycast(raycastStarts[i], -grid.transform.up, out RaycastHit rayHit, raycastDistance, layers))
+            if (Physics.Raycast(_raycastPointBuffer[i], -grid.transform.up, out RaycastHit rayHit, raycastDistance, layers))
             {
                 bool navMeshFound = NavMesh.SamplePosition(rayHit.point, out NavMeshHit nmHit, 1.4f, NavMesh.AllAreas);
                 if(navMeshFound)
@@ -180,7 +183,9 @@ public class GridComponentEditor : Editor
                 }
             }
         }
-        cellAverageHeight /= raycastStarts.Length;
+        cellAverageHeight /= _raycastPointBuffer.Length;
+
+        Array.Clear(_raycastPointBuffer, 0, _raycastPointBuffer.Length);
 
         // decide
         bool isCellValid = hitCount >= 3;

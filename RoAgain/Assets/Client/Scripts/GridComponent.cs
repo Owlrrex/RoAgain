@@ -1,8 +1,8 @@
 using OwlLogging;
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Client
 {
@@ -19,8 +19,79 @@ namespace Client
 
         public string EditorMapId;
         public Vector2Int EditorBounds;
+        public float GridVisualizationHeight = 0.0f;
 
         public static float CellWalkableCheckRadius = 0.1f;
+
+        private Vector3[] _gridLineSegments;
+        private Vector2Int _lastEditorBounds;
+        private float _lastVisHeight;
+        private float _lastCellSize;
+        private Vector3 _lastWorldPos;
+        private Quaternion _lastWorldRot;
+        private Vector3 _lastWorldSize;
+
+        private void BuildGridLineSegments()
+        {
+            if (_gridLineSegments != null
+                && _lastWorldPos == transform.position
+                && _lastWorldRot == transform.rotation
+                && _lastWorldSize == transform.lossyScale
+                && _lastEditorBounds == EditorBounds
+                && _lastVisHeight == GridVisualizationHeight
+                && _lastCellSize == CellSize)
+            {
+                return;
+            }
+
+            _lastWorldPos = transform.position;
+            _lastWorldRot = transform.rotation;
+            _lastWorldSize = transform.lossyScale;
+            _lastEditorBounds = EditorBounds;
+            _lastVisHeight = GridVisualizationHeight;
+            _lastCellSize = CellSize;
+
+            Vector3 horiLineEndOffset = new Vector3(EditorBounds.x * CellSize, 0, 0);
+            Vector3 vertLineEndOffset = new Vector3(0, 0, EditorBounds.y * CellSize);
+            int gridLineSegmentIndex = 0;
+            _gridLineSegments = new Vector3[(EditorBounds.x + EditorBounds.y + 2) * 2];
+
+            // Build points in local space
+            for (int x = 0; x < EditorBounds.x; x++)
+            {
+                Vector3 start = new Vector3(x * CellSize, GridVisualizationHeight, 0);
+                Vector3 end = start + vertLineEndOffset;
+                _gridLineSegments[gridLineSegmentIndex++] = start;
+                _gridLineSegments[gridLineSegmentIndex++] = end;
+            }
+
+            for (int y = 0; y < EditorBounds.y; y++)
+            {
+                Vector3 start = new Vector3(0, GridVisualizationHeight, y * CellSize);
+                Vector3 end = start + horiLineEndOffset;
+                _gridLineSegments[gridLineSegmentIndex++] = start;
+                _gridLineSegments[gridLineSegmentIndex++] = end;
+            }
+
+            // Boundary Line: last hori
+            Vector3 horiStart = new Vector3(0, GridVisualizationHeight, EditorBounds.y * CellSize);
+            Vector3 horiEnd = horiStart + horiLineEndOffset;
+            _gridLineSegments[gridLineSegmentIndex++] = horiStart;
+            _gridLineSegments[gridLineSegmentIndex++] = horiEnd;
+
+            // Boundary Line: last vert
+            Vector3 vertStart = new Vector3(EditorBounds.x * CellSize, GridVisualizationHeight, 0);
+            Vector3 vertEnd = vertStart + vertLineEndOffset;
+            _gridLineSegments[gridLineSegmentIndex++] = vertStart;
+            _gridLineSegments[gridLineSegmentIndex++] = vertEnd;
+
+            // transform into world space
+            for (int i = 0; i < _gridLineSegments.Length; i++)
+            {
+                if (_gridLineSegments[i] != null )
+                    _gridLineSegments[i] = transform.TransformPoint(_gridLineSegments[i]);
+            }
+        }
 
         private void OnDrawGizmos()
         {
@@ -28,6 +99,18 @@ namespace Client
             foreach (Vector3 dot in GizmoDots)
             {
                 Gizmos.DrawWireSphere(dot, 0.1f);
+            }
+
+            BuildGridLineSegments();
+
+            if (_gridLineSegments != null
+                && _gridLineSegments.Length > 0
+                && _gridLineSegments.Length % 2 == 0)
+            {
+                Color prev = Handles.color;
+                Handles.color = Color.black;
+                Handles.DrawLines(_gridLineSegments);
+                Handles.color = prev;
             }
         }
 #endif
