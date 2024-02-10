@@ -150,7 +150,7 @@ namespace Server
         public virtual void OnCompleted(ServerSkillExecution skillExec, bool wasSuccessful) { }
 
         // Which skills will go on a cooldown other than AnimationDelay
-        public virtual Dictionary<SkillId, float> GetSkillCoolDowns() { return null; }
+        public virtual Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec) { return null; }
 
         public virtual SkillFailReason CheckTarget(ServerSkillExecution skillExec)
         {
@@ -283,11 +283,19 @@ namespace Server
         }
     }
 
-    // Basic Skill
+    // Basic Skill: Needs PassiveSkill system
 
-    // PlayDead
+    // PlayDead: Needs Buff&Debuff system
 
-    // FirstAid
+    public class FirstAidSkillImpl : ASkillImpl
+    {
+        // Var1: Amount of HP healed
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            skillExec.Map.BattleModule.ChangeHp(skillExec.UserTyped, skillExec.Var1, skillExec.UserTyped);
+        }
+    }
 
     public class BashSkillImpl : ASkillImpl
     {
@@ -364,6 +372,22 @@ namespace Server
         }
     }
 
+    // One Hand Sword Mastery: Needs PassiveSkill system
+
+    // Two Hand Sword Mastery: Needs PassiveSkill system
+
+    // Increased Hp Recovery: Needs PassiveSkill system
+
+    // Provoke: Needs Buff&Debuff system
+
+    // Endure: Needs Buff&Debuff system
+
+    // AutoBerserk: Needs PassiveSkill & Buff&Debuff system
+
+    // HpRecWhileMoving: Needs PassiveSkill system
+    
+    // FatalBlow: Needs PassiveSkill system
+
     public class FireBoltSkillImpl : ASkillImpl
     {
         // Var1: Skill Ratio in %: 100 = 100%
@@ -372,6 +396,44 @@ namespace Server
         {
             base.OnExecute(skillExec);
             skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Fire1, skillExec.Var2);
+        }
+
+        public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
+        {
+            Dictionary<SkillId, float> cds = new()
+            {
+                { SkillId.ALL_EXCEPT_AUTO, 0.8f + 0.2f * skillExec.SkillLvl }
+            };
+            return cds;
+        }
+    }
+
+    public class FireBallSkillImpl : ASkillImpl
+    {
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
+            param.InitForMagicalSkill(skillExec);
+
+            param.OverrideElement = EntityElement.Fire1;
+
+            foreach (ServerBattleEntity target in skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.Target.EntityTarget.Coordinates, skillExec.Var3))
+            {
+                skillExec.Map.BattleModule.PerformAttack(target, param);
+            }
+
+            AutoInitResourcePool<AttackParams>.Return(param);
+        }
+
+        public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
+        {
+            Dictionary<SkillId, float> cds = new();
+            if (skillExec.SkillLvl <= 5)
+                cds.Add(SkillId.ALL_EXCEPT_AUTO, 1.5f);
+            else
+                cds.Add(SkillId.ALL_EXCEPT_AUTO, 1.0f);
+            return cds;
         }
     }
 }

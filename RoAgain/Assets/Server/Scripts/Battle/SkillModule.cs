@@ -34,10 +34,13 @@ namespace Server
             _skillLogicListFast[(int)SkillId.AutoAttack] = new AutoAttackSkillImpl();
             _skillLogicListFast[(int)SkillId.PlaceWarp] = new PlaceWarpSkillImpl();
 
+            _skillLogicListFast[(int)SkillId.FirstAid] = new FirstAidSkillImpl();
+
             _skillLogicListFast[(int)SkillId.Bash] = new BashSkillImpl();
             _skillLogicListFast[(int)SkillId.MagnumBreak] = new MagnumBreakSkillImpl();
 
             _skillLogicListFast[(int)SkillId.FireBolt] = new FireBoltSkillImpl();
+            _skillLogicListFast[(int)SkillId.FireBall] = new FireBallSkillImpl();
         }
 
         public ASkillImpl GetSkillLogic(SkillId skillId)
@@ -488,7 +491,7 @@ namespace Server
 
             ASkillImpl logic = GetSkillLogic(skill.SkillId);
 
-            Dictionary<SkillId, float> skillCooldownsToSet = logic.GetSkillCoolDowns();
+            Dictionary<SkillId, float> skillCooldownsToSet = logic.GetSkillCoolDowns(skill);
             if (skillCooldownsToSet != null)
             {
                 foreach (var kvp in skillCooldownsToSet)
