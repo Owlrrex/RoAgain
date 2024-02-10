@@ -34,7 +34,7 @@ namespace Server
 
             // Resolve target name
             CharacterRuntimeData target = sender;
-            if(targetName != sender.Name)
+            if (targetName != sender.Name)
             {
                 foreach (CharacterRuntimeData charData in ServerMain.Instance.Server.LoggedInCharacters)
                 {
@@ -97,6 +97,7 @@ namespace Server
 
             int healMode = 0;
             int targetId = sender.Id;
+            ServerBattleEntity target = sender;
 
             if (args.Length >= 2)
             {
@@ -117,11 +118,14 @@ namespace Server
             }
 
             // Resolve target id
-            ServerBattleEntity target = ServerMain.Instance.Server.MapModule.FindEntityOnAllMaps(targetId) as ServerBattleEntity;
-            if(target == null)
+            if(targetId != sender.Id)
             {
-                OwlLogger.Log($"Can't find target with id {targetId}", GameComponent.ChatCommands);
-                return -4;
+                target = ServerMain.Instance.Server.MapModule.FindEntityOnAllMaps(targetId) as ServerBattleEntity;
+                if (target == null)
+                {
+                    OwlLogger.Log($"Can't find target with id {targetId}", GameComponent.ChatCommands);
+                    return -4;
+                }
             }
 
             // Execute effect
@@ -149,6 +153,108 @@ namespace Server
                     OwlLogger.Log($"Invalid heal mode {healMode}!", GameComponent.ChatCommands);
                     return -5;
             }
+            return 0;
+        }
+    }
+
+    public class KillChatCommand : AChatCommand
+    {
+        // Args[1]: [Optional] Name of character to kill, default = sender
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            // Validate & read parameters
+            if (args.Length > 2)
+            {
+                OwlLogger.Log($"Too many arguments for HealChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+                return -1;
+            }
+
+            string targetName = sender.Name;
+
+            if (args.Length == 2)
+            {
+                targetName = args[1];
+            }
+
+            // Resolve target name
+            CharacterRuntimeData target = sender;
+            if (targetName != sender.Name)
+            {
+                foreach (CharacterRuntimeData charData in ServerMain.Instance.Server.LoggedInCharacters)
+                {
+                    if (charData.Name == targetName)
+                    {
+                        target = charData;
+                        break;
+                    }
+
+                }
+                if (target == sender)
+                {
+                    OwlLogger.Log($"Tried to use HealChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
+                    return -3;
+                }
+            }
+
+            // Execute effect
+            ServerMapInstance targetMap = ServerMain.Instance.Server.MapModule.GetMapInstance(target.MapId);
+            if (targetMap == null)
+            {
+                OwlLogger.LogError($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
+                return -4;
+            }
+            BattleModule battleModule = targetMap.BattleModule;
+
+            battleModule.ChangeHp(target, -target.MaxHp.Total, sender);
+            return 0;
+        }
+    }
+
+    public class KillIdChatCommand : AChatCommand
+    {
+        // Args[1]: [Optional] EntityId of entity to kill, default = sender
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            // Validate & read parameters
+            if (args.Length > 2)
+            {
+                OwlLogger.Log($"Too many arguments for HealIdChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+                return -1;
+            }
+
+            int targetId = sender.Id;
+
+            if (args.Length == 2)
+            {
+                if (!int.TryParse(args[1], out targetId))
+                {
+                    OwlLogger.Log($"Invalid TargetId given: {targetId}", GameComponent.ChatCommands);
+                    return -3;
+                }
+            }
+
+            ServerBattleEntity target = sender;
+            // Resolve target id
+            if(targetId != sender.Id)
+            {
+                target = ServerMain.Instance.Server.MapModule.FindEntityOnAllMaps(targetId) as ServerBattleEntity;
+                if (target == null)
+                {
+                    OwlLogger.Log($"Can't find target with id {targetId}", GameComponent.ChatCommands);
+                    return -4;
+                }
+            }
+
+            // Execute effect
+            ServerMapInstance targetMap = ServerMain.Instance.Server.MapModule.GetMapInstance(target.MapId);
+            if (targetMap == null)
+            {
+                OwlLogger.Log($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
+                return -4;
+            }
+            BattleModule battleModule = targetMap.BattleModule;
+
+            battleModule.ChangeHp(target, -target.MaxHp.Total, sender);
             return 0;
         }
     }

@@ -58,6 +58,8 @@ namespace Server
             _chatCommands.Add("changejob", new ChangeJobChatCommand());
             _chatCommands.Add("heal", new HealChatCommand());
             _chatCommands.Add("healid", new HealIdChatCommand());
+            _chatCommands.Add("kill", new KillChatCommand());
+            _chatCommands.Add("killid", new KillIdChatCommand());
             _chatCommands.Add("reloadskilldb", new ReloadSkillDbChatCommand());
         }
 
@@ -79,7 +81,7 @@ namespace Server
             if (chatMessage.Message.StartsWith(_serverChatCommandSymbol))
             {
                 int commandResult =  100 * HandleServerCommand(chatMessage.Message, charData);
-                if (commandResult == 0)
+                if (commandResult == 0 || commandResult >= 10) // No error, or command-specific error. But command execution in itself worked.
                     return 0;
             }
 
@@ -119,7 +121,7 @@ namespace Server
             }
 
             // TODO: Allow more detailed feedback by the command about its error, to instruct the user
-            int commandResult = _chatCommands[parts[0]].Execute(sender, parts);
+            int commandResult = 10 * _chatCommands[parts[0]].Execute(sender, parts);
             return commandResult;
         }
 
