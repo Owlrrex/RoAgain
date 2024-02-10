@@ -58,6 +58,7 @@ namespace Server
             _chatCommands.Add("changejob", new ChangeJobChatCommand());
             _chatCommands.Add("heal", new HealChatCommand());
             _chatCommands.Add("healid", new HealIdChatCommand());
+            _chatCommands.Add("reloadskilldb", new ReloadSkillDbChatCommand());
         }
 
         public int HandleChatMessage(ChatMessageRequestData chatMessage)

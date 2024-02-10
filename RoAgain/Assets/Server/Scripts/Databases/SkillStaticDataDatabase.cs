@@ -70,6 +70,31 @@ namespace Server
             _instance = this;
         }
 
+        public static void Reload()
+        {
+            if(_instance == null)
+            {
+                OwlLogger.LogError("Can't reload SkillStaticData while instance is null!", GameComponent.Other);
+                return;
+            }
+
+            int result = CachedFileAccess.Load<SkillStaticDataList>(FILE_KEY, true);
+            if(result != 0)
+            {
+                OwlLogger.LogError("Loading SkillStaticData failed!", GameComponent.Other);
+                return;
+            }
+
+            SkillStaticDataList dataList = CachedFileAccess.Get<SkillStaticDataList>(FILE_KEY);
+            CachedFileAccess.Purge(FILE_KEY);
+
+            _instance._data.Clear();
+            foreach (SkillStaticDataEntry entry in dataList.Entries)
+            {
+                _instance._data.Add(entry.SkillId, entry);
+            }
+        }
+
         public static SkillStaticDataEntry GetSkillStaticData(SkillId skillId)
         {
             if (_instance == null)

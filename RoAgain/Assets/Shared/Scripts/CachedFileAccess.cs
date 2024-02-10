@@ -136,12 +136,6 @@ namespace Shared
         
         private static string MakePath(string key)
         {
-            Debug.Log("persistentDataPath: " + Application.persistentDataPath);
-            Debug.Log("consoleLogPath: " + Application.consoleLogPath);
-            Debug.Log("dataPath: " + Application.dataPath);
-            Debug.Log("streamingAssetsPath: " + Application.streamingAssetsPath);
-            Debug.Log("temporaryCachePath: " + Application.temporaryCachePath);
-
             if (key.StartsWith(CONFIG_PREFIX))
             {
                 return Path.Combine(Application.persistentDataPath, "Config", key.Remove(0, CONFIG_PREFIX.Length) + ".cfg");

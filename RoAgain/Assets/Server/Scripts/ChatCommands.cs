@@ -153,6 +153,18 @@ namespace Server
         }
     }
 
+    public class ReloadSkillDbChatCommand : AChatCommand
+    {
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 1))
+                return -1;
+
+            SkillStaticDataDatabase.Reload();
+            return 0;
+        }
+    }
+
     public class ChangeJobChatCommand : AChatCommand
     {
         public override int Execute(CharacterRuntimeData sender, string[] args)
@@ -169,5 +181,16 @@ namespace Server
         /// <param name="args">{0] = command word, after that the command's arguments</param>
         /// <returns>0 = success</returns>
         public abstract int Execute(CharacterRuntimeData sender, string[] args);
+
+        protected bool VerifyArgCount(string[] args, int expectedCount)
+        {
+            if(args.Length != expectedCount)
+            {
+                OwlLogger.Log($"Too many arguments for {GetType().Name}: {expectedCount} expected, {args.Length} given!", GameComponent.ChatCommands);
+                return false;
+            }
+
+            return true;
+        }
     }
 }
