@@ -55,7 +55,7 @@ namespace Client
             Toggle toggle = _genderSelectGroup.GetFirstActiveToggle();
             int gender = toggle.transform.GetSiblingIndex();
 
-            ClientMain.Instance.CreateCharacter(charname, gender);
+            PreGameUI.Instance.CreateCharacter(charname, gender);
         }
     }
 }

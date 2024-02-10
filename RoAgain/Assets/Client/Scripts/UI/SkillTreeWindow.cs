@@ -175,8 +175,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
         for(int i = 0; i < missingChildCount; i++)
         {
             GameObject entryObj = Instantiate(_skillTreeEntryPrefab, _skillIconContainer.transform);
-            SkillTreeEntryWidget widget = entryObj.GetComponent<SkillTreeEntryWidget>();
-            if (widget == null)
+            if (!entryObj.TryGetComponent(out SkillTreeEntryWidget widget))
             {
                 OwlLogger.LogError($"SkillTreeWindow can't find SkillTreeEntryWidget component on SkillIconPrefab!", GameComponent.UI);
                 Destroy(entryObj);
@@ -301,8 +300,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
         if(!OwlLogger.PrefabNullCheckAndLog(_skillIconContainer, "skillIconContainer", this, GameComponent.UI))
         {
-            _skillIconContainerLayout = _skillIconContainer.GetComponent<GridLayoutGroup>();
-            if (_skillIconContainerLayout == null)
+            if (!_skillIconContainer.TryGetComponent(out _skillIconContainerLayout))
             {
                 OwlLogger.LogError("SkillTreeWindow can't find GridLayoutGroup on SkillIconContainer!", GameComponent.UI);
             }

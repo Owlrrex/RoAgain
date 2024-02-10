@@ -67,9 +67,6 @@ namespace Client
         private Action _sessionCreationCallback;
         private List<CharacterSelectionData> _charData;
 
-        private AccountLoginPhase _accountLoginPhase;
-        private CharacterLoginPhase _characterLoginPhase;
-
         void Awake()
         {
             if (Instance == this)
@@ -100,10 +97,6 @@ namespace Client
 
             MapModule = new();
             MapModule.Initialize();
-
-            _accountLoginPhase = new();
-
-            _characterLoginPhase = new();
 
             DontDestroyOnLoad(gameObject);
         }
@@ -149,32 +142,18 @@ namespace Client
                 return false;
             }
 
-            // TODO: load settings for initial server connection
-            //string ipPort = "";
-            //int initResult = CreateDummyConnection(ipPort);
-
             string ipPort = IpInput + ":" + _port;
             int initResult = CreateConnection(ipPort);
 
             // receive & handle initialization results
             if (initResult != 0)
             {
-                Debug.LogError($"DummyServer init failed with error code {initResult} - aborting ConnectToServer");
+                Debug.LogError($"Connection to Server failed with error code {initResult}");
                 ConnectionToServer = null;
                 return false;
             }
 
             return true;
-        }
-
-        private int CreateDummyConnection(string ipPort)
-        {
-            if (ConnectionToServer != null)
-                DetachFromConnection();
-
-            ConnectionToServer = new DummyServerConnection();
-            SetupWithConnection();
-            return ConnectionToServer.Initialize(ipPort);
         }
 
         private int CreateConnection(string ipPort)
@@ -197,13 +176,11 @@ namespace Client
 
             // TODO: Make submodules subscribe to the Connection instead where appropriate, to remove routing-functions from ClientMain
             ConnectionToServer.SessionReceived += OnSessionReceived;
-            ConnectionToServer.LoginResponseReceived += OnLoginResponseReceived;
             ConnectionToServer.UnitMovementReceived += OnUnitMovementReceived;
             ConnectionToServer.GridEntityDataReceived += OnGridEntityDataReceived;
             ConnectionToServer.BattleEntityDataReceived += OnBattleEntityDataReceived;
             ConnectionToServer.RemoteCharacterDataReceived += OnRemoteCharacterDataReceived;
             ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
-            ConnectionToServer.CharacterSelectionDataReceived += OnCharacterSelectionDataReceived;
             ConnectionToServer.EntityRemovedReceived += OnEntityRemovedReceived;
             // Can't use this if OnDisconnected contains mainThread code
             //ConnectionToServer.DisconnectDetected += OnDisconnected;
@@ -223,8 +200,6 @@ namespace Client
             ConnectionToServer.StatPointUpdateReceived += OnStatPointUpdateReceived;
             ConnectionToServer.ExpUpdateReceived += OnExpUpdateReceived;
             ConnectionToServer.LevelUpdateReceived += OnLevelUpdateReceived;
-            ConnectionToServer.AccountCreationResponseReceived += OnAccountCreationResponseReceived;
-            ConnectionToServer.CharacterCreationResponseReceived += OnCharacterCreationResponseReceived;
             ConnectionToServer.LocalPlayerEntitySkillQueuedReceived += OnLocalPlayerEntitySkillQueuedReceived;
             ConnectionToServer.LocalPlayerGroundSkillQueuedReceived += OnLocalPlayerGroundSkillQueuedReceived;
             ConnectionToServer.SkillTreeEntryUpdateReceived += OnSkillTreeUpdateReceived;
@@ -242,13 +217,11 @@ namespace Client
             
             // TODO: Make submodules subscribe to the Connection instead where appropriate, to remove routing-functions from ClientMain
             ConnectionToServer.SessionReceived -= OnSessionReceived;
-            ConnectionToServer.LoginResponseReceived -= OnLoginResponseReceived;
             ConnectionToServer.UnitMovementReceived -= OnUnitMovementReceived;
             ConnectionToServer.GridEntityDataReceived -= OnGridEntityDataReceived;
             ConnectionToServer.BattleEntityDataReceived -= OnBattleEntityDataReceived;
             ConnectionToServer.RemoteCharacterDataReceived -= OnRemoteCharacterDataReceived;
             ConnectionToServer.LocalCharacterDataReceived -= OnLocalCharacterDataReceived;
-            ConnectionToServer.CharacterSelectionDataReceived -= OnCharacterSelectionDataReceived;
             ConnectionToServer.EntityRemovedReceived -= OnEntityRemovedReceived;
             // Can't use this if OnDisconnected contains mainThread code
             //ConnectionToServer.DisconnectDetected -= OnDisconnected;
@@ -268,8 +241,6 @@ namespace Client
             ConnectionToServer.StatPointUpdateReceived -= OnStatPointUpdateReceived;
             ConnectionToServer.ExpUpdateReceived -= OnExpUpdateReceived;
             ConnectionToServer.LevelUpdateReceived -= OnLevelUpdateReceived;
-            ConnectionToServer.AccountCreationResponseReceived -= OnAccountCreationResponseReceived;
-            ConnectionToServer.CharacterCreationResponseReceived -= OnCharacterCreationResponseReceived;
             ConnectionToServer.LocalPlayerEntitySkillQueuedReceived -= OnLocalPlayerEntitySkillQueuedReceived;
             ConnectionToServer.LocalPlayerGroundSkillQueuedReceived -= OnLocalPlayerGroundSkillQueuedReceived;
             ConnectionToServer.SkillTreeEntryUpdateReceived -= OnSkillTreeUpdateReceived;
@@ -300,6 +271,7 @@ namespace Client
                 // TODO: This cleanup doesn't clean up statics, or other classes.
                 // cleanup this current ClientMain object because it's dontDestroyOnLoad
                 // TODO: Check if this conflicts with the new object created during scene loading
+                // Ideally, we have Shutdown function everywhere & instead of destroying & reloading scene, we shutdown UI & connection-state.
                 Destroy(gameObject);
                 // We can't cleanup the server here, because it's in a different namespace
                 SceneManager.LoadScene(0);
@@ -307,6 +279,8 @@ namespace Client
 
             CurrentCharacterData = null;
             MapModule?.DestroyCurrentMap();
+            if(PreGameUI.Instance != null)
+                PreGameUI.Instance.OnDisconnect();
         }
 
         public void CreateSessionWithServer(Action callback)
@@ -316,155 +290,33 @@ namespace Client
             if (!successful)
             {
                 OwlLogger.LogError("Connecting to server failed!", GameComponent.Network);
-                return;
             }
         }
 
         private void OnSessionReceived(int sessionId)
         {
-            // TODO: Store sessionId?
-            if(_sessionCreationCallback != null)
+            if (PreGameUI.Instance != null)
             {
-                // Why am I setting _sessionCreationCallback to null before calling it?
+                PreGameUI.Instance.SetConnectionToServer(ConnectionToServer);
+            }
+
+            // TODO: Store sessionId?
+            if (_sessionCreationCallback != null)
+            {
                 Action callback = _sessionCreationCallback;
                 _sessionCreationCallback = null;
                 callback.Invoke();
             }
         }
 
-        public void CreateAccount(string username, string password)
-        {
-            DisplayZeroButtonNotification("Creating account...");
-
-            if (ConnectionToServer == null)
-            {
-                CreateSessionWithServer(() => CreateAccount(username, password));
-                return;
-            }
-
-            AccountCreationRequestPacket packet = new()
-            {
-                Username = username,
-                Password = password
-            };
-            ConnectionToServer.Send(packet);
-        }
-
-        private void OnAccountCreationResponseReceived(int result)
-        {
-            _zeroButtonNotification.Hide();
-
-            string message = "Unknown error";
-            if (result == 0)
-            {
-                message = "Account creation successful!";
-            }
-            else if (result == 3)
-            {
-                message = "Invalid username!";
-            }
-            else if (result == 2)
-            {
-                message = "Username already taken!";
-            }
-            else if (result == 1)
-            {
-                message = "Invalid password!";
-            }
-
-            DisplayOneButtonNotification(message, () => { PreGameUI.Instance.ShowLoginWindow(); });
-        }
-
-        public void LoginWithAccountData(string username, string password)
-        {
-            if(ConnectionToServer == null)
-            {
-                CreateSessionWithServer(() => LoginWithAccountData(username, password));
-                return;
-            }
-
-            LoginRequestPacket loginPacket = new() { Username = username, Password = password };
-            ConnectionToServer.Send(loginPacket);
-        }
-
-        private void OnLoginResponseReceived(LoginResponse loginResponse)
-        {
-            if (!loginResponse.IsSuccessful)
-            {
-                DisplayOneButtonNotification("Login Failed!", null);
-                return;
-            }
-
-            LoadCharacterSelectionData();
-        }
-
-        public void LoadCharacterSelectionData()
-        {
-            PreGameUI.Instance.DeleteCurrentWindow();
-            DisplayZeroButtonNotification("Loading characters..."); // Don't need to store - we already have a reference in this class
-
-            ConnectionToServer.ResetCharacterSelectionData();
-            CharacterSelectionRequestPacket charSelRequest = new();
-            ConnectionToServer.Send(charSelRequest);
-        }
-
-        private void OnCharacterSelectionDataReceived(List<CharacterSelectionData> charData)
-        {
-            _charData = charData;
-
-            _zeroButtonNotification.Hide();
-
-            ShowCharacterSelection();
-        }
-
         public void ShowCharacterSelection()
         {
+            DisplayZeroButtonNotification(null);
             PreGameUI.Instance.ShowCharacterSelectionWindow(_charData);
         }
 
-        public void CreateCharacter(string name, int gender)
-        {
-            DisplayZeroButtonNotification("Creating Character...");
-
-            CharacterCreationRequestPacket packet = new()
-            {
-                Name = name,
-                Gender = gender,
-            };
-            ConnectionToServer.Send(packet);
-        }
-
-        private void OnCharacterCreationResponseReceived(int result)
-        {
-            _zeroButtonNotification.Hide();
-
-            if (result == 0)
-            {
-                LoadCharacterSelectionData();
-                return;
-            }
-
-            string message = "Unknown error";
-            if (result == -10 || result == -4)
-            {
-                message = "Character-name already taken!";
-            }
-            else if (result == -1)
-            {
-                message = "Character Creation error code: -1";
-            }
-            else if (result == -2)
-            {
-                message = "Character Creation error code: -2";
-            }
-            else if (result == -3)
-            {
-                message = "Character Creation error code: -3";
-            }
-
-            DisplayOneButtonNotification(message, null);
-        }
-
+        // TODO: Split this into UI updates & general client-State.
+        // Move UI to PregameUI, and keep general stuff here.
         public void StartCharacterLogin(int characterId)
         {
             // This function does alot of mixed things - UI, Network, etc. 
@@ -1093,10 +945,7 @@ namespace Client
         {
             // TODO: Verifications
 
-            if(CurrentCharacterData == null)
-            {
-                CurrentCharacterData = new(new());
-            }
+            CurrentCharacterData ??= new(new());
 
             CurrentCharacterData.SkillTree[entry.SkillId] = entry;
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
@@ -1131,21 +980,34 @@ namespace Client
                 return;
             }
 
-            _oneButtonNotification.transform.SetAsLastSibling();
-            _oneButtonNotification.SetContent(message, callback);
+            if(message == null)
+            {
+                _oneButtonNotification.Hide();
+            }
+            else
+            {
+                _oneButtonNotification.transform.SetAsLastSibling();
+                _oneButtonNotification.SetContent(message, callback);
+            }
         }
 
-        public ZeroButtonNotification DisplayZeroButtonNotification(string message)
+        public void DisplayZeroButtonNotification(string message)
         {
-            if(_oneButtonNotification == null)
+            if(_zeroButtonNotification == null)
             {
                 OwlLogger.LogError($"Tried to display zero-button notification {message} but notification is not available!", GameComponent.UI);
-                return null;
+                return;
             }
 
-            _zeroButtonNotification.SetContent(message);
-            _zeroButtonNotification.transform.SetAsLastSibling();
-            return _zeroButtonNotification;
+            if(message == null)
+            {
+                _zeroButtonNotification.Hide();
+            }
+            else
+            {
+                _zeroButtonNotification.SetContent(message);
+                _zeroButtonNotification.transform.SetAsLastSibling();
+            }
         }
 
         public void RequestReturnToSave()

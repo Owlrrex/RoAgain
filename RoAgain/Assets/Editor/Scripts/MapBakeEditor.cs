@@ -88,7 +88,7 @@ public class GridComponentEditor : Editor
     {
         grid.GizmoDots.Clear();
 
-        GridData coordConverter = new GridData();
+        GridData coordConverter = new();
         coordConverter.Initialize(grid.EditorBounds); // this allocates another array, but it's hidden so we can't use it.
 
         GridCellData[]  gridCells = new GridCellData[grid.EditorBounds.x * grid.EditorBounds.y];

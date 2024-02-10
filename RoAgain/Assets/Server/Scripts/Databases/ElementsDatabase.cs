@@ -13,7 +13,9 @@ namespace Server
         [Serializable]
         private class ElementsDatabaseEntry
         {
+#pragma warning disable CS0649 // Field 'ElementsDatabase.ElementsDatabaseEntry.OffensiveElement' is never assigned to, and will always have its default value 
             public EntityElement OffensiveElement;
+#pragma warning restore CS0649 // Field 'ElementsDatabase.ElementsDatabaseEntry.OffensiveElement' is never assigned to, and will always have its default value 
             public List<ElementsDatabaseSubEntry> DefensiveElements;
         }
 

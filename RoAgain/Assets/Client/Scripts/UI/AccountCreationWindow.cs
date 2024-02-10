@@ -56,7 +56,7 @@ namespace Client
                 return;
             }
 
-            ClientMain.Instance.CreateAccount(username, _passwordInput.text);
+            PreGameUI.Instance.CreateAccount(username, _passwordInput.text);
         }
 
         private void OnBackButtonClicked()

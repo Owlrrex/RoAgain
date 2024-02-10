@@ -38,15 +38,6 @@ public class ServerMapInstance
         // Pre-place stuff
         if(mapId == "test_map")
         {
-            // Entity test: Place square-walker somewhere
-            SquareWalkerEntity walker = new()
-            {
-                Id = 990,
-            };
-            walker.Movespeed.Value = 2;
-            walker.Initialize(5);
-            Grid.PlaceOccupant(walker, new(40, 40));
-
             // CellEffect test: A warp somewhere
             GridShape shape = new RectangleBoundsGridShape()
             {
@@ -59,15 +50,6 @@ public class ServerMapInstance
         }
         else
         {
-            // Entity test: Place square-walker somewhere
-            SquareWalkerEntity walker = new()
-            {
-                Id = 991,
-            };
-            walker.Movespeed.Value = 2;
-            walker.Initialize(2);
-            Grid.PlaceOccupant(walker, new(5, 10));
-
             // CellEffect test: A warp somewhere
             GridShape hillToBridge = new RectangleBoundsGridShape()
             {

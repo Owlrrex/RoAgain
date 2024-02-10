@@ -13,10 +13,12 @@ namespace Server
         [Serializable]
         private class SizeDatabaseEntry
         {
+#pragma warning disable CS0649 // Field 'SizeDatabase.SizeDatabaseEntry.WeaponType' is never assigned to, and will always have its default value 
             public AttackWeaponType WeaponType;
             public float Small;
             public float Medium;
             public float Large;
+#pragma warning restore CS0649 // Field 'SizeDatabase.SizeDatabaseEntry.Large' is never assigned to, and will always have its default value 0
         }
 
         [SerializeField]

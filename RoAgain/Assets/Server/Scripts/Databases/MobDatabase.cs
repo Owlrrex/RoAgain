@@ -46,8 +46,10 @@ namespace Server
         [Serializable]
         private class MobDatabaseEntry
         {
+#pragma warning disable CS0649 // Field 'MobDatabase.MobDatabaseEntry.MobId' is never assigned to, and will always have its default value 0
             public int MobId;
             public MobDataStatic Data;
+#pragma warning restore CS0649 // Field 'MobDatabase.MobDatabaseEntry.Data' is never assigned to, and will always have its default value null
         }
 
         [SerializeField]

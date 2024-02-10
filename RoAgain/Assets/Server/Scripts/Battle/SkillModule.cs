@@ -9,7 +9,7 @@ namespace Server
     {
         private ServerMapInstance _mapInstance;
 
-        private ASkillImpl[] _skillLogicListFast;
+        private static ASkillImpl[] _skillLogicListFast;
 
         public int Initialize(ServerMapInstance mapInstance)
         {
@@ -19,7 +19,8 @@ namespace Server
                 return -1;
             }
 
-            SetupSkillLogicObjects();
+            if(_skillLogicListFast == null)
+                SetupSkillLogicObjects();
 
             _mapInstance = mapInstance;
             return 0;

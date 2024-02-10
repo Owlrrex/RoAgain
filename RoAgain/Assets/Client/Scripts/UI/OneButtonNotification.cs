@@ -36,6 +36,12 @@ namespace Client
             gameObject.SetActive(false);
             _okCallback?.Invoke();
         }
+
+        public void Hide()
+        {
+            _messageText.text = "Hidden";
+            gameObject.SetActive(false);
+        }
     }
 }
 

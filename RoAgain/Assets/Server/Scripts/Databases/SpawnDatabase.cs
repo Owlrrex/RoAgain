@@ -13,15 +13,19 @@ namespace Server
         [Serializable]
         private class SpawnDatabaseEntry
         {
+#pragma warning disable CS0649 // Field 'SpawnDatabase.SpawnDatabaseEntry.MapId' is never assigned to, and will always have its default value null
             public string MapId;
             public List<SpawnSet> Sets;
+#pragma warning restore CS0649 // Field 'SpawnDatabase.SpawnDatabaseEntry.Sets' is never assigned to, and will always have its default value null
         }
 
         [Serializable]
         private class SpawnSet
         {
+#pragma warning disable CS0649 // Field 'SpawnDatabase.SpawnSet.Tag' is never assigned to, and will always have its default value null
             public string Tag;
             public List<SpawnAreaDefinition> SpawnAreas;
+#pragma warning restore CS0649 // Field 'SpawnDatabase.SpawnSet.SpawnAreas' is never assigned to, and will always have its default value null
         }
 
         [SerializeField]

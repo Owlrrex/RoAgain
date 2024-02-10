@@ -63,6 +63,7 @@ namespace Server
             _mainConfig.Clear();
 
             _mainConfig.Add(ConfigurationKey.TestServerConfigEntry, "testServerValue1");
+            _mainConfig.Add(ConfigurationKey.ChatCommandSymbol, "#");
             // TODO: Config entries here
 
             return 0;
@@ -72,6 +73,7 @@ namespace Server
         {
             bool anyChange = false;
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.TestServerConfigEntry, "testValue1");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.ChatCommandSymbol, "#");
             // TODO: Config entries here
 
             return anyChange;

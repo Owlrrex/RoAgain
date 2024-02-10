@@ -12,8 +12,6 @@ namespace Client
 
         public int CellSize = 1;
 
-        public GameObject FinalPathIndicator;
-
 #if UNITY_EDITOR
         public List<Vector3> GizmoDots { get; private set; } = new();
 
@@ -51,15 +49,15 @@ namespace Client
             _lastVisHeight = GridVisualizationHeight;
             _lastCellSize = CellSize;
 
-            Vector3 horiLineEndOffset = new Vector3(EditorBounds.x * CellSize, 0, 0);
-            Vector3 vertLineEndOffset = new Vector3(0, 0, EditorBounds.y * CellSize);
+            Vector3 horiLineEndOffset = new(EditorBounds.x * CellSize, 0, 0);
+            Vector3 vertLineEndOffset = new(0, 0, EditorBounds.y * CellSize);
             int gridLineSegmentIndex = 0;
             _gridLineSegments = new Vector3[(EditorBounds.x + EditorBounds.y + 2) * 2];
 
             // Build points in local space
             for (int x = 0; x < EditorBounds.x; x++)
             {
-                Vector3 start = new Vector3(x * CellSize, GridVisualizationHeight, 0);
+                Vector3 start = new(x * CellSize, GridVisualizationHeight, 0);
                 Vector3 end = start + vertLineEndOffset;
                 _gridLineSegments[gridLineSegmentIndex++] = start;
                 _gridLineSegments[gridLineSegmentIndex++] = end;
@@ -67,20 +65,20 @@ namespace Client
 
             for (int y = 0; y < EditorBounds.y; y++)
             {
-                Vector3 start = new Vector3(0, GridVisualizationHeight, y * CellSize);
+                Vector3 start = new(0, GridVisualizationHeight, y * CellSize);
                 Vector3 end = start + horiLineEndOffset;
                 _gridLineSegments[gridLineSegmentIndex++] = start;
                 _gridLineSegments[gridLineSegmentIndex++] = end;
             }
 
             // Boundary Line: last hori
-            Vector3 horiStart = new Vector3(0, GridVisualizationHeight, EditorBounds.y * CellSize);
+            Vector3 horiStart = new(0, GridVisualizationHeight, EditorBounds.y * CellSize);
             Vector3 horiEnd = horiStart + horiLineEndOffset;
             _gridLineSegments[gridLineSegmentIndex++] = horiStart;
             _gridLineSegments[gridLineSegmentIndex++] = horiEnd;
 
             // Boundary Line: last vert
-            Vector3 vertStart = new Vector3(EditorBounds.x * CellSize, GridVisualizationHeight, 0);
+            Vector3 vertStart = new(EditorBounds.x * CellSize, GridVisualizationHeight, 0);
             Vector3 vertEnd = vertStart + vertLineEndOffset;
             _gridLineSegments[gridLineSegmentIndex++] = vertStart;
             _gridLineSegments[gridLineSegmentIndex++] = vertEnd;
@@ -135,10 +133,7 @@ namespace Client
 
         public int Initialize(string mapId)
         {
-            if(Data == null)
-            {
-                Data = new();
-            }
+            Data ??= new();
 
             Data = GridData.LoadMapFromFiles(mapId);
             if(Data == null)

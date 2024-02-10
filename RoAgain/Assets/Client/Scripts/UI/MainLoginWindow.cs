@@ -49,7 +49,7 @@ namespace Client
                 return;
             }
 
-            ClientMain.Instance.LoginWithAccountData(username, password);
+            PreGameUI.Instance.StartAccountLogin(username, password);
         }
 
         private void OnQuitButtonClicked()

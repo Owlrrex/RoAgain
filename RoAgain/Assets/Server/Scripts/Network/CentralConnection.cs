@@ -279,11 +279,10 @@ namespace Server
 
         public override void Update()
         {
-            Packet packet;
-            bool canTake = _readyPackets.TryTake(out packet);
+            bool canTake = _readyPackets.TryTake(out Packet packet);
             while (canTake)
             {
-                Receive(packet, 0); // Sender-Id only needed for Dummy-Server login handling
+                Receive(packet, 0); // TODO: Is this still needed? Sender-Id only needed for Dummy-Server login handling
                 if (_readyPackets.Count == 0)
                     break;
                 canTake = _readyPackets.TryTake(out packet);
