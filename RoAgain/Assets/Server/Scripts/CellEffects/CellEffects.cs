@@ -44,7 +44,7 @@ public class WarpCellEffectGroup : CellEffectGroup
         // Or maybe even make it a configurable property of the Group
         if(entity is CharacterRuntimeData)
         {
-            ServerMain.Instance.Server.MoveEntityBetweenMaps(entity.Id, entity.MapId, _targetMap, _targetCoords);
+            ServerMain.Instance.Server.MapModule.MoveEntityBetweenMaps(entity.Id, entity.MapId, _targetMap, _targetCoords);
         }
         return 0;
     }

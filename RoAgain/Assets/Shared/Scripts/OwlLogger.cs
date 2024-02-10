@@ -7,21 +7,22 @@ namespace OwlLogging
     [System.Flags]
     public enum GameComponent
     {
-        Other = 1,
-        Input = 2,
-        Character = 4,
-        UI = 8,
-        Battle = 16,
-        Network = 32,
-        Grid = 64,
-        Editor = 128,
-        Skill = 256,
-        CellEffect = 512,
-        Chat = 1024,
-        Persistence = 2048,
-        Config = 4096,
+        Other           = 1 << 0,
+        Input           = 1 << 1,
+        Character       = 1 << 2,
+        UI              = 1 << 3,
+        Battle          = 1 << 4,
+        Network         = 1 << 5,
+        Grid            = 1 << 6,
+        Editor          = 1 << 7,
+        Skill           = 1 << 8,
+        CellEffect      = 1 << 9,
+        Chat            = 1 << 10,
+        Persistence     = 1 << 11,
+        Config          = 1 << 12,
+        ChatCommands    = 1 << 13,
 
-        All = Other | Input | Character | UI | Battle | Network | Grid | Editor | Skill | CellEffect | Chat | Persistence | Config,
+        All = Other | Input | Character | UI | Battle | Network | Grid | Editor | Skill | CellEffect | Chat | Persistence | Config | ChatCommands,
     }
 
     public enum LogSeverity

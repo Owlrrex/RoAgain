@@ -16,9 +16,9 @@ namespace Server
 
         public abstract IReadOnlyCollection<CharacterRuntimeData> LoggedInCharacters { get; }
 
-        public abstract void Update(float deltaTime);
+        public abstract ServerMapModule MapModule { get; }
 
-        public abstract int MoveEntityBetweenMaps(int entityId, string sourceMapId, string targetMapId, Vector2Int targetCoordinates);
+        public abstract void Update(float deltaTime);
 
         public abstract bool TryGetLoggedInCharacter(int characterId, out CharacterRuntimeData charData);
 
@@ -32,6 +32,7 @@ namespace Server
         public readonly string CHAR_DB_FOLDER = Path.Combine(Application.dataPath, "CharDb");
 
         private ServerMapModule _mapModule;
+        public override ServerMapModule MapModule => _mapModule;
 
         private CentralConnection _centralConnection;
 
@@ -640,7 +641,7 @@ namespace Server
                 return -2;
             }
 
-            return ServerMain.Instance.Server.MoveEntityBetweenMaps(charData.Id, charData.MapId, charData.SaveMapId, charData.SaveCoords);
+            return ServerMain.Instance.Server.MapModule.MoveEntityBetweenMaps(charData.Id, charData.MapId, charData.SaveMapId, charData.SaveCoords);
         }
 
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
@@ -715,99 +716,6 @@ namespace Server
         {
             charData = _loggedInCharacters.Find(item => item.Id == characterId);
             return charData != null;
-        }
-
-        public override int MoveEntityBetweenMaps(int entityId, string sourceMapId, string targetMapId, Vector2Int targetCoordinates)
-        {
-            if(entityId <= 0)
-            {
-                OwlLogger.LogError($"Map move failed - invalid entity id {entityId} !", GameComponent.Other);
-                return -1;
-            }
-
-            if(_mapModule == null)
-            {
-                OwlLogger.LogError("Map move failed - mapModule is null!", GameComponent.Other);
-                return -2;
-            }
-
-            if(string.IsNullOrEmpty(sourceMapId) || string.IsNullOrEmpty(targetMapId))
-            {
-                OwlLogger.LogError($"Map move failed from map {sourceMapId} to {targetMapId} - invalid map ids!", GameComponent.Other);
-                return -3;
-            }
-
-            ServerMapInstance sourceMap = _mapModule.GetMapInstance(sourceMapId); // don't create source map, it has to exist already, right?
-            if (sourceMap == null)
-            {
-                OwlLogger.LogError($"Map move failed from map {sourceMapId} to {targetMapId} - source map Instance is null!", GameComponent.Other);
-                return -4;
-            }
-
-            ServerMapInstance targetMap = _mapModule.CreateOrGetMap(targetMapId);
-            if (targetMap == null)
-            {
-                OwlLogger.LogError($"Map move failed from map {sourceMapId} to {targetMapId} - target map Instance is null!", GameComponent.Other);
-                return -7;
-            }
-
-            if (!targetMap.Grid.AreCoordinatesValid(targetCoordinates))
-            {
-                OwlLogger.LogError($"Map move failed - target coordinates {targetMapId}@{targetCoordinates} invalid!", GameComponent.Other); 
-            }
-
-            GridEntity occupant = sourceMap.Grid.FindOccupant(entityId);
-            if(occupant == null) 
-            {
-                OwlLogger.LogError($"Map move failed - Entity {entityId} not found on source map {sourceMapId}!", GameComponent.Other);
-                return -5;
-            }
-
-            
-            if(targetMap == sourceMap)
-            {
-                sourceMap.Grid.MoveOccupant(occupant, occupant.Coordinates, targetCoordinates);
-            }
-            else
-            {
-                // If MapInstances contain more logic: Use MapInstance's PlaceOccupant() & Removeoccupant() functions instead
-                if (!sourceMap.Grid.RemoveOccupant(occupant))
-                {
-                    OwlLogger.LogError($"Map move failed - Remove failed!", GameComponent.Other);
-                    return -6;
-                }
-
-                if (!targetMap.Grid.PlaceOccupant(occupant, targetCoordinates))
-                {
-                    OwlLogger.LogError($"Map move failed - Place failed! Entity is now orphaned!!", GameComponent.Other);
-                    return -8;
-                }
-                occupant.MapId = targetMapId;
-            }
-            
-            occupant.ClearPath();
-
-            List<CharacterRuntimeData> arrivalWitnesses = targetMap.Grid.GetObserversSquare<CharacterRuntimeData>(targetCoordinates);
-            foreach(CharacterRuntimeData witness in arrivalWitnesses)
-            {
-                witness.NetworkQueue.GridEntityDataUpdate(occupant);
-            }
-
-            bool arePlayersOnSource = false;
-            foreach (GridEntity entity in sourceMap.Grid.GetAllOccupants())
-            {
-                if(entity is CharacterRuntimeData)
-                {
-                    arePlayersOnSource = true;
-                    break;
-                }
-            }
-            if(!arePlayersOnSource)
-            {
-                _mapModule.DestroyMapInstance(sourceMapId);
-            }
-            
-            return 0;
         }
     }
 }

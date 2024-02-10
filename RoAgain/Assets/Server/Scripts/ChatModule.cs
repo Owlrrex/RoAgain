@@ -56,6 +56,7 @@ namespace Server
             _chatCommands.Clear();
 
             _chatCommands.Add("changejob", new ChangeJobChatCommand());
+            _chatCommands.Add("heal", new HealChatCommand());
         }
 
         public int HandleChatMessage(ChatMessageRequestData chatMessage)
@@ -105,18 +106,18 @@ namespace Server
             parts[0] = parts[0].Remove(0, 1);
             if(!_chatCommands.ContainsKey(parts[0]))
             {
-                OwlLogger.Log($"Received unknown server command: {message}", GameComponent.Chat);
+                OwlLogger.Log($"Received unknown server command: {message}", GameComponent.ChatCommands);
                 return -1;
             }
 
             if (!CanChatCommandBeUsed(parts, sender))
             {
-                OwlLogger.Log($"ChatCommand {parts[0]} can't be used by character {sender.Id}", GameComponent.Chat);
+                OwlLogger.Log($"ChatCommand {parts[0]} can't be used by character {sender.Id}", GameComponent.ChatCommands);
                 return -2;
             }
 
             // TODO: Allow more detailed feedback by the command about its error, to instruct the user
-            int commandResult = _chatCommands[parts[0]].Execute(parts);
+            int commandResult = _chatCommands[parts[0]].Execute(sender, parts);
             return commandResult;
         }
 
