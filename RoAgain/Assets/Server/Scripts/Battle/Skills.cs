@@ -103,6 +103,8 @@ namespace Server
             Var4 = entry.GetValueForLevel(entry.Var4, skillLvl);
             Var5 = entry.GetValueForLevel(entry.Var5, skillLvl);
 
+            CanBeInterrupted = entry.GetValueForLevel(entry.CanBeInterrupted, skillLvl);
+
             int initResult = Initialize(skillLvl, user, actualSpCost, actualRange, actualCastTime, actualAnimCd, target);
             if(initResult != 0)
             {
@@ -390,7 +392,7 @@ namespace Server
 
     public class FireBoltSkillImpl : ASkillImpl
     {
-        // Var1: Skill Ratio in %: 100 = 100%
+        // Var1: Skill Ratio per hit in %: 100 = 100%
         // Var2: Number of hits
         public override void OnExecute(ServerSkillExecution skillExec)
         {
@@ -410,6 +412,8 @@ namespace Server
 
     public class FireBallSkillImpl : ASkillImpl
     {
+        // Var1: Skill Ratio in %: 100 = 100%
+        // Var2: AoE range
         public override void OnExecute(ServerSkillExecution skillExec)
         {
             base.OnExecute(skillExec);
@@ -418,7 +422,7 @@ namespace Server
 
             param.OverrideElement = EntityElement.Fire1;
 
-            foreach (ServerBattleEntity target in skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.Target.EntityTarget.Coordinates, skillExec.Var3))
+            foreach (ServerBattleEntity target in skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.Target.EntityTarget.Coordinates, skillExec.Var2))
             {
                 skillExec.Map.BattleModule.PerformAttack(target, param);
             }
@@ -436,5 +440,169 @@ namespace Server
             return cds;
         }
     }
+
+    // Sight: Needs buff&debuff system
+
+    // Firewall: Needs knockback system
+
+    public class LightningBoltSkillImpl : ASkillImpl
+    {
+        // Var1: Skill Ratio per hit in %: 100 = 100%
+        // Var2: Number of hits
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Wind1, skillExec.Var2);
+        }
+
+        public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
+        {
+            Dictionary<SkillId, float> cds = new()
+            {
+                { SkillId.ALL_EXCEPT_AUTO, 0.8f + 0.2f * skillExec.SkillLvl }
+            };
+            return cds;
+        }
+    }
+
+    public class ThunderstormSkillImpl : ASkillImpl
+    {
+        // Var1: Skill Ratio per hit in %: 100 = 100%
+        // Var2: Number of hits
+        // Var3: AoE Range
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
+            param.InitForMagicalSkill(skillExec);
+
+            param.OverrideElement = EntityElement.Wind1;
+            param.ChainCount = skillExec.Var2;
+
+            foreach (ServerBattleEntity target in skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.Target.GroundTarget, skillExec.Var3))
+            {
+                skillExec.Map.BattleModule.PerformAttack(target, param);
+            }
+
+            AutoInitResourcePool<AttackParams>.Return(param);
+        }
+
+        public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
+        {
+            Dictionary<SkillId, float> cds = new()
+            {
+                { SkillId.ALL_EXCEPT_AUTO, 2.0f }
+            };
+            return cds;
+        }
+    }
+
+    public class ColdBoltSkillImpl : ASkillImpl
+    {
+        // Var1: Skill Ratio per hit in %: 100 = 100%
+        // Var2: Number of hits
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Water1, skillExec.Var2);
+        }
+
+        public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
+        {
+            Dictionary<SkillId, float> cds = new()
+            {
+                { SkillId.ALL_EXCEPT_AUTO, 0.8f + 0.2f * skillExec.SkillLvl }
+            };
+            return cds;
+        }
+    }
+
+    // Frost Diver: Needs Buff&Debuff system
+
+    public class NapalmBeatSkillImpl : ASkillImpl
+    {
+        // Var1: Skill Ratio in %: 100 = 100%
+        // Var2: AoE Range
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+
+            List<ServerBattleEntity> targetList = skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.Target.EntityTarget.Coordinates, skillExec.Var2);
+
+            AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
+            param.InitForMagicalSkill(skillExec);
+
+            param.SkillFactor /= targetList.Count;
+            param.OverrideElement = EntityElement.Ghost1;
+
+            foreach (ServerBattleEntity target in targetList)
+            {
+                skillExec.Map.BattleModule.PerformAttack(target, param);
+            }
+
+            AutoInitResourcePool<AttackParams>.Return(param);
+        }
+
+        public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
+        {
+            var cd = skillExec.SkillLvl switch
+            {
+                1 or 2 or 3 => 1.0f,
+                4 or 5 => 0.9f,
+                6 or 7 => 0.8f,
+                8 => 0.7f,
+                9 => 0.6f,
+                10 => 0.5f,
+                _ => 0.5f,
+            };
+            Dictionary<SkillId, float> cds = new()
+            {
+                { SkillId.ALL_EXCEPT_AUTO, cd }
+            };
+            return cds;
+        }
+    }
+
+    public class SoulStrikeSkillImpl : ASkillImpl
+    {
+        // Var1: Skill Ratio per hit in %: 100 = 100%
+        // Var2: Number of hits
+        public override void OnExecute(ServerSkillExecution skillExec)
+        {
+            base.OnExecute(skillExec);
+            skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Ghost1, skillExec.Var2);
+        }
+
+        public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
+        {
+            var cd = skillExec.SkillLvl switch
+            {
+                1 => 1.2f,
+                2 => 1.0f,
+                3 => 1.4f,
+                4 => 1.2f,
+                5 => 1.6f,
+                6 => 1.4f,
+                7 => 1.8f,
+                8 => 1.6f,
+                9 => 2.0f,
+                10 => 1.8f,
+                _ => 1.8f,
+            };
+            Dictionary<SkillId, float> cds = new()
+            {
+                { SkillId.ALL_EXCEPT_AUTO, cd }
+            };
+            return cds;
+        }
+    }
+
+    // Safety Wall: CellEffect is available, needs buff&debuff system? Or some kind of event-handling to intercept attack code?
+
+    // Stone Curse: Needs buff&debuff system
+
+    // Increase Sp Recovery: Needs PassiveSkills system
+
+    // Energy Coat: Needs Buff&debuff system
 }
 

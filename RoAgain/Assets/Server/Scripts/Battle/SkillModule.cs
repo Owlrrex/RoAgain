@@ -41,6 +41,13 @@ namespace Server
 
             _skillLogicListFast[(int)SkillId.FireBolt] = new FireBoltSkillImpl();
             _skillLogicListFast[(int)SkillId.FireBall] = new FireBallSkillImpl();
+
+            _skillLogicListFast[(int)SkillId.LightningBolt] = new LightningBoltSkillImpl();
+            _skillLogicListFast[(int)SkillId.Thunderstorm] = new ThunderstormSkillImpl();
+            _skillLogicListFast[(int)SkillId.ColdBolt] = new ColdBoltSkillImpl();
+
+            _skillLogicListFast[(int)SkillId.NapalmBeat] = new NapalmBeatSkillImpl();
+            _skillLogicListFast[(int)SkillId.SoulStrike] = new SoulStrikeSkillImpl();
         }
 
         public ASkillImpl GetSkillLogic(SkillId skillId)
