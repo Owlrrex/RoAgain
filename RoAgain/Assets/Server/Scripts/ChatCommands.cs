@@ -11,7 +11,7 @@ namespace Server
             // Validate & read parameters
             if(args.Length > 3)
             {
-                OwlLogger.LogError($"Too many arguments for HealChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+                OwlLogger.Log($"Too many arguments for HealChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
                 return -1;
             }
 
@@ -74,7 +74,7 @@ namespace Server
                     battleModule.ChangeSp(target, target.MaxSp.Total);
                     break;
                 default:
-                    OwlLogger.LogError($"Invalid heal mode {healMode}!", GameComponent.ChatCommands);
+                    OwlLogger.Log($"Invalid heal mode {healMode}!", GameComponent.ChatCommands);
                     return -5;
             }
 
@@ -91,7 +91,7 @@ namespace Server
             // Validate & read parameters
             if (args.Length > 3)
             {
-                OwlLogger.LogError($"Too many arguments for HealIdChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+                OwlLogger.Log($"Too many arguments for HealIdChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
                 return -1;
             }
 
@@ -128,7 +128,7 @@ namespace Server
             ServerMapInstance targetMap = ServerMain.Instance.Server.MapModule.GetMapInstance(target.MapId);
             if (targetMap == null)
             {
-                OwlLogger.LogError($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
+                OwlLogger.Log($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
                 return -4;
             }
             BattleModule battleModule = targetMap.BattleModule;
@@ -146,7 +146,7 @@ namespace Server
                     battleModule.ChangeSp(target, target.MaxSp.Total);
                     break;
                 default:
-                    OwlLogger.LogError($"Invalid heal mode {healMode}!", GameComponent.ChatCommands);
+                    OwlLogger.Log($"Invalid heal mode {healMode}!", GameComponent.ChatCommands);
                     return -5;
             }
             return 0;
