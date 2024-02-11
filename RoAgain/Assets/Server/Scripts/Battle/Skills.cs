@@ -400,13 +400,25 @@ namespace Server
             skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Fire1, skillExec.Var2);
         }
 
+        private static readonly List<Dictionary<SkillId, float>> _cds = new()
+        {
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } }
+        };
         public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
         {
-            Dictionary<SkillId, float> cds = new()
-            {
-                { SkillId.ALL_EXCEPT_AUTO, 0.8f + 0.2f * skillExec.SkillLvl }
-            };
-            return cds;
+            if (skillExec.SkillLvl < _cds.Count)
+                return _cds[skillExec.SkillLvl];
+            else
+                return _cds[^1];
         }
     }
 
@@ -430,14 +442,18 @@ namespace Server
             AutoInitResourcePool<AttackParams>.Return(param);
         }
 
+        private static readonly List<Dictionary<SkillId, float>> _cds = new()
+        {
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.5f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } }
+        };
+
         public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
         {
-            Dictionary<SkillId, float> cds = new();
             if (skillExec.SkillLvl <= 5)
-                cds.Add(SkillId.ALL_EXCEPT_AUTO, 1.5f);
+                return _cds[0];
             else
-                cds.Add(SkillId.ALL_EXCEPT_AUTO, 1.0f);
-            return cds;
+                return _cds[1];
         }
     }
 
@@ -455,13 +471,25 @@ namespace Server
             skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Wind1, skillExec.Var2);
         }
 
+        private static readonly List<Dictionary<SkillId, float>> _cds = new()
+        {
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } }
+        };
         public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
         {
-            Dictionary<SkillId, float> cds = new()
-            {
-                { SkillId.ALL_EXCEPT_AUTO, 0.8f + 0.2f * skillExec.SkillLvl }
-            };
-            return cds;
+            if (skillExec.SkillLvl < _cds.Count)
+                return _cds[skillExec.SkillLvl];
+            else
+                return _cds[^1];
         }
     }
 
@@ -487,13 +515,11 @@ namespace Server
             AutoInitResourcePool<AttackParams>.Return(param);
         }
 
+        private static readonly Dictionary<SkillId, float> _cd = new() { { SkillId.ALL_EXCEPT_AUTO, 2.0f } };
+
         public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
         {
-            Dictionary<SkillId, float> cds = new()
-            {
-                { SkillId.ALL_EXCEPT_AUTO, 2.0f }
-            };
-            return cds;
+            return _cd;
         }
     }
 
@@ -507,13 +533,26 @@ namespace Server
             skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Water1, skillExec.Var2);
         }
 
+        private static readonly List<Dictionary<SkillId, float>> _cds = new()
+        {
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } }
+        };
+
         public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
         {
-            Dictionary<SkillId, float> cds = new()
-            {
-                { SkillId.ALL_EXCEPT_AUTO, 0.8f + 0.2f * skillExec.SkillLvl }
-            };
-            return cds;
+            if (skillExec.SkillLvl < _cds.Count)
+                return _cds[skillExec.SkillLvl];
+            else
+                return _cds[^1];
         }
     }
 
@@ -543,23 +582,26 @@ namespace Server
             AutoInitResourcePool<AttackParams>.Return(param);
         }
 
+        static readonly private List<Dictionary<SkillId, float>> _cds = new()
+        {
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 0.9f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 0.9f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 0.8f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 0.8f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 0.7f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 0.6f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 0.5f } }
+        };
+
         public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
         {
-            var cd = skillExec.SkillLvl switch
-            {
-                1 or 2 or 3 => 1.0f,
-                4 or 5 => 0.9f,
-                6 or 7 => 0.8f,
-                8 => 0.7f,
-                9 => 0.6f,
-                10 => 0.5f,
-                _ => 0.5f,
-            };
-            Dictionary<SkillId, float> cds = new()
-            {
-                { SkillId.ALL_EXCEPT_AUTO, cd }
-            };
-            return cds;
+            if (skillExec.SkillLvl < _cds.Count)
+                return _cds[skillExec.SkillLvl];
+            else
+                return _cds[^1];
         }
     }
 
@@ -573,27 +615,26 @@ namespace Server
             skillExec.Map.BattleModule.StandardMagicAttack(skillExec, skillExec.Var1, EntityElement.Ghost1, skillExec.Var2);
         }
 
+        static readonly private List<Dictionary<SkillId, float>> _cds = new()
+        {
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.2f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.4f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.2f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.6f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.4f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.8f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.6f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 2.0f } },
+            new() { { SkillId.ALL_EXCEPT_AUTO, 1.8f } }
+        };
+
         public override Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec)
         {
-            var cd = skillExec.SkillLvl switch
-            {
-                1 => 1.2f,
-                2 => 1.0f,
-                3 => 1.4f,
-                4 => 1.2f,
-                5 => 1.6f,
-                6 => 1.4f,
-                7 => 1.8f,
-                8 => 1.6f,
-                9 => 2.0f,
-                10 => 1.8f,
-                _ => 1.8f,
-            };
-            Dictionary<SkillId, float> cds = new()
-            {
-                { SkillId.ALL_EXCEPT_AUTO, cd }
-            };
-            return cds;
+            if (skillExec.SkillLvl < _cds.Count)
+                return _cds[skillExec.SkillLvl];
+            else
+                return _cds[^1];
         }
     }
 
