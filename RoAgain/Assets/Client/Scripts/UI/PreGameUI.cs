@@ -24,11 +24,12 @@ namespace Client
 
         private ServerConnection _currentConnection;
 
-        private AccountLogin _accountLogin;
+        private AccountLogin _accountLogin = new();
         private AccountLogin.State _lastAccountLoginState = AccountLogin.State.Ready;
-        private CharacterSelectionDataList _characterSelectionData;
+        private CharacterSelectionDataList _characterSelectionData = new();
         private bool _hasShownCharSelection;
-        private CharacterLogin _characterLogin;
+        private CharacterLogin _characterLogin = new();
+        private bool _waitingForCharLogin = false;
 
         void Awake()
         {
@@ -45,10 +46,6 @@ namespace Client
             }
 
             Instance = this;
-
-            _accountLogin = new();
-            _characterSelectionData = new();
-            _characterLogin = new();
         }
 
         public void SetConnectionToServer(ServerConnection connection)
@@ -103,6 +100,26 @@ namespace Client
                 ShowCharacterSelectionWindow(_characterSelectionData.Data);
                 _hasShownCharSelection = true;
             }
+
+            if(_waitingForCharLogin && _characterLogin.IsFinished())
+            {
+                _waitingForCharLogin = false;
+                ClientMain.Instance.DisplayZeroButtonNotification(null);
+                switch (_characterLogin.ResultCode)
+                {
+                    case 0:
+                        // Fall out of switch
+                        break;
+                    case -1:
+                        ClientMain.Instance.DisplayOneButtonNotification("Login failed: Character is already logged in!", ShowCharacterSelection);
+                        return;
+                    default:
+                        ClientMain.Instance.DisplayOneButtonNotification($"Login failed with unknown error code: {_characterLogin.ResultCode}", ShowCharacterSelection);
+                        return;
+                }
+
+                ClientMain.Instance.OnCharacterLoginCompleted(_characterLogin.ResultCode, _characterLogin.CharacterData, _characterLogin.SkillTreeEntries);
+            }
         }
 
         private void StartCharacterSelectionFetch()
@@ -145,6 +162,7 @@ namespace Client
         private void OnAccountCreationResponseReceived(int result)
         {
             ClientMain.Instance.DisplayZeroButtonNotification(null);
+            System.Action callback = null;
             string message = result switch
             {
                 0 => "Account creation successful!",
@@ -153,7 +171,17 @@ namespace Client
                 3 => "Invalid username!",
                 _ => "Unknown error",
             };
-            ClientMain.Instance.DisplayOneButtonNotification(message, () => { ShowLoginWindow(); });
+
+            if(result == 0)
+            {
+                callback = ShowLoginWindow;
+            }
+            ClientMain.Instance.DisplayOneButtonNotification(message, callback);
+        }
+
+        public void ShowCharacterSelection()
+        {
+            ShowCharacterSelectionWindow(_characterSelectionData.Data);
         }
 
         public void ShowCharacterSelectionWindow(List<CharacterSelectionData> characterSelectionData)
@@ -165,7 +193,9 @@ namespace Client
                 OwlLogger.LogError("Can't find CharacterSelectionWindow component on CharacterSelectionWindowPrefab!", GameComponent.UI);
                 return;
             }
-            charSelComp.Initialize(characterSelectionData);
+
+            if(characterSelectionData != null)
+                charSelComp.Initialize(characterSelectionData);
         }
 
         public void ShowCharacterCreationWindow()
@@ -257,6 +287,18 @@ namespace Client
             _accountLogin.Login(ClientMain.Instance.ConnectionToServer, username, password);
         }
 
+        public void StartCharacterLogin(int characterId)
+        {
+            // TODO: Check if _characterLogin phase is already in use = double-login attempt?
+
+            DeleteCurrentWindow();
+            ClientMain.Instance.DisplayZeroButtonNotification("Connecting to world...");
+
+            // we can't start the gameplay-scene load here yet, because the login may still fail for this character
+
+            _waitingForCharLogin = true;
+            _characterLogin.Start(ClientMain.Instance.ConnectionToServer, characterId);
+        }
 
         public void OnDisconnect()
         {

@@ -30,7 +30,7 @@ namespace Client
 
             _connection = serverConnection;
 
-            _connection.LoginResponseReceived += OnLoginResponseReceived;
+            _connection.AccountLoginResponseReceived += OnLoginResponseReceived;
 
             CurrentState = State.WaitingForAccountLogin;
 
@@ -45,7 +45,7 @@ namespace Client
             if (_connection != null)
             {
                 _connection.Disconnect(); // TODO: Instead of aborting the whole connection, maybe tell the server we're going to logout first?
-                _connection.LoginResponseReceived -= OnLoginResponseReceived;
+                _connection.AccountLoginResponseReceived -= OnLoginResponseReceived;
             }
 
             _connection = null;
@@ -55,7 +55,7 @@ namespace Client
             return 0;
         }
 
-        private void OnLoginResponseReceived(LoginResponse loginResponse)
+        private void OnLoginResponseReceived(AccountLoginResponse loginResponse)
         {
             if (!loginResponse.IsSuccessful)
             {
@@ -119,25 +119,103 @@ namespace Client
 
     public class CharacterLogin
     {
-        public LocalCharacterEntity CurrentCharacater;
+        private int _charId;
+        private ServerConnection _connection;
 
-        public int Start()
+        public int ResultCode;
+        public LocalCharacterData CharacterData;
+        public List<SkillTreeEntry> SkillTreeEntries = new();
+
+        private bool _isStarted = false;
+        private bool _isFinished = false;
+
+        public int Start(ServerConnection connection, int characterId)
         {
+            if(connection == null)
+            {
+                OwlLogger.LogError("Can't start CharacterLogin with null connection!", GameComponent.Other);
+                return -1;
+            }
+
+            if(characterId <= 0)
+            {
+                OwlLogger.LogError($"Can't start CharacterLogin with invalid characterId {characterId}", GameComponent.Other);
+                return -2;
+            }
+
+            if(ResultCode != 0)
+            {
+                OwlLogger.LogError("Tried to start CharacterLogin while it's already running or finished!", GameComponent.Other);
+                return -3;
+            }
+
+            _charId = characterId;
+            _connection = connection;
+
+            _connection.LocalCharacterDataReceived += LocalCharacterDataReceived;
+            _connection.SkillTreeEntryUpdateReceived += SkillTreeEntryReceived;
+            _connection.CharacterLoginResponseReceived += CharacterLoginResponseReceived;
+            // TODO: Subscribe to packets for inventory, buffs & debuffs
+
+            _isStarted = true;
+
+            CharacterLoginPacket characterLoginPacket = new() { CharacterId = _charId };
+            _connection.Send(characterLoginPacket);
+
             return 0;
+        }
+
+        private void LocalCharacterDataReceived(LocalCharacterData charData)
+        {
+            if(charData != null)
+            {
+                OwlLogger.LogWarning("Received multiple LocalCharData during character login!", GameComponent.Other);
+            }
+
+            CharacterData = charData;
+        }
+
+        private void SkillTreeEntryReceived(SkillTreeEntry entry)
+        {
+            SkillTreeEntries.Add(entry);
+        }
+
+        private void CharacterLoginResponseReceived(int result)
+        {
+            ResultCode = result;
+            _isFinished = true;
+
+            _connection.LocalCharacterDataReceived -= LocalCharacterDataReceived;
+            _connection.SkillTreeEntryUpdateReceived -= SkillTreeEntryReceived;
+            _connection.CharacterLoginResponseReceived -= CharacterLoginResponseReceived;
         }
 
         public bool IsStarted()
         {
-            return false;
+            return _isStarted;
         }
 
         public bool IsFinished()
         {
-            return false;
+            return _isFinished;
         }
 
         public int Clear()
         {
+            if(_connection != null)
+            {
+                _connection.LocalCharacterDataReceived -= LocalCharacterDataReceived;
+                _connection.SkillTreeEntryUpdateReceived -= SkillTreeEntryReceived;
+                _connection.CharacterLoginResponseReceived -= CharacterLoginResponseReceived;
+            }
+
+            _charId = 0;
+            _connection = null;
+
+            ResultCode = 0;
+            CharacterData = null;
+            SkillTreeEntries.Clear();
+
             return 0;
         }
     }

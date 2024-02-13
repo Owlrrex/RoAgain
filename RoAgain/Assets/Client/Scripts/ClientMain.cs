@@ -65,7 +65,6 @@ namespace Client
         private List<GridEntityData> _queuedEntities = new();
 
         private Action _sessionCreationCallback;
-        private List<CharacterSelectionData> _charData;
 
         void Awake()
         {
@@ -182,7 +181,7 @@ namespace Client
             ConnectionToServer.RemoteCharacterDataReceived += OnRemoteCharacterDataReceived;
             ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
             ConnectionToServer.EntityRemovedReceived += OnEntityRemovedReceived;
-            // Can't use this if OnDisconnected contains mainThread code
+            // Can't use this if OnDisconnected contains mainThread-exclusive code
             //ConnectionToServer.DisconnectDetected += OnDisconnected;
             //ConnectionToServer.MapChangeReceived += OnMapChangeReceived;
             ConnectionToServer.CellEffectGroupPlacedReceived += OnCellEffectGroupPlacedReceived;
@@ -223,7 +222,7 @@ namespace Client
             ConnectionToServer.RemoteCharacterDataReceived -= OnRemoteCharacterDataReceived;
             ConnectionToServer.LocalCharacterDataReceived -= OnLocalCharacterDataReceived;
             ConnectionToServer.EntityRemovedReceived -= OnEntityRemovedReceived;
-            // Can't use this if OnDisconnected contains mainThread code
+            // Can't use this if OnDisconnected contains mainThread-exclusive code
             //ConnectionToServer.DisconnectDetected -= OnDisconnected;
             //ConnectionToServer.MapChangeReceived -= OnMapChangeReceived;
             ConnectionToServer.CellEffectGroupPlacedReceived -= OnCellEffectGroupPlacedReceived;
@@ -309,73 +308,40 @@ namespace Client
             }
         }
 
-        public void ShowCharacterSelection()
+        public void OnCharacterLoginCompleted(int resultCode, LocalCharacterData charData, List<SkillTreeEntry> skillTree)
         {
-            DisplayZeroButtonNotification(null);
-            PreGameUI.Instance.ShowCharacterSelectionWindow(_charData);
-        }
+            if (resultCode != 0)
+                return; // Handled by PreGameUI already
 
-        // TODO: Split this into UI updates & general client-State.
-        // Move UI to PregameUI, and keep general stuff here.
-        public void StartCharacterLogin(int characterId)
-        {
-            // This function does alot of mixed things - UI, Network, etc. 
-            // Needs cleaning up later
+            // TODO: Validations
 
-            PreGameUI.Instance.DeleteCurrentWindow();
-            DisplayZeroButtonNotification("Connecting to world...");
+            if(CurrentCharacterData != null)
+            {
+                OwlLogger.LogError($"CurrentCharacterData was not null when CharacterLogin finished!", GameComponent.Character);
+            }
 
-            CurrentCharacterData = null;
+            OwlLogger.Log($"Character Login completed, new CurrentChar has ID {charData.UnitId}", GameComponent.Character);
+            CurrentCharacterData = new(charData);
 
-            _characterLoginId = characterId;
-
-            // Start loading gameplay-scene
+            // TODO: Proper loading-screen
+            DisplayZeroButtonNotification("Loading world...");
             AsyncOperation asyncOp = SceneManager.LoadSceneAsync("Gameplay"); // Maybe load a loading-screen-scene instead?
             asyncOp.allowSceneActivation = true;
             asyncOp.completed += OnGameplaySceneLoadCompleted;
-            // loading-bar?
         }
 
         private void OnGameplaySceneLoadCompleted(AsyncOperation loadOp)
         {
-            if (_characterLoginId <= 0)
-            {
-                OwlLogger.LogError("Gameplay scene loaded with empty characterLoginId - aborting login!", GameComponent.Other);
-                Disconnect();
-                return;
-            }
+            DisplayZeroButtonNotification(null);
 
-            CharacterLoginPacket characterLoginPacket = new() { CharacterId = _characterLoginId };
-            ConnectionToServer.Send(characterLoginPacket);
+            OnMapChangeReceived(CurrentCharacterData.MapId, CurrentCharacterData.Coordinates);
         }
 
         private void OnLocalCharacterDataReceived(LocalCharacterData data)
         {
-            if (data.UnitId == -1)
-            {
-                OwlLogger.Log($"Received decline of character login - Disconnecting!", GameComponent.Network);
-                Disconnect();
-                return;
-            }
+            if (CurrentCharacterData == null)
+                return; // Callback will fire during character login, but we don't want to handle that.
 
-            if(_characterLoginId > 0)
-            {
-                // We're during character login
-                OwlLogger.Log($"LocalCharacterDataPacket received, new CurrentChar has ID {data.UnitId}", GameComponent.Character);
-                if(CurrentCharacterData == null)
-                {
-                    CurrentCharacterData = new(data);
-                }
-                else
-                {
-                    CurrentCharacterData.SetData(data);
-                }
-                
-                OnAllLoginDataReceived();
-                return;
-            }
-
-            // We're during gameplay
             if (CurrentCharacterData != null && CurrentCharacterData.Id != data.UnitId)
             {
                 OwlLogger.LogError($"LocalCharacterDataPacket received for Id {data.UnitId} that differs from CurrentCharacterData id {CurrentCharacterData.Id}!", GameComponent.Character);
@@ -393,20 +359,6 @@ namespace Client
             {
                 OnMapChangeReceived(data.MapId, data.Coordinates);
             }
-        }
-
-        private void OnAllLoginDataReceived()
-        {
-            if (CurrentCharacterData == null)
-            {
-                OwlLogger.LogError("CharacterLogin completed called before all data was ready!", GameComponent.Other);
-                return;
-            }
-
-            _characterLoginId = 0;
-            _zeroButtonNotification.Hide();
-
-            OnMapChangeReceived(CurrentCharacterData.MapId, CurrentCharacterData.Coordinates);
         }
 
         private int EnterMap()
@@ -945,7 +897,8 @@ namespace Client
         {
             // TODO: Verifications
 
-            CurrentCharacterData ??= new(new());
+            if (CurrentCharacterData == null)
+                return; // CharacterLogin is not completed, we're not handling this callback at this time.
 
             CurrentCharacterData.SkillTree[entry.SkillId] = entry;
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
@@ -1052,19 +1005,6 @@ namespace Client
                 }
                 
             }
-
-            //// Disconnect-Button/Label
-            //if (ConnectionToServer == null)
-            //{
-            //    GUI.Label(DisconnectPlacement.ToRect(), "Disconnected");
-            //}
-            //else
-            //{
-            //    if (GUI.Button(DisconnectPlacement.ToRect(), "Disconnect"))
-            //    {
-            //        Disconnect();
-            //    }
-            //}
         }
     }
 }

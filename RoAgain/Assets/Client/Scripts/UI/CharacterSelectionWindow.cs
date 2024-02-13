@@ -237,7 +237,9 @@ namespace Client
             }
 
             CharacterSelectionData data = _charData[_selectedCharIndex];
-            ClientMain.Instance.StartCharacterLogin(data.CharacterId);
+            //ClientMain.Instance.StartCharacterLogin(data.CharacterId);
+
+            PreGameUI.Instance.StartCharacterLogin(data.CharacterId);
         }
     }
 }

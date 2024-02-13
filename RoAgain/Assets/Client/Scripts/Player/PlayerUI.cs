@@ -120,14 +120,14 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if(ClientMain.Instance?.CurrentCharacterData != null)
+        if(ClientMain.Instance.CurrentCharacterData != null)
         {
             if (ClientMain.Instance.CurrentCharacterData.IsDead())
             {
                 if (!DeathWindow.gameObject.activeSelf)
                 {
                     DeathWindow.gameObject.SetActive(true);
-                    PlayerMain.Instance?.DisplayDeathAnimation(true);
+                    PlayerMain.Instance.DisplayDeathAnimation(true);
                 }
             }
             else
@@ -135,7 +135,7 @@ public class PlayerUI : MonoBehaviour
                 if (DeathWindow.gameObject.activeSelf)
                 {
                     DeathWindow.gameObject.SetActive(false);
-                    PlayerMain.Instance?.DisplayDeathAnimation(false);
+                    PlayerMain.Instance.DisplayDeathAnimation(false);
                 }
             }
         }

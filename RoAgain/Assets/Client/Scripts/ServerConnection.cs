@@ -10,9 +10,9 @@ namespace Client
     public abstract class ServerConnection
     {
         public Action<int> SessionReceived;
-        public Action<LoginResponse> LoginResponseReceived;
+        public Action<AccountLoginResponse> AccountLoginResponseReceived;
         public Action<List<CharacterSelectionData>> CharacterSelectionDataReceived;
-        // public Action<bool> CharacterLoginCompletedReceived;
+        public Action<int> CharacterLoginResponseReceived;
         public Action<UnitMovementInfo> UnitMovementReceived;
         public Action<GridEntityData> GridEntityDataReceived;
         public Action<BattleEntityData> BattleEntityDataReceived;
@@ -198,18 +198,18 @@ namespace Client
                 OwlLogger.Log($"Client got assigned SessionId {_sessionId}", GameComponent.Network);
                 SessionReceived?.Invoke(_sessionId);
             }
-            else if (packet is LoginResponsePacket loginPacket)
+            else if (packet is AccountLoginResponsePacket loginPacket)
             {
-                ReceiveLoginResponse(loginPacket);
+                ReceiveAccountLoginResponse(loginPacket);
             }
             else if (packet is CharacterSelectionDataPacket charSelPacket)
             {
                 ReceiveCharacterSelectionData(charSelPacket);
             }
-            //else if (packet is CharacterLoginCompletedPacket charLoginPacket)
-            //{
-            //    ReceiveCharacterLoginCompleted(charLoginPacket);
-            //}
+            else if (packet is CharacterLoginResponsePacket charLoginPacket)
+            {
+                ReceiveCharacterLoginResponse(charLoginPacket);
+            }
             else if (packet is EntityPathUpdatePacket pathPacket)
             {
                 ReceiveMovement(pathPacket);
@@ -337,7 +337,7 @@ namespace Client
             }
         }
 
-        private void ReceiveLoginResponse(LoginResponsePacket packet)
+        private void ReceiveAccountLoginResponse(AccountLoginResponsePacket packet)
         {
             if (packet.IsSuccessful)
                 OwlLogger.Log("Login completed successfully", GameComponent.Other);
@@ -346,8 +346,8 @@ namespace Client
 
             // TODO: If successful, store sessionId for validation of future packets?
 
-            LoginResponse response = new() { IsSuccessful = packet.IsSuccessful, SessionId = packet.SessionId };
-            LoginResponseReceived?.Invoke(response);
+            AccountLoginResponse response = new() { IsSuccessful = packet.IsSuccessful, SessionId = packet.SessionId };
+            AccountLoginResponseReceived?.Invoke(response);
         }
 
         private void ReceiveCharacterSelectionData(CharacterSelectionDataPacket packet)
@@ -373,6 +373,11 @@ namespace Client
             {
                 CharacterSelectionDataReceived?.Invoke(_characterSelectionBuffer);
             }
+        }
+
+        private void ReceiveCharacterLoginResponse(CharacterLoginResponsePacket packet)
+        {
+            CharacterLoginResponseReceived?.Invoke(packet.Result);
         }
 
         public override void ResetCharacterSelectionData()
@@ -634,10 +639,10 @@ namespace Client
 
         public override void Receive(Packet packet)
         {
-            if (packet is LoginResponsePacket loginResponsePacket)
+            if (packet is AccountLoginResponsePacket loginResponsePacket)
             {
                 _sessionId = loginResponsePacket.SessionId;
-                ReceiveLoginResponse(packet as LoginResponsePacket);
+                ReceiveLoginResponse(packet as AccountLoginResponsePacket);
             }
             else if (packet is CharacterSelectionDataPacket charSelectPacket)
             {
@@ -673,15 +678,15 @@ namespace Client
             }
         }
 
-        private void ReceiveLoginResponse(LoginResponsePacket packet)
+        private void ReceiveLoginResponse(AccountLoginResponsePacket packet)
         {
             if (packet.IsSuccessful)
                 OwlLogger.Log("Login completed successfully", GameComponent.Other);
             else
                 OwlLogger.Log("Login failed", GameComponent.Other);
 
-            LoginResponse response = new() { IsSuccessful = packet.IsSuccessful, SessionId = packet.SessionId };
-            LoginResponseReceived?.Invoke(response);
+            AccountLoginResponse response = new() { IsSuccessful = packet.IsSuccessful, SessionId = packet.SessionId };
+            AccountLoginResponseReceived?.Invoke(response);
         }
 
         private void ReceiveCharacterSelectionData(CharacterSelectionDataPacket packet)

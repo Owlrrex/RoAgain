@@ -124,11 +124,11 @@ namespace Server
         {
             if(!_accountDatabase.AreCredentialsValid(username, password))
             {
-                connection.Send(new LoginResponsePacket(false));
+                connection.Send(new AccountLoginResponsePacket(false));
             }
             else
             {
-                connection.Send(new LoginResponsePacket(true));
+                connection.Send(new AccountLoginResponsePacket(true));
                 connection.AccountId = username;
             }
         }
@@ -175,52 +175,66 @@ namespace Server
             if (TryGetLoggedInCharacter(characterId, out _))
             {
                 OwlLogger.LogError("Tried to login character who's already logged in!", GameComponent.Other);
-                //CharacterLoginCompletedPacket loginFailedPacket = new()
-                //{
-                //    CharacterId = -1
-                //};
-                //connection.Send(loginFailedPacket);
-                LocalCharacterDataPacket failedCharDataPacket = new()
+                CharacterLoginResponsePacket failedCharLoginPacket = new()
                 {
-                    UnitId = -1
+                    Result = -1
                 };
-                connection.Send(failedCharDataPacket);
+                connection.Send(failedCharLoginPacket);
                 return;
             }
-
 
             CharacterRuntimeData charData = CreateAndSetupCharacterInstance(connection, characterId);
+            connection.CharacterId = characterId;
 
-            ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
-            if(mapInstance == null)
-            {
-                OwlLogger.LogError($"Fetching Mapinstance failed for CharacterLogin id {charData.Id}, mapid {charData.MapId}!", GameComponent.Other);
-                return;
-            }
-
-            // Place Character on map & wherever else required
-            // Setting mapid not required here, since we just got the mapinstance _from_ that name
-            mapInstance.Grid.PlaceOccupant(charData, charData.Coordinates);
-            charData.MapInstance = mapInstance;
-            charData.Connection.CharacterId = characterId;
-
-            if (charData.IsDead())
-                ReceivedReturnAfterDeathRequest(connection, characterId);
-
+            // Send main Character data
             LocalCharacterDataPacket localCharacterPacket = charData.ToLocalDataPacket();
             connection.Send(localCharacterPacket);
+
+            // Send SkillTree
+            List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(charData.JobId.Value);
+            foreach (SkillTreeEntry entry in skillTree)
+            {
+                SkillTreeEntryPacket packet = entry.ToPacket(charData);
+                connection.Send(packet);
+            }
+
+            int skillPos = 0;
+            int skillTier = 0;
+            int maxPerRow = 5; // Arbitrary limit to how many temp skills fit into a row
+            foreach (KeyValuePair<SkillId, int> kvp in charData.TemporarySkills)
+            {
+                if(++skillPos >= maxPerRow) 
+                {
+                    skillPos -= maxPerRow;
+                    skillTier++;
+                }
+                SkillTreeEntryPacket packet = new()
+                {
+                    CanPointLearn = false,
+                    Category = SkillCategory.Temporary,
+                    LearnedSkillLvl = kvp.Value,
+                    MaxSkillLvl = kvp.Value,
+                    Position = skillPos,
+                    SkillId = kvp.Key,
+                    Tier = skillTier,
+                };
+                connection.Send(packet);
+            }
+
+            // TODO: Send Inventory & Equipment
+
+            // TODO: Send buffs & debuffs
 
             // Send other data from the map to Client (other players, mobs, npcs, etc)
             // not needed, will be done with visibility-update or by PlaceOccupant()
 
-            // No point sending this packet atm - the LocalCharacterDataPacket is currently the only packet needed to complete the login
-            //CharacterLoginCompletedPacket loginCompletedPacket = new()
-            //{
-            //    CharacterId = characterId
-            //};
-            //connection.Send(loginCompletedPacket);
+            // Character will be discovered (as a normal Entity) by VisibleEntities-update, no need to inform observers
 
-            // Character will be discovered (as a normal Entity) by VisibleEntities-update
+            CharacterLoginResponsePacket resultPacket = new()
+            {
+                Result = 0,
+            };
+            connection.Send(resultPacket);
         }
         private CharacterRuntimeData CreateAndSetupCharacterInstance(ClientConnection connection, int characterId)
         {
@@ -271,15 +285,27 @@ namespace Server
             // Add skills that all characters have
             charData.PermanentSkills[SkillId.AutoAttack] = 2;
             charData.PermanentSkills[SkillId.PlaceWarp] = 5;
-            
-            List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(charData.JobId.Value);
-            foreach(SkillTreeEntry entry in skillTree)
-            {
-                SkillTreeEntryPacket packet = entry.ToPacket(charData);
-                connection.Send(packet);
-            }
 
             _loggedInCharacters.Add(charData);
+
+            ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
+            if (mapInstance == null)
+            {
+                OwlLogger.LogError($"Fetching Mapinstance failed for CharacterLogin id {charData.Id}, mapid {charData.MapId}!", GameComponent.Other);
+                return null;
+            }
+
+            // Place Character on map & wherever else required
+            // Setting mapid not required here, since we just got the mapinstance _from_ that name
+            mapInstance.Grid.PlaceOccupant(charData, charData.Coordinates);
+            charData.MapInstance = mapInstance;
+
+            if (charData.IsDead())
+                ReceivedReturnAfterDeathRequest(connection, characterId);
+
+            // TODO: Register & Set up Inventory & Equipment
+
+            // TODO: Apply Buffs/Debuffs from persistent data
 
             return charData;
         }

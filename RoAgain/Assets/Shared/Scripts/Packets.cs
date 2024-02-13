@@ -83,7 +83,7 @@ abstract public class Packet
                 packet = JsonUtility.FromJson<LoginRequestPacket>(json);
                 break;
             case 2:
-                packet = JsonUtility.FromJson<LoginResponsePacket>(json);
+                packet = JsonUtility.FromJson<AccountLoginResponsePacket>(json);
                 break;
             case 5:
                 packet = JsonUtility.FromJson<CharacterSelectionRequestPacket>(json);
@@ -97,9 +97,9 @@ abstract public class Packet
             //case 8:
             //    packet = JsonUtility.FromJson<CharacterRuntimeDataPacket>(json);
             //    break;
-            //case 9:
-            //    packet = JsonUtility.FromJson<CharacterLoginCompletedPacket>(json);
-            //    break;
+            case 9:
+                packet = JsonUtility.FromJson<CharacterLoginResponsePacket>(json);
+                break;
             case 10:
                 packet = JsonUtility.FromJson<MovementRequestPacket>(json);
                 break;
@@ -271,19 +271,19 @@ public class LoginRequestPacket : Packet
     public string Password;
 }
 
-public class LoginResponsePacket : Packet
+public class AccountLoginResponsePacket : Packet
 {
     public override int PacketType => 2;
 
-    public bool IsSuccessful;
+    public bool IsSuccessful; // TODO: Result code instead
 
-    public LoginResponsePacket(bool isSuccessful)
+    public AccountLoginResponsePacket(bool isSuccessful)
     {
         IsSuccessful = isSuccessful;
     }
 }
 
-public class LoginResponse
+public class AccountLoginResponse
 { 
     public bool IsSuccessful;
     public int SessionId;
@@ -331,6 +331,13 @@ public class CharacterLoginPacket : Packet
     public override int PacketType => 7;
 
     public int CharacterId;
+}
+
+public class CharacterLoginResponsePacket : Packet
+{
+    public override int PacketType => 9;
+
+    public int Result;
 }
 
 
@@ -436,11 +443,6 @@ public class CastProgressPacket : Packet
     }
 }
 
-// TODO: CastInterruptPacket? Or make that a special configuration of CastProgressPacket?
-
-// Should this packet exist? Or do we instead want to have a "vfx"-packet that can be re-used for other vfx
-// and let Packets for Damage, Status-Apply, CellGroupPlacement etc. tell the Client all that's necessary?
-// Big question: Does the CastProgressPacket & EntityDataPacket contain all necessary info to play the execute-animation correctly (Animation-delay, etc)
 public class EntitySkillExecutePacket : Packet
 {
     public override int PacketType => 23;
@@ -520,7 +522,7 @@ public class ChatMessageRequestPacket : Packet
     }
 }
 
-// Should this packet also contain new HP/SP value? or do we rely on the client applying the difference itself?
+// This could contain new HP/SP value to save on an Hp/SpUpdate packet, however those values _can_ be unset in case of fake Dmg Numbers (Confusion status)
 public class DamageTakenPacket : Packet
 {
     public const int DAMAGE_MISS = -1;
@@ -914,4 +916,4 @@ public class ReturnAfterDeathRequestPacket : Packet
 
 // Move & adjust this comment when adding new packets, to make dev easier
 // Next PacketType = 59
-// Unused Ids: 8, 9, 12, 15
+// Unused Ids: 8, 12, 15

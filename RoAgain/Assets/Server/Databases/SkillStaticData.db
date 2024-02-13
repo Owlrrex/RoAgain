@@ -339,7 +339,7 @@
     {
       "SkillId": 39,
       "SpCost": [18, 14, 24, 20, 30, 26, 36, 32, 42, 38],
-      "BaseCastTime": [0.5f],
+      "BaseCastTime": [0.5],
       "Range": [9],
       "AnimCd": [1],
       "Var1": [100],

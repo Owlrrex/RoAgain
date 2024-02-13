@@ -32,7 +32,7 @@ namespace Client
 
         private void OnBackButtonClicked()
         {
-            ClientMain.Instance.ShowCharacterSelection();
+            PreGameUI.Instance.ShowCharacterSelection();
         }
 
         private void OnCreateButtonClicked()
