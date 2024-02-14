@@ -122,12 +122,11 @@ namespace Client
         private int _charId;
         private ServerConnection _connection;
 
-        public int ResultCode;
+        public int ResultCode = int.MinValue;
         public LocalCharacterData CharacterData;
         public List<SkillTreeEntry> SkillTreeEntries = new();
 
         private bool _isStarted = false;
-        private bool _isFinished = false;
 
         public int Start(ServerConnection connection, int characterId)
         {
@@ -143,7 +142,7 @@ namespace Client
                 return -2;
             }
 
-            if(ResultCode != 0)
+            if(IsStarted() || IsFinished())
             {
                 OwlLogger.LogError("Tried to start CharacterLogin while it's already running or finished!", GameComponent.Other);
                 return -3;
@@ -153,7 +152,6 @@ namespace Client
             _connection = connection;
 
             _connection.LocalCharacterDataReceived += LocalCharacterDataReceived;
-            _connection.SkillTreeEntryUpdateReceived += SkillTreeEntryReceived;
             _connection.CharacterLoginResponseReceived += CharacterLoginResponseReceived;
             // TODO: Subscribe to packets for inventory, buffs & debuffs
 
@@ -167,27 +165,28 @@ namespace Client
 
         private void LocalCharacterDataReceived(LocalCharacterData charData)
         {
-            if(charData != null)
+            if(CharacterData != null)
             {
                 OwlLogger.LogWarning("Received multiple LocalCharData during character login!", GameComponent.Other);
             }
 
             CharacterData = charData;
-        }
-
-        private void SkillTreeEntryReceived(SkillTreeEntry entry)
-        {
-            SkillTreeEntries.Add(entry);
+            FinalizeIfFinished();
         }
 
         private void CharacterLoginResponseReceived(int result)
         {
             ResultCode = result;
-            _isFinished = true;
+            FinalizeIfFinished();
+        }
 
-            _connection.LocalCharacterDataReceived -= LocalCharacterDataReceived;
-            _connection.SkillTreeEntryUpdateReceived -= SkillTreeEntryReceived;
-            _connection.CharacterLoginResponseReceived -= CharacterLoginResponseReceived;
+        private void FinalizeIfFinished()
+        {
+            if(IsFinished())
+            {
+                _connection.LocalCharacterDataReceived -= LocalCharacterDataReceived;
+                _connection.CharacterLoginResponseReceived -= CharacterLoginResponseReceived;
+            }
         }
 
         public bool IsStarted()
@@ -197,7 +196,7 @@ namespace Client
 
         public bool IsFinished()
         {
-            return _isFinished;
+            return ResultCode != int.MinValue && CharacterData != null;
         }
 
         public int Clear()
@@ -205,7 +204,6 @@ namespace Client
             if(_connection != null)
             {
                 _connection.LocalCharacterDataReceived -= LocalCharacterDataReceived;
-                _connection.SkillTreeEntryUpdateReceived -= SkillTreeEntryReceived;
                 _connection.CharacterLoginResponseReceived -= CharacterLoginResponseReceived;
             }
 
@@ -215,6 +213,8 @@ namespace Client
             ResultCode = 0;
             CharacterData = null;
             SkillTreeEntries.Clear();
+
+            _isStarted = false;
 
             return 0;
         }

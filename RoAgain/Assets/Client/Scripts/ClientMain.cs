@@ -59,8 +59,6 @@ namespace Client
         public string IpInput;
         private string _port;
 
-        private int _characterLoginId;
-
         // Can't move this to MapModule since these are also used in case the MapModule isn't ready yet (map still loading)
         private List<GridEntityData> _queuedEntities = new();
 
@@ -179,7 +177,7 @@ namespace Client
             ConnectionToServer.GridEntityDataReceived += OnGridEntityDataReceived;
             ConnectionToServer.BattleEntityDataReceived += OnBattleEntityDataReceived;
             ConnectionToServer.RemoteCharacterDataReceived += OnRemoteCharacterDataReceived;
-            ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
+            //ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived; // This class only starts handling this event once character login is completed
             ConnectionToServer.EntityRemovedReceived += OnEntityRemovedReceived;
             // Can't use this if OnDisconnected contains mainThread-exclusive code
             //ConnectionToServer.DisconnectDetected += OnDisconnected;
@@ -315,19 +313,30 @@ namespace Client
 
             // TODO: Validations
 
-            if(CurrentCharacterData != null)
-            {
-                OwlLogger.LogError($"CurrentCharacterData was not null when CharacterLogin finished!", GameComponent.Character);
-            }
-
             OwlLogger.Log($"Character Login completed, new CurrentChar has ID {charData.UnitId}", GameComponent.Character);
-            CurrentCharacterData = new(charData);
 
             // TODO: Proper loading-screen
             DisplayZeroButtonNotification("Loading world...");
             AsyncOperation asyncOp = SceneManager.LoadSceneAsync("Gameplay"); // Maybe load a loading-screen-scene instead?
             asyncOp.allowSceneActivation = true;
             asyncOp.completed += OnGameplaySceneLoadCompleted;
+
+            if(CurrentCharacterData == null)
+            {
+                CurrentCharacterData = new(charData);
+            }
+            else
+            {
+                CurrentCharacterData.SetData(charData);
+            }
+            
+
+            foreach(SkillTreeEntry entry in skillTree)
+            {
+                CurrentCharacterData.SkillTree[entry.SkillId] = entry;
+            }
+
+            ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
         }
 
         private void OnGameplaySceneLoadCompleted(AsyncOperation loadOp)
@@ -337,12 +346,16 @@ namespace Client
             OnMapChangeReceived(CurrentCharacterData.MapId, CurrentCharacterData.Coordinates);
         }
 
+        private void ClearCharacterLoginData()
+        {
+            
+        }
+
         private void OnLocalCharacterDataReceived(LocalCharacterData data)
         {
-            if (CurrentCharacterData == null)
-                return; // Callback will fire during character login, but we don't want to handle that.
-
-            if (CurrentCharacterData != null && CurrentCharacterData.Id != data.UnitId)
+            if (CurrentCharacterData != null
+                && CurrentCharacterData.Id != 0
+                && CurrentCharacterData.Id != data.UnitId)
             {
                 OwlLogger.LogError($"LocalCharacterDataPacket received for Id {data.UnitId} that differs from CurrentCharacterData id {CurrentCharacterData.Id}!", GameComponent.Character);
             }
@@ -350,7 +363,8 @@ namespace Client
             string oldMapId = CurrentCharacterData.MapId;
             // This isn't exactly clean, but it's what we have:
             // This sets & handles grid-based changes... (including place & remove calls)
-            MapModule.UpdateExistingEntityData(data);
+            if(MapModule.IsReady())
+                MapModule.UpdateExistingEntityData(data);
 
             // ...and this sets all the other data
             CurrentCharacterData.SetData(data);
@@ -674,6 +688,12 @@ namespace Client
 
         private void OnStatUpdateReceived(EntityPropertyType type, Stat newValue)
         {
+            if(CurrentCharacterData == null)
+            {
+                OwlLogger.LogError($"StatUpdate received for stat {type}, newvalue {newValue}, before CurrentcharacterData was set!", GameComponent.Other);
+                return;
+            }
+
             switch (type)
             {
                 case EntityPropertyType.Str:
@@ -897,8 +917,7 @@ namespace Client
         {
             // TODO: Verifications
 
-            if (CurrentCharacterData == null)
-                return; // CharacterLogin is not completed, we're not handling this callback at this time.
+            CurrentCharacterData ??= new(new());
 
             CurrentCharacterData.SkillTree[entry.SkillId] = entry;
             CurrentCharacterData.SkillTreeUpdated?.Invoke();

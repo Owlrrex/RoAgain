@@ -187,8 +187,7 @@ namespace Server
             connection.CharacterId = characterId;
 
             // Send main Character data
-            LocalCharacterDataPacket localCharacterPacket = charData.ToLocalDataPacket();
-            connection.Send(localCharacterPacket);
+            charData.NetworkQueue.GridEntityDataUpdate(charData);
 
             // Send SkillTree
             List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(charData.JobId.Value);
@@ -230,12 +229,39 @@ namespace Server
 
             // Character will be discovered (as a normal Entity) by VisibleEntities-update, no need to inform observers
 
+            CoroutineRunner.StartNewCoroutine(DelayedCharLoginFinish(charData, 0));
+        }
+
+        private System.Collections.IEnumerator DelayedCharLoginFinish(CharacterRuntimeData charData, int resultCode)
+        {
+            yield return new WaitForSeconds(0.1f); // delay some time so other packets are sent, IP-protocol ensures packets arrive in order
+
             CharacterLoginResponsePacket resultPacket = new()
             {
-                Result = 0,
+                Result = resultCode,
             };
-            connection.Send(resultPacket);
+            charData.Connection.Send(resultPacket);
+
+            // To avoid sending visibility-related packets to the client before the CharacterLogin is completed, we place the character on the map last
+            // This may cause issues for setup processes in the BattleModule (or other Modules) that expect the unit to be already placed on-grid.
+            // This code was originally located in CreateAndSetupCharacterInstance()
+
+            // Place Character on map & wherever else required
+            ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
+            if (mapInstance == null)
+            {
+                OwlLogger.LogError($"Fetching Mapinstance failed for CharacterLogin id {charData.Id}, mapid {charData.MapId}!", GameComponent.Other);
+                yield break;
+            }
+
+            // Setting mapid not required here, since we just got the mapinstance _from_ that name
+            mapInstance.Grid.PlaceOccupant(charData, charData.Coordinates);
+            charData.MapInstance = mapInstance;
+
+            if (charData.IsDead())
+                ReceivedReturnAfterDeathRequest(charData.Connection, charData.Id);
         }
+
         private CharacterRuntimeData CreateAndSetupCharacterInstance(ClientConnection connection, int characterId)
         {
             CharacterPersistenceData persData = _characterDatabase.LoadCharacterPersistenceData(characterId);
@@ -288,20 +314,7 @@ namespace Server
 
             _loggedInCharacters.Add(charData);
 
-            ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
-            if (mapInstance == null)
-            {
-                OwlLogger.LogError($"Fetching Mapinstance failed for CharacterLogin id {charData.Id}, mapid {charData.MapId}!", GameComponent.Other);
-                return null;
-            }
-
-            // Place Character on map & wherever else required
-            // Setting mapid not required here, since we just got the mapinstance _from_ that name
-            mapInstance.Grid.PlaceOccupant(charData, charData.Coordinates);
-            charData.MapInstance = mapInstance;
-
-            if (charData.IsDead())
-                ReceivedReturnAfterDeathRequest(connection, characterId);
+            // Moved to DelayedCharLoginFinish for now: Place character on-grid
 
             // TODO: Register & Set up Inventory & Equipment
 

@@ -28,6 +28,7 @@ namespace Client
         ToggleStatWindow,
         ToggleSkillWindow,
         ToggleHotbar,
+        ToggleGameMenuWindow,
         // Chat
         ToggleChatInput,
         // General UI
@@ -158,6 +159,7 @@ namespace Client
             _hotkeyConfig.Add(ConfigurableHotkey.ToggleStatWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.A });
             _hotkeyConfig.Add(ConfigurableHotkey.ToggleSkillWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.S });
             _hotkeyConfig.Add(ConfigurableHotkey.ToggleHotbar, new() { Key = KeyCode.F12 });
+            _hotkeyConfig.Add(ConfigurableHotkey.ToggleGameMenuWindow, new() { Key = KeyCode.Escape });
 
             return 0;
         }
@@ -180,6 +182,7 @@ namespace Client
             anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleStatWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.A });
             anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleSkillWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.S });
             anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleHotbar, new() { Key = KeyCode.F12 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleGameMenuWindow, new() { Key = KeyCode.Escape });
             return anyChange;
         }
 

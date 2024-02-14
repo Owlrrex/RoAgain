@@ -25,6 +25,9 @@ public class PlayerUI : MonoBehaviour
     [field: SerializeField]
     public DeathWindow DeathWindow { get; private set; }
 
+    [field: SerializeField]
+    public GameMenuWindow GameMenuWindow { get; private set; }
+
     public GraphicRaycaster uiRaycaster;
     private List<RaycastResult> _raycastResults = new();
 
@@ -55,6 +58,9 @@ public class PlayerUI : MonoBehaviour
 
         if(!OwlLogger.PrefabNullCheckAndLog(DeathWindow, "DeathWindow", this, GameComponent.UI))
             DeathWindow.gameObject.SetActive(false);
+
+        if(!OwlLogger.PrefabNullCheckAndLog(GameMenuWindow, "GameMenuWindow", this, GameComponent.UI))
+            GameMenuWindow.gameObject.SetActive(false);
     }
 
     public bool IsHoveringUI(Vector2 position)
@@ -117,6 +123,18 @@ public class PlayerUI : MonoBehaviour
             {
                 // TODO: Read hotbar data from config?
                 _hotbar.gameObject.SetActive(true);
+            }
+        }
+
+        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigurableHotkey.ToggleGameMenuWindow) == true)
+        {
+            if(GameMenuWindow.gameObject.activeSelf)
+            {
+                GameMenuWindow.gameObject.SetActive(false);
+            }
+            else
+            {
+                GameMenuWindow.gameObject.SetActive(true);
             }
         }
 

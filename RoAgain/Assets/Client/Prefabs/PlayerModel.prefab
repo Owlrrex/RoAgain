@@ -248,6 +248,7 @@ MonoBehaviour:
   <StatWindow>k__BackingField: {fileID: 6334493942444210245}
   <SkillTreeWindow>k__BackingField: {fileID: 7586812459718036426}
   <DeathWindow>k__BackingField: {fileID: 7147217401056381972}
+  <GameMenuWindow>k__BackingField: {fileID: 8590794016638427903}
   uiRaycaster: {fileID: 7304375586191807267}
   SkillIconPrefab: {fileID: 5180894624772917928, guid: c3623ed0475eecc45ba2f3af3cd3d2ff,
     type: 3}
@@ -1761,5 +1762,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0d3a56846161f642bbbcbcee72643c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8590794016638427903 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 157515883971141064, guid: fd93911793d93ff4db4873020a286564,
+    type: 3}
+  m_PrefabInstance: {fileID: 8437276717241614135}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5214927b6feb6f4893ed7c2f05a3213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -64,6 +64,8 @@ namespace Client
 
             _rb.velocity = new(2, 5, 0);
             _canvas.worldCamera = PlayerMain.Instance.UiCamera;
+
+            Destroy(gameObject, 5.0f); // tmp: Safety cleanup while Emitters are deleted too quickly upon unit death
         }
 
         public void UpdateTextAlpha(float alpha)

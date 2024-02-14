@@ -33,39 +33,30 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
-      Position: 1
+      Tier: 0
+      Position: 2
       Requirements: []
     - Skill: 1
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
       Tier: 0
-      Position: 5
+      Position: 4
       Requirements: []
     - Skill: 2
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
+      Tier: 0
       Position: 5
       Requirements: []
-    - Skill: 30
-      MaxLevel: 10
-      CanPointLearn: 1
-      Category: 0
-      Tier: 0
-      Position: 4
-      Requirements:
-      - RequirementId: 3
-        RequirementLevel: 3
   - Job: 2
     SkillTree:
     - Skill: 12
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 0
       Requirements: []
     - Skill: 13
@@ -81,14 +72,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 1
       Requirements: []
     - Skill: 11
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 1
       Requirements:
       - RequirementId: 10
@@ -97,14 +88,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 2
       Requirements: []
     - Skill: 16
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 2
       Requirements:
       - RequirementId: 15
@@ -113,28 +104,28 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 3
       Requirements: []
     - Skill: 17
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 5
       Requirements: []
     - Skill: 18
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 5
       Requirements: []
     - Skill: 19
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 5
       Requirements: []
   - Job: 3
@@ -143,14 +134,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 0
       Requirements: []
     - Skill: 31
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 0
       Requirements:
       - RequirementId: 30
@@ -159,7 +150,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 0
       Requirements:
       - RequirementId: 31
@@ -170,21 +161,21 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 1
       Requirements: []
     - Skill: 34
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 2
       Requirements: []
     - Skill: 35
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 2
       Requirements:
       - RequirementId: 34
@@ -193,14 +184,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 3
       Requirements: []
     - Skill: 37
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 3
       Requirements:
       - RequirementId: 36
@@ -209,14 +200,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 4
       Requirements: []
     - Skill: 39
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 4
       Requirements:
       - RequirementId: 38
@@ -225,7 +216,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 4
       Requirements:
       - RequirementId: 38
@@ -236,21 +227,21 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 1
       Requirements: []
     - Skill: 41
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 5
       Requirements: []
     - Skill: 43
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 5
       Requirements: []
   - Job: 6
@@ -259,14 +250,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 0
       Requirements: []
     - Skill: 51
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 0
       Requirements:
       - RequirementId: 50
@@ -275,7 +266,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 0
       Requirements:
       - RequirementId: 51
@@ -284,14 +275,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 1
       Requirements: []
     - Skill: 54
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 1
       Requirements:
       - RequirementId: 53
@@ -300,14 +291,14 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 3
       Requirements: []
     - Skill: 56
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 3
       Requirements: []
   - Job: 5
@@ -316,28 +307,28 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 0
       Requirements: []
     - Skill: 91
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 0
       Requirements: []
     - Skill: 92
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 1
       Requirements: []
     - Skill: 93
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 1
       Requirements:
       - RequirementId: 93
@@ -346,42 +337,42 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 2
       Requirements: []
     - Skill: 95
       MaxLevel: 1
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 2
       Requirements: []
     - Skill: 96
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 3
       Requirements: []
     - Skill: 99
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 3
       Requirements: []
     - Skill: 97
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 4
       Requirements: []
     - Skill: 98
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 4
       Requirements: []
   - Job: 4
@@ -390,14 +381,14 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 0
       Requirements: []
     - Skill: 111
       MaxLevel: 2
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 0
       Requirements:
       - RequirementId: 110
@@ -406,7 +397,7 @@ MonoBehaviour:
       MaxLevel: 4
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 0
       Requirements:
       - RequirementId: 111
@@ -415,7 +406,7 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 1
       Category: 0
-      Tier: 3
+      Tier: 4
       Position: 0
       Requirements:
       - RequirementId: 112
@@ -424,14 +415,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 1
       Requirements: []
     - Skill: 121
       MaxLevel: 1
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 2
       Requirements:
       - RequirementId: 120
@@ -440,7 +431,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 1
       Requirements:
       - RequirementId: 120
@@ -449,7 +440,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 1
       Requirements:
       - RequirementId: 122
@@ -458,21 +449,21 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 2
       Requirements: []
     - Skill: 115
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 3
       Requirements: []
     - Skill: 114
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 3
       Requirements:
       - RequirementId: 115
@@ -481,7 +472,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 3
       Requirements:
       - RequirementId: 114
@@ -490,7 +481,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 4
       Requirements:
       - RequirementId: 115
@@ -499,7 +490,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 4
       Requirements:
       - RequirementId: 115
@@ -508,7 +499,7 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 5
       Requirements: []
   - Job: 7
@@ -517,14 +508,14 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 0
       Requirements: []
     - Skill: 71
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 0
       Requirements:
       - RequirementId: 70
@@ -533,7 +524,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 0
       Requirements:
       - RequirementId: 71
@@ -542,7 +533,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 1
       Requirements:
       - RequirementId: 70
@@ -551,7 +542,7 @@ MonoBehaviour:
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 1
       Requirements:
       - RequirementId: 73
@@ -560,34 +551,34 @@ MonoBehaviour:
       MaxLevel: 1
       CanPointLearn: 1
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 2
       Requirements: []
     - Skill: 75
       MaxLevel: 10
       CanPointLearn: 1
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 2
       Requirements: []
     - Skill: 77
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 0
+      Tier: 1
       Position: 4
       Requirements: []
     - Skill: 78
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 1
+      Tier: 2
       Position: 4
       Requirements: []
     - Skill: 79
       MaxLevel: 1
       CanPointLearn: 0
       Category: 0
-      Tier: 2
+      Tier: 3
       Position: 4
       Requirements: []

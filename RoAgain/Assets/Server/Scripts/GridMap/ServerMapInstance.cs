@@ -148,7 +148,7 @@ public class ServerMapInstance
     {
         List<GridEntity> movedEntities = Grid.UpdateEntityMovment(deltaTime);
         ICollection<GridEntity> allEntities = Grid.GetAllOccupants();
-        List<CharacterRuntimeData> characters = new();
+        List<CharacterRuntimeData> characters = new(); // TODO: Reusable list to reduce allocations
         foreach(GridEntity entity in allEntities)
         {
             if(entity is CharacterRuntimeData)
