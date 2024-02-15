@@ -742,6 +742,7 @@ namespace SuperSimpleTcp
                     }
 
                     client = new ClientMetadata(tcpClient);
+                    client.SendBuffer = new byte[_settings.StreamBufferSize];
 
                     if (_ssl)
                     {
@@ -1055,10 +1056,11 @@ namespace SuperSimpleTcp
 
             long bytesRemaining = contentLength;
             int bytesRead = 0;
-            long bufferSize = _settings.StreamBufferSize;
+            //long bufferSize = _settings.StreamBufferSize;
             //if (stream.Length < bufferSize)
             //    bufferSize = stream.Length;
-            byte[] buffer = new byte[bufferSize];
+            byte[] buffer = client.SendBuffer;
+            Array.Clear(buffer, 0, buffer.Length);
 
             try
             {

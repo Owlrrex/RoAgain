@@ -32,6 +32,7 @@ namespace SuperSimpleTcp
 
         internal SemaphoreSlim SendLock = new SemaphoreSlim(1, 1);
         internal SemaphoreSlim ReceiveLock = new SemaphoreSlim(1, 1);
+        internal byte[] SendBuffer;
 
         internal CancellationTokenSource TokenSource { get; set; }
 
