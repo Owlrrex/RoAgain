@@ -11,6 +11,15 @@ namespace Client
     {
         public static EntityPrefabTable Instance;
 
+        public enum EntityType
+        {
+            Unknown,
+            GenericGrid,
+            GenericBattle,
+            RemoteCharacter,
+            LocalCharacter,
+        }
+
         [Serializable]
         private class Entry
         {
