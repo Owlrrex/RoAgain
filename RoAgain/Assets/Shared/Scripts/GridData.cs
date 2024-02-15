@@ -377,6 +377,7 @@ public class GridData
     {
         List<T> typedOccupants = new();
         // this function could iterate over _entities and do distance-checks
+        // or iterate cells & find occupants that way
         // profile regularily which is better & adjust based on common use-cases!
         // could even decide algorithm at runtime based on Grid-occupant-count, since that's available quickly
 
@@ -406,6 +407,28 @@ public class GridData
         return typedOccupants;
     }
 
+    private Dictionary<Type, System.Collections.IList> _buffers = new();
+
+    public List<T> GetOccupantsInRangeSquareLowAlloc<T>(Vector2Int min, Vector2Int max) where T : GridEntity
+    {
+        if(!_buffers.ContainsKey(typeof(T)))
+        {
+            _buffers.Add(typeof(T), new List<T>());
+        }
+
+        List<T> typedOccupants = _buffers[typeof(T)] as List<T>;
+        typedOccupants.Clear();
+        foreach (GridEntity entity in GetAllOccupants())
+        {
+            if (entity is T t)
+            {
+                if (Overlaps(min, max, entity.Coordinates, entity.Coordinates))
+                    typedOccupants.Add(t);
+            }
+        }
+        return typedOccupants;
+    }
+
     // Radius refers to the number of cells the square area extends away from the Unit: 
     // 1 = 3x3 area, 3 = 7x7 area, etc.
     public List<T> GetOccupantsInRangeSquare<T>(Vector2Int center, int radius) where T : GridEntity
@@ -424,11 +447,28 @@ public class GridData
         return GetOccupantsInRangeSquare<T>(min, max);
     }
 
+    // Radius refers to the number of cells the square area extends away from the Unit: 
+    // 1 = 3x3 area, 3 = 7x7 area, etc.
+    public List<T> GetOccupantsInRangeSquareLowAlloc<T>(Vector2Int center, int radius) where T : GridEntity
+    {
+        if (radius < 0)
+        {
+            OwlLogger.LogError($"GetEntitiesInRangeSquare called with invalid radius {radius}", GameComponent.Grid);
+            return null;
+        }
+
+        if (!MakeBounds(center, radius, out Vector2Int min, out Vector2Int max))
+        {
+            return null;
+        }
+
+        return GetOccupantsInRangeSquareLowAlloc<T>(min, max);
+    }
+
     public List<T> GetObserversSquare<T>(Vector2Int origin) where T : GridEntity
     {
         List<T> observers = new();
-        List<T> candidates = GetOccupantsInRangeSquare<T>(origin, MAX_VISION_RANGE);
-        foreach(GridEntity entity in candidates)
+        foreach(GridEntity entity in GetOccupantsInRangeSquareLowAlloc<T>(origin, MAX_VISION_RANGE))
         {
             if (entity is T t && Extensions.GridDistanceSquare(t.Coordinates, origin) <= t.VisionRange)
                 observers.Add(t);
@@ -439,8 +479,7 @@ public class GridData
     public List<T> GetObserversSquare<T>(Vector2Int origin, List<GridEntity> exclusionList) where T : GridEntity
     {
         List<T> observers = new();
-        List<T> candidates = GetOccupantsInRangeSquare<T>(origin, MAX_VISION_RANGE);
-        foreach (GridEntity entity in candidates)
+        foreach (GridEntity entity in GetOccupantsInRangeSquareLowAlloc<T>(origin, MAX_VISION_RANGE))
         {
             if (entity is T t && Extensions.GridDistanceSquare(t.Coordinates, origin) <= t.VisionRange
                 && !exclusionList.Contains(entity))

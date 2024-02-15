@@ -12,7 +12,7 @@ public class LookAtObject : MonoBehaviour
     {
         if(_usePlayerUiCamera)
         {
-            Target = PlayerMain.Instance.UiCamera.transform;
+            Target = PlayerMain.Instance.WorldUiCamera.transform;
         }
 
         if (OwlLogger.PrefabNullCheckAndLog(Target, "Target", this, GameComponent.Other))
@@ -28,7 +28,8 @@ public class LookAtObject : MonoBehaviour
         if (_usePlayerUiCamera)
         {
             // Special aligning method that avoids perspective skew
-            transform.rotation = PlayerMain.Instance.UiCanvasNonSkewRotation;
+            if (transform.rotation != PlayerMain.Instance.UiCanvasNonSkewRotation)            
+                transform.rotation = PlayerMain.Instance.UiCanvasNonSkewRotation;
         }
         else
         {

@@ -69,7 +69,8 @@ public class GridEntity
         bool oldPathSafe = Path != null && Path.Corners.Count > 0;
         bool newPathSafe = newPath != null && newPath.Corners.Count > 0;
 
-        if (Path != null)
+        if (Path != null
+            && OwlLogger.CurrentLogVerbosity >= LogSeverity.VeryVerbose) // since this function is called ALOT, and the format call is fairly big, make sure none of it gets ran unless necessary
         {
             OwlLogger.Log($"GridEntity {Id} is overwriting path to {(oldPathSafe ? Path.Corners[^1] : "empty")} with path to {(newPathSafe ? newPath.Corners[^1] : "empty")}", GameComponent.Grid, LogSeverity.VeryVerbose);
         }
@@ -137,33 +138,35 @@ public class GridEntity
         PathFinished?.Invoke(this);
     }
 
-    public List<GridEntity> RecalculateVisibleEntities(out HashSet<GridEntity> newVisibleEntities,
-            out HashSet<GridEntity> stillVisibleEntities, out HashSet<GridEntity> removedEntities)
+    public List<GridEntity> RecalculateVisibleEntities(ref HashSet<GridEntity> newVisibleEntities,
+            ref HashSet<GridEntity> stillVisibleEntities, ref HashSet<GridEntity> removedEntities)
     {
-        newVisibleEntities = new();
-        stillVisibleEntities = new();
-        removedEntities = new();
-
         if (ParentGrid == null)
+        {
+            newVisibleEntities.Clear();
+            stillVisibleEntities.Clear();
+            removedEntities.Clear();
             return new();
+        }
 
-        List<GridEntity> totalVisibleNew = ParentGrid.GetOccupantsInRangeSquare<GridEntity>(Coordinates, VisionRange);
-        Extensions.DiffArrays(VisibleEntities, totalVisibleNew, out newVisibleEntities, out stillVisibleEntities, out removedEntities);
+        List<GridEntity> totalVisibleNew = ParentGrid.GetOccupantsInRangeSquareLowAlloc<GridEntity>(Coordinates, VisionRange);
+        Extensions.DiffArrays(VisibleEntities, totalVisibleNew, ref newVisibleEntities, ref stillVisibleEntities, ref removedEntities);
 
         return totalVisibleNew;
     }
 
-    public HashSet<CellEffectGroup> RecalculateVisibleCellEffectGroups(out HashSet<CellEffectGroup> newGroups, out HashSet<CellEffectGroup> oldGroups, out HashSet<CellEffectGroup> removedGroups)
+    public HashSet<CellEffectGroup> RecalculateVisibleCellEffectGroups(ref HashSet<CellEffectGroup> newGroups, ref HashSet<CellEffectGroup> oldGroups, ref HashSet<CellEffectGroup> removedGroups)
     {
-        newGroups = new();
-        oldGroups = new();
-        removedGroups = new();
-
         if (ParentGrid == null)
+        {
+            newGroups?.Clear();
+            oldGroups?.Clear();
+            removedGroups?.Clear();
             return new();
+        }
 
         HashSet<CellEffectGroup> totalVisibleNew = ParentGrid.GetGroupsInRangeSquare<CellEffectGroup>(Coordinates, VisionRange);
-        Extensions.DiffArrays(VisibleCellEffectGroups, totalVisibleNew, out newGroups, out oldGroups, out removedGroups);
+        Extensions.DiffArrays(VisibleCellEffectGroups, totalVisibleNew, ref newGroups, ref oldGroups, ref removedGroups);
 
         return totalVisibleNew;
     }

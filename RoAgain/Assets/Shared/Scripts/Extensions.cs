@@ -62,16 +62,28 @@ public static class Extensions
         };
     }
 
-    public static void DiffArrays<T, U>(T oldList, T newList, out HashSet<U> newElements, out HashSet<U> stayedElements, out HashSet<U> removedElements) where T : IEnumerable<U>
+    public static void DiffArrays<T, U>(T oldList, T newList, ref HashSet<U> newElements, ref HashSet<U> stayedElements, ref HashSet<U> removedElements) where T : IEnumerable<U>
     {
-        newElements = new(newList);
-        newElements.ExceptWith(oldList);
-
-        stayedElements = new(newList);
-        stayedElements.IntersectWith(oldList);
-
-        removedElements = new(oldList);
-        removedElements.ExceptWith(newList);
+        if(newElements != null)
+        {
+            newElements.Clear();
+            newElements.UnionWith(newList);
+            newElements.ExceptWith(oldList);
+        }
+        
+        if(stayedElements != null)
+        {
+            stayedElements.Clear();
+            stayedElements.UnionWith(newList);
+            stayedElements.IntersectWith(oldList);
+        }
+        
+        if(removedElements != null)
+        {
+            removedElements.Clear();
+            removedElements.UnionWith(oldList);
+            removedElements.ExceptWith(newList);
+        }
     }
 
     public static string ToHotkeyString(this KeyCode keyCode)

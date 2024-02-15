@@ -18,6 +18,10 @@ public class ClientMapModule
 
     private readonly List<SkillId> _skillIdsFinishedReuse = new(4); // Not predicted that a unit finishes more cooldowns than this on a single tick
 
+    private HashSet<GridEntity> _newVisibleBuffer = new();
+    private HashSet<GridEntity> _oldVisibleBuffer = new();
+    private HashSet<GridEntity> _noLongerVisibleBuffer = new();
+
     public int Initialize()
     {
         return 0;
@@ -34,11 +38,13 @@ public class ClientMapModule
         {
             // If timing-sync-logic is separate to allow clients to do local latency compensation: Call timing-update here
 
-            // Update unit movement
             Grid.Data.UpdateEntityMovment(Time.deltaTime);
-            ClientMain.Instance.CurrentCharacterData.VisibleEntities = ClientMain.Instance.CurrentCharacterData.RecalculateVisibleEntities(out HashSet<GridEntity> enteredVisible, out _, out HashSet<GridEntity> removedEntities);
 
-            foreach (GridEntity entity in removedEntities)
+            List<GridEntity> newAllVisible = ClientMain.Instance.CurrentCharacterData.RecalculateVisibleEntities(ref _newVisibleBuffer, ref _oldVisibleBuffer, ref _noLongerVisibleBuffer);
+            ClientMain.Instance.CurrentCharacterData.VisibleEntities.Clear();
+            ClientMain.Instance.CurrentCharacterData.VisibleEntities.AddRange(newAllVisible);
+
+            foreach (GridEntity entity in _noLongerVisibleBuffer)
             {
                 if(!_entitiesAwaitingRemoval.Contains(entity))
                 {
@@ -55,7 +61,7 @@ public class ClientMapModule
                 }
             }
 
-            foreach (GridEntity entity in enteredVisible)
+            foreach (GridEntity entity in _newVisibleBuffer)
             {
                 if (entity == ClientMain.Instance.CurrentCharacterData)
                     continue;
@@ -433,15 +439,16 @@ public class ClientMapModule
         _entitiesAwaitingRemoval.Remove(entity);
 
         // TODO: Move to subfunction/s
-        EntityType entityType;
+        // TODO: Replace with proper Prefab-Db for Entities
+        EntityPrefabTable.EntityType entityType;
         if (entity is LocalCharacterEntity)
-            entityType = EntityType.LocalCharacter;
+            entityType = EntityPrefabTable.EntityType.LocalCharacter;
         else if(entity is RemoteCharacterEntity)
-            entityType = EntityType.RemoteCharacter;
+            entityType = EntityPrefabTable.EntityType.RemoteCharacter;
         else if (entity is ClientBattleEntity)
-            entityType = EntityType.GenericBattle;
+            entityType = EntityPrefabTable.EntityType.GenericBattle;
         else
-            entityType = EntityType.GenericGrid;
+            entityType = EntityPrefabTable.EntityType.GenericGrid;
 
         GameObject prefab = EntityPrefabTable.GetPrefabForType(entityType);
         GameObject newEntityInstance = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity); // TODO: Proper hierarchy

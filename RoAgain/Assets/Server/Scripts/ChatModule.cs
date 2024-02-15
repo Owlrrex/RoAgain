@@ -182,8 +182,7 @@ namespace Server
                 MessageScope = ChatMessagePacket.Scope.Proximity
             };
 
-            var charlist = map.Grid.GetOccupantsInRangeSquare<CharacterRuntimeData>(chatMessage.Sender.Coordinates, PROXIMITY_CHAT_RANGE);
-            foreach (CharacterRuntimeData charData in charlist)
+            foreach (CharacterRuntimeData charData in map.Grid.GetOccupantsInRangeSquareLowAlloc<CharacterRuntimeData>(chatMessage.Sender.Coordinates, PROXIMITY_CHAT_RANGE))
             {
                 charData.Connection.Send(packet);
             }

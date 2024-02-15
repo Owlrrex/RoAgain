@@ -200,7 +200,7 @@ namespace Client
             }
             else
             {
-                _skillNameText.canvas.worldCamera = PlayerMain.Instance.UiCamera;
+                _skillNameText.canvas.worldCamera = PlayerMain.Instance.WorldUiCamera;
             }
 
             if (_entityNameText == null)
@@ -209,7 +209,7 @@ namespace Client
             }
             else
             {
-                _entityNameText.canvas.worldCamera = PlayerMain.Instance.UiCamera;
+                _entityNameText.canvas.worldCamera = PlayerMain.Instance.WorldUiCamera;
             }
 
             if (_damageNumberEmitter == null)

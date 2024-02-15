@@ -15,7 +15,7 @@ public class PlayerMain : BattleEntityModelMain
     /// </summary>
     public Quaternion UiCanvasNonSkewRotation => _uiCanvasNonSkewRotation;
     private Quaternion _uiCanvasNonSkewRotation;
-    public Camera UiCamera => _uiCamera;
+    public Camera WorldUiCamera => _uiCamera;
     [SerializeField]
     private Camera _uiCamera;
 
@@ -29,6 +29,8 @@ public class PlayerMain : BattleEntityModelMain
         return base.Initialize(charData);
 
         // TODO
+
+        
     }
 
     public new void Shutdown()
@@ -51,7 +53,7 @@ public class PlayerMain : BattleEntityModelMain
     {
         base.Update();
 
-        _uiCanvasNonSkewRotation.SetLookRotation(-UiCamera.transform.forward, UiCamera.transform.up);
+        _uiCanvasNonSkewRotation.SetLookRotation(-WorldUiCamera.transform.forward, WorldUiCamera.transform.up);
 
         if(_entity.QueuedSkill != null)
         {

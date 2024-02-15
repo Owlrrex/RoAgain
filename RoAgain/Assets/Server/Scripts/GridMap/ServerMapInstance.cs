@@ -17,6 +17,14 @@ public class ServerMapInstance
 
     public SkillModule SkillModule { get; private set; }
 
+    private HashSet<GridEntity> _newVisibleEntityBuffer = new();
+    private HashSet<GridEntity> _oldVisibleEntityBuffer = new();
+    private HashSet<GridEntity> _noLongerVisibleEntityBuffer = new();
+
+    private HashSet<CellEffectGroup> _newVisibleEffectBuffer = new();
+    private HashSet<CellEffectGroup> _oldVisibleEffectBuffer = new();
+    private HashSet<CellEffectGroup> _noLongerVisibleEffectBuffer = new();
+
 
     // This loads the actual map data in the future, I guess?
     public int Initialize(string mapId, ExperienceModule expModule)
@@ -127,8 +135,7 @@ public class ServerMapInstance
             EntityId = entity.Id,
         };
 
-        List<CharacterRuntimeData> observers = Grid.GetOccupantsInRangeSquare<CharacterRuntimeData>(coords, GridData.MAX_VISION_RANGE);
-        foreach(CharacterRuntimeData obs in observers)
+        foreach(CharacterRuntimeData obs in Grid.GetOccupantsInRangeSquareLowAlloc<CharacterRuntimeData>(coords, GridData.MAX_VISION_RANGE))
         {
             obs.Connection.Send(packet);
         }
@@ -213,8 +220,7 @@ public class ServerMapInstance
 
         foreach (GridEntity movedEntity in movedEntities)
         {
-            var charactersInRange = Grid.GetOccupantsInRangeSquare<CharacterRuntimeData>(movedEntity.Coordinates, GridData.MAX_VISION_RANGE);
-            charactersToUpdate.UnionWith(charactersInRange);
+            charactersToUpdate.UnionWith(Grid.GetOccupantsInRangeSquareLowAlloc<CharacterRuntimeData>(movedEntity.Coordinates, GridData.MAX_VISION_RANGE));
         }
 
         foreach (CharacterRuntimeData character in charactersToUpdate)
@@ -225,17 +231,17 @@ public class ServerMapInstance
 
     private void UpdateVisibleEntities(CharacterRuntimeData character)
     {
-        List<GridEntity> totalVisible;
-        totalVisible = character.RecalculateVisibleEntities(out HashSet<GridEntity> newVisible, out HashSet<GridEntity> remainingVisible, out _);
-        character.VisibleEntities = totalVisible;
+        List<GridEntity> newAllVisible = character.RecalculateVisibleEntities(ref _newVisibleEntityBuffer, ref _oldVisibleEntityBuffer, ref _noLongerVisibleEntityBuffer);
+        character.VisibleEntities.Clear();
+        character.VisibleEntities.AddRange(newAllVisible);
 
-        foreach (GridEntity newEntity in newVisible)
+        foreach (GridEntity newEntity in _newVisibleEntityBuffer)
         {
             // For a unit entering update-range (could be first time): Send full data update
             character.NetworkQueue.GridEntityDataUpdate(newEntity);
         }
 
-        foreach (GridEntity entity in remainingVisible)
+        foreach (GridEntity entity in _oldVisibleEntityBuffer)
         {
             if (entity.HasNewPath)
             {
@@ -247,9 +253,9 @@ public class ServerMapInstance
 
     private void UpdateVisibleCellGroups(CharacterRuntimeData character)
     {
-        character.VisibleCellEffectGroups = character.RecalculateVisibleCellEffectGroups(out HashSet<CellEffectGroup> newVisible, out _, out HashSet<CellEffectGroup> removedVisible);
+        character.VisibleCellEffectGroups = character.RecalculateVisibleCellEffectGroups(ref _newVisibleEffectBuffer, ref _oldVisibleEffectBuffer, ref _noLongerVisibleEffectBuffer);
 
-        foreach(CellEffectGroup newGroup in newVisible)
+        foreach(CellEffectGroup newGroup in _newVisibleEffectBuffer)
         {
             CellEffectGroupPlacedPacket packet = new()
             {
@@ -260,7 +266,7 @@ public class ServerMapInstance
             character.Connection.Send(packet);
         }
 
-        foreach(CellEffectGroup removedGroup in removedVisible)
+        foreach(CellEffectGroup removedGroup in _noLongerVisibleEffectBuffer)
         {
             CellEffectGroupRemovedPacket packet = new()
             { GroupId = removedGroup.Id };

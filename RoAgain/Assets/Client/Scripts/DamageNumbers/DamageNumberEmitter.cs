@@ -60,7 +60,7 @@ namespace Client
         public void DisplayDamageNumber(int damage, bool isSpDamage, bool isCrit, int chainCount, bool isLocalChar)
         {
             GameObject instance = Instantiate(DamageNumberPrefab, transform.position, Quaternion.identity);
-            instance.transform.LookAt(PlayerMain.Instance.UiCamera.transform, PlayerMain.Instance.UiCamera.transform.up);
+            instance.transform.LookAt(PlayerMain.Instance.WorldUiCamera.transform, PlayerMain.Instance.WorldUiCamera.transform.up);
 
             DamageNumberDisplay display = instance.GetComponentInChildren<DamageNumberDisplay>();
             display.Initialize(damage, isSpDamage, isCrit, isLocalChar, chainCount);
