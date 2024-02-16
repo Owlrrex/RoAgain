@@ -15,12 +15,12 @@ MonoBehaviour:
   _entries:
   - Type: 2
     Data:
-      Sprite: {fileID: 21300000, guid: f82dfc5fc3c5a8f4080a3550427019c8, type: 3}
+      Sprite: {fileID: 21300000, guid: 7e809cd7d075f914a8328b194ae7a716, type: 3}
       Name: Place Warp
       Description: Places a zone that warps other players to where you stand.
   - Type: 1
     Data:
-      Sprite: {fileID: 21300000, guid: 65f0e363b74cf5845ab8c3fbc14f39ac, type: 3}
+      Sprite: {fileID: 21300000, guid: 81577529a5d956c4a8962043abc6932e, type: 3}
       Name: Attack
       Description: Hits the target.
   - Type: 3
