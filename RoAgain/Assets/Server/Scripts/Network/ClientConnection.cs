@@ -25,6 +25,7 @@ namespace Server
         public Action<ClientConnection, int> CharacterDeletionRequestReceived;
         public Action<ClientConnection, SkillId, int> SkillPointAllocateRequestReceived;
         public Action<ClientConnection, int> ReturnAfterDeathRequestReceived;
+        public Action<ClientConnection> CharacterLogoutRequestReceived;
 
         public abstract int Initialize(CentralConnection central, int sessionId);
 
@@ -169,6 +170,11 @@ namespace Server
             {
                 ReturnAfterDeathRequestPacket returnToSavePacket = packet as ReturnAfterDeathRequestPacket;
                 ReturnAfterDeathRequestReceived?.Invoke(this, returnToSavePacket.CharacterId);
+            }
+            else if(packetType == typeof(CharacterLogoutRequestPacket))
+            {
+                CharacterLogoutRequestPacket charLogoutPacket = packet as CharacterLogoutRequestPacket;
+                CharacterLogoutRequestReceived?.Invoke(this);
             }
             else
             {

@@ -13,10 +13,16 @@ public class CoroutineRunner : MonoBehaviour
         {
             OwlLogger.LogError("CoroutineRunner OnEnable found _instance non-empty - multiple Coroutine-Runners are not supported!", GameComponent.Other);
             Destroy(this);
+            return;
+        }
+
+        if(_instance == this)
+        {
+            OwlLogger.LogError("CoroutineRunner double-registering!", GameComponent.Other);
+            return;
         }
 
         _instance = this;
-        DontDestroyOnLoad(this);
     }
 
     private void OnDisable()
@@ -24,6 +30,10 @@ public class CoroutineRunner : MonoBehaviour
         if (_instance == null)
             throw new InvalidOperationException("CoroutineRunner OnDisable found _instance empty - this should not be possible!");
 
+        if (_instance != this)
+            return;
+
+        StopAllCoroutines();
         _instance = null;
     }
 

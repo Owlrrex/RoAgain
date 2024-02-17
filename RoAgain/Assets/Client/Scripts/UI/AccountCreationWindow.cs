@@ -61,7 +61,7 @@ namespace Client
 
         private void OnBackButtonClicked()
         {
-            PreGameUI.Instance.ShowLoginWindow();
+            PreGameUI.Instance.ShowAccountLoginWindow();
         }
     }
 }

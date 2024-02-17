@@ -108,8 +108,8 @@ public class PlayerUI : MonoBehaviour
             }
             else
             {
-                SkillTreeWindow.DisplayCurrentCharacterData();
                 SkillTreeWindow.gameObject.SetActive(true);
+                SkillTreeWindow.DisplayCurrentCharacterData();
             }
         }
 

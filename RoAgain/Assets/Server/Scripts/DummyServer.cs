@@ -66,7 +66,7 @@ namespace Server
             _mapModule = new();
             _chatModule = new();
             _expModule = new();
-            _centralConnection.CharacterDisconnected += OnCharacterDisconnected;
+            _centralConnection.ClientDisconnected += OnClientDisconnected;
 
             Configuration config = new();
             int configError = 1000000 * config.LoadConfig();
@@ -683,6 +683,17 @@ namespace Server
             return ServerMain.Instance.Server.MapModule.MoveEntityBetweenMaps(charData.Id, charData.MapId, charData.SaveMapId, charData.SaveCoords);
         }
 
+        private void ReceivedCharacterLogoutRequest(ClientConnection connection)
+        {
+            if(connection.CharacterId < 0)
+            {
+                OwlLogger.LogError("Received CharacterLogoutRequest for connection that didn't have a characterId set!", GameComponent.Other);
+                return;
+            }
+
+            DisconnectCharacter(connection.CharacterId);
+        }
+
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
         {
             if(newConnection == null)
@@ -705,11 +716,19 @@ namespace Server
             newConnection.CharacterDeletionRequestReceived += ReceiveCharacterDeletionRequest;
             newConnection.SkillPointAllocateRequestReceived += ReceiveSkillPointAllocateRequest;
             newConnection.ReturnAfterDeathRequestReceived += ReceivedReturnAfterDeathRequest;
+            newConnection.CharacterLogoutRequestReceived += ReceivedCharacterLogoutRequest;
             
             return 0;
         }
 
-        private void OnCharacterDisconnected(int characterId)
+        private void OnClientDisconnected(int characterId)
+        {
+            DisconnectCharacter(characterId);
+
+            // ClientConnection was cleaned up by the CentralConnection already
+        }
+
+        private void DisconnectCharacter(int characterId)
         {
             if (!TryGetLoggedInCharacter(characterId, out CharacterRuntimeData charData))
             {
@@ -726,7 +745,7 @@ namespace Server
 
             _loggedInCharacters.Remove(charData);
 
-            // TODO: Cleanup of ClientConnection
+            charData.Connection.CharacterId = -1;
         }
 
         public override void Update(float deltaTime)

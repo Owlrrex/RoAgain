@@ -49,7 +49,10 @@ public class TemporaryOverlayCamera : MonoBehaviour
     {
         if(_registered)
         {
-            Camera.main.GetUniversalAdditionalCameraData().cameraStack.Remove(_referenceCamera);
+            if(Camera.main != null)
+            {
+                Camera.main.GetUniversalAdditionalCameraData().cameraStack.Remove(_referenceCamera);
+            }
             _registered = false;
         }
     }

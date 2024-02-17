@@ -38,14 +38,11 @@ namespace Client
         // TODO: Replace with proper Loading-screen flow
         [SerializeField]
         private Vector4 LoadingMessagePlacement;
+        private string LoadingMessage;
 
         // Runtime set fields
         public static ClientMain Instance;
 
-        // TODO: Replace with proper Loading-screen flow
-        private string LoadingMessage;
-
-        // TODO: Make statically available easier then ClientMain.Instance.ConnectionToServer ?
         public ServerConnection ConnectionToServer;
         // TODO: replace this with LocalCharacterEntity.Current or similar
         // TODO: Reduce access to this on hot paths
@@ -64,6 +61,8 @@ namespace Client
 
         private Action _sessionCreationCallback;
 
+        private int _sessionId;
+
         void Awake()
         {
             if (Instance == this)
@@ -80,15 +79,23 @@ namespace Client
             }
             Instance = this;
 
-            ClientConfiguration config = new();
-            config.LoadConfig();
+            if(ClientConfiguration.Instance == null)
+            {
+                ClientConfiguration config = new();
+                config.LoadConfig();
+            }
+            else
+            {
+                ClientConfiguration.Instance.LoadConfig();
+            }
+            
             // TODO: Check for errors 
 
-            IpInput = config.GetMiscConfig(ConfigurationKey.ServerIp);
-            _port = config.GetMiscConfig(ConfigurationKey.ServerPort);
+            IpInput = ClientConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerIp);
+            _port = ClientConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerPort);
 
             KeyboardInput keyboardInput = new();
-            keyboardInput.Initialize(config);
+            keyboardInput.Initialize(ClientConfiguration.Instance);
 
             InitializeTables();
 
@@ -100,7 +107,7 @@ namespace Client
 
         private void Start()
         {
-            PreGameUI.Instance.ShowLoginWindow();
+            PreGameUI.Instance.ShowAccountLoginWindow();
         }
 
         private void InitializeTables()
@@ -297,7 +304,7 @@ namespace Client
                 PreGameUI.Instance.SetConnectionToServer(ConnectionToServer);
             }
 
-            // TODO: Store sessionId?
+            _sessionId = sessionId;
             if (_sessionCreationCallback != null)
             {
                 Action callback = _sessionCreationCallback;
@@ -330,7 +337,6 @@ namespace Client
                 CurrentCharacterData.SetData(charData);
             }
             
-
             foreach(SkillTreeEntry entry in skillTree)
             {
                 CurrentCharacterData.SkillTree[entry.SkillId] = entry;
@@ -339,16 +345,44 @@ namespace Client
             ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
         }
 
-        private void OnGameplaySceneLoadCompleted(AsyncOperation loadOp)
+        private void OnGameplaySceneLoadCompleted(AsyncOperation _)
         {
             DisplayZeroButtonNotification(null);
 
             OnMapChangeReceived(CurrentCharacterData.MapId, CurrentCharacterData.Coordinates);
         }
 
-        private void ClearCharacterLoginData()
+        public void ReturnToCharacterSelection()
         {
-            
+            ConnectionToServer.LocalCharacterDataReceived -= OnLocalCharacterDataReceived;
+
+            ConnectionToServer.Send(new CharacterLogoutRequestPacket());
+
+            // TODO: Be receptive to Client responses that tell you when the character will be removed server-side
+
+            // Clean up Data in Client
+            CurrentCharacterData = null;
+            _queuedEntities.Clear();
+
+            MapModule.DestroyCurrentMap();
+
+            if(PreGameUI.Instance != null)
+                PreGameUI.Instance.OnDisconnect();
+
+            AsyncOperation asyncOp = SceneManager.LoadSceneAsync("ClientMenu");
+            asyncOp.allowSceneActivation = true;
+            asyncOp.completed += OnCharacterCreationLoadCompleted;
+        }
+
+        private void OnCharacterCreationLoadCompleted(AsyncOperation _)
+        {
+            if(PreGameUI.Instance == null)
+            {
+                OwlLogger.LogError("PregameUI instance has not registered itself when asyncOp.completed was called", GameComponent.Other);
+                return;
+            }
+
+            PreGameUI.Instance.SkipAccountCreation(_sessionId);
         }
 
         private void OnLocalCharacterDataReceived(LocalCharacterData data)

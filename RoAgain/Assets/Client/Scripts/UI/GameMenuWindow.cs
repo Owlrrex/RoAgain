@@ -63,7 +63,7 @@ namespace Client
 
         private void OnCharSelectButtonClicked()
         {
-
+            ClientMain.Instance.ReturnToCharacterSelection();
         }
 
         private void OnQuitButtonClicked()

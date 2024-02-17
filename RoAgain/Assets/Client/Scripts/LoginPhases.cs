@@ -7,7 +7,6 @@ namespace Client
 
     public class AccountLogin
     {
-        
         public enum State
         {
             Ready,
@@ -40,11 +39,17 @@ namespace Client
             return 0;
         }
 
+        public void Skip(int sessionId)
+        {
+            CurrentState = State.Complete;
+            SessionId = sessionId;
+        }
+
         public int Logout()
         {
             if (_connection != null)
             {
-                _connection.Disconnect(); // TODO: Instead of aborting the whole connection, maybe tell the server we're going to logout first?
+                _connection.Disconnect(); // TODO: Instead of aborting the whole connection, maybe tell the server we're going to logout first? Required for Delayed Logout mechanism
                 _connection.AccountLoginResponseReceived -= OnLoginResponseReceived;
             }
 

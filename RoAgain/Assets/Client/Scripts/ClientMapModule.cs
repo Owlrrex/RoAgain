@@ -154,8 +154,15 @@ public class ClientMapModule
             int removeResult = RemoveMoverAndEntity(key);
         }
         _displayedGridEntities.Clear();
-        Object.Destroy(_currentMapInstance);
 
+        keys = new(_displayedCellEffects.Keys);
+        foreach(int key in keys)
+        {
+            OnCellEffectGroupRemoved(key);
+        }
+        _displayedCellEffects.Clear();
+
+        Object.Destroy(_currentMapInstance);
         Grid = null;
         _currentMapId = null;
         _currentMapInstance = null;

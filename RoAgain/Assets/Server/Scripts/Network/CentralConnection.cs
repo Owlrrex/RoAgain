@@ -11,7 +11,7 @@ namespace Server
 {
     public abstract class CentralConnection
     {
-        public Action<int> CharacterDisconnected;
+        public Action<int> ClientDisconnected;
 
         public abstract int Initialize(AServer parentServer, string port);
 
@@ -217,10 +217,17 @@ namespace Server
                 return;
             }
 
+            if(!connection.IsInitialized())
+            {
+                OwlLogger.Log($"Connection with sessionId {sessionId} was already Shutdown before disconnection. This should only happen during Shutdown.", GameComponent.Network);
+                return;
+            }
+
             // Get EntityId for Connection
             int entityId = connection.CharacterId;
 
             // Cleanup connection internally
+            connection.Shutdown();
             _clientTargetsBySessionId.Remove(sessionId);
             _connectionsBySessionId.Remove(sessionId);
 
@@ -230,7 +237,7 @@ namespace Server
             }
             else
             {
-                CharacterDisconnected?.Invoke(entityId);
+                ClientDisconnected?.Invoke(entityId);
             }
         }
 
@@ -296,7 +303,13 @@ namespace Server
                 kvp.Value.Shutdown();
             }
 
-            // Don't clear _clientTargetsBySessionId and _connectionsBySessionId - used by async OnDisconnect callback
+            _server.Events.ClientConnected -= OnClientConnected;
+            _server.Events.ClientDisconnected -= OnClientDisconnected;
+            _server.Events.DataReceived -= OnDataReceived;
+            _server.Events.DataSent -= OnDataSent; // Needed?
+
+            _clientTargetsBySessionId.Clear();
+            _connectionsBySessionId.Clear();
 
             if (_server != null)
             {

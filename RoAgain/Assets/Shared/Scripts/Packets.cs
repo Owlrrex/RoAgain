@@ -106,9 +106,9 @@ abstract public class Packet
             case 11:
                 packet = JsonUtility.FromJson<EntityPathUpdatePacket>(json);
                 break;
-            //case 12:
-            //    packet = JsonUtility.FromJson<EntityDataPacket>(json);
-            //    break;
+            case 12:
+                packet = JsonUtility.FromJson<CharacterLogoutRequestPacket>(json);
+                break;
             case 13:
                 packet = JsonUtility.FromJson<SessionCreationPacket>(json);
                 break;
@@ -247,6 +247,9 @@ abstract public class Packet
             case 58:
                 packet = JsonUtility.FromJson<ReturnAfterDeathRequestPacket>(json);
                 break;
+            case 59:
+                packet = JsonUtility.FromJson<CharacterLogoutResponsePacket>(json);
+                break;
             default:
                 OwlLogger.LogError($"Invalid Packet type {packetType} received!", GameComponent.Network);
                 return null;
@@ -356,13 +359,11 @@ public class EntityPathUpdatePacket : Packet
     public GridData.Path Path;
 }
 
-public enum EntityType
+public class CharacterLogoutRequestPacket : Packet
 {
-    Unknown,
-    GenericGrid,
-    GenericBattle,
-    RemoteCharacter,
-    LocalCharacter,
+    public override int PacketType => 12;
+
+
 }
 
 public class SessionCreationPacket : Packet
@@ -914,6 +915,12 @@ public class ReturnAfterDeathRequestPacket : Packet
     public int CharacterId;
 }
 
+// TODO: Not yet used, will be needed when Server has control over logout duration/success
+public class CharacterLogoutResponsePacket : Packet
+{
+    public override int PacketType => 59;
+}
+
 // Move & adjust this comment when adding new packets, to make dev easier
-// Next PacketType = 59
-// Unused Ids: 8, 12, 15
+// Next PacketType = 60
+// Unused Ids: 8, 15

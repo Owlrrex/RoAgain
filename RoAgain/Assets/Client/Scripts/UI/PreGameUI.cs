@@ -48,6 +48,12 @@ namespace Client
             Instance = this;
         }
 
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+        }
+
         public void SetConnectionToServer(ServerConnection connection)
         {
             if(_currentConnection != null)
@@ -69,14 +75,13 @@ namespace Client
 
         private void UpdateLoginPhaseUI()
         {
-            // TODO: Move this function to PreGameUI maybe?
             if (_accountLogin.CurrentState != _lastAccountLoginState)
             {
                 _lastAccountLoginState = _accountLogin.CurrentState;
                 switch (_accountLogin.CurrentState)
                 {
                     case AccountLogin.State.Ready:
-                        ShowLoginWindow();
+                        ShowAccountLoginWindow();
                         break;
                     case AccountLogin.State.WaitingForAccountLogin:
                         DeleteCurrentWindow();
@@ -86,7 +91,7 @@ namespace Client
                         ClientMain.Instance.DisplayOneButtonNotification("Login failed!", () =>
                         {
                             ClientMain.Instance.DisplayOneButtonNotification(null, null);
-                            ShowLoginWindow();
+                            ShowAccountLoginWindow();
                         });
                         break;
                     case AccountLogin.State.Complete:
@@ -129,10 +134,15 @@ namespace Client
             _characterSelectionData.Fetch(ClientMain.Instance.ConnectionToServer);
         }
 
-        public void ShowLoginWindow()
+        public void ShowAccountLoginWindow()
         {
             DeleteCurrentWindow();
             _currentWindow = Instantiate(_loginWindowPrefab, ClientMain.Instance.MainUiCanvas.transform);
+        }
+
+        public void SkipAccountCreation(int sessionId)
+        {
+            _accountLogin.Skip(sessionId);
         }
 
         public void ShowAccountCreationWindow()
@@ -174,7 +184,7 @@ namespace Client
 
             if(result == 0)
             {
-                callback = ShowLoginWindow;
+                callback = ShowAccountLoginWindow;
             }
             ClientMain.Instance.DisplayOneButtonNotification(message, callback);
         }
