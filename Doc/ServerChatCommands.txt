@@ -1,0 +1,34 @@
+# Server Chat Commands
+
+The game distinguishes two kinds of chat-commands: Client-side commands, which serve as an advanced configuration interface for the user, and server-side commands. 
+
+## General structure & behavior
+
+The first character of a chat message determines whether or not a chat message is recognized as a server chat message, with the character being configurable on the server. If the first character matches the server's chat command signal character, it will be parsed into the following structure (mind the spaces):
+
+    [SignalCharacter][CommandWord] [argument1] [argument2] ...
+
+If no command matches the CommandWord, or permissions deny the usage of the command, the message will be sent into chat without any modifications.
+
+## Configuration
+
+### Permissions
+
+No permission system exists yet.
+
+### Server Chat command signal character
+
+(TODO: Changing server config) The default value is '#'.
+
+## Creating a new command
+
+A chat command should only be made server-side if it changes the game state, or requires reading data that isn't available to the client.
+
+To create a new server chat command, create a new class inheriting from AChatCommand (preferrably inside Server/Scripts/ChatCommands.cs). This class contains all the logic of the command. Be mindful that only one object of this class will ever be instantiated, and reused for every execution of the command, so stateful chat commands should be implemented with care.
+
+To register the command with one or more Command Words, head to ChatModule.SetupChatCommands() inside ChatModule.cs. This function builds the dictionary of which logic object (the one you created above) maps to which command word/s. Registering the same command to multiple words is allowed, but it's recommended to not create multiple logic objects in this case, and instead add a single one to the dictionary multiple times.
+
+    AChatCommand multiWordCommand = new CommandWithManyWordsCommand();
+    _chatCommands.Add("firstWord", multiWordCommand);
+    _chatCommands.Add("secondWord", multiWordCommand);
+    ...
