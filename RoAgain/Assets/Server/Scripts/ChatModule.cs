@@ -81,7 +81,8 @@ namespace Server
             if (chatMessage.Message.StartsWith(_serverChatCommandSymbol))
             {
                 int commandResult =  100 * HandleServerCommand(chatMessage.Message, charData);
-                if (commandResult == 0 || commandResult >= 10) // No error, or command-specific error. But command execution in itself worked.
+                if (commandResult == 0 // No error,
+                    || commandResult >= 1000) // Error during command execution, but the command started execution
                     return 0;
             }
 

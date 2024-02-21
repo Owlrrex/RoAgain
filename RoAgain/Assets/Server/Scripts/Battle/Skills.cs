@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 namespace Server
 {
+    /***************************************
+     * General Purpose & Abstract classes
+     ***************************************/
+
     public class ServerSkillExecution : ASkillExecution, IAutoInitPoolObject
     {
         private SkillId _skillId;
@@ -61,7 +65,7 @@ namespace Server
                 return -4; // Error already logged in Db
             }
 
-            ASkillImpl logic = Map.SkillModule.GetSkillLogic(skillId);
+            ASkillImpl logic = Map.SkillModule.GetActiveSkillImpl(skillId);
             if (logic == null)
             {
                 return -3; // Already logged inside GetSkillLogic
@@ -80,7 +84,27 @@ namespace Server
             int actualRange = rawRange + rangeMod;
 
             float rawCastTime = entry.GetValueForLevel(entry.BaseCastTime, skillLvl);
+
+            // If general absolute Casttime-Mods are ever added, they go exactly here
+            // if(!entry.GetValueForLevel(entry.IsCastTimeFixed, skillLvl) { add additive bonuses }
+
             float castTimeMod = 1.0f;
+
+            // We always apply conditional mods, since they're tailored to the skill's properties (including IsCastTimeFixed)
+            if (user is CharacterRuntimeData charUser)
+            {
+                // If conditional absolute Casttime-Mods are ever added, they go exactly here
+
+                if(charUser.ConditionalStats?.TryGetValue(EntityPropertyType.CastTime_Mod_Mult, out var multList) == true)
+                {
+                    foreach (ConditionalStat stat in multList)
+                    {
+                        if (stat.Condition.Evaluate(this)) // lots of properties of "this" aren't set yet, because Initialize() hasn't been called. Keep an eye on that!
+                            castTimeMod *= stat.Value;
+                    }
+                }
+            }
+            
             if(!entry.GetValueForLevel(entry.IsCastTimeFixed, skillLvl))
             {
                 if(user is CharacterRuntimeData character)
@@ -93,7 +117,7 @@ namespace Server
 
             float rawAnimCd = entry.GetValueForLevel(entry.AnimCd, skillLvl);
             float animCdMod = 1.0f;
-            // TODO: non-skill-specific apply modifications to animCd here
+            // TODO: apply generic modifications to animCd here
             logic.UpdateAnimCdMod(rawAnimCd, ref animCdMod);
             float actualAnimCd = rawAnimCd * animCdMod;
 
@@ -222,6 +246,30 @@ namespace Server
         public virtual bool IsExecutionFinished(ServerSkillExecution skillExec)
         {
             return skillExec.HasExecutionStarted;
+        }
+    }
+
+    public abstract class APassiveSkillImpl
+    {
+        public abstract void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true);
+
+        public abstract void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true);
+    }
+
+    /*************************
+     * Skill implementations
+     *************************/
+
+    public class BasicSkillDebugSkillImpl : APassiveSkillImpl
+    {
+        public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            owner.MaxHp.ModifyAdd(50 * skillLvl, recalculate);
+        }
+
+        public override void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            owner.MaxHp.ModifyAdd(-50 * skillLvl, recalculate);
         }
     }
 

@@ -10,6 +10,7 @@ namespace Server
         private ServerMapInstance _mapInstance;
 
         private static ASkillImpl[] _skillLogicListFast;
+        private static Dictionary<SkillId, APassiveSkillImpl> _passiveSkillImpls = new(); // This is a dict since Passive skills are rarer = more sparse than actives
 
         public int Initialize(ServerMapInstance mapInstance)
         {
@@ -19,8 +20,9 @@ namespace Server
                 return -1;
             }
 
-            if(_skillLogicListFast == null)
-                SetupSkillLogicObjects();
+            SetupSkillLogicObjects();
+
+            SetupPassiveSkillImpls();
 
             _mapInstance = mapInstance;
             return 0;
@@ -30,7 +32,6 @@ namespace Server
         {
             _skillLogicListFast = new ASkillImpl[(int)SkillId.END]; // this allocates more memory than needed due to sparse enum - should be fine
 
-            // TODO: Add one object for each skill Id
             _skillLogicListFast[(int)SkillId.AutoAttack] = new AutoAttackSkillImpl();
             _skillLogicListFast[(int)SkillId.PlaceWarp] = new PlaceWarpSkillImpl();
 
@@ -50,9 +51,38 @@ namespace Server
             _skillLogicListFast[(int)SkillId.SoulStrike] = new SoulStrikeSkillImpl();
         }
 
-        public ASkillImpl GetSkillLogic(SkillId skillId)
+        private void SetupPassiveSkillImpls()
+        {
+            _passiveSkillImpls.Clear();
+
+            // _passiveSkillImpls[SkillId.AutoBerserk] = new AutoBerserkSkillImpl();
+            _passiveSkillImpls[SkillId.BasicSkill] = new BasicSkillDebugSkillImpl();
+            // _passiveSkillImpls[SkillId.DemonBane] = new DemonBaneSkillImpl();
+            // _passiveSkillImpls[SkillId.Discount] = new DiscountSkillImpl();
+            // _passiveSkillImpls[SkillId.DivineProtection] = new DivineProtectionSkillImpl();
+            // _passiveSkillImpls[SkillId.DoubleAttack] = new DoubleAttackSkillImpl();
+            // _passiveSkillImpls[SkillId.EnlargeWeightLimit] = new EnlargeWeightLimitSkillImpl();
+            // _passiveSkillImpls[SkillId.FatalBlow] = new FatalBlowSkillImpl();
+            // _passiveSkillImpls[SkillId.HpRecWhileMoving] = new HpRecWhileMovingSkillImpl();
+            // _passiveSkillImpls[SkillId.ImproveDodge] = new ImproveDodgeSkillImpl();
+            // _passiveSkillImpls[SkillId.IncHpRecovery] = new IncHpRecoverySkillImpl();
+            // _passiveSkillImpls[SkillId.IncSpRecovery] = new IncSpRecoverySkillImpl();
+            // _passiveSkillImpls[SkillId.OneHandSwordMastery] = new OneHandSwordMasterySkillImpl();
+            // _passiveSkillImpls[SkillId.Overcharge] = new OverchargeSkillImpl();
+            // _passiveSkillImpls[SkillId.OwlEye] = new OwlEyeSkillImpl();
+            // _passiveSkillImpls[SkillId.Pushcart] = new PushcartSkillImpl();
+            // _passiveSkillImpls[SkillId.TwoHandSwordMastery] = new TwoHandSwordMasterySkillImpl();
+            // _passiveSkillImpls[SkillId.VultureEye] = new VultureEyeSkillImpl();
+        }
+
+        public ASkillImpl GetActiveSkillImpl(SkillId skillId)
         {
             return _skillLogicListFast[(int)skillId];
+        }
+
+        public APassiveSkillImpl GetPassiveSkillImpl(SkillId skillId)
+        {
+            return _passiveSkillImpls[skillId];
         }
 
         public int ReceiveSkillExecutionRequest(SkillId skillId, int skillLvl, ServerBattleEntity user, SkillTarget target)
@@ -105,7 +135,7 @@ namespace Server
                 }
             }
 
-            ASkillImpl logic = GetSkillLogic(skillId);
+            ASkillImpl logic = GetActiveSkillImpl(skillId);
             if(logic == null)
                 return -10; // Already logged in GetSkillLogic
 
@@ -207,7 +237,7 @@ namespace Server
 
                 for(int i = bEntity.CurrentlyResolvingSkills.Count -1; i >= 0; i--)
                 {
-                    ASkillImpl logic = GetSkillLogic(bEntity.CurrentlyResolvingSkills[i].SkillId);
+                    ASkillImpl logic = GetActiveSkillImpl(bEntity.CurrentlyResolvingSkills[i].SkillId);
                     ServerSkillExecution skillExec = bEntity.CurrentlyResolvingSkills[i] as ServerSkillExecution;
                     if (logic.HasFinishedResolving(skillExec))
                     {
@@ -227,7 +257,7 @@ namespace Server
 
         private void UpdateQueuedSkill(ServerSkillExecution skillExec)
         {
-            ASkillImpl logic = GetSkillLogic(skillExec.SkillId);
+            ASkillImpl logic = GetActiveSkillImpl(skillExec.SkillId);
 
             SkillFailReason executeReason = logic.CanBeExecuted(skillExec, skillExec.User);
             SkillFailReason targetReason = logic.CheckTarget(skillExec);
@@ -321,7 +351,7 @@ namespace Server
                 FinishCast(skillExec, false);
             }
 
-            ASkillImpl logic = GetSkillLogic(skillExec.SkillId);
+            ASkillImpl logic = GetActiveSkillImpl(skillExec.SkillId);
 
             if (!skillExec.HasExecutionStarted)
             {
@@ -392,12 +422,12 @@ namespace Server
                 observer.Connection.Send(packet);
             }
 
-            GetSkillLogic(skillExec.SkillId).OnCastStart(skillExec);
+            GetActiveSkillImpl(skillExec.SkillId).OnCastStart(skillExec);
         }
 
         private void FinishCast(ServerSkillExecution skillExec, bool interrupted)
         {
-            GetSkillLogic(skillExec.SkillId).OnCastEnd(skillExec, interrupted);
+            GetActiveSkillImpl(skillExec.SkillId).OnCastEnd(skillExec, interrupted);
 
             if (interrupted)
             {
@@ -496,7 +526,7 @@ namespace Server
             // TODO: System for other costs
             _mapInstance.BattleModule.ChangeSp(skill.User as ServerBattleEntity, -skill.SpCost);
 
-            ASkillImpl logic = GetSkillLogic(skill.SkillId);
+            ASkillImpl logic = GetActiveSkillImpl(skill.SkillId);
 
             Dictionary<SkillId, float> skillCooldownsToSet = logic.GetSkillCoolDowns(skill);
             if (skillCooldownsToSet != null)
@@ -549,7 +579,7 @@ namespace Server
             }
 
             skillExec.AnimationCooldown.RemainingValue = 0;
-            GetSkillLogic(skillExec.SkillId).OnCompleted(skillExec, false);
+            GetActiveSkillImpl(skillExec.SkillId).OnCompleted(skillExec, false);
 
             skillExec.User.CurrentlyResolvingSkills.Remove(skillExec);
         }

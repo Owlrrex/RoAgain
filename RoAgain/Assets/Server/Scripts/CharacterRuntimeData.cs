@@ -1,5 +1,6 @@
 using OwlLogging;
 using Shared;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -49,6 +50,130 @@ namespace Server
 
         public string SaveMapId = string.Empty;
         public Vector2Int SaveCoords = GridData.INVALID_COORDS;
+
+        public Dictionary<EntityPropertyType, List<ConditionalStat>> ConditionalStats;
+
+        public Action<CharacterRuntimeData, float> Update;
+
+        public void AddConditionalStat(EntityPropertyType type, ConditionalStat stat)
+        {
+            ConditionalStats ??= new();
+
+            if(!ConditionalStats.ContainsKey(type))
+            {
+                ConditionalStats.Add(type, new List<ConditionalStat>());
+                ConditionalStats[type].Add(stat);
+            }
+            else
+            {
+                bool found = false;
+                List<ConditionalStat> sameStatList = ConditionalStats[type];
+                foreach(ConditionalStat otherStat in sameStatList)
+                {
+                    if(stat.Condition.IsMergeable(otherStat.Condition))
+                    {
+                        otherStat.Value += stat.Value;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                {
+                    sameStatList.Add(stat);
+                }
+            }
+
+            // Maybe broadcast event about "conditional stat changed" here
+        }
+
+        public void RemoveConditionalStat(EntityPropertyType type, ConditionalStat stat)
+        {
+            if(ConditionalStats == null
+                || !ConditionalStats.ContainsKey(type))
+            {
+                OwlLogger.LogError($"Can't remove conditional stat of type {type} that's not present!", GameComponent.Other);
+                return;
+            }
+
+            ConditionalStat foundStat = null;
+            List<ConditionalStat> sameTypeStats = ConditionalStats[type];
+            foreach(ConditionalStat otherStat in sameTypeStats)
+            {
+                if(otherStat.Condition.IsMergeable(stat.Condition))
+                {
+                    otherStat.Value -= stat.Value;
+                    foundStat = otherStat;
+                    break;
+                }
+            }
+
+            if(foundStat == null)
+            {
+                OwlLogger.LogError($"Can't remaove conditional stat of type {type}: No mergeable stat found!", GameComponent.Other);
+                return;
+            }
+
+            if(foundStat.Value == 0.0f)
+            {
+                sameTypeStats.Remove(foundStat);
+            }
+
+            if (sameTypeStats.Count == 0)
+            {
+                ConditionalStats.Remove(type);
+            }
+
+            // Maybe broadcast "Conditional Stats changed" event here
+        }
+
+        public void ApplyModToStatAdd(EntityPropertyType type, ref Stat stat, AttackParams attackParams)
+        {
+            if(ConditionalStats?.TryGetValue(type, out var statList) == true)
+            {
+                foreach(ConditionalStat cStat in statList)
+                {
+                    if (cStat.Condition.Evaluate(attackParams))
+                        stat.ModifyAdd((int)cStat.Value);
+                }
+            }
+        }
+
+        public void ApplyModToStatMult(EntityPropertyType type, ref Stat stat, AttackParams attackParams)
+        {
+            if (ConditionalStats?.TryGetValue(type, out var statList) == true)
+            {
+                foreach (ConditionalStat cStat in statList)
+                {
+                    if (cStat.Condition.Evaluate(attackParams))
+                        stat.ModifyMult(cStat.Value);
+                }
+            }
+        }
+
+        public void ApplyModToStatFloatAdd(EntityPropertyType type, ref StatFloat stat, AttackParams attackParams)
+        {
+            if (ConditionalStats?.TryGetValue(type, out var statList) == true)
+            {
+                foreach (ConditionalStat cStat in statList)
+                {
+                    if (cStat.Condition.Evaluate(attackParams))
+                        stat.ModifyAdd(cStat.Value);
+                }
+            }
+        }
+
+        public void ApplyModToStatFloatMult(EntityPropertyType type, ref StatFloat stat, AttackParams attackParams)
+        {
+            if (ConditionalStats?.TryGetValue(type, out var statList) == true)
+            {
+                foreach (ConditionalStat cStat in statList)
+                {
+                    if (cStat.Condition.Evaluate(attackParams))
+                        stat.ModifyMult(cStat.Value);
+                }
+            }
+        }
 
         public CharacterRuntimeData(ClientConnection connection, int id)
         {
@@ -213,7 +338,6 @@ namespace Server
         {
             CalculateHpReg();
             NetworkQueue.StatUpdate(EntityPropertyType.MaxHp, MaxHp);
-
         }
 
         private void OnMaxSpChanged(Stat maxSp)

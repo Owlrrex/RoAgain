@@ -21,7 +21,7 @@ namespace Shared
 
     public static class Skills
     {
-        public static bool IsGroundSkill(SkillId skillId)
+        public static bool IsGroundSkill(this SkillId skillId)
         {
             return skillId switch
             {
@@ -29,6 +29,29 @@ namespace Shared
                 _ => false,
             };
         }
+
+        public static bool IsPassive(this SkillId skillId) => skillId switch
+        {
+            SkillId.AutoBerserk => true,
+            SkillId.BasicSkill => true,
+            SkillId.DemonBane => true,
+            SkillId.Discount => true,
+            SkillId.DivineProtection => true,
+            SkillId.DoubleAttack => true,
+            SkillId.EnlargeWeightLimit => true,
+            SkillId.FatalBlow => true,
+            SkillId.HpRecWhileMoving => true,
+            SkillId.ImproveDodge => true,
+            SkillId.IncHpRecovery => true,
+            SkillId.IncSpRecovery => true,
+            SkillId.OneHandSwordMastery => true,
+            SkillId.Overcharge => true,
+            SkillId.OwlEye => true,
+            SkillId.Pushcart => true,
+            SkillId.TwoHandSwordMastery => true,
+            SkillId.VultureEye => true,
+            _ => false,
+        };
     }
 
     public struct SkillTarget

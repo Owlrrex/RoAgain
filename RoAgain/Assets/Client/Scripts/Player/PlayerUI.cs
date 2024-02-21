@@ -171,7 +171,7 @@ public class PlayerUI : MonoBehaviour
         if (mouseCoords == GridData.INVALID_COORDS)
             return;
 
-        if (Skills.IsGroundSkill(entry.SkillId))
+        if (entry.SkillId.IsGroundSkill())
         {
             SkillUseGroundRequestPacket packet = new()
             {

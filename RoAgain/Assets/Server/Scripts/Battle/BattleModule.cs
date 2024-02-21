@@ -227,6 +227,12 @@ namespace Server
 
             parameters.PreAttackCallback?.Invoke(parameters.SourceSkillExec);
 
+            Stat tmpStat1;
+            Stat tmpStat2;
+            StatFloat tmpStatFloat;
+
+            CharacterRuntimeData charSource = parameters.Source as CharacterRuntimeData;
+
             bool isPhysical = parameters.AttackType == AttackType.Physical;
 
             if (isPhysical && CanPerfectFlee(target, parameters.Source))
@@ -251,7 +257,10 @@ namespace Server
             bool isCrit = false;
             if (parameters.CanCrit)
             {
-                float critChance = parameters.Source.Crit.Total - target.CritShield.Total;
+                tmpStatFloat = parameters.Source.Crit;
+                charSource?.ApplyModToStatFloatAdd(EntityPropertyType.Crit_Mod_Add, ref tmpStatFloat, parameters);
+
+                float critChance = tmpStatFloat.Total - target.CritShield.Total;
 
                 isCrit = UnityEngine.Random.Range(0.0f, 1.0f) < critChance;
             }
@@ -266,11 +275,40 @@ namespace Server
             int minAttack;
             if (isPhysical)
             {
-                maxAttack = parameters.Source.CurrentAtkMax.Total;
-                minAttack = parameters.Source.CurrentAtkMin.Total;
+                tmpStat1 = parameters.Source.CurrentAtkMax;
+                tmpStat2 = parameters.Source.CurrentAtkMin;
+
+                if(parameters.Source.IsRanged())
+                {
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat1, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat2, parameters);
+
+                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat1, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat2, parameters);
+                }
+                else
+                {
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat1, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat2, parameters);
+
+                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat1, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat2, parameters);
+                }
+
+                maxAttack = tmpStat1.Total;
+                minAttack = tmpStat1.Total;
             }
             else
             {
+                tmpStat1 = parameters.Source.MatkMax;
+                tmpStat2 = parameters.Source.MatkMin;
+
+                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref tmpStat1, parameters);
+                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref tmpStat2, parameters);
+
+                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref tmpStat1, parameters);
+                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref tmpStat2, parameters);
+
                 maxAttack = parameters.Source.MatkMax.Total;
                 minAttack = parameters.Source.MatkMin.Total;
             }
@@ -347,16 +385,38 @@ namespace Server
             // TODO: Configurable stacking behaviour: Multiply modifiers together (like RO) or add their magnitudes
             bool multiplicativeModifierStacking = false;
 
-            float modifier = GetModifierForElements(parameters.Source, target, attackElement, !isPhysical);
-            if(multiplicativeModifierStacking)
+            float modifier = 1.0f;
+            if(charSource != null
+                && charSource.ConditionalStats?.TryGetValue(EntityPropertyType.Damage_Mod_Mult, out var dmgList) == true)
             {
-                modifier *= GetModifierForRace(parameters.Source, target, !isPhysical);
-                modifier *= GetModifierForSize(parameters.Source, target, !isPhysical);
+                foreach(ConditionalStat stat in dmgList)
+                {
+                    if (!stat.Condition.Evaluate(parameters))
+                        continue;
+
+                    if (multiplicativeModifierStacking)
+                        modifier *= stat.Value;
+                    else
+                        modifier += stat.Value;
+                }
             }
-            else
+
+            if(parameters.SourceSkillExec.EntityTargetTyped is CharacterRuntimeData charTarget
+                && charTarget.ConditionalStats?.TryGetValue(EntityPropertyType.DamageReduction_Mod_Add, out var defList) == true)
             {
-                modifier += GetModifierForRace(parameters.Source, target, !isPhysical) -1;
-                modifier += GetModifierForSize(parameters.Source, target, !isPhysical) -1;
+                float reductionMod = 1.0f;
+                foreach(ConditionalStat stat in defList)
+                {
+                    if (!stat.Condition.Evaluate(parameters))
+                        continue;
+
+                    if(multiplicativeModifierStacking)
+                        reductionMod *= stat.Value;
+                    else
+                        reductionMod += stat.Value;
+
+                    modifier *= reductionMod;
+                }
             }
 
             // In RO, the elemental damage bonus multiplies in at the very end, multiplicative with all other effects.
@@ -528,17 +588,19 @@ namespace Server
 
         public int DealPhysicalHitDamage(ServerBattleEntity source, ServerBattleEntity target, int damage, bool isCrit, int chainCount)
         {
-            // TODO: Handling of "on physical damage" effects
             _map.SkillModule.InterruptAnyCasts(target);
             ApplyHpDamage(damage, target, source, isCrit, chainCount);
+
+            // TODO: Handling of "on physical damage" effects
             return 0;
         }
 
         public int DealMagicalHitDamage(ServerBattleEntity source, ServerBattleEntity target, int damage, bool isCrit, int chainCount)
         {
-            // TODO: Handling of "on magical damage" effects
             _map.SkillModule.InterruptAnyCasts(target);
             ApplyHpDamage(damage, target, source, isCrit, chainCount);
+
+            // TODO: Handling of "on magical damage" effects
             return 0;
         }
 

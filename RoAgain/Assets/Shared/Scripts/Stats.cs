@@ -60,7 +60,7 @@ public class Stat
             Recalculate();
     }
 
-    public void ModifyModMult(float change, bool recalculate = true)
+    public void ModifyMult(float change, bool recalculate = true)
     {
         if (change == 0)
             return;
@@ -121,7 +121,7 @@ public class StatFloat
             Recalculate();
     }
 
-    public void ModifyModAdd(float change, bool recalculate = true)
+    public void ModifyAdd(float change, bool recalculate = true)
     {
         if (change == 0)
             return;
@@ -131,7 +131,7 @@ public class StatFloat
             Recalculate();
     }
 
-    public void ModifyModMult(float change, bool recalculate = true)
+    public void ModifyMult(float change, bool recalculate = true)
     {
         if (change == 0)
             return;
@@ -160,12 +160,18 @@ public enum EntityPropertyType
     SpRegenTime,
     MeleeAtkMin,
     MeleeAtkMax,
+    MeleeAtk_Mod_Add,
+    MeleeAtk_Mod_Mult,
     RangedAtkMin,
     RangedAtkMax,
+    RangedAtk_Mod_Add,
+    RangedAtk_Mod_Mult,
     CurrentAtkMin,
     CurrentAtkMax,
     MatkMin,
     MatkMax,
+    Matk_Mod_Add,
+    Matk_Mod_Mult,
     AnimationSpeed,
     HardDef,
     SoftDef,
@@ -193,6 +199,11 @@ public enum EntityPropertyType
     Range,
     Movespeed,
     WeightLimit,
+    CastTime_Mod_Mult,
+    Damage_Mod_Mult,
+    DamageReduction_Mod_Add,
+    Crit_Mod_Add,
+    SpCost_Mult, // TODO: Implement
 }
 
 public enum EntityRace

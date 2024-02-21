@@ -241,25 +241,6 @@ namespace Server
                 Result = resultCode,
             };
             charData.Connection.Send(resultPacket);
-
-            // To avoid sending visibility-related packets to the client before the CharacterLogin is completed, we place the character on the map last
-            // This may cause issues for setup processes in the BattleModule (or other Modules) that expect the unit to be already placed on-grid.
-            // This code was originally located in CreateAndSetupCharacterInstance()
-
-            // Place Character on map & wherever else required
-            ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
-            if (mapInstance == null)
-            {
-                OwlLogger.LogError($"Fetching Mapinstance failed for CharacterLogin id {charData.Id}, mapid {charData.MapId}!", GameComponent.Other);
-                yield break;
-            }
-
-            // Setting mapid not required here, since we just got the mapinstance _from_ that name
-            mapInstance.Grid.PlaceOccupant(charData, charData.Coordinates);
-            charData.MapInstance = mapInstance;
-
-            if (charData.IsDead())
-                ReceivedReturnAfterDeathRequest(charData.Connection, charData.Id);
         }
 
         private CharacterRuntimeData CreateAndSetupCharacterInstance(ClientConnection connection, int characterId)
@@ -294,8 +275,6 @@ namespace Server
             };
             charData.Gender.Value = persData.Gender;
             charData.Movespeed.Value = 6; // close to default RO movespeed of 0.15 s/tile
-            charData.CurrentHp = Math.Clamp(charData.CurrentHp, 0, charData.MaxHp.Total);
-            charData.CurrentSp = Math.Clamp(charData.CurrentSp, 0, charData.MaxSp.Total);
 
             //tmp: autocorrect savepoint for old characters
             if(string.IsNullOrEmpty(charData.SaveMapId))
@@ -308,17 +287,55 @@ namespace Server
             {
                 charData.PermanentSkills.Add(entry.Id, entry.Level);
             }
+
+            // TODO: Add temporary skills from all sources
+
             // Add skills that all characters have
             charData.PermanentSkills[SkillId.AutoAttack] = 2;
             charData.PermanentSkills[SkillId.PlaceWarp] = 5;
 
             _loggedInCharacters.Add(charData);
 
-            // Moved to DelayedCharLoginFinish for now: Place character on-grid
+            // Place Character on map & wherever else required
+            ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
+            if (mapInstance == null)
+            {
+                OwlLogger.LogError($"Fetching/creating Mapinstance failed for CharacterLogin id {charData.Id}, mapid {charData.MapId}!", GameComponent.Other);
+                return null;
+            }
+
+            // Setting mapid not required here, since we just got the mapinstance _from_ that name
+            mapInstance.Grid.PlaceOccupant(charData, charData.Coordinates);
+            charData.MapInstance = mapInstance;
+
+            if (charData.IsDead())
+                ReceivedReturnAfterDeathRequest(charData.Connection, charData.Id);
+
+            // Apply passive skills
+            foreach (KeyValuePair<SkillId, int> kvp in charData.PermanentSkills)
+            {
+                if (!kvp.Key.IsPassive())
+                    continue;
+
+                APassiveSkillImpl impl = _mapModule.GetMapInstance(charData.MapId).SkillModule.GetPassiveSkillImpl(kvp.Key);
+                impl.Apply(charData, kvp.Value);
+            }
+
+            foreach (KeyValuePair<SkillId, int> kvp in charData.TemporarySkills)
+            {
+                if (!kvp.Key.IsPassive())
+                    continue;
+
+                APassiveSkillImpl impl = _mapModule.GetMapInstance(charData.MapId).SkillModule.GetPassiveSkillImpl(kvp.Key);
+                impl.Apply(charData, kvp.Value);
+            }
 
             // TODO: Register & Set up Inventory & Equipment
 
             // TODO: Apply Buffs/Debuffs from persistent data
+
+            charData.CurrentHp = Math.Clamp(charData.CurrentHp, 0, charData.MaxHp.Total);
+            charData.CurrentSp = Math.Clamp(charData.CurrentSp, 0, charData.MaxSp.Total);
 
             return charData;
         }
@@ -633,6 +650,14 @@ namespace Server
                 return;
             }
 
+            // If skill is passive: Unapply
+            APassiveSkillImpl passiveImpl;
+            if (skillId.IsPassive() && characterData.HasPermanentSkill(skillId))
+            {
+                passiveImpl = _mapModule.GetMapInstance(characterData.MapId).SkillModule.GetPassiveSkillImpl(skillId);
+                passiveImpl.Unapply(characterData, characterData.PermanentSkills[skillId], false);
+            }
+
             characterData.RemainingSkillPoints -= amount;
             responsePacket.RemainingSkillPoints = characterData.RemainingSkillPoints;
 
@@ -643,6 +668,13 @@ namespace Server
             else
             {
                 characterData.PermanentSkills[skillId] = amount;
+            }
+
+            // If skill is passive: Apply
+            if (skillId.IsPassive())
+            {
+                passiveImpl = _mapModule.GetMapInstance(characterData.MapId).SkillModule.GetPassiveSkillImpl(skillId);
+                passiveImpl.Apply(characterData, characterData.PermanentSkills[skillId], true);
             }
 
             SkillTreeEntryPacket packet = skillEntry.ToPacket(characterData);

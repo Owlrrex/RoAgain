@@ -1,9 +1,7 @@
 using OwlLogging;
 using Server;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 // This class manages a single server-side instance of a map
 public class ServerMapInstance
@@ -144,6 +142,13 @@ public class ServerMapInstance
     public void Update(float deltaTime)
     {
         UpdateEntityMovementStupid(deltaTime);
+
+        foreach (var entity in Grid.GetAllOccupants())
+        {
+            if(entity is CharacterRuntimeData character)
+                character.Update?.Invoke(character, deltaTime);
+        }
+
         SkillModule?.UpdateSkillExecutions(deltaTime);
         BattleModule?.UpdateRegenerations(deltaTime);
         Grid?.UpdateCellEffects(deltaTime);
