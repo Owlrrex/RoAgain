@@ -288,11 +288,11 @@ namespace Server
                 }
                 else
                 {
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat1, parameters);
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat2, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref tmpStat1, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref tmpStat2, parameters);
 
-                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat1, parameters);
-                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat2, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref tmpStat1, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref tmpStat2, parameters);
                 }
 
                 maxAttack = tmpStat1.Total;
