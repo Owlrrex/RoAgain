@@ -256,22 +256,49 @@ namespace Server
         public abstract void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true);
     }
 
-    /*************************
-     * Skill implementations
-     *************************/
-
-    public class BasicSkillDebugSkillImpl : APassiveSkillImpl
+    public abstract class APassiveConditionalSingleStatBoostImpl : APassiveSkillImpl
     {
+        protected abstract Condition _condition { get; }
+        protected abstract SkillId _skillId { get; }
+        protected abstract EntityPropertyType _propertyType { get; }
+
+        protected readonly Dictionary<int, ConditionalStat> stats = new();
+
         public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
         {
-            owner.MaxHp.ModifyAdd(50 * skillLvl, recalculate);
+            if (owner is not CharacterRuntimeData charOwner)
+                return;
+
+            ConditionalStat stat;
+            if (!stats.TryGetValue(skillLvl, out stat))
+            {
+                SkillStaticDataEntry entry = SkillStaticDataDatabase.GetSkillStaticData(_skillId);
+                int statIncrease = entry.GetValueForLevel(entry.Var1, skillLvl);
+                stat = new ConditionalStat()
+                {
+                    Condition = _condition,
+                    Value = statIncrease,
+                };
+                stats.Add(skillLvl, stat);
+            }
+
+            charOwner.AddConditionalStat(_propertyType, stat);
         }
 
         public override void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
         {
-            owner.MaxHp.ModifyAdd(-50 * skillLvl, recalculate);
+            if (owner is CharacterRuntimeData charOwner)
+            {
+                // It's ok to exception here if stats[skillLvl] isn't set - that would indicate that
+                // This passive skill wasn't applied before, which shouldn't be possible
+                charOwner.RemoveConditionalStat(_propertyType, stats[skillLvl]);
+            }
         }
     }
+
+    /*************************
+     * Skill implementations
+     *************************/
 
     public class AutoAttackSkillImpl : ASkillImpl
     {
@@ -333,7 +360,19 @@ namespace Server
         }
     }
 
-    // Basic Skill: Needs PassiveSkill system
+    // Basic Skill: Needs systems that it interacts with
+    public class BasicSkillDebugSkillImpl : APassiveSkillImpl
+    {
+        public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            owner.MaxHp.ModifyAdd(50 * skillLvl, recalculate);
+        }
+
+        public override void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            owner.MaxHp.ModifyAdd(-50 * skillLvl, recalculate);
+        }
+    }
 
     // PlayDead: Needs Buff&Debuff system
 
@@ -422,20 +461,94 @@ namespace Server
         }
     }
 
-    // One Hand Sword Mastery: Needs PassiveSkill system
+    public class OneHandSwordMasterySkillImpl : APassiveConditionalSingleStatBoostImpl
+    {
+        // Var 1: Atk increase
+        protected override Condition _condition => new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.OneHandSword };
 
-    // Two Hand Sword Mastery: Needs PassiveSkill system
+        protected override SkillId _skillId => SkillId.OneHandSwordMastery;
 
-    // Increased Hp Recovery: Needs PassiveSkill system
+        protected override EntityPropertyType _propertyType => EntityPropertyType.MeleeAtk_Mod_Add;
+    }
+
+    public class TwoHandSwordMasterySkillImpl : APassiveConditionalSingleStatBoostImpl
+    {
+        // Var 1: Atk increase
+        protected override Condition _condition => new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.TwoHandSword };
+
+        protected override SkillId _skillId => SkillId.TwoHandSwordMastery;
+
+        protected override EntityPropertyType _propertyType => EntityPropertyType.MeleeAtk_Mod_Add;
+    }
+
+    public class IncHpRecoverySkillImpl : APassiveSkillImpl
+    {
+        // Var 1: Seconds per trigger
+        // Var 2: Constant Hp per trigger
+        // Var 3: Percentage of MaxHp per trigger
+
+        private class Entry
+        {
+            public TimerFloat Timer;
+            public int SkillLvl;
+        }
+
+        private readonly Dictionary<int, Entry> _timers = new();
+        private SkillStaticDataEntry _staticData = SkillStaticDataDatabase.GetSkillStaticData(SkillId.IncHpRecovery);
+
+        public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            Entry newEntry = new Entry()
+            {
+                Timer = new TimerFloat(_staticData.GetValueForLevel(_staticData.Var1, skillLvl)),
+                SkillLvl = skillLvl,
+            };
+            _timers.Add(owner.Id, newEntry);
+            owner.Update += OnUpdate;
+        }
+
+        private void OnUpdate(ServerBattleEntity owner, float deltaTime)
+        {
+            if (owner.IsDead())
+                return;
+
+            // TODO: Detection of Sitting & states that don't permit/slow down regen
+            Entry entry = _timers[owner.Id];
+            entry.Timer.Update(deltaTime);
+            if (entry.Timer.IsFinished())
+            {
+                int staticHp = _staticData.GetValueForLevel(_staticData.Var2, entry.SkillLvl);
+                int dynamicHp = (int)(_staticData.GetValueForLevel(_staticData.Var3, entry.SkillLvl) * owner.MaxHp.Total / 100.0f);
+                // TODO: Use a method here that allows (potentially) showing healing-numbers
+                ServerMain.Instance.Server.MapModule.GetMapInstance(owner.MapId).BattleModule.ChangeHp(owner, staticHp + dynamicHp, owner);
+            }
+        }
+
+        public override void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            owner.Update -= OnUpdate;
+            _timers.Remove(owner.Id);
+        }
+    }
 
     // Provoke: Needs Buff&Debuff system
 
     // Endure: Needs Buff&Debuff system
 
     // AutoBerserk: Needs PassiveSkill & Buff&Debuff system
+    // This implementation causes a check on every single attack.
+    // It would probably be better to subscribe to HP-changed, and only add the effect while on low-hp
+    public class AutoBerserkSkillImpl : APassiveConditionalSingleStatBoostImpl
+    {
+        protected override Condition _condition => throw new System.NotImplementedException();
+
+        protected override SkillId _skillId => throw new System.NotImplementedException();
+
+        protected override EntityPropertyType _propertyType => throw new System.NotImplementedException();
+    }
 
     // HpRecWhileMoving: Needs PassiveSkill system
-    
+
     // FatalBlow: Needs PassiveSkill system
 
     public class FireBoltSkillImpl : ASkillImpl

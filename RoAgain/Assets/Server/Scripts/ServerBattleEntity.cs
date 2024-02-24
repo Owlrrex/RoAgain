@@ -1,4 +1,5 @@
 using Shared;
+using System;
 using System.Collections.Generic;
 
 namespace Server
@@ -61,6 +62,8 @@ namespace Server
         public WatchableProperty<float, EntityPropertyType> FlinchSpeed = new(EntityPropertyType.FlinchSpeed);
 
         public Dictionary<int, int> BattleContributions = new();
+
+        public Action<ServerBattleEntity, float> Update;
 
         // TODO: Skill List? Only if I want to have a skill List that an AI can dynamically interact with
         // original AI just "uses" skills, without a Mob-held skill list

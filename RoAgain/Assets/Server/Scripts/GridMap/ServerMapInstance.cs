@@ -145,8 +145,8 @@ public class ServerMapInstance
 
         foreach (var entity in Grid.GetAllOccupants())
         {
-            if(entity is CharacterRuntimeData character)
-                character.Update?.Invoke(character, deltaTime);
+            if(entity is ServerBattleEntity sbe)
+                sbe.Update?.Invoke(sbe, deltaTime);
         }
 
         SkillModule?.UpdateSkillExecutions(deltaTime);

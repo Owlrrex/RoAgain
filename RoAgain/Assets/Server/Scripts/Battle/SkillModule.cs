@@ -65,13 +65,13 @@ namespace Server
             // _passiveSkillImpls[SkillId.FatalBlow] = new FatalBlowSkillImpl();
             // _passiveSkillImpls[SkillId.HpRecWhileMoving] = new HpRecWhileMovingSkillImpl();
             // _passiveSkillImpls[SkillId.ImproveDodge] = new ImproveDodgeSkillImpl();
-            // _passiveSkillImpls[SkillId.IncHpRecovery] = new IncHpRecoverySkillImpl();
+            _passiveSkillImpls[SkillId.IncHpRecovery] = new IncHpRecoverySkillImpl();
             // _passiveSkillImpls[SkillId.IncSpRecovery] = new IncSpRecoverySkillImpl();
-            // _passiveSkillImpls[SkillId.OneHandSwordMastery] = new OneHandSwordMasterySkillImpl();
+            _passiveSkillImpls[SkillId.OneHandSwordMastery] = new OneHandSwordMasterySkillImpl();
             // _passiveSkillImpls[SkillId.Overcharge] = new OverchargeSkillImpl();
             // _passiveSkillImpls[SkillId.OwlEye] = new OwlEyeSkillImpl();
             // _passiveSkillImpls[SkillId.Pushcart] = new PushcartSkillImpl();
-            // _passiveSkillImpls[SkillId.TwoHandSwordMastery] = new TwoHandSwordMasterySkillImpl();
+            _passiveSkillImpls[SkillId.TwoHandSwordMastery] = new TwoHandSwordMasterySkillImpl();
             // _passiveSkillImpls[SkillId.VultureEye] = new VultureEyeSkillImpl();
         }
 

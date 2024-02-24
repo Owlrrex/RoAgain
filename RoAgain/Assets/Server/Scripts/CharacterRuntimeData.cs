@@ -53,8 +53,6 @@ namespace Server
 
         public Dictionary<EntityPropertyType, List<ConditionalStat>> ConditionalStats;
 
-        public Action<CharacterRuntimeData, float> Update;
-
         public void AddConditionalStat(EntityPropertyType type, ConditionalStat stat)
         {
             ConditionalStats ??= new();
