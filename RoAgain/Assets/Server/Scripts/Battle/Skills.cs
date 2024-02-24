@@ -464,7 +464,8 @@ namespace Server
     public class OneHandSwordMasterySkillImpl : APassiveConditionalSingleStatBoostImpl
     {
         // Var 1: Atk increase
-        protected override Condition _condition => new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.OneHandSword };
+        private Condition _conditionPriv = new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.OneHandSword };
+        protected override Condition _condition => _conditionPriv;
 
         protected override SkillId _skillId => SkillId.OneHandSwordMastery;
 
@@ -474,7 +475,8 @@ namespace Server
     public class TwoHandSwordMasterySkillImpl : APassiveConditionalSingleStatBoostImpl
     {
         // Var 1: Atk increase
-        protected override Condition _condition => new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.TwoHandSword };
+        private Condition _conditionPriv = new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.TwoHandSword };
+        protected override Condition _condition => _conditionPriv;
 
         protected override SkillId _skillId => SkillId.TwoHandSwordMastery;
 
@@ -537,14 +539,46 @@ namespace Server
 
     // AutoBerserk: Needs PassiveSkill & Buff&Debuff system
     // This implementation causes a check on every single attack.
-    // It would probably be better to subscribe to HP-changed, and only add the effect while on low-hp
-    public class AutoBerserkSkillImpl : APassiveConditionalSingleStatBoostImpl
+    // Subscribing to CurrentHp.Changed would cause a check every single HP-change - roughly equally bad?
+    // Needs a Buff to display icon on Client-side?
+    public class AutoBerserkSkillImpl : APassiveSkillImpl
     {
-        protected override Condition _condition => throw new System.NotImplementedException();
+        protected readonly Dictionary<int, ConditionalStat> stats = new();
 
-        protected override SkillId _skillId => throw new System.NotImplementedException();
+        private readonly Condition _condition = new BelowHpThresholdPercentCondition() { Percentage = 0.25f };
 
-        protected override EntityPropertyType _propertyType => throw new System.NotImplementedException();
+        public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            if (owner is not CharacterRuntimeData charOwner)
+                return;
+
+            ConditionalStat stat;
+            if (!stats.TryGetValue(skillLvl, out stat))
+            {
+                SkillStaticDataEntry entry = SkillStaticDataDatabase.GetSkillStaticData(SkillId.AutoBerserk);
+                int statIncrease = entry.GetValueForLevel(entry.Var1, skillLvl);
+                stat = new ConditionalStat()
+                {
+                    Condition = _condition,
+                    Value = statIncrease,
+                };
+                stats.Add(skillLvl, stat);
+            }
+
+            charOwner.AddConditionalStat(EntityPropertyType.MeleeAtk_Mod_Mult, stat);
+            charOwner.AddConditionalStat(EntityPropertyType.RangedAtk_Mod_Mult, stat);
+        }
+
+        public override void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            if (owner is CharacterRuntimeData charOwner)
+            {
+                // It's ok to exception here if stats[skillLvl] isn't set - that would indicate that
+                // This passive skill wasn't applied before, which shouldn't be possible
+                charOwner.RemoveConditionalStat(EntityPropertyType.MeleeAtk_Mod_Mult, stats[skillLvl]);
+                charOwner.RemoveConditionalStat(EntityPropertyType.RangedAtk_Mod_Mult, stats[skillLvl]);
+            }
+        }
     }
 
     // HpRecWhileMoving: Needs PassiveSkill system
