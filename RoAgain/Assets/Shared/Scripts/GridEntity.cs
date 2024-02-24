@@ -192,6 +192,11 @@ public class GridEntity
         return MovementCooldown <= 0;
     }
 
+    public bool IsMoving()
+    {
+        return !HasFinishedPath();
+    }
+
     public GridEntityDataPacket ToDataPacket()
     {
         return new GridEntityDataPacket()

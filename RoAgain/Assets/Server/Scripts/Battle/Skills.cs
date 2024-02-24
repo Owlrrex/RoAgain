@@ -488,6 +488,7 @@ namespace Server
         // Var 1: Seconds per trigger
         // Var 2: Constant Hp per trigger
         // Var 3: Percentage of MaxHp per trigger
+        // Var 4: Item HP Recovery increase (in percentage points)
 
         private class Entry
         {
@@ -507,6 +508,8 @@ namespace Server
             };
             _timers.Add(owner.Id, newEntry);
             owner.Update += OnUpdate;
+
+            // TODO: Implement Increased-Item-Hp-Recovery effect
         }
 
         private void OnUpdate(ServerBattleEntity owner, float deltaTime)
@@ -514,7 +517,10 @@ namespace Server
             if (owner.IsDead())
                 return;
 
-            // TODO: Detection of Sitting & states that don't permit/slow down regen
+            if (owner.IsMoving())
+                return;
+
+            // TODO: Detection states that don't permit/slow down regen
             Entry entry = _timers[owner.Id];
             entry.Timer.Update(deltaTime);
             if (entry.Timer.IsFinished())
@@ -581,9 +587,9 @@ namespace Server
         }
     }
 
-    // HpRecWhileMoving: Needs PassiveSkill system
+    // HpRecWhileMoving: Hardcoded into Hp Regeneration system
 
-    // FatalBlow: Needs PassiveSkill system
+    // FatalBlow: Needs PassiveSkill system & Debuff system
 
     public class FireBoltSkillImpl : ASkillImpl
     {
@@ -837,7 +843,61 @@ namespace Server
 
     // Stone Curse: Needs buff&debuff system
 
-    // Increase Sp Recovery: Needs PassiveSkills system
+    public class IncSpRecoverySkillImpl : APassiveSkillImpl
+    {
+        // Var 1: Seconds per trigger
+        // Var 2: Constant Sp per trigger
+        // Var 3: Percentage of MaxSp per trigger
+        // Var 4: Item Sp Recovery increase (in percentage points)
+
+        private class Entry
+        {
+            public TimerFloat Timer;
+            public int SkillLvl;
+        }
+
+        private readonly Dictionary<int, Entry> _timers = new();
+        private SkillStaticDataEntry _staticData = SkillStaticDataDatabase.GetSkillStaticData(SkillId.IncSpRecovery);
+
+        public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            Entry newEntry = new Entry()
+            {
+                Timer = new TimerFloat(_staticData.GetValueForLevel(_staticData.Var1, skillLvl)),
+                SkillLvl = skillLvl,
+            };
+            _timers.Add(owner.Id, newEntry);
+            owner.Update += OnUpdate;
+
+            // TODO: Implement Increased-Item-Sp-Recovery effect
+        }
+
+        private void OnUpdate(ServerBattleEntity owner, float deltaTime)
+        {
+            if (owner.IsDead())
+                return;
+
+            if (owner.IsMoving())
+                return;
+
+            // TODO: Detection states that don't permit/slow down regen
+            Entry entry = _timers[owner.Id];
+            entry.Timer.Update(deltaTime);
+            if (entry.Timer.IsFinished())
+            {
+                int staticSp = _staticData.GetValueForLevel(_staticData.Var2, entry.SkillLvl);
+                int dynamicSp = (int)(_staticData.GetValueForLevel(_staticData.Var3, entry.SkillLvl) * owner.MaxSp.Total / 100.0f);
+                // TODO: Use a method here that allows (potentially) showing healing-numbers
+                ServerMain.Instance.Server.MapModule.GetMapInstance(owner.MapId).BattleModule.ChangeHp(owner, staticSp + dynamicSp, owner);
+            }
+        }
+
+        public override void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
+        {
+            owner.Update -= OnUpdate;
+            _timers.Remove(owner.Id);
+        }
+    }
 
     // Energy Coat: Needs Buff&debuff system
 }

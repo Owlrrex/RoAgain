@@ -1,3 +1,5 @@
+using Shared;
+
 namespace Server
 {
     public abstract class Condition
@@ -58,6 +60,21 @@ namespace Server
         public override bool IsMergeable(Condition other)
         {
             return other is BelowHpThresholdPercentCondition otherTyped && otherTyped.Percentage == Percentage;
+        }
+    }
+
+    public class SkillIdCondition : Condition
+    {
+        public SkillId SkillId;
+
+        public override bool Evaluate(ServerSkillExecution skillExec)
+        {
+            return skillExec.SkillId == SkillId;
+        }
+
+        public override bool IsMergeable(Condition other)
+        {
+            return other is SkillIdCondition otherTyped && otherTyped.SkillId == SkillId;
         }
     }
 }

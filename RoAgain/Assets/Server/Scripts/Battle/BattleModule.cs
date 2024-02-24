@@ -158,17 +158,30 @@ namespace Server
                     continue;
                 }
 
-                float increaseAmount = deltaTime;
-                // TODO: if(IsSitting(bEntity)) increaseAmount *= 2; // Make sitting regen faster, not higher amount
+                float hpIncreaseAmount = deltaTime;
+                if(bEntity.IsMoving())
+                {
+                    if (bEntity is CharacterRuntimeData charEntity
+                    && charEntity.HasSkill(SkillId.HpRecWhileMoving))
+                        hpIncreaseAmount *= 0.5f;
+                    else
+                        hpIncreaseAmount = 0;
+                }
+                else
+                {
+                    // TODO: if(IsSitting(bEntity)) hpIncreaseAmount *= 2; // Make sitting regen faster, not higher amount
+                }
 
-                bEntity.HpRegenCounter += increaseAmount;
+                bEntity.HpRegenCounter += hpIncreaseAmount;
                 if (bEntity.HpRegenCounter >= bEntity.HpRegenTime)
                 {
                     ChangeHp(bEntity, bEntity.HpRegenAmount.Total, bEntity);
                     bEntity.HpRegenCounter -= bEntity.HpRegenTime;
                 }
 
-                bEntity.SpRegenCounter += increaseAmount;
+                float spIncreaseAmount = deltaTime;
+                // TODO: if(IsSitting(bEntity)) spIncreaseAmount *= 2; // Make sitting regen faster, not higher amount
+                bEntity.SpRegenCounter += spIncreaseAmount;
                 if (bEntity.SpRegenCounter >= bEntity.SpRegenTime)
                 {
                     ChangeSp(bEntity, bEntity.SpRegenAmount.Total);
@@ -457,41 +470,6 @@ namespace Server
             return target is CharacterRuntimeData;
         }
 
-        private float GetModifierForElements(ServerBattleEntity source, ServerBattleEntity target, EntityElement attackElement, bool isMagical)
-        {
-            float modifier = 1.0f;
-
-            if (isMagical)
-            {
-                if (source is CharacterRuntimeData charSource)
-                {
-                    // TODO: Read player's "increased magic damage vs element" bonuses
-                }
-
-                if (target is CharacterRuntimeData charTarget)
-                {
-                    // TODO: Read player's "reduced magic damage from element" bonuses
-                }
-            }
-            else
-            {
-                if (source is CharacterRuntimeData charSource)
-                {
-                    // TODO: Read player's "increased physical damage vs element" bonuses
-                }
-
-                if (target is CharacterRuntimeData charTarget)
-                {
-                    // TODO: Read player's "reduced physical damage with element" bonuses
-                    // TODO: Config value that makes monster's attacks count as their def-element when no override-element is given
-                }
-            }
-
-            
-
-            return modifier;
-        }
-
         private float GetMultiplierForElementCombination(EntityElement attack, EntityElement def)
         {
             float modifier = ElementsDatabase.GetMultiplierForElements(attack, def);
@@ -504,76 +482,7 @@ namespace Server
             return modifier;
         }
 
-        private float GetModifierForRace(ServerBattleEntity source, ServerBattleEntity target, bool isMagical)
-        {
-            float modifier = 1.0f;
-
-            if (isMagical)
-            {
-                if (source is CharacterRuntimeData charSource)
-                {
-                    // TODO: Read player's "increased magic damage vs race" bonuses
-                }
-
-                if (target is CharacterRuntimeData charTarget)
-                {
-                    // TODO: Read player's "reduced magic damage from race" bonuses
-                }
-            }
-            else
-            {
-                if (source is CharacterRuntimeData charSource)
-                {
-                    // TODO: Read player's "increased physical damage vs race" bonuses
-                }
-
-                if (target is CharacterRuntimeData charTarget)
-                {
-                    // TODO: Read player's "reduced physical damage from race" bonuses
-                }
-            }
-
-            return modifier;
-        }
-
-        private float GetModifierForSize(ServerBattleEntity source, ServerBattleEntity target, bool isMagical)
-        {
-            float modifier = 1.0f;
-
-            if (isMagical)
-            {
-                if (source is CharacterRuntimeData charSource)
-                {
-                    // TODO: Read player's "increased damage vs size" bonuses
-                }
-
-                if (target is CharacterRuntimeData charTarget)
-                {
-                    // TODO: Read player's "reduced damage from size" bonuses
-                }
-            }
-            else
-            {
-                if (source is CharacterRuntimeData charSource)
-                {
-                    // TODO: In RO, this modifier is _hecking weird_, applying only to weapon-atk & potential other stuff
-                    // We probably don't want to keep that, but we have to decide whether to lump this mod
-                    // together with card-&equip-effects here, or make it global like the ElementCombination-mod.
-                    AttackWeaponType weaponType = AttackWeaponType.Unarmed; // TODO: Get weaponType from entity
-                    modifier = GetSizeMultiplierForWeaponType(weaponType, target.Size);
-
-                    // TODO: Read player's "increased physical damage vs size" bonuses
-                }
-
-                if (target is CharacterRuntimeData charTarget)
-                {
-                    // TODO: Read player's "reduced physical damage from size" bonuses
-                }
-            }
-            
-            return modifier;
-        }
-
+        // TODO: Decide how to apply this best
         private float GetSizeMultiplierForWeaponType(AttackWeaponType weaponType, EntitySize targetSize)
         {
             float modifier = SizeDatabase.GetMultiplierForWeaponAndSize(weaponType, targetSize);
