@@ -900,5 +900,89 @@ namespace Server
     }
 
     // Energy Coat: Needs Buff&debuff system
+
+    // Owl Eye: Ready
+
+    // Vulture Eye: Ready, may need Range System expansion to discern "melee" and "range" abilities
+
+    // Improve Concentration: Needs Buff System
+
+    // Double Strafe: Ready
+
+    // Arrow Shower: Needs Knockback System
+
+    // Arrow Crafting: Needs skill script system
+
+    // Arrow Repel: Needs knockback system
+
+    // Enlarge Weight Limit: Ready
+
+    // Discount: Needs Shop system
+
+    // Overcharge: Needs Shop system
+
+    // Pushcart: Needs Pushcart/mount/similar system
+
+    // Vending: Needs Player Store system
+
+    // Mammonite: Needs custom-cost system
+
+    // Identify: Needs Unidentified-Item-System & skill dialog system
+
+    // Change Cart: Needs Pushcart system
+
+    // Cart Revolution: Needs knockback System
+
+    // Crazy Uproar: Needs Buff system
+
+    // DoubleAttack: Ready? (is system for modifying skill executions sufficient?)
+
+    // Improve Dodge: Ready
+
+    // Steal: Needs Inventory system & Loot tables
+
+    // Hiding: Needs Buff System & expanded visibility system
+
+    // Envenom: Needs Buff system
+
+    // Detoxify: Needs Buff system
+
+    // Sand Attack: Needs Buff system
+
+    // Find Stone: Needs Inventory system
+
+    // Throw Stone: Needs custom-cost system
+
+    // Backslide: Needs knockback system
+
+    // Ruwach: Needs Buff system
+
+    // Teleport: Ready
+
+    // Warp Portal: Ready
+
+    // Pneuma: Maybe ready, maybe needs Buff system
+
+    // Demon Bane: Ready
+
+    // Divine Protection: Ready
+
+    // Signum Crucis: Needs buff system
+
+    // Angelus: Needs buff system & party system
+
+    // Blessing: Needs buff system
+
+    // Aqua Benedicta: Needs custom cost system & inventory system
+
+    // Heal: Ready
+
+    // Cure: Needs buff system
+
+    // Increase Agi: Needs buff system
+
+    // Decrease Agi: Needs buff system
+
+    // Holy Light: Ready
 }
 
