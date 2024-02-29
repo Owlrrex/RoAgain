@@ -27,17 +27,11 @@ public class PlayerMain : BattleEntityModelMain
     public int Initialize(ACharacterEntity charData)
     {
         return base.Initialize(charData);
-
-        // TODO
-
-        
     }
 
     public new void Shutdown()
     {
         base.Shutdown();
-
-        // TODO
     }
 
     // Start is called before the first frame update
