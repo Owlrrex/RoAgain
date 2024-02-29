@@ -10,7 +10,9 @@ namespace Server
     {
         Unknown,
         TestServerConfigEntry,
-        ChatCommandSymbol
+        ChatCommandSymbol,
+        HitFleeEqualChance,
+        BattleMultiplicativeStacking,
     }
 
     public class Configuration
@@ -64,7 +66,8 @@ namespace Server
 
             _mainConfig.Add(ConfigurationKey.TestServerConfigEntry, "testServerValue1");
             _mainConfig.Add(ConfigurationKey.ChatCommandSymbol, "#");
-            // TODO: Config entries here
+            _mainConfig.Add(ConfigurationKey.HitFleeEqualChance, "80");
+            _mainConfig.Add(ConfigurationKey.BattleMultiplicativeStacking, "0");
 
             return 0;
         }
@@ -74,7 +77,9 @@ namespace Server
             bool anyChange = false;
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.TestServerConfigEntry, "testValue1");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.ChatCommandSymbol, "#");
-            // TODO: Config entries here
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.HitFleeEqualChance, "80");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.BattleMultiplicativeStacking, "0");
+            // Add additional config entries here
 
             return anyChange;
         }

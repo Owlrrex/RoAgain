@@ -127,6 +127,14 @@ namespace Server
     {
         private ServerMapInstance _map;
 
+        private int _hitFleeEqualChance;
+        private bool _multiplicativeModifierStacking;
+
+        // These make the BattleModule not thread-safe!
+        private Stat battleCalcStat1 = new();
+        private Stat battleCalcStat2 = new();
+        private StatFloat battleCalcStatFloat = new();
+
         public int Initialize(ServerMapInstance mapInstance)
         {
             if (mapInstance == null)
@@ -135,8 +143,30 @@ namespace Server
                 return -1;
             }
 
+            ReadConfig();
+
             _map = mapInstance;
             return 0;
+        }
+
+        private void ReadConfig()
+        {
+            if(Configuration.Instance == null)
+            {
+                OwlLogger.LogError("Can't read config - Config not available!", GameComponent.Battle);
+                return;
+            }
+
+            string configValue = Configuration.Instance.GetMainConfig(ConfigurationKey.HitFleeEqualChance);
+            if (!int.TryParse(configValue, out _hitFleeEqualChance))
+            {
+                int defaultValue = 80;
+                OwlLogger.LogError($"Can't parse hit-flee-equal config value: {configValue}, using default value: {defaultValue}", GameComponent.Battle);
+                _hitFleeEqualChance = defaultValue;
+            }
+
+            configValue = Configuration.Instance.GetMainConfig(ConfigurationKey.BattleMultiplicativeStacking);
+            _multiplicativeModifierStacking = configValue == "0";
         }
 
         public void UpdateRegenerations(float deltaTime)
@@ -240,10 +270,6 @@ namespace Server
 
             parameters.PreAttackCallback?.Invoke(parameters.SourceSkillExec);
 
-            Stat tmpStat1;
-            Stat tmpStat2;
-            StatFloat tmpStatFloat;
-
             CharacterRuntimeData charSource = parameters.Source as CharacterRuntimeData;
 
             bool isPhysical = parameters.AttackType == AttackType.Physical;
@@ -270,10 +296,10 @@ namespace Server
             bool isCrit = false;
             if (parameters.CanCrit)
             {
-                tmpStatFloat = parameters.Source.Crit;
-                charSource?.ApplyModToStatFloatAdd(EntityPropertyType.Crit_Mod_Add, ref tmpStatFloat, parameters);
+                parameters.Source.Crit.CopyTo(battleCalcStatFloat);
+                charSource?.ApplyModToStatFloatAdd(EntityPropertyType.Crit_Mod_Add, ref battleCalcStatFloat, parameters);
 
-                float critChance = tmpStatFloat.Total - target.CritShield.Total;
+                float critChance = battleCalcStatFloat.Total - target.CritShield.Total;
 
                 isCrit = UnityEngine.Random.Range(0.0f, 1.0f) < critChance;
             }
@@ -288,42 +314,42 @@ namespace Server
             int minAttack;
             if (isPhysical)
             {
-                tmpStat1 = parameters.Source.CurrentAtkMax;
-                tmpStat2 = parameters.Source.CurrentAtkMin;
+                parameters.Source.CurrentAtkMax.CopyTo(battleCalcStat1);
+                parameters.Source.CurrentAtkMin.CopyTo(battleCalcStat2);
 
                 if(parameters.Source.IsRanged())
                 {
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat1, parameters);
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref tmpStat2, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref battleCalcStat1, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref battleCalcStat2, parameters);
 
-                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat1, parameters);
-                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref tmpStat2, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref battleCalcStat1, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref battleCalcStat2, parameters);
                 }
                 else
                 {
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref tmpStat1, parameters);
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref tmpStat2, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref battleCalcStat1, parameters);
+                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref battleCalcStat2, parameters);
 
-                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref tmpStat1, parameters);
-                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref tmpStat2, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref battleCalcStat1, parameters);
+                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref battleCalcStat2, parameters);
                 }
 
-                maxAttack = tmpStat1.Total;
-                minAttack = tmpStat1.Total;
+                maxAttack = battleCalcStat1.Total;
+                minAttack = battleCalcStat2.Total;
             }
             else
             {
-                tmpStat1 = parameters.Source.MatkMax;
-                tmpStat2 = parameters.Source.MatkMin;
+                parameters.Source.MatkMax.CopyTo(battleCalcStat1);
+                parameters.Source.MatkMin.CopyTo(battleCalcStat2);
 
-                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref tmpStat1, parameters);
-                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref tmpStat2, parameters);
+                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref battleCalcStat1, parameters);
+                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref battleCalcStat2, parameters);
 
-                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref tmpStat1, parameters);
-                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref tmpStat2, parameters);
+                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref battleCalcStat1, parameters);
+                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref battleCalcStat2, parameters);
 
-                maxAttack = parameters.Source.MatkMax.Total;
-                minAttack = parameters.Source.MatkMin.Total;
+                maxAttack = battleCalcStat1.Total;
+                minAttack = battleCalcStat2.Total;
             }
 
             if (isCrit)
@@ -341,7 +367,7 @@ namespace Server
             // Noncrit
             if (canMiss)
             {
-                int equalHit = 80; // TODO: move this value to config
+                int equalHit = _hitFleeEqualChance;
                 float hitChance = (parameters.Source.Hit.Total - target.Flee.Total + equalHit) / 100.0f;
                 if (UnityEngine.Random.Range(0.0f, 1.0f) >= hitChance)
                 {
@@ -395,9 +421,6 @@ namespace Server
             if (attackElement == EntityElement.Unknown)
                 attackElement = parameters.Source.GetOffensiveElement();
 
-            // TODO: Configurable stacking behaviour: Multiply modifiers together (like RO) or add their magnitudes
-            bool multiplicativeModifierStacking = false;
-
             float modifier = 1.0f;
             if(charSource != null
                 && charSource.ConditionalStats?.TryGetValue(EntityPropertyType.Damage_Mod_Mult, out var dmgList) == true)
@@ -407,7 +430,7 @@ namespace Server
                     if (!stat.Condition.Evaluate(parameters))
                         continue;
 
-                    if (multiplicativeModifierStacking)
+                    if (_multiplicativeModifierStacking)
                         modifier *= stat.Value;
                     else
                         modifier += stat.Value;
@@ -423,7 +446,7 @@ namespace Server
                     if (!stat.Condition.Evaluate(parameters))
                         continue;
 
-                    if(multiplicativeModifierStacking)
+                    if(_multiplicativeModifierStacking)
                         reductionMod *= stat.Value;
                     else
                         reductionMod += stat.Value;
@@ -440,12 +463,15 @@ namespace Server
 
             damage *= modifier;
 
-            // TODO: Handle absorb
-
             int damageInt = (int)damage;
 
             if (damageInt == 0)
                 return 0;
+
+            if(damageInt < 0)
+            {
+                // TODO: Handle absorb
+            }
 
             // TODO: Make configurable whether or not Soft-Def gets applied before or after multiplying bit HitCount
             if (parameters.ChainCount > 1)

@@ -22,6 +22,22 @@ public class Stat
 
     public Action<Stat> ValueChanged;
 
+    public void CopyTo(Stat other)
+    {
+        if (other == null)
+            return;
+
+        int oldTotal = _total;
+
+        other._base = _base;
+        other._modAdd = _modAdd;
+        other._modMult = _modMult;
+        other._total = _total;
+
+        if(oldTotal != _total)
+            ValueChanged?.Invoke(this);
+    }
+
     public void Recalculate()
     {
         int oldTotal = _total;
@@ -92,6 +108,22 @@ public class StatFloat
 
     [NonSerialized]
     public Action<StatFloat> ValueChanged;
+
+    public void CopyTo(StatFloat other)
+    {
+        if (other == null)
+            return;
+
+        float oldTotal = _total;
+
+        other._base = _base;
+        other._modAdd = _modAdd;
+        other._modMult = _modMult;
+        other._total = _total;
+
+        if (oldTotal != _total)
+            ValueChanged?.Invoke(this);
+    }
 
     public void Recalculate()
     {
