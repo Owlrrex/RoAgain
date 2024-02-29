@@ -30,12 +30,15 @@ public class PlayerUI : MonoBehaviour
 
     public GraphicRaycaster uiRaycaster;
     private List<RaycastResult> _raycastResults = new();
+    private PointerEventData _isHoveringUiEventData;
 
     // Skill Dragging
     public GameObject SkillIconPrefab;
 
     [SerializeField]
     private SkillHotbar _hotbar;
+
+    
 
 
     // Start is called before the first frame update
@@ -65,12 +68,10 @@ public class PlayerUI : MonoBehaviour
 
     public bool IsHoveringUI(Vector2 position)
     {
-        PointerEventData eventData = new(EventSystem.current)
-        {
-            position = position
-        };
+        _isHoveringUiEventData ??= new(EventSystem.current);
+        _isHoveringUiEventData.position = position;
         _raycastResults.Clear();
-        uiRaycaster.Raycast(eventData, _raycastResults);
+        uiRaycaster.Raycast(_isHoveringUiEventData, _raycastResults);
         return _raycastResults.Count > 0;
     }    
 
