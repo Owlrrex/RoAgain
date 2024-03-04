@@ -51,6 +51,8 @@ namespace Server
 
         private SkillStaticDataDatabase _skillStaticDataDatabase;
 
+        private TimingScheduler _timingScheduler;
+
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
 
@@ -87,6 +89,9 @@ namespace Server
 
             _skillStaticDataDatabase = new();
             _skillStaticDataDatabase.Register();
+
+            _timingScheduler = new();
+            _timingScheduler.Init();
 
             int aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError;
             return aggregateError;
