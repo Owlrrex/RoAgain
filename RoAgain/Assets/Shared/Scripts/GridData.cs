@@ -754,7 +754,7 @@ public class GridData
 
         if (!entity.HasFinishedPath() && entity.Coordinates == entity.Path.AllCells[^1])
         {
-            OwlLogger.Log($"GridEntity {entity.Id} reached end of its path to {entity.Coordinates}", GameComponent.Grid, LogSeverity.VeryVerbose);
+            OwlLogger.LogF("GridEntity {0} reached end of its path to {1}", entity.Id, entity.Coordinates, GameComponent.Grid, LogSeverity.VeryVerbose);
             entity.FinishPath();
             return;
         }

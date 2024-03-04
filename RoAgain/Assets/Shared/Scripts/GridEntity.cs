@@ -72,7 +72,7 @@ public class GridEntity
         if (Path != null
             && OwlLogger.CurrentLogVerbosity >= LogSeverity.VeryVerbose) // since this function is called ALOT, and the format call is fairly big, make sure none of it gets ran unless necessary
         {
-            OwlLogger.Log($"GridEntity {Id} is overwriting path to {(oldPathSafe ? Path.Corners[^1] : "empty")} with path to {(newPathSafe ? newPath.Corners[^1] : "empty")}", GameComponent.Grid, LogSeverity.VeryVerbose);
+            OwlLogger.LogF("GridEntity {0} is overwriting path to {1} with path to {2}", Id, oldPathSafe ? Path.Corners[^1] : "empty", newPathSafe ? newPath.Corners[^1] : "empty", GameComponent.Grid, LogSeverity.VeryVerbose);
         }
 
         GridData.Path oldPath = Path;
@@ -105,7 +105,7 @@ public class GridEntity
         }
 
         Coordinates = Path.AllCells[PathCellIndex];
-        OwlLogger.Log($"Overriding Coordinates during SetPath for GridEntity {Id}. {oldCoordinates} -> {Coordinates}", GameComponent.Grid, LogSeverity.VeryVerbose);            
+        OwlLogger.LogF("Overriding Coordinates during SetPath for GridEntity {0}: {1} -> {2}", Id, oldCoordinates, Coordinates, GameComponent.Grid, LogSeverity.VeryVerbose);
 
         PathUpdated?.Invoke(this, oldPath, Path);
     }

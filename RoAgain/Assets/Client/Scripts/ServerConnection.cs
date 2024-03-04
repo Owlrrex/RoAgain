@@ -103,12 +103,12 @@ namespace Client
 
         private void OnConnected(object sender, ConnectionEventArgs args)
         {
-            OwlLogger.Log($"Client connected to server at {args.IpPort} ({args.Reason})", GameComponent.Network, LogSeverity.Verbose);
+            OwlLogger.LogF("Client connected to server at {0} ({1})", args.IpPort, args.Reason, GameComponent.Network, LogSeverity.Verbose);
         }
 
         private void OnDisconnected(object sender, ConnectionEventArgs args)
         {
-            OwlLogger.Log($"Client disconnected from server at {args.IpPort} ({args.Reason})", GameComponent.Network, LogSeverity.Verbose);
+            OwlLogger.LogF("Client disconnected from server at {0} ({1})", args.IpPort, args.Reason, GameComponent.Network, LogSeverity.Verbose);
 
             // This function may be called on a separate thread, so we use IsAlive as optional communications
             IsAlive = false;
@@ -117,7 +117,10 @@ namespace Client
 
         private void OnDataReceived(object sender, DataReceivedEventArgs args)
         {
-            OwlLogger.Log($"Client received Data from {args.IpPort}: {System.Text.Encoding.UTF8.GetString(args.Data.Array, 0, args.Data.Count)}", GameComponent.Network, LogSeverity.VeryVerbose);
+            if(OwlLogger.CurrentLogVerbosity >= LogSeverity.VeryVerbose) // filter log early to avoid encoding-call
+            {
+                OwlLogger.LogF("Client received Data from {0}: {1}", args.IpPort, System.Text.Encoding.UTF8.GetString(args.Data.Array, 0, args.Data.Count), GameComponent.Network, LogSeverity.VeryVerbose);
+            }
 
             List<byte> allData = new(_remainingData);
             allData.AddRange(args.Data);

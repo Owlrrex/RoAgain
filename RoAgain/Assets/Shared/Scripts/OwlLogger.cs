@@ -51,26 +51,12 @@ namespace OwlLogging
 
         public static void LogError(string message, GameComponent component, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            if (!EnabledComponents.HasFlag(component))
-                return;
-
-            if (CurrentLogVerbosity > LogSeverity.Error)
-                return;
-
-            string fullmessage = ComposeMessage(message, component, LogSeverity.Error, memberName, filePath, lineNumber);
-            Debug.LogError(fullmessage);
+            Log(message, component, LogSeverity.Error, memberName, filePath, lineNumber);
         }
 
         public static void LogWarning(string message, GameComponent component, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
-            if (!EnabledComponents.HasFlag(component))
-                return;
-
-            if (CurrentLogVerbosity > LogSeverity.Warning)
-                return;
-
-            string fullMessage = ComposeMessage(message, component, LogSeverity.Warning, memberName, filePath, lineNumber);
-            Debug.LogWarning(fullMessage);
+            Log(message, component, LogSeverity.Warning, memberName, filePath, lineNumber);
         }
 
         public static void Log(string message, GameComponent component, LogSeverity severity = LogSeverity.Log, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
@@ -83,6 +69,42 @@ namespace OwlLogging
 
             string fullMessage = ComposeMessage(message, component, severity, memberName, filePath, lineNumber);
             Debug.Log(fullMessage);
+        }
+
+        public static void LogF(string formatString, object arg1, GameComponent component, LogSeverity severity = LogSeverity.Log, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
+        {
+            if (!EnabledComponents.HasFlag(component))
+                return;
+
+            if (CurrentLogVerbosity > severity)
+                return;
+
+            string formattedMessage = string.Format(formatString, arg1);
+            Log(formattedMessage, component, severity, memberName, filePath, lineNumber);
+        }
+
+        public static void LogF(string formatString, object arg1, object arg2, GameComponent component, LogSeverity severity = LogSeverity.Log, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
+        {
+            if (!EnabledComponents.HasFlag(component))
+                return;
+
+            if (CurrentLogVerbosity > severity)
+                return;
+
+            string formattedMessage = string.Format(formatString, arg1, arg2);
+            Log(formattedMessage, component, severity, memberName, filePath, lineNumber);
+        }
+
+        public static void LogF(string formatString, object arg1, object arg2, object arg3, GameComponent component, LogSeverity severity = LogSeverity.Log, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
+        {
+            if (!EnabledComponents.HasFlag(component))
+                return;
+
+            if (CurrentLogVerbosity > severity)
+                return;
+
+            string formattedMessage = string.Format(formatString, arg1, arg2, arg3);
+            Log(formattedMessage, component, severity, memberName, filePath, lineNumber);
         }
 
         public static void LogErrorAndBroadcast<ActionType>(Action<ActionType> action, ActionType value, string message, GameComponent component,
@@ -124,12 +146,12 @@ namespace OwlLogging
 
         public static void LogFunctionEntry(GameComponent component, [CallerMemberName] string memberName = "")
         {
-            Log($"Function starting: {memberName}", component, LogSeverity.VeryVerbose);
+            LogF("Function starting: {0}", memberName, component, LogSeverity.VeryVerbose);
         }
 
         public static void LogFunctionExit(GameComponent component, [CallerMemberName] string memberName = "")
         {
-            Log($"Function exiting: {memberName}", component, LogSeverity.VeryVerbose);
+            LogF("Function exiting: {0}", memberName, component, LogSeverity.VeryVerbose);
         }
 
 
