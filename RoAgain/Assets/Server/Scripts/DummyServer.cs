@@ -18,6 +18,8 @@ namespace Server
 
         public abstract ServerMapModule MapModule { get; }
 
+        public abstract JobModule JobModule { get; }
+
         public abstract void Update(float deltaTime);
 
         public abstract bool TryGetLoggedInCharacter(int characterId, out CharacterRuntimeData charData);
@@ -52,6 +54,9 @@ namespace Server
         private SkillStaticDataDatabase _skillStaticDataDatabase;
 
         private TimingScheduler _timingScheduler;
+
+        private JobModule _jobModule;
+        public override JobModule JobModule => _jobModule;
 
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
@@ -93,7 +98,10 @@ namespace Server
             _timingScheduler = new();
             _timingScheduler.Init();
 
-            int aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError;
+            _jobModule = new();
+            int jobModuleError = 1000000 * _jobModule.Initialize();
+
+            int aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError + jobModuleError;
             return aggregateError;
         }
 
@@ -195,7 +203,7 @@ namespace Server
             charData.NetworkQueue.GridEntityDataUpdate(charData);
 
             // Send SkillTree
-            List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(charData.JobId.Value);
+            List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(charData.JobId);
             foreach (SkillTreeEntry entry in skillTree)
             {
                 SkillTreeEntryPacket packet = entry.ToPacket(charData);
@@ -311,20 +319,14 @@ namespace Server
 
             // Setting mapid not required here, since we just got the mapinstance _from_ that name
             mapInstance.Grid.PlaceOccupant(charData, charData.Coordinates);
-            charData.MapInstance = mapInstance;
+            // Cached reference removed until needed for optimization
+            //charData.MapInstance = mapInstance;
 
             if (charData.IsDead())
                 ReceivedReturnAfterDeathRequest(charData.Connection, charData.Id);
 
-            // Apply passive skills
-            foreach (KeyValuePair<SkillId, int> kvp in charData.PermanentSkills)
-            {
-                if (!kvp.Key.IsPassive())
-                    continue;
-
-                APassiveSkillImpl impl = _mapModule.GetMapInstance(charData.MapId).SkillModule.GetPassiveSkillImpl(kvp.Key);
-                impl.Apply(charData, kvp.Value);
-            }
+            // This applies JobLevel bonuses & passive skills that're learnt
+            _jobModule.InitJob(charData);
 
             foreach (KeyValuePair<SkillId, int> kvp in charData.TemporarySkills)
             {
@@ -338,6 +340,8 @@ namespace Server
             // TODO: Register & Set up Inventory & Equipment
 
             // TODO: Apply Buffs/Debuffs from persistent data
+
+            charData.CalculateAllStats();
 
             charData.CurrentHp = Math.Clamp(charData.CurrentHp, 0, charData.MaxHp.Total);
             charData.CurrentSp = Math.Clamp(charData.CurrentSp, 0, charData.MaxSp.Total);
@@ -625,7 +629,7 @@ namespace Server
                 return;
             }
 
-            List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(characterData.JobId.Value);
+            List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(characterData.JobId);
             SkillTreeEntry skillEntry = null;
             foreach(SkillTreeEntry entry in skillTree)
             {
@@ -774,7 +778,7 @@ namespace Server
             }
 
             // Get Map Instances for character-Id
-            ServerMapInstance mapInstance = charData.MapInstance;
+            ServerMapInstance mapInstance = charData.GetMapInstance();
 
             // Tell MapInstance to remove character from Grid
             // This should automatically send the EntityRemoved event (only to people in range?)
@@ -797,6 +801,7 @@ namespace Server
             _centralConnection?.Update();
 
             _autosaveTimer += deltaTime;
+            // TODO: Allow characters to be marked as "persist on next update", in lieu of being able to directly call CharacterDatabase.Persist() for them?
             if(_autosaveTimer >= AUTOSAVE_INTERVAL)
             {
                 foreach (CharacterRuntimeData character in _loggedInCharacters)
@@ -805,6 +810,8 @@ namespace Server
                 }
                 _autosaveTimer -= AUTOSAVE_INTERVAL;
             }
+
+            _timingScheduler?.Update(deltaTime);
         }
 
         public override bool TryGetLoggedInCharacter(int characterId, out CharacterRuntimeData charData)

@@ -74,8 +74,8 @@ namespace Client
         public Dictionary<SkillId, SkillTreeEntry> SkillTree = new();
         public Action SkillTreeUpdated;
         // Do we still need these? Leave around for now.
-        //public Dictionary<SkillId, SkillTreeEntry> PermanentSkillList;
-        //public Dictionary<SkillId, SkillTreeEntry> TemporarySkillList;
+        public Dictionary<SkillId, SkillTreeEntry> PermanentSkillList = new();
+        public Dictionary<SkillId, SkillTreeEntry> TemporarySkillList = new();
 
         public LocalCharacterEntity(LocalCharacterData charData)
         {

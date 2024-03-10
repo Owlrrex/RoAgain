@@ -43,7 +43,6 @@ namespace Server
 
         public List<PersistentSkillListEntry> PermanentSkillList = new();
 
-        // TODO: Skill distribution
         public int SkillPoints = -1;
 
         public string SaveMapId;
@@ -65,7 +64,7 @@ namespace Server
                 Name = runtimeData.Name,
                 BaseLevel = runtimeData.BaseLvl.Value,
                 BaseExp = runtimeData.CurrentBaseExp,
-                JobId = runtimeData.JobId.Value,
+                JobId = runtimeData.JobId,
                 JobLevel = runtimeData.JobLvl.Value,
                 JobExp = runtimeData.CurrentJobExp,
                 Str = runtimeData.Str.Base,
@@ -166,7 +165,7 @@ namespace Server
                 Dex = 1,
                 Luk = 1,
                 SkillPoints = 0,
-                StatPoints = 44,
+                StatPoints = 44, // TODO: Config-value for this
                 CurrentHP = 99999,
                 CurrentSP = 9999,
                 MapId = "test_map", // TODO: Better system for a starting-pos

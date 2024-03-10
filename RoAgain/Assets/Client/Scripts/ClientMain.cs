@@ -339,7 +339,14 @@ namespace Client
             
             foreach(SkillTreeEntry entry in skillTree)
             {
-                CurrentCharacterData.SkillTree[entry.SkillId] = entry;
+                if(entry.Category == SkillCategory.Temporary)
+                {
+                    CurrentCharacterData.TemporarySkillList[entry.SkillId] = entry;
+                }
+                else
+                {
+                    CurrentCharacterData.PermanentSkillList[entry.SkillId] = entry;
+                }
             }
 
             ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
@@ -953,7 +960,14 @@ namespace Client
 
             CurrentCharacterData ??= new(new());
 
-            CurrentCharacterData.SkillTree[entry.SkillId] = entry;
+            if (entry.Category == SkillCategory.Temporary)
+            {
+                CurrentCharacterData.TemporarySkillList[entry.SkillId] = entry;
+            }
+            else
+            {
+                CurrentCharacterData.PermanentSkillList[entry.SkillId] = entry;
+            }
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
         }
 
@@ -962,7 +976,10 @@ namespace Client
             if (CurrentCharacterData == null)
                 return;
 
-            CurrentCharacterData.SkillTree.Remove(skillId);
+            // TODO: add "temporary/permanent" skill removed to SkillTreeRemoved packet
+            // This is still buggy when removing a temp-skill
+            CurrentCharacterData.PermanentSkillList.Remove(skillId);
+            CurrentCharacterData.TemporarySkillList.Remove(skillId);
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
         }
 

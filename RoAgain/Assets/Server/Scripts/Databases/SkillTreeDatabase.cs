@@ -259,7 +259,7 @@ namespace Server
                 return false;
             }
 
-            foreach (SkillTreeEntry entry in _instance._data[character.JobId.Value])
+            foreach (SkillTreeEntry entry in GetSkillTreeForJob(character.JobId))
             {
                 if (entry.Skill != skill)
                     continue;

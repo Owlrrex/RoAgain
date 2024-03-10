@@ -69,7 +69,8 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
     [SerializeField]
     private Button _closeButton;
 
-    private Dictionary<SkillId, SkillTreeEntry> _entries = new();
+    private Dictionary<SkillId, SkillTreeEntry> _permEntries = new();
+    private Dictionary<SkillId, SkillTreeEntry> _tempEntries = new();
     private Dictionary<SkillId, SkillTreeEntryWidget> _skillWidgets = new();
     private List<GameObject> _allCreatedWidgets = new();
     private SkillTreeEntryWidget _lastHoveredSkill = null;
@@ -81,19 +82,29 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
     private Dictionary<SkillId, int> _plannedSkillPoints = new();
     private int _projectedRemaining = 99;
 
-    public int UpdateDisplay(ICollection<SkillTreeEntry> entries)
+    public int UpdateDisplay(ICollection<SkillTreeEntry> permEntries, ICollection<SkillTreeEntry> tempEntries)
     {
-        _entries.Clear();
+        _permEntries.Clear();
+        _tempEntries = null;
 
-        if (entries == null)
+        if (permEntries == null)
         {
-            OwlLogger.LogWarning($"SkillTreeWindow initialized with null entries-list - is this intentional?", GameComponent.UI);
+            OwlLogger.LogWarning($"SkillTreeWindow initialized with null permEntries-list - is this intentional?", GameComponent.UI);
             return -1;
         }
 
-        foreach(SkillTreeEntry entry in entries)
+        foreach(SkillTreeEntry entry in permEntries)
         {
-            _entries.Add(entry.SkillId, entry);
+            _permEntries.Add(entry.SkillId, entry);
+        }
+
+        if(tempEntries != null)
+        {
+            _tempEntries = new();
+            foreach (SkillTreeEntry entry in tempEntries)
+            {
+                _tempEntries.Add(entry.SkillId, entry);
+            }
         }
 
         // Fill child list with entryWidgets & set to empty
@@ -116,25 +127,52 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
         _skillWidgets.Clear();
         _allCreatedWidgets.Clear();
 
-        foreach (SkillTreeEntry entry in _entries.Values)
+        if(_currentCategory != SkillCategory.Temporary)
         {
-            if (entry.Category != _currentCategory)
-                continue;
+            foreach (SkillTreeEntry entry in _permEntries.Values)
+            {
+                if (entry.Category == SkillCategory.Temporary)
+                {
+                    OwlLogger.LogError($"Found skillTreeEntry in permanentSkills-list that's in temporary category! {entry.SkillId}", GameComponent.Skill);
+                    continue;
+                }
 
-            int desiredIndex = CalculateChildIndex(entry);
-            FillChildrenForIndex(desiredIndex);
+                if (entry.Category != _currentCategory)
+                    continue;
 
-            GameObject widgetObj = _skillIconContainer.transform.GetChild(desiredIndex).gameObject;
-            SkillTreeEntryWidget widget = widgetObj.GetComponent<SkillTreeEntryWidget>();
-            widget.SetDisplayVisible();
-            widget.SetSkillId(entry.SkillId);
-            widget.SetMaxLevel(entry.LearnedSkillLvl);
-            widget.SetCurrentLevel(entry.LearnedSkillLvl); // TODO: Store selected skill level clientside
-            widget.SetPlannedSkillPoints(0);
-            widget.SetRequiredSkillLevel(0);
-            widget.Clicked += OnEntryWidgetClicked;
-            _skillWidgets.Add(entry.SkillId, widget);
+                AddEntryToUi(entry);
+            }
         }
+        else
+        {
+            foreach(SkillTreeEntry entry in _tempEntries.Values)
+            {
+                if(entry.Category != SkillCategory.Temporary)
+                {
+                    OwlLogger.LogError($"Found skillTreeEntry in temporarySkills-list that's not in temp-category! {entry.SkillId}", GameComponent.Skill);
+                    continue;
+                }
+
+                AddEntryToUi(entry);
+            }
+        }
+    }
+
+    private void AddEntryToUi(SkillTreeEntry entry)
+    {
+        int desiredIndex = CalculateChildIndex(entry);
+        FillChildrenForIndex(desiredIndex);
+
+        GameObject widgetObj = _skillIconContainer.transform.GetChild(desiredIndex).gameObject;
+        SkillTreeEntryWidget widget = widgetObj.GetComponent<SkillTreeEntryWidget>();
+        widget.SetDisplayVisible();
+        widget.SetSkillId(entry.SkillId);
+        widget.SetMaxLevel(entry.LearnedSkillLvl);
+        widget.SetCurrentLevel(entry.LearnedSkillLvl); // TODO: Store selected skill level clientside
+        widget.SetPlannedSkillPoints(0);
+        widget.SetRequiredSkillLevel(0);
+        widget.Clicked += OnEntryWidgetClicked;
+        _skillWidgets.Add(entry.SkillId, widget);
     }
 
     private void SetupCategoryButtons()
@@ -256,16 +294,27 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
         }
     }
 
+    private SkillTreeEntry FindSkillTreeEntry(SkillId skillId, bool allowTemp)
+    {
+        if(_permEntries.ContainsKey(skillId))
+            return _permEntries[skillId];
+        
+        if(allowTemp && _tempEntries.ContainsKey(skillId))
+            return _tempEntries[skillId];
+
+        return null;
+    }
+
     private Dictionary<SkillId, int> FindAllRequirements(SkillId skillId)
     {
         Dictionary<SkillId, int> allRequirements = new();
-        SkillTreeEntry startEntry = _entries[skillId];
+        SkillTreeEntry startEntry = _permEntries[skillId];
         List<SkillTreeEntry> entriesToProcess = new()
         {
             startEntry
         };
 
-        while (entriesToProcess.Count > 0 )
+        while (entriesToProcess.Count > 0)
         {
             if(entriesToProcess.Count > 20)
             {
@@ -278,7 +327,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
                 allRequirements.TryGetValue(requirement.Key, out int prevRequirement);
 
                 allRequirements[requirement.Key] = Mathf.Max(prevRequirement, requirement.Value);
-                entriesToProcess.Add(_entries[requirement.Key]);
+                entriesToProcess.Add(_permEntries[requirement.Key]);
             }
             entriesToProcess.Remove(processedEntry);
         }
@@ -339,7 +388,8 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
     public void DisplayCurrentCharacterData()
     {
-        UpdateDisplay(ClientMain.Instance.CurrentCharacterData.SkillTree.Values);
+        UpdateDisplay(ClientMain.Instance.CurrentCharacterData.PermanentSkillList.Values,
+            ClientMain.Instance.CurrentCharacterData.TemporarySkillList.Values);
     }
 
     private int CalculateChildIndex(SkillTreeEntry entry)
@@ -378,7 +428,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
     private void OnEntryWidgetClicked(SkillTreeEntryWidget widget)
     {
-        SkillTreeEntry entry = _entries[widget.SkillId];
+        SkillTreeEntry entry = FindSkillTreeEntry(widget.SkillId, true);
         if (entry.LearnedSkillLvl == entry.MaxSkillLvl)
             return;
 
@@ -416,9 +466,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
         bool allRequirementsFulfilled = true;
         foreach (SkillId reqId in skillEntry.Requirements.Keys)
         {
-            SkillTreeEntry reqEntry = ClientMain.Instance.CurrentCharacterData.SkillTree[reqId];
-            if (reqEntry.Category == SkillCategory.Temporary)
-                continue; // TODO: This WILL break the skill window once Temporary skills are used. Fix clientside storage of permanent & temporary skills
+            SkillTreeEntry reqEntry = ClientMain.Instance.CurrentCharacterData.PermanentSkillList[reqId];
 
             int alreadyLearendReqPoints = reqEntry.LearnedSkillLvl;
             if (alreadyLearendReqPoints >= skillEntry.Requirements[reqId]
@@ -429,7 +477,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
             }
             else
             {
-                allRequirementsFulfilled &= PlanSkillPoints(_entries[reqId], skillEntry.Requirements[reqId] - alreadyLearendReqPoints);
+                allRequirementsFulfilled &= PlanSkillPoints(_permEntries[reqId], skillEntry.Requirements[reqId] - alreadyLearendReqPoints);
             }
         }
 

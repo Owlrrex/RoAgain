@@ -528,7 +528,7 @@ namespace Server
                 int staticHp = _staticData.GetValueForLevel(_staticData.Var2, entry.SkillLvl);
                 int dynamicHp = (int)(_staticData.GetValueForLevel(_staticData.Var3, entry.SkillLvl) * owner.MaxHp.Total / 100.0f);
                 // TODO: Use a method here that allows (potentially) showing healing-numbers
-                ServerMain.Instance.Server.MapModule.GetMapInstance(owner.MapId).BattleModule.ChangeHp(owner, staticHp + dynamicHp, owner);
+                owner.GetMapInstance().BattleModule.ChangeHp(owner, staticHp + dynamicHp, owner);
             }
         }
 
@@ -888,7 +888,7 @@ namespace Server
                 int staticSp = _staticData.GetValueForLevel(_staticData.Var2, entry.SkillLvl);
                 int dynamicSp = (int)(_staticData.GetValueForLevel(_staticData.Var3, entry.SkillLvl) * owner.MaxSp.Total / 100.0f);
                 // TODO: Use a method here that allows (potentially) showing healing-numbers
-                ServerMain.Instance.Server.MapModule.GetMapInstance(owner.MapId).BattleModule.ChangeHp(owner, staticSp + dynamicSp, owner);
+                owner.GetMapInstance().BattleModule.ChangeHp(owner, staticSp + dynamicSp, owner);
             }
         }
 

@@ -1,4 +1,5 @@
 using OwlLogging;
+using Shared;
 
 namespace Server
 {
@@ -8,12 +9,8 @@ namespace Server
         // Args[2]: [Optional] Name of character to heal, default = sender
         public override int Execute(CharacterRuntimeData sender, string[] args)
         {
-            // Validate & read parameters
-            if(args.Length > 3)
-            {
-                OwlLogger.Log($"Too many arguments for HealChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+            if (!VerifyArgCount(args, 1, 3))
                 return -1;
-            }
 
             int healMode = 0;
             string targetName = sender.Name;
@@ -36,16 +33,8 @@ namespace Server
             CharacterRuntimeData target = sender;
             if (targetName != sender.Name)
             {
-                foreach (CharacterRuntimeData charData in ServerMain.Instance.Server.LoggedInCharacters)
-                {
-                    if (charData.Name == targetName)
-                    {
-                        target = charData;
-                        break;
-                    }
-                        
-                }
-                if (target == sender)
+                target = FindPlayerByName(targetName);
+                if (target == null)
                 {
                     OwlLogger.Log($"Tried to use HealChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
                     return -3;
@@ -53,7 +42,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = ServerMain.Instance.Server.MapModule.GetMapInstance(target.MapId);
+            ServerMapInstance targetMap = target.GetMapInstance();
             if(targetMap == null)
             {
                 OwlLogger.LogError($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
@@ -88,12 +77,8 @@ namespace Server
         // Args[2]: [Optional] EntityId of entity to heal, default = sender
         public override int Execute(CharacterRuntimeData sender, string[] args)
         {
-            // Validate & read parameters
-            if (args.Length > 3)
-            {
-                OwlLogger.Log($"Too many arguments for HealIdChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+            if (!VerifyArgCount(args, 1, 3))
                 return -1;
-            }
 
             int healMode = 0;
             int targetId = sender.Id;
@@ -129,7 +114,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = ServerMain.Instance.Server.MapModule.GetMapInstance(target.MapId);
+            ServerMapInstance targetMap = target.GetMapInstance();
             if (targetMap == null)
             {
                 OwlLogger.Log($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
@@ -162,12 +147,8 @@ namespace Server
         // Args[1]: [Optional] Name of character to kill, default = sender
         public override int Execute(CharacterRuntimeData sender, string[] args)
         {
-            // Validate & read parameters
-            if (args.Length > 2)
-            {
-                OwlLogger.Log($"Too many arguments for HealChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+            if (!VerifyArgCount(args, 1, 2))
                 return -1;
-            }
 
             string targetName = sender.Name;
 
@@ -180,16 +161,8 @@ namespace Server
             CharacterRuntimeData target = sender;
             if (targetName != sender.Name)
             {
-                foreach (CharacterRuntimeData charData in ServerMain.Instance.Server.LoggedInCharacters)
-                {
-                    if (charData.Name == targetName)
-                    {
-                        target = charData;
-                        break;
-                    }
-
-                }
-                if (target == sender)
+                target = FindPlayerByName(targetName);
+                if (target == null)
                 {
                     OwlLogger.Log($"Tried to use HealChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
                     return -3;
@@ -197,7 +170,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = ServerMain.Instance.Server.MapModule.GetMapInstance(target.MapId);
+            ServerMapInstance targetMap = target.GetMapInstance();
             if (targetMap == null)
             {
                 OwlLogger.LogError($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
@@ -215,12 +188,8 @@ namespace Server
         // Args[1]: [Optional] EntityId of entity to kill, default = sender
         public override int Execute(CharacterRuntimeData sender, string[] args)
         {
-            // Validate & read parameters
-            if (args.Length > 2)
-            {
-                OwlLogger.Log($"Too many arguments for HealIdChatCommand - 2 expected, {args.Length} given!", GameComponent.ChatCommands);
+            if (!VerifyArgCount(args, 1, 2))
                 return -1;
-            }
 
             int targetId = sender.Id;
 
@@ -246,7 +215,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = ServerMain.Instance.Server.MapModule.GetMapInstance(target.MapId);
+            ServerMapInstance targetMap = target.GetMapInstance();
             if (targetMap == null)
             {
                 OwlLogger.Log($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
@@ -273,8 +242,103 @@ namespace Server
 
     public class ChangeJobChatCommand : AChatCommand
     {
+        // Args[1]: Id of the job to switch to
+        // Args[2]: [Optional] Name of character to switch (default: Sender)
         public override int Execute(CharacterRuntimeData sender, string[] args)
         {
+            if (!VerifyArgCount(args, 2, 3))
+                return -1;
+
+            // Read & validate jobId
+            JobId targetJobId;
+            string targetJobStr = args[1];
+            if(!int.TryParse(targetJobStr, out int targetJobInt))
+            {
+                OwlLogger.Log($"Invalid JobId format passed to ChangeJobChatCommand: {targetJobStr}", GameComponent.ChatCommands);
+                return -2;
+            }
+
+            targetJobId = (JobId)targetJobInt;
+
+            if(!System.Enum.IsDefined(typeof(JobId), targetJobId) 
+                || targetJobId == JobId.Unknown)
+            {
+                OwlLogger.Log($"Invalid JobId passed to ChangeJobChatCommand: {targetJobId}", GameComponent.ChatCommands);
+                return -3;
+            }
+
+            // Read & Validate target
+            CharacterRuntimeData target = sender;
+
+            if(args.Length >= 3)
+            {
+                string targetName = args[2];
+
+                target = FindPlayerByName(targetName);
+                if (target == null)
+                {
+                    OwlLogger.Log($"Tried to use ChangeJobChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
+                    return -4;
+                }
+            }
+
+            // Execute effect
+            ServerMain.Instance.Server.JobModule.ChangeJob(target, targetJobId, false);
+            return 0;
+        }
+    }
+
+    public class SkillResetChatCommand : AChatCommand
+    {
+        // args[1]: [Optional] Name of character to reset. default: Sender
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 1, 2))
+                return -1;
+
+            
+            CharacterRuntimeData target = sender;
+            if (args.Length >= 2)
+            {
+                string targetName = args[2];
+
+                target = FindPlayerByName(targetName);
+                if (target == null)
+                {
+                    OwlLogger.Log($"Tried to use ChangeJobChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
+                    return -4;
+                }
+            }
+
+            target.GetMapInstance().SkillModule.SkillReset(target);
+
+            return 0;
+        }
+    }
+
+    public class StatResetChatCommand : AChatCommand
+    {
+        // args[1]: [Optional] Name of character to reset. default: Sender
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 1, 2))
+                return -1;
+
+            CharacterRuntimeData target = sender;
+            if (args.Length >= 2)
+            {
+                string targetName = args[2];
+
+                target = FindPlayerByName(targetName);
+                if (target == null)
+                {
+                    OwlLogger.Log($"Tried to use ChangeJobChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
+                    return -4;
+                }
+            }
+
+            ServerMain.Instance.Server.JobModule.StatReset(target);
+
             return 0;
         }
     }
@@ -284,7 +348,7 @@ namespace Server
         /// <summary>
         /// Executes a chat command's logic
         /// </summary>
-        /// <param name="args">{0] = command word, after that the command's arguments</param>
+        /// <param name="args">[0] = command word, after that the command's arguments</param>
         /// <returns>0 = success</returns>
         public abstract int Execute(CharacterRuntimeData sender, string[] args);
 
@@ -292,11 +356,40 @@ namespace Server
         {
             if(args.Length != expectedCount)
             {
-                OwlLogger.Log($"Too many arguments for {GetType().Name}: {expectedCount} expected, {args.Length} given!", GameComponent.ChatCommands);
+                OwlLogger.Log($"Too many arguments for {GetType().Name}: {expectedCount} expected, {args.Length-1} given!", GameComponent.ChatCommands);
                 return false;
             }
 
             return true;
+        }
+
+        protected bool VerifyArgCount(string[] args, int minCount, int maxCount)
+        {
+            if (args.Length > maxCount)
+            {
+                OwlLogger.Log($"Too many arguments for {GetType().Name} - up to {maxCount} expected, {args.Length - 1} given!", GameComponent.ChatCommands);
+                return false;
+            }
+
+            if (args.Length < minCount)
+            {
+                OwlLogger.Log($"Not enough arguments for{GetType().Name} - at least {minCount} expected, {args.Length - 1} given!", GameComponent.ChatCommands);
+                return false;
+            }
+
+            return true;
+        }
+
+        protected CharacterRuntimeData FindPlayerByName(string name)
+        {
+            foreach (CharacterRuntimeData charData in ServerMain.Instance.Server.LoggedInCharacters)
+            {
+                if (charData.Name == name)
+                {
+                    return charData;
+                }
+            }
+            return null;
         }
     }
 }

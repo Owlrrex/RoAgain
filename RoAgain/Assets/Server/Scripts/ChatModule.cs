@@ -61,6 +61,9 @@ namespace Server
             _chatCommands.Add("kill", new KillChatCommand());
             _chatCommands.Add("killid", new KillIdChatCommand());
             _chatCommands.Add("reloadskilldb", new ReloadSkillDbChatCommand());
+            _chatCommands.Add("job", new ChangeJobChatCommand());
+            _chatCommands.Add("resetskills", new SkillResetChatCommand());
+            _chatCommands.Add("resetstats", new StatResetChatCommand());
         }
 
         public int HandleChatMessage(ChatMessageRequestData chatMessage)

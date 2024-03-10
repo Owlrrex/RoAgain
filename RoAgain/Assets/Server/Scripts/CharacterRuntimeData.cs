@@ -9,12 +9,14 @@ namespace Server
     public class CharacterRuntimeData : ServerBattleEntity
     {
         public ClientConnection Connection;
-        public ServerMapInstance MapInstance;
+        // Cached reference removed until needed for optimization
+        // public ServerMapInstance MapInstance;
         public NetworkQueue NetworkQueue;
 
         public string AccountId;
 
-        public WatchableProperty<JobId, EntityPropertyType> JobId = new(EntityPropertyType.JobId);
+        public JobId JobId;
+        public Action<CharacterRuntimeData> JobChanged;
         public WatchableProperty<int, EntityPropertyType> JobLvl = new(EntityPropertyType.JobLvl);
         public WatchableProperty<int, EntityPropertyType> Gender = new(EntityPropertyType.Gender);
 
@@ -197,7 +199,7 @@ namespace Server
         {
             AccountId = accountId;
             BaseLvl.Value = baseLvl;
-            JobId.Value = jobId;
+            JobId = jobId;
             JobLvl.Value = jobLvl;
             Str.SetBase(str);
             Agi.SetBase(agi);
@@ -211,12 +213,12 @@ namespace Server
             CurrentHp = MaxHp.Total;
             CurrentSp = MaxSp.Total;
 
-            StrIncreaseCost = StatIncreaseCurve(Str.Base);
-            AgiIncreaseCost = StatIncreaseCurve(Agi.Base);
-            VitIncreaseCost = StatIncreaseCurve(Vit.Base);
-            IntIncreaseCost = StatIncreaseCurve(Int.Base);
-            DexIncreaseCost = StatIncreaseCurve(Dex.Base);
-            LukIncreaseCost = StatIncreaseCurve(Luk.Base);
+            StrIncreaseCost = GetStatIncreaseCost(Str.Base);
+            AgiIncreaseCost = GetStatIncreaseCost(Agi.Base);
+            VitIncreaseCost = GetStatIncreaseCost(Vit.Base);
+            IntIncreaseCost = GetStatIncreaseCost(Int.Base);
+            DexIncreaseCost = GetStatIncreaseCost(Dex.Base);
+            LukIncreaseCost = GetStatIncreaseCost(Luk.Base);
 
             BaseLvl.Changed += OnBaseLvlChanged;
             Str.ValueChanged += OnStrChanged;
@@ -244,7 +246,7 @@ namespace Server
             WeightLimit.ValueChanged += OnWeightLimitChanged;
         }
 
-        private int StatIncreaseCurve(int input)
+        private int GetStatIncreaseCost(int input)
         {
             return Mathf.FloorToInt((input - 1) / 10.0f) + 2;
         }
@@ -279,7 +281,7 @@ namespace Server
         {
             CalculateAtk();
             CalculateWeightLimit();
-            StrIncreaseCost = StatIncreaseCurve(Str.Base);
+            StrIncreaseCost = GetStatIncreaseCost(Str.Base);
             NetworkQueue.StatUpdate(EntityPropertyType.Str, Str);
         }
 
@@ -287,7 +289,7 @@ namespace Server
         {
             CalculateAnimationSpeed();
             CalculateFlee();
-            AgiIncreaseCost = StatIncreaseCurve(Agi.Base);
+            AgiIncreaseCost = GetStatIncreaseCost(Agi.Base);
             NetworkQueue.StatUpdate(EntityPropertyType.Agi, Agi);
         }
 
@@ -296,7 +298,7 @@ namespace Server
             CalculateSoftDef();
             CalculateHp();
             CalculateHpReg(); // Have to call it here in case Sp don't change, but vit does have a direct effect
-            VitIncreaseCost = StatIncreaseCurve(Vit.Base);
+            VitIncreaseCost = GetStatIncreaseCost(Vit.Base);
             NetworkQueue.StatUpdate(EntityPropertyType.Vit, Vit);
         }
 
@@ -306,7 +308,7 @@ namespace Server
             CalculateSoftMDef();
             CalculateSp();
             CalculateSpReg(); // Have to call it here in case Sp don't change, but int does have a direct effect
-            IntIncreaseCost = StatIncreaseCurve(Int.Base);
+            IntIncreaseCost = GetStatIncreaseCost(Int.Base);
             NetworkQueue.StatUpdate(EntityPropertyType.Int, Int);
 
         }
@@ -317,7 +319,7 @@ namespace Server
             CalculateHit();
             CalculateCastTime();
             CalculateAnimationSpeed();
-            DexIncreaseCost = StatIncreaseCurve(Dex.Base);
+            DexIncreaseCost = GetStatIncreaseCost(Dex.Base);
             NetworkQueue.StatUpdate(EntityPropertyType.Dex, Dex);
 
         }
@@ -328,7 +330,7 @@ namespace Server
             CalculateCrit();
             CalculateCritShield();
             CalculatePerfectFlee();
-            LukIncreaseCost = StatIncreaseCurve(Luk.Base);
+            LukIncreaseCost = GetStatIncreaseCost(Luk.Base);
             NetworkQueue.StatUpdate(EntityPropertyType.Luk, Luk);
         }
 
@@ -431,6 +433,13 @@ namespace Server
 
         public void CalculateAllStats()
         {
+            Str.Recalculate();
+            Vit.Recalculate();
+            Agi.Recalculate();
+            Int.Recalculate();
+            Dex.Recalculate();
+            Luk.Recalculate();
+
             CalculateHp();
             CalculateSp();
             CalculateHpReg();
@@ -659,7 +668,7 @@ namespace Server
                 Sp = CurrentSp,
 
                 BaseLvl = BaseLvl.Value,
-                JobId = JobId.Value,
+                JobId = JobId,
                 Gender = Gender.Value,
             };
         }
@@ -691,7 +700,7 @@ namespace Server
                 Luk = Luk,
 
                 BaseLvl = BaseLvl.Value,
-                JobId = JobId.Value,
+                JobId = JobId,
                 JobLvl = JobLvl.Value,
                 Gender = Gender.Value,
 

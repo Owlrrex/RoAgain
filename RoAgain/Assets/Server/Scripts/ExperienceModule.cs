@@ -65,7 +65,7 @@ namespace Server
                     anyExpChanged = true;
                 }
 
-                if(!IsMaxJobLevel(contributor.JobLvl.Value, contributor.JobId.Value))
+                if(!IsMaxJobLevel(contributor.JobLvl.Value, contributor.JobId))
                 {
                     int gainedJobExp = (int)(mob.JobExpReward * ratio);
 
@@ -75,7 +75,7 @@ namespace Server
                     {
                         newJobExp -= contributor.RequiredJobExp;
                         LevelUpJob(contributor);
-                        if (IsMaxJobLevel(contributor.JobLvl.Value, contributor.JobId.Value))
+                        if (IsMaxJobLevel(contributor.JobLvl.Value, contributor.JobId))
                         {
                             contributor.CurrentJobExp = 0;
                             break;
@@ -134,7 +134,7 @@ namespace Server
             character.JobLvl.Value += 1;
             character.RemainingSkillPoints += 1;
             UpdateJobBonuses(character, character.JobLvl.Value -1);
-            character.RequiredJobExp = GetRequiredJobExpOnLevel(character.JobLvl.Value, character.JobId.Value);
+            character.RequiredJobExp = GetRequiredJobExpOnLevel(character.JobLvl.Value, character.JobId);
             character.CurrentJobExp = 0;
 
             // Send characterdata update since several stats change with JobLvl: Stat bonuses, Skillpoints

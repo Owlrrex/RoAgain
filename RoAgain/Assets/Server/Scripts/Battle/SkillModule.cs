@@ -589,6 +589,59 @@ namespace Server
             _mapInstance = null;
             return 0;
         }
-    }
 
+        public void SkillReset(CharacterRuntimeData character)
+        {
+            if (character == null)
+            {
+                OwlLogger.LogError("Can't skillreset a null character!", GameComponent.Skill);
+                return;
+            }
+
+            List<SkillTreeEntry> skillTree = SkillTreeDatabase.GetSkillTreeForJob(character.JobId);
+
+            foreach (KeyValuePair<SkillId, int> kvp in character.PermanentSkills)
+            {
+                if (kvp.Key == SkillId.AutoAttack
+                    || kvp.Key == SkillId.PlaceWarp)
+                    continue; // Skip placeholder skills
+
+                if(kvp.Key.IsPassive())
+                {
+                    GetPassiveSkillImpl(kvp.Key).Unapply(character, kvp.Value);
+                }
+
+                character.RemainingSkillPoints += kvp.Value;
+
+                SkillTreeEntry skillEntry = null;
+                foreach (SkillTreeEntry entry in skillTree)
+                {
+                    if (entry.Skill == kvp.Key)
+                    {
+                        skillEntry = entry;
+                        break;
+                    }
+                }
+
+                if (skillEntry == null)
+                {
+                    OwlLogger.LogError($"Failed to reset permanent skill {kvp.Key} - not found in skilltree!", GameComponent.Skill);
+                    continue;
+                }
+
+                SkillTreeEntryPacket packet = skillEntry.ToPacket(character);
+                packet.LearnedSkillLvl = 0;
+                character.Connection.Send(packet);
+            }
+
+            character.PermanentSkills.Clear();
+
+            character.Connection.Send(new SkillPointUpdatePacket() { RemainingSkillPoints = character.RemainingSkillPoints });
+        }
+
+        public void AddTemporarySkill(SkillId skillId, int skillLvl)
+        {
+
+        }
+    }
 }

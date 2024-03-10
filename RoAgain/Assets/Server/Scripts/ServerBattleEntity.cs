@@ -108,6 +108,14 @@ namespace Server
         {
             return EntityElement.Neutral1;
         }
+
+        public ServerMapInstance GetMapInstance()
+        {
+            if (ServerMain.Instance == null)
+                return null;
+
+            return ServerMain.Instance.Server?.MapModule?.GetMapInstance(MapId);
+        }
     }
 }
 

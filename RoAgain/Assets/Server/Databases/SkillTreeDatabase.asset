@@ -16,7 +16,7 @@ MonoBehaviour:
   - Job: 1
     SkillTree:
     - Skill: 3
-      MaxLevel: 10
+      MaxLevel: 9
       CanPointLearn: 1
       Category: 0
       Tier: 0
