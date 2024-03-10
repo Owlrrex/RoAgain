@@ -430,9 +430,8 @@ namespace Server
                     if (!stat.Condition.Evaluate(parameters))
                         continue;
 
-                    // TODO: URGENT Shouldn't one of these be offset by +/- 1?
                     if (_multiplicativeModifierStacking)
-                        modifier *= stat.Value;
+                        modifier *= 1 + stat.Value;
                     else
                         modifier += stat.Value;
                 }
@@ -447,11 +446,10 @@ namespace Server
                     if (!stat.Condition.Evaluate(parameters))
                         continue;
 
-                    // TODO: Fix this formula, currently a damage buff (unless you provide negative/small values)
                     if(_multiplicativeModifierStacking)
-                        reductionMod *= stat.Value;
+                        reductionMod /= 1 + stat.Value;
                     else
-                        reductionMod += stat.Value;
+                        reductionMod -= stat.Value;
 
                     modifier *= reductionMod;
                 }

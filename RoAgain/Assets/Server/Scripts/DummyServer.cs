@@ -400,8 +400,7 @@ namespace Server
                 return;
             }
 
-            ServerBattleEntity target = map.Grid.FindOccupant(targetId) as ServerBattleEntity;
-            if(target == null)
+            if (map.Grid.FindOccupant(targetId) is not ServerBattleEntity target)
             {
                 OwlLogger.LogWarning($"TargetId {targetId} not found on map {user.MapId} for skill!", GameComponent.Other);
                 return;
