@@ -38,9 +38,6 @@ public class PlayerUI : MonoBehaviour
     [SerializeField]
     private SkillHotbar _hotbar;
 
-    
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -77,6 +74,9 @@ public class PlayerUI : MonoBehaviour
 
     private void Update()
     {
+        if (ChatSystem.IsChatFocused)
+            return; // don't process hotkeys while chat is open
+
         foreach (SkillHotbar.SkillHotbarEntry entry in _hotbar.Data)
         {
             if (entry.Hotkey == ConfigurableHotkey.Unknown)

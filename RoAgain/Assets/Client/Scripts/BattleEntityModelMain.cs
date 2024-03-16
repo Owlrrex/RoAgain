@@ -55,6 +55,15 @@ namespace Client
             _entity = entity;
             _entity.TookDamage += OnTookDamage;
 
+            if(_entity is RemoteCharacterEntity rChar)
+            {
+                rChar.JobChanged += OnJobChanged;
+            }
+            else if (_entity is LocalCharacterEntity lChar)
+            {
+                lChar.JobChanged += OnJobChanged;
+            }
+
             UpdateDisplay();
 
             if(_entity is not ACharacterEntity)
@@ -275,6 +284,11 @@ namespace Client
             Sprite skillSprite = SkillClientDataTable.GetDataForId(skillId).Sprite;
             _skillTargetIndicator.sprite = skillSprite;
             _skillTargetIndicator.gameObject.SetActive(true);
+        }
+
+        private void OnJobChanged(ACharacterEntity character)
+        {
+            SetSkilltext($"Job changed to {character.JobId}!", 5);
         }
     }
 }

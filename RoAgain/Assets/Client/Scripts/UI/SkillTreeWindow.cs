@@ -72,7 +72,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
     private Dictionary<SkillId, SkillTreeEntry> _permEntries = new();
     private Dictionary<SkillId, SkillTreeEntry> _tempEntries = new();
     private Dictionary<SkillId, SkillTreeEntryWidget> _skillWidgets = new();
-    private List<GameObject> _allCreatedWidgets = new();
+    private List<SkillTreeEntryWidget> _allCreatedWidgets = new();
     private SkillTreeEntryWidget _lastHoveredSkill = null;
 
     private GridLayoutGroup _skillIconContainerLayout = null;
@@ -119,13 +119,11 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
     private void PopulateUiFromEntries()
     {
-        foreach (GameObject widget in _allCreatedWidgets)
+        foreach (SkillTreeEntryWidget widget in _allCreatedWidgets)
         {
-            widget.transform.SetParent(null);
-            Destroy(widget);
+            ClearWidget(widget);
         }
         _skillWidgets.Clear();
-        _allCreatedWidgets.Clear();
 
         if(_currentCategory != SkillCategory.Temporary)
         {
@@ -171,8 +169,18 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
         widget.SetCurrentLevel(entry.LearnedSkillLvl); // TODO: Store selected skill level clientside
         widget.SetPlannedSkillPoints(0);
         widget.SetRequiredSkillLevel(0);
-        widget.Clicked += OnEntryWidgetClicked;
         _skillWidgets.Add(entry.SkillId, widget);
+    }
+
+    private void ClearWidget(SkillTreeEntryWidget widget)
+    {
+        if (widget == null)
+        {
+            OwlLogger.LogError("Can't clear null widget!", GameComponent.UI);
+            return;
+        }
+
+        widget.SetDisplayEmpty();
     }
 
     private void SetupCategoryButtons()
@@ -220,7 +228,8 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
                 return;
             }
             widget.SetDisplayEmpty();
-            _allCreatedWidgets.Add(entryObj);
+            widget.Clicked += OnEntryWidgetClicked;
+            _allCreatedWidgets.Add(widget);
         }
     }
 
@@ -314,14 +323,16 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
             startEntry
         };
 
+        int processedEntries = 0;
         while (entriesToProcess.Count > 0)
         {
-            if(entriesToProcess.Count > 20)
+            if(processedEntries > 50)
             {
                 OwlLogger.LogError("Aborting FindAllRequirements - SkillTreeEntry count too large, likely infinite loop!", GameComponent.UI);
                 break;
             }
             SkillTreeEntry processedEntry = entriesToProcess[0];
+            processedEntries++;
             foreach (KeyValuePair<SkillId, int> requirement in processedEntry.Requirements)
             {
                 allRequirements.TryGetValue(requirement.Key, out int prevRequirement);

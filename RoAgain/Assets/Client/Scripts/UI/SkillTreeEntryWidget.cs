@@ -160,7 +160,6 @@ namespace Client
             {
                 _skillNameText.text = data.Name;
             }
-
         }
 
         public int SetPlannedSkillPoints(int skillPointNumber)

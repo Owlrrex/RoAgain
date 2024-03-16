@@ -167,7 +167,7 @@ namespace Server
         {
             int joblvl = character.JobLvl.Value;
 
-            // TODO: Proper JobBonus Database
+            // TODO: Proper JobBonus Database, also needed in JobModule.InitJob()
 
             int tmpBonusNew = joblvl / 5;
             int tmpBonusOld = previousJobLevel / 5;

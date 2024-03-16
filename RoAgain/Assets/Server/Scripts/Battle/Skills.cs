@@ -856,12 +856,16 @@ namespace Server
             public int SkillLvl;
         }
 
-        private readonly Dictionary<int, Entry> _timers = new();
+        // Making this static makes the skill work cross-map easily, but introduces a link between different SkillImpl instances.
+        // It would probably be cleaner to either force this class to be static as a whole, or have instances transfer ownership of
+        // Entities when they change maps
+        private static readonly Dictionary<int, Entry> _timers = new();
+
         private SkillStaticDataEntry _staticData = SkillStaticDataDatabase.GetSkillStaticData(SkillId.IncSpRecovery);
 
         public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
         {
-            Entry newEntry = new Entry()
+            Entry newEntry = new()
             {
                 Timer = new TimerFloat(_staticData.GetValueForLevel(_staticData.Var1, skillLvl)),
                 SkillLvl = skillLvl,
@@ -889,6 +893,7 @@ namespace Server
                 int dynamicSp = (int)(_staticData.GetValueForLevel(_staticData.Var3, entry.SkillLvl) * owner.MaxSp.Total / 100.0f);
                 // TODO: Use a method here that allows (potentially) showing healing-numbers
                 owner.GetMapInstance().BattleModule.ChangeHp(owner, staticSp + dynamicSp, owner);
+                entry.Timer.Reset();
             }
         }
 

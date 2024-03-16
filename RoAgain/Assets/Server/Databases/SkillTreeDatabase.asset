@@ -331,7 +331,7 @@ MonoBehaviour:
       Tier: 2
       Position: 1
       Requirements:
-      - RequirementId: 93
+      - RequirementId: 92
         RequirementLevel: 5
     - Skill: 94
       MaxLevel: 10
@@ -346,7 +346,9 @@ MonoBehaviour:
       Category: 0
       Tier: 2
       Position: 2
-      Requirements: []
+      Requirements:
+      - RequirementId: 94
+        RequirementLevel: 3
     - Skill: 96
       MaxLevel: 1
       CanPointLearn: 0

@@ -8,6 +8,7 @@ namespace Client
     public abstract class ACharacterEntity : ClientBattleEntity
     {
         public JobId JobId;
+        public Action<ACharacterEntity> JobChanged;
         public int Gender;
         // TODO: Cosmetic info
     }
@@ -24,7 +25,12 @@ namespace Client
             base.SetData(charData);
 
             BaseLvl = charData.BaseLvl;
+
+            JobId oldJob = JobId;
             JobId = charData.JobId;
+            if (JobId != oldJob)
+                JobChanged?.Invoke(this);
+
             Gender = charData.Gender;
         }
     }
@@ -87,7 +93,12 @@ namespace Client
             base.SetData(charData);
 
             BaseLvl = charData.BaseLvl;
+
+            JobId oldJob = JobId;
             JobId = charData.JobId;
+            if (JobId != oldJob)
+                JobChanged?.Invoke(this);
+
             JobLvl = charData.JobLvl;
             Gender = charData.Gender;
 

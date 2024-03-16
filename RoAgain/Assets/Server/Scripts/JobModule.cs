@@ -13,7 +13,7 @@ namespace Server
 
         public void InitJob(CharacterRuntimeData character)
         {
-            // TODO: Apply new job bonuses
+            // TODO: Apply new job bonuses, overlap with ExperienceModule.UpdateJobBonuses()
 
             // Apply known passive skills
             foreach (KeyValuePair<SkillId, int> kvp in character.PermanentSkills)
@@ -26,7 +26,7 @@ namespace Server
             }
         }
 
-        public void ChangeJob(CharacterRuntimeData character, JobId newJobId, bool wipeKnownSkills)
+        public void ChangeJob(CharacterRuntimeData character, JobId newJobId, bool wipeLearnedSkills)
         {
             if(character == null)
             {
@@ -44,25 +44,30 @@ namespace Server
             {
                 // TODO: Unapply old job bonuses
 
-                foreach (KeyValuePair<SkillId, int> kvp in character.PermanentSkills)
-                {
-                    if (!kvp.Key.IsPassive())
-                        continue;
-
-                    APassiveSkillImpl impl = character.GetMapInstance().SkillModule.GetPassiveSkillImpl(kvp.Key);
-                    impl.Unapply(character, kvp.Value);
-                }
-
                 // TODO: Clear buffs
 
-                if(wipeKnownSkills)
+                if(wipeLearnedSkills)
                 {
                     character.GetMapInstance().SkillModule.SkillReset(character);
+                }
+                else
+                {
+                    // Unapply all passives in the old tree - they will be reapplied by the InitJob() later
+                    foreach (KeyValuePair<SkillId, int> kvp in character.PermanentSkills)
+                    {
+                        if (!kvp.Key.IsPassive())
+                            continue;
+
+                        APassiveSkillImpl impl = character.GetMapInstance().SkillModule.GetPassiveSkillImpl(kvp.Key);
+                        impl.Unapply(character, kvp.Value);
+                    }
                 }
             }
 
             List<SkillTreeEntry> oldSkills = SkillTreeDatabase.GetSkillTreeForJob(character.JobId);
             character.JobId = newJobId;
+            character.CurrentJobExp = 0;
+            character.JobLvl.Value = 1;
 
             InitJob(character);
 
@@ -89,6 +94,13 @@ namespace Server
             // Newskills has now been trimmed of all entries that were in the oldSkills list
             foreach(SkillTreeEntry removedEntry in removedSkills)
             {
+                // Always forget skills that aren't in the new tree anymore
+                if(character.PermanentSkills.ContainsKey(removedEntry.Skill))
+                {
+                    character.RemainingSkillPoints += character.PermanentSkills[removedEntry.Skill];
+                    character.PermanentSkills.Remove(removedEntry.Skill);
+                }
+
                 character.Connection.Send(new SkillTreeRemovePacket()
                 {
                     SkillId = removedEntry.Skill
@@ -100,7 +112,10 @@ namespace Server
                 character.Connection.Send(newEntry.ToPacket(character));
             }
 
-            // TODO: Job-changed packet
+            foreach (CharacterRuntimeData observer in character.GetMapInstance().Grid.GetObserversSquare<CharacterRuntimeData>(character.Coordinates))
+            {
+                observer.NetworkQueue.GridEntityDataUpdate(character);
+            }
 
             character.JobChanged?.Invoke(character);
         }

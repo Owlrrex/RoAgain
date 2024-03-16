@@ -243,10 +243,11 @@ namespace Server
     public class ChangeJobChatCommand : AChatCommand
     {
         // Args[1]: Id of the job to switch to
-        // Args[2]: [Optional] Name of character to switch (default: Sender)
+        // Args[2]: [Optional] Include full skill reset? (default: 1 = Yes)
+        // Args[3]: [Optional] Name of character to switch (default: Sender)
         public override int Execute(CharacterRuntimeData sender, string[] args)
         {
-            if (!VerifyArgCount(args, 2, 3))
+            if (!VerifyArgCount(args, 2, 4))
                 return -1;
 
             // Read & validate jobId
@@ -254,7 +255,7 @@ namespace Server
             string targetJobStr = args[1];
             if(!int.TryParse(targetJobStr, out int targetJobInt))
             {
-                OwlLogger.Log($"Invalid JobId format passed to ChangeJobChatCommand: {targetJobStr}", GameComponent.ChatCommands);
+                OwlLogger.LogF("Invalid JobId format passed to ChangeJobChatCommand: {0}", targetJobStr, GameComponent.ChatCommands);
                 return -2;
             }
 
@@ -263,16 +264,28 @@ namespace Server
             if(!System.Enum.IsDefined(typeof(JobId), targetJobId) 
                 || targetJobId == JobId.Unknown)
             {
-                OwlLogger.Log($"Invalid JobId passed to ChangeJobChatCommand: {targetJobId}", GameComponent.ChatCommands);
+                OwlLogger.LogF("Invalid JobId passed to ChangeJobChatCommand: {0}", targetJobId, GameComponent.ChatCommands);
                 return -3;
+            }
+
+            bool shouldReset = true;
+            if(args.Length >= 3)
+            {
+                bool canParse = int.TryParse(args[2], out int shouldResetInt);
+                if(!canParse)
+                {
+                    OwlLogger.LogF("Invalid shouldReset value passed into ChangeJobChatCommand: {0}", args[2], GameComponent.ChatCommands);
+                    return -5;
+                }
+                shouldReset = shouldResetInt != 0;
             }
 
             // Read & Validate target
             CharacterRuntimeData target = sender;
 
-            if(args.Length >= 3)
+            if(args.Length >= 4)
             {
-                string targetName = args[2];
+                string targetName = args[3];
 
                 target = FindPlayerByName(targetName);
                 if (target == null)
@@ -283,7 +296,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMain.Instance.Server.JobModule.ChangeJob(target, targetJobId, false);
+            ServerMain.Instance.Server.JobModule.ChangeJob(target, targetJobId, shouldReset);
             return 0;
         }
     }

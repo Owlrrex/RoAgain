@@ -635,6 +635,9 @@ namespace Server
             }
 
             character.PermanentSkills.Clear();
+            // Add skills that all characters have
+            character.PermanentSkills[SkillId.AutoAttack] = 2;
+            character.PermanentSkills[SkillId.PlaceWarp] = 5;
 
             character.Connection.Send(new SkillPointUpdatePacket() { RemainingSkillPoints = character.RemainingSkillPoints });
         }
