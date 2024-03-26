@@ -20,6 +20,8 @@ namespace Server
 
         public abstract JobModule JobModule { get; }
 
+        public abstract ExperienceModule ExpModule { get; }
+
         public abstract void Update(float deltaTime);
 
         public abstract bool TryGetLoggedInCharacter(int characterId, out CharacterRuntimeData charData);
@@ -53,10 +55,14 @@ namespace Server
 
         private SkillStaticDataDatabase _skillStaticDataDatabase;
 
+        private JobDatabase _jobDatabase;
+
         private TimingScheduler _timingScheduler;
 
         private JobModule _jobModule;
         public override JobModule JobModule => _jobModule;
+
+        public override ExperienceModule ExpModule => _expModule;
 
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
@@ -91,6 +97,9 @@ namespace Server
 
             _characterDatabase = new CharacterDatabase();
             int charDbError = 100000 * _characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
+
+            _jobDatabase = new();
+            int jobDbError = 10000000 * _jobDatabase.Register();
 
             _skillStaticDataDatabase = new();
             _skillStaticDataDatabase.Register();

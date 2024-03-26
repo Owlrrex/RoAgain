@@ -299,7 +299,11 @@ namespace Client
 
         public void StartCharacterLogin(int characterId)
         {
-            // TODO: Check if _characterLogin phase is already in use = double-login attempt?
+            if(_characterLogin.IsStarted())
+            {
+                OwlLogger.LogError("Can't start CharacterLogin while previous login attempt is still running!", GameComponent.Other);
+                return;
+            }
 
             DeleteCurrentWindow();
             ClientMain.Instance.DisplayZeroButtonNotification("Connecting to world...");

@@ -64,6 +64,8 @@ namespace Server
             _chatCommands.Add("job", new ChangeJobChatCommand());
             _chatCommands.Add("resetskills", new SkillResetChatCommand());
             _chatCommands.Add("resetstats", new StatResetChatCommand());
+            _chatCommands.Add("baselvl", new BaseLevelChatCommand());
+            _chatCommands.Add("joblvl", new JobLevelChatCommand());
         }
 
         public int HandleChatMessage(ChatMessageRequestData chatMessage)

@@ -13,7 +13,7 @@ namespace Server
 
         public void InitJob(CharacterRuntimeData character)
         {
-            // TODO: Apply new job bonuses, overlap with ExperienceModule.UpdateJobBonuses()
+            UpdateJobBonuses(character, -1, character.JobLvl.Value);
 
             // Apply known passive skills
             foreach (KeyValuePair<SkillId, int> kvp in character.PermanentSkills)
@@ -42,7 +42,7 @@ namespace Server
 
             if(character.JobId != JobId.Unknown)
             {
-                // TODO: Unapply old job bonuses
+                UpdateJobBonuses(character, character.JobLvl.Value, -1);
 
                 // TODO: Clear buffs
 
@@ -130,9 +130,7 @@ namespace Server
             }
 
             // TODO: Make starting-statpoints depend on config-value
-            int desiredStatPoints = 44;
-            if (character.BaseLvl.Value > 1)
-                desiredStatPoints += character.StatPointsGainedFromTo(1, character.BaseLvl.Value);
+            int desiredStatPoints = character.TotalStatPointsAt(character.BaseLvl.Value);
 
             character.Str.SetBase(1, false);
             character.Vit.SetBase(1, false);
@@ -145,6 +143,57 @@ namespace Server
             character.RemainingStatPoints = desiredStatPoints;
 
             character.Connection.Send(new StatPointUpdatePacket() { NewRemaining = desiredStatPoints });
+        }
+
+        public void UpdateJobBonuses(CharacterRuntimeData character, int oldLevel, int newLevel)
+        {
+            if(character == null)
+            {
+                OwlLogger.LogError("Can't update JobBonuses on null character!", GameComponent.Other);
+                return;
+            }
+
+            if(oldLevel <= 0 && newLevel <= 0)
+            {
+                OwlLogger.LogError($"Can't update JobBonuses with invalid levels provided: old = {oldLevel} new = {newLevel}!", GameComponent.Other);
+                return;
+            }
+
+            if(oldLevel > 0)
+            {
+                int strBonusOld = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Str, oldLevel);
+                int agiBonusOld = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Agi, oldLevel);
+                int vitBonusOld = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Vit, oldLevel);
+                int intBonusOld = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Int, oldLevel);
+                int dexBonusOld = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Dex, oldLevel);
+                int lukBonusOld = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Luk, oldLevel);
+
+                character.Str.ModifyAdd(-strBonusOld, false);
+                character.Agi.ModifyAdd(-agiBonusOld, false);
+                character.Vit.ModifyAdd(-vitBonusOld, false);
+                character.Int.ModifyAdd(-intBonusOld, false);
+                character.Dex.ModifyAdd(-dexBonusOld, false);
+                character.Luk.ModifyAdd(-lukBonusOld, false);
+            }
+
+            if(newLevel > 0)
+            {
+                int strBonusNew = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Str, newLevel);
+                int agiBonusNew = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Agi, newLevel);
+                int vitBonusNew = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Vit, newLevel);
+                int intBonusNew = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Int, newLevel);
+                int dexBonusNew = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Dex, newLevel);
+                int lukBonusNew = JobDatabase.GetJobData(character.JobId).GetJobBonusAtLevel(EntityPropertyType.Luk, newLevel);
+
+                character.Str.ModifyAdd(strBonusNew, false);
+                character.Agi.ModifyAdd(agiBonusNew, false);
+                character.Vit.ModifyAdd(vitBonusNew, false);
+                character.Int.ModifyAdd(intBonusNew, false);
+                character.Dex.ModifyAdd(dexBonusNew, false);
+                character.Luk.ModifyAdd(lukBonusNew, false);
+            }
+
+            character.CalculateAllStats();
         }
 
         public void Shutdown()

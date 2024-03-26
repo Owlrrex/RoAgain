@@ -356,6 +356,87 @@ namespace Server
         }
     }
 
+    public class BaseLevelChatCommand : AChatCommand
+    {
+        // args[1]: Level difference to apply
+        // args[2]: [Optional] Target character name. Default: Sender name
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 2, 3))
+                return -1;
+
+            if (!int.TryParse(args[1], out int levelDiff))
+            {
+                OwlLogger.Log($"Tried to use BaseLevelChatCommand with invalid leveldiff {args[1]}.", GameComponent.ChatCommands);
+                return -2;
+            }
+
+            CharacterRuntimeData target = sender;
+            if (args.Length >= 3)
+            {
+                string targetName = args[2];
+
+                target = FindPlayerByName(targetName);
+                if (target == null)
+                {
+                    OwlLogger.Log($"Tried to use BaseLevelChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
+                    return -4;
+                }
+            }
+
+            ServerMain.Instance.Server.ExpModule.LevelUpBase(target, levelDiff);
+
+            return 0;
+        }
+    }
+
+    public class JobLevelChatCommand : AChatCommand
+    {
+        // args[1]: Level difference to apply
+        // args[2]: [Optional] Target character name. Default: Sender name
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 2, 3))
+                return -1;
+
+            if (!int.TryParse(args[1], out int levelDiff))
+            {
+                OwlLogger.Log($"Tried to use JobLevelChatCommand with invalid leveldiff {args[1]}.", GameComponent.ChatCommands);
+                return -2;
+            }
+
+            CharacterRuntimeData target = sender;
+            if (args.Length >= 3)
+            {
+                string targetName = args[2];
+
+                target = FindPlayerByName(targetName);
+                if (target == null)
+                {
+                    OwlLogger.Log($"Tried to use JobLevelChatCommand on target {targetName}, which wasn't found.", GameComponent.ChatCommands);
+                    return -4;
+                }
+            }
+
+            ServerMain.Instance.Server.ExpModule.LevelUpJob(target, levelDiff);
+
+            return 0;
+        }
+    }
+
+    public class TemplateChatCommand : AChatCommand
+    {
+        // args[1]: Does something.
+        // args[2]: [Optional] Does something else. Default: 0
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 2, 3))
+                return -1;
+
+            return 0;
+        }
+    }
+
     public abstract class AChatCommand
     {
         /// <summary>

@@ -1,0 +1,203 @@
+{
+  "Data": [
+    {
+      "JobId": 1,
+      "_entries": [
+        {
+          "PropertyType": 0,
+          "Levels": []
+        }
+      ],
+      "HpValueA": 0,
+      "HpValueB": 5,
+      "SpValue": 1,
+      "WeightValue": 0
+    },
+    {
+      "JobId": 2,
+      "_entries": [
+        {
+          "PropertyType": 1,
+          "Levels": [2, 14, 33, 40, 47, 49, 50]
+        },
+		{
+          "PropertyType": 2,
+          "Levels": [30, 46]
+        },
+		{
+          "PropertyType": 3,
+          "Levels": [6, 18, 38, 42]
+        },
+		{
+          "PropertyType": 5,
+          "Levels": [10, 22, 36]
+        },
+		{
+          "PropertyType": 6,
+          "Levels": [26, 44]
+        }
+      ],
+      "HpValueA": 0.7,
+      "HpValueB": 5,
+      "SpValue": 2,
+      "WeightValue": 800
+    },
+	{
+      "JobId": 3,
+      "_entries": [
+        {
+          "PropertyType": 2,
+          "Levels": [18, 26, 40, 47]
+        },
+		{
+          "PropertyType": 4,
+          "Levels": [2, 14, 22, 33, 38, 44, 46, 50]
+        },
+		{
+          "PropertyType": 5,
+          "Levels": [6, 10, 36]
+        },
+		{
+          "PropertyType": 6,
+          "Levels": [30, 42, 49]
+        }
+      ],
+      "HpValueA": 0.3,
+      "HpValueB": 5,
+      "SpValue": 6,
+      "WeightValue": 200
+    },
+	{
+      "JobId": 4,
+      "_entries": [
+        {
+          "PropertyType": 1,
+          "Levels": [26, 42, 49]
+        },
+		{
+          "PropertyType": 2,
+          "Levels": [22, 40]
+        },
+		{
+          "PropertyType": 3,
+          "Levels": [6, 30, 44]
+        },
+		{
+          "PropertyType": 4,
+          "Levels": [10, 33, 46]
+        },
+		{
+          "PropertyType": 5,
+          "Levels": [14, 36, 46]
+        },
+		{
+          "PropertyType": 6,
+          "Levels": [2, 18, 38, 50]
+        }
+      ],
+      "HpValueA": 0.4,
+      "HpValueB": 5,
+      "SpValue": 5,
+      "WeightValue": 400
+    },
+	{
+      "JobId": 5,
+      "_entries": [
+        {
+          "PropertyType": 1,
+          "Levels": [6, 30, 38, 47]
+        },
+		{
+          "PropertyType": 2,
+          "Levels": [2, 33, 36, 50]
+        },
+		{
+          "PropertyType": 3,
+          "Levels": [14, 44]
+        },
+		{
+          "PropertyType": 4,
+          "Levels": [18]
+        },
+		{
+          "PropertyType": 5,
+          "Levels": [10, 22, 42, 49]
+        },
+		{
+          "PropertyType": 6,
+          "Levels": [26, 40, 46]
+        }
+      ],
+      "HpValueA": 0.5,
+      "HpValueB": 5,
+      "SpValue": 2,
+      "WeightValue": 400
+    },
+	{
+      "JobId": 6,
+      "_entries": [
+        {
+          "PropertyType": 1,
+          "Levels": [6, 38, 40]
+        },
+		{
+          "PropertyType": 2,
+          "Levels": [26, 33, 49]
+        },
+		{
+          "PropertyType": 3,
+          "Levels": [46]
+        },
+		{
+          "PropertyType": 4,
+          "Levels": [10, 47]
+        },
+		{
+          "PropertyType": 5,
+          "Levels": [2, 14, 18, 30, 36, 42, 50]
+        },
+		{
+          "PropertyType": 6,
+          "Levels": [22, 44]
+        }
+      ],
+      "HpValueA": 0.5,
+      "HpValueB": 5,
+      "SpValue": 2,
+      "WeightValue": 600
+    },
+	{
+      "JobId": 7,
+      "_entries": [
+        {
+          "PropertyType": 1,
+          "Levels": [10, 22, 40, 44, 49]
+        },
+		{
+          "PropertyType": 2,
+          "Levels": [33]
+        },
+		{
+          "PropertyType": 3,
+          "Levels": [2, 18, 30, 47]
+        },
+		{
+          "PropertyType": 4,
+          "Levels": [26]
+        },
+		{
+          "PropertyType": 5,
+          "Levels": [6, 14, 38, 42, 50]
+        },
+		{
+          "PropertyType": 6,
+          "Levels": [36, 46]
+        }
+      ],
+      "HpValueA": 0.4,
+      "HpValueB": 5,
+      "SpValue": 3,
+      "WeightValue": 800
+    }
+  ]
+}

@@ -507,7 +507,6 @@ namespace Client
 
         private void ReceiveDamageTakenPacket(DamageTakenPacket packet)
         {
-            // TODO: Create proper DamageTaken object
             DamageTakenReceived?.Invoke(packet.EntityId, packet.Damage, packet.IsSpDamage, packet.IsCrit, packet.ChainCount);
         }
 

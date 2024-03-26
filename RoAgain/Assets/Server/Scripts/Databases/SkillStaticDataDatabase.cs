@@ -61,10 +61,11 @@ namespace Server
             if (_data == null)
             {
                 _data = new();
-                foreach (SkillStaticDataEntry entry in dataList.Entries)
-                {
-                    _data.Add(entry.SkillId, entry);
-                }
+            }
+
+            foreach (SkillStaticDataEntry entry in dataList.Entries)
+            {
+                _data.Add(entry.SkillId, entry);
             }
 
             _instance = this;

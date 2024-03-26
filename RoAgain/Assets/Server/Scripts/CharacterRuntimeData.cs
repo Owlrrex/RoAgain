@@ -269,6 +269,18 @@ namespace Server
             return sum;
         }
 
+        public int TotalStatPointsAt(int level)
+        {
+            // TODO: Make starting-statpoints depend on config-value
+            int startingStatPoints = 44;
+            int statPoints = startingStatPoints;
+            for(int i = 2; i <= level; i++)
+            {
+                statPoints += StatPointsGainedAtLevelUpTo(i);
+            }
+            return statPoints;
+        }
+
         private void OnBaseLvlChanged(EntityPropertyType _)
         {
             CalculateHp();
