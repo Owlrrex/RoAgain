@@ -466,7 +466,10 @@ public class ClientMapModule
             return;
         }
 
-        if(entity is ClientBattleEntity bEntity)
+        newMover.Initialize(entity, Grid);
+        _displayedGridEntities.Add(entity.Id, newMover);
+
+        if (entity is ClientBattleEntity bEntity)
         {
             BattleEntityModelMain battleModel = newEntityInstance.GetComponent<BattleEntityModelMain>();
             if (battleModel == null)
@@ -477,9 +480,6 @@ public class ClientMapModule
 
             battleModel.Initialize(bEntity);
         }
-
-        newMover.Initialize(entity, Grid);
-        _displayedGridEntities.Add(entity.Id, newMover);
     }
 
     private RemoteCharacterEntity CreateRemoteCharacterEntity(RemoteCharacterData charData)
@@ -509,6 +509,7 @@ public class ClientMapModule
         };
         newEntity.Movespeed.Value = entityData.Movespeed;
         newEntity.SetPath(entityData.Path, entityData.PathCellIndex);
+        newEntity.ModelId = 2; // tmp: hardcoded value for npcs
         return newEntity;
     }
 

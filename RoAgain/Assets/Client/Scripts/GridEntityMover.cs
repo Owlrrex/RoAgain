@@ -12,6 +12,11 @@ namespace Client
         private NavMeshAgent _nmAgent;
         private GridComponent _grid;
 
+        [SerializeField]
+        private Transform _modelAnchor;
+        private GameObject _model;
+        public GameObject Model => _model;
+
         public void Initialize(GridEntity entity, GridComponent grid)
         {
             if (entity == null)
@@ -40,9 +45,53 @@ namespace Client
             _entity.PathUpdated += OnEntityPathUpdated;
             _entity.PathFinished += OnEntityPathFinished;
 
+            GameObject prefab = GetPrefabForEntity();
+            if(prefab == null)
+            {
+                OwlLogger.LogError($"Can't find prefab for entity {_entity.Id} when creating Mover!", GameComponent.Other);
+            }
+            else
+            {
+                _model = Instantiate(prefab, _modelAnchor);
+            }
+
             UpdateMovementSpeed();
             SnapToCoordinates(_entity.Coordinates);
             OnEntityPathUpdated(_entity, null, _entity.Path);
+        }
+
+        private GameObject GetPrefabForEntity()
+        {
+            switch(_entity)
+            {
+                case ACharacterEntity rChar:
+                    return GetCharacterModelPrefab(rChar);
+                case ClientBattleEntity bEntity:
+                    return GetMobModelPrefab(bEntity);
+                case GridEntity gEntity:
+                    return GetGenericModelPrefab(gEntity);
+                default:
+                    return null;
+            }
+        }
+
+        private GameObject GetCharacterModelPrefab(ACharacterEntity character)
+        {
+            JobTableEntry jobData = JobTable.GetDataById(character.JobId);
+            if (jobData == null)
+                return null;
+
+            return jobData.ModelPrefab;
+        }
+
+        private GameObject GetMobModelPrefab(ClientBattleEntity bEntity)
+        {
+            return ModelTable.GetPrefabForType(bEntity.ModelId);
+        }
+
+        private GameObject GetGenericModelPrefab(GridEntity gEntity)
+        {
+            return ModelTable.GetPrefabForType(gEntity.ModelId);
         }
 
         // Update is called once per frame

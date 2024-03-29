@@ -24,6 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2276057488857646344}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -31,7 +32,6 @@ Transform:
   m_Children:
   - {fileID: 5255944741564142163}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2276057488857646343
 MonoBehaviour:
@@ -45,16 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f47816a97fb7ec74c879047d2bf46a3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MainMenu: {fileID: 0}
-  CharacterSelection: {fileID: 0}
-  DisconnectPlacement: {x: 0, y: 650, z: 150, w: 50}
-  LoadingMessagePlacement: {x: 600, y: 400, z: 200, w: 200}
-  LoadingMessage: 
-  CharacterPrefab: {fileID: 290062880184334849, guid: 86b2a90c064f5794fad14b3585f54003,
-    type: 3}
-  _dummyUnitPrefab: {fileID: 1690524198634084755, guid: 9ecb92c84baaebb43983197e4e9a1316,
-    type: 3}
-  IpInput: 127.0.0.1
   MainUiCanvas: {fileID: 8109249906825277311}
   _oneButtonNotification: {fileID: 4821003534549772147}
   _zeroButtonNotification: {fileID: 4312734173665637973}
@@ -64,12 +54,20 @@ MonoBehaviour:
   _entityPrefabTable: {fileID: 11400000, guid: da9f03b9034f41e49a564d3177fa505c, type: 2}
   _skillClientDataTable: {fileID: 11400000, guid: 541c92d870b92f94fbe84a12b0151665,
     type: 2}
+  _modelTable: {fileID: 11400000, guid: 9b40c31666854e34a8cba41965f059fe, type: 2}
+  _jobTable: {fileID: 11400000, guid: cbbdb187589349a4fb02eaded9b30fc0, type: 2}
+  _dummyUnitPrefab: {fileID: 1690524198634084755, guid: 9ecb92c84baaebb43983197e4e9a1316,
+    type: 3}
+  CharacterPrefab: {fileID: 290062880184334849, guid: 86b2a90c064f5794fad14b3585f54003,
+    type: 3}
   _titlePlacement:
     serializedVersion: 2
     x: 600
     y: 100
     width: 300
     height: 50
+  LoadingMessagePlacement: {x: 600, y: 400, z: 200, w: 200}
+  IpInput: 127.0.0.1
 --- !u!1 &4918072943804955849
 GameObject:
   m_ObjectHideFlags: 0
@@ -104,7 +102,6 @@ RectTransform:
   - {fileID: 4821003534549772146}
   - {fileID: 6046013249658148991}
   m_Father: {fileID: 2276057488857646342}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -128,7 +125,9 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -177,6 +176,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 5255944741564142163}
     m_Modifications:
     - target: {fileID: 8328150590223539403, guid: 00fce133c5c9be64e9cc4951573e1969,
@@ -220,6 +220,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00fce133c5c9be64e9cc4951573e1969, type: 3}
 --- !u!114 &4312734173665637973 stripped
 MonoBehaviour:
@@ -244,6 +247,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 5255944741564142163}
     m_Modifications:
     - target: {fileID: 8750003651551834602, guid: a4ccdbc7079b7da4cb474686b7021d45,
@@ -292,6 +296,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4ccdbc7079b7da4cb474686b7021d45, type: 3}
 --- !u!224 &4821003534549772146 stripped
 RectTransform:

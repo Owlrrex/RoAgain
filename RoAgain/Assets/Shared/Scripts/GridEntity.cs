@@ -9,7 +9,7 @@ using UnityEngine;
 // - Monsters
 // - Player Characters
 // - Dropped Items
-// - CellEffects
+// CellEffects are currently handled separately
 
 public class GridEntity
 {
@@ -39,6 +39,8 @@ public class GridEntity
 
     public Action<GridEntity, GridData.Path, GridData.Path> PathUpdated;
     public Action<GridEntity> PathFinished;
+
+    public int ModelId = -1;
 
     public void ClearPath()
     {

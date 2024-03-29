@@ -35,7 +35,6 @@ namespace Client
         private TimerFloat _skilltextTimer = new();
 
         // tmp for scaling
-        [SerializeField]
         protected GameObject _model;
 
         public int Initialize(ClientBattleEntity entity)
@@ -66,7 +65,15 @@ namespace Client
 
             UpdateDisplay();
 
-            if(_entity is not ACharacterEntity)
+            if (TryGetComponent<GridEntityMover>(out var mover))
+            {
+                _model = mover.Model;
+            }
+
+            if (_model == null)
+                OwlLogger.LogError("Couldn't find mover on BattleEntityModel!", GameComponent.Other);
+
+            if (_entity is not ACharacterEntity)
             {
                 float scaleFactor = Mathf.Sqrt(_entity.MaxHp.Total / 100.0f);
                 _model.transform.localScale = new(transform.localScale.x * scaleFactor, transform.localScale.y, transform.localScale.z * scaleFactor);

@@ -27,18 +27,8 @@ namespace Client
             public GameObject Prefab;
         }
 
-        [Serializable]
-        private class JobEntry
-        {
-            public JobId Job;
-            public GameObject Prefab;
-        }
-
         [SerializeField]
         private List<Entry> _entries;
-
-        [SerializeField]
-        private List<JobEntry> _jobEntries;
 
         private Dictionary<EntityType, GameObject> _prefabsByType;
         private Dictionary<JobId, GameObject> _jobPrefabsByJobId;
@@ -48,12 +38,6 @@ namespace Client
             if (_entries == null)
             {
                 OwlLogger.LogError($"Can't register EntityPrefabTable with null entries!", GameComponent.Other);
-                return;
-            }
-
-            if(_jobEntries == null)
-            {
-                OwlLogger.LogError("Can't register EntityPrefabTable with null jobEntries!", GameComponent.Other);
                 return;
             }
 
@@ -72,15 +56,6 @@ namespace Client
                 }
             }
 
-            if(_jobPrefabsByJobId == null)
-            {
-                _jobPrefabsByJobId = new();
-                foreach(JobEntry entry in _jobEntries)
-                {
-                    _jobPrefabsByJobId.Add(entry.Job, entry.Prefab);
-                }
-            }
-
             Instance = this;
         }
 
@@ -93,17 +68,6 @@ namespace Client
             }
 
             return Instance._prefabsByType[type];
-        }
-
-        public static GameObject GetPrefabForJob(JobId job)
-        {
-            if(Instance == null)
-            {
-                OwlLogger.LogError($"Tried to get Prefab for JobId {job} before EntityPrefabTable was available!", GameComponent.Other);
-                return null;
-            }
-
-            return Instance._jobPrefabsByJobId[job];
         }
     }
 }

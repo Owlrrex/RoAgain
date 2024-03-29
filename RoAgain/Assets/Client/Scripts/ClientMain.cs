@@ -25,6 +25,10 @@ namespace Client
         private EntityPrefabTable _entityPrefabTable;
         [SerializeField]
         private SkillClientDataTable _skillClientDataTable;
+        [SerializeField]
+        private ModelTable _modelTable;
+        [SerializeField]
+        private JobTable _jobTable;
 
         [SerializeField]
         private GameObject _dummyUnitPrefab;
@@ -123,6 +127,12 @@ namespace Client
 
             if(!OwlLogger.PrefabNullCheckAndLog(_skillClientDataTable, "skillClientDataTable", this, GameComponent.Other))
                 _skillClientDataTable.Register();
+
+            if(!OwlLogger.PrefabNullCheckAndLog(_modelTable, "modelTable", this, GameComponent.Other))
+                _modelTable.Register();
+
+            if (!OwlLogger.PrefabNullCheckAndLog(_jobTable, "jobTable", this, GameComponent.Other))
+                _jobTable.Register();
         }
 
         private void Update()

@@ -26,6 +26,12 @@ namespace Shared
             return skillId switch
             {
                 SkillId.PlaceWarp => true,
+                SkillId.FireWall => true,
+                SkillId.Thunderstorm => true,
+                SkillId.SafetyWall => true,
+                SkillId.ArrowShower => true,
+                SkillId.WarpPortal => true,
+                SkillId.Pneuma => true,
                 _ => false,
             };
         }

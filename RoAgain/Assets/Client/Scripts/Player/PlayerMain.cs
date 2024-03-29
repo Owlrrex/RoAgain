@@ -40,7 +40,7 @@ public class PlayerMain : BattleEntityModelMain
         base.Start();
 
         // TODO: Move this out of here, into a proper Initialization flow, once player model lifetime has been reworked/decided
-        Initialize(ClientMain.Instance.CurrentCharacterData);
+        //Initialize(ClientMain.Instance.CurrentCharacterData);
     }
 
     protected new void Update()
