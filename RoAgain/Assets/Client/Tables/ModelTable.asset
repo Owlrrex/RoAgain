@@ -14,8 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _entries:
   - ModelId: 1
-    Prefab: {fileID: 4704524125640937412, guid: 8d27323759da6204892ae637437f037b,
+    Prefab: {fileID: 4704524125640937412, guid: 27a4c8ce23961c14b856bea51595655c,
       type: 3}
   - ModelId: 2
-    Prefab: {fileID: 4704524125640937412, guid: 27a4c8ce23961c14b856bea51595655c,
+    Prefab: {fileID: 4704524125640937412, guid: 8d27323759da6204892ae637437f037b,
+      type: 3}
+  - ModelId: 3
+    Prefab: {fileID: 4704524125640937412, guid: 21ac5340c22c626478a77a374a6bafd7,
+      type: 3}
+  - ModelId: 4
+    Prefab: {fileID: 4704524125640937412, guid: 22b9f4d1f5ff6c84eb7f79f8c285c8fb,
       type: 3}

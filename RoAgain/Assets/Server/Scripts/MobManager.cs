@@ -8,11 +8,122 @@ namespace Server
 {
     public class Mob : ServerBattleEntity
     {
-        public SpawnAreaDefinition SpawnArea; // some mobs may want to know their area? Or for bookkeeping later?
+        public SpawnAreaDefinition SpawnArea;
 
+        public int MobTypeId;
         public int BaseExpReward;
         public int JobExpReward;
-        // TODO: Droptable reference
+        // TODO: Droptable reference?
+
+        public void Init()
+        {
+            Dex.ValueChanged += OnDexChanged;
+            Agi.ValueChanged += OnAgiChanged;
+            Vit.ValueChanged += OnVitChanged;
+            Int.ValueChanged += OnIntChanged;
+            Luk.ValueChanged += OnLukChanged;
+
+            CalculateHit();
+            CalculateFlee();
+            CalculateSoftDef();
+            CalculateSoftMDef();
+
+            CurrentHp = MaxHp.Total;
+            CurrentSp = MaxSp.Total;
+
+            if (CurrentHp == 0)
+                OwlLogger.LogError($"Mob with TypeId {MobTypeId} has 0 hp on spawn!", GameComponent.Other);
+
+            // TODO: Status resistances
+
+            // TODO: Init AI?
+        }
+
+        public void InitFromStaticData(int mobTypeId, MobDataStatic staticData)
+        {
+            MobTypeId = mobTypeId;
+
+            Name = staticData.DefaultDisplayName;
+            ModelId = staticData.ModelId;
+
+            BaseExpReward = staticData.BaseExpReward;
+            JobExpReward = staticData.JobExpReward;
+
+            BaseLvl.Value = staticData.BaseLvl;
+            Race = staticData.Race;
+            Size = staticData.Size;
+            Element = staticData.Element;
+
+            MaxHp.SetBase(staticData.MaxHp);
+            MaxSp.SetBase(staticData.MaxSp);
+            BaseAttackRange.Value = staticData.BaseAttackRange;
+            Str.SetBase(staticData.Str);
+            Agi.SetBase(staticData.Agi);
+            Vit.SetBase(staticData.Vit);
+            Int.SetBase(staticData.Int);
+            Dex.SetBase(staticData.Dex);
+            Luk.SetBase(staticData.Luk);
+
+            MeleeAtkMin.SetBase(staticData.MinAtk);
+            RangedAtkMin.SetBase(staticData.MinAtk);
+            MeleeAtkMax.SetBase(staticData.MaxAtk);
+            RangedAtkMax.SetBase(staticData.MaxAtk);
+            MatkMin.SetBase(staticData.MinMatk);
+            MatkMax.SetBase(staticData.MaxMatk);
+            HardDef.SetBase(staticData.HardDef / 100f);
+            HardMDef.SetBase(staticData.HardMDef / 100f);
+            // TODO: Aspd
+            Movespeed.Value = staticData.Movespeed;
+
+            // TODO: Setup AI
+
+            Init();
+        }
+
+        private void OnDexChanged(Stat _)
+        {
+            CalculateHit();
+        }
+
+        private void OnAgiChanged(Stat _)
+        {
+            CalculateFlee();
+        }
+
+        private void OnVitChanged(Stat _)
+        {
+            CalculateSoftDef();
+        }
+
+        private void OnIntChanged(Stat _)
+        {
+            CalculateSoftMDef();
+        }
+
+        private void OnLukChanged(Stat _)
+        {
+            // TODO: Status Resistances
+        }
+
+        public void CalculateHit()
+        {
+            Hit.SetBase(Dex.Total + BaseLvl.Value);
+        }
+
+        public void CalculateFlee()
+        {
+            Flee.SetBase(Agi.Total + BaseLvl.Value);
+        }
+
+        public void CalculateSoftDef()
+        {
+            SoftDef.SetBase(Vit.Total);
+        }
+
+        public void CalculateSoftMDef()
+        {
+            SoftMDef.SetBase(Int.Total);
+        }
     }
 
     [Serializable]
@@ -127,6 +238,8 @@ namespace Server
         {
             // TODO safety checks
             Mob mob = CreateNewMob(spawnArea.MobSpeciesId);
+            if (mob == null)
+                return -2; // Logged inside CreateNewMob()
             mob.SpawnArea = spawnArea;
 
             Vector2Int spawnPos = _map.Grid.FindRandomPosition(spawnArea.BoundsMin, spawnArea.BoundsMax, false);
@@ -143,29 +256,21 @@ namespace Server
             return 0;
         }
 
-        private Mob CreateNewMob(int mobSpeciesId)
+        private Mob CreateNewMob(int mobTypeId)
         {
+            MobDataStatic staticData = MobDatabase.GetMobDataForId(mobTypeId);
+            if (staticData == null)
+                return null; // logged inside GetMobDataForId()
+
             // tmp: Use SquareWalkers, to make the map more lively
-            float factor = UnityEngine.Random.Range(0.5f, 5.0f);
             int id = GridEntity.NextEntityId;
             SquareWalkerEntity mob = new()
             {
                 Id = id,
-                Name = id.ToString(),
                 HpRegenTime = 30,
                 SpRegenTime = 30,
-                BaseExpReward = (int)(10.0f * factor * factor),
-                JobExpReward = (int)(3 * factor * factor),
-                Size = EntitySize.Medium,
-                Race = EntityRace.Formless,
-                Element = EntityElement.Earth1
             };
-            mob.Movespeed.Value = 2;
-            mob.BaseLvl.Value = (int)(5 * factor);
-            mob.MaxHp.SetBase((int)(15.0f * factor * factor));
-            mob.MaxSp.SetBase(10);
-            mob.Flee.SetBase((int)(10.0f * factor));
-            mob.HardDef.SetBase((int)(0.2f * factor));
+            mob.InitFromStaticData(mobTypeId, staticData);
 
             mob.Death += OnEntityDeath;
             mob.Death += _expMobDeathCallback;
@@ -178,8 +283,6 @@ namespace Server
                 _ => GridData.Direction.North,
             };
             mob.Initialize(UnityEngine.Random.Range(1, 5), nextDirection);
-            // TODO: Read MobDb to fill in correct values for the mobId
-            // mob.Initialize() // needed? here? Or later, once it's in correct position?
 
             return mob;
         }

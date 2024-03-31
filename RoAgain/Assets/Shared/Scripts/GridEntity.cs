@@ -212,6 +212,7 @@ public class GridEntity
             MovementCooldown = MovementCooldown,
             Orientation = Orientation,
             Coordinates = Coordinates,
+            ModelId = ModelId,
         };
     }
 }

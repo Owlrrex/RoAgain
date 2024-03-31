@@ -188,34 +188,39 @@ namespace Server
                     continue;
                 }
 
-                float hpIncreaseAmount = deltaTime;
-                if(bEntity.IsMoving())
+                if(bEntity.HpRegenTime > 0)
                 {
-                    if (bEntity is CharacterRuntimeData charEntity
-                    && charEntity.HasSkill(SkillId.HpRecWhileMoving))
-                        hpIncreaseAmount *= 0.5f;
+                    float hpIncreaseAmount = deltaTime;
+                    if (bEntity.IsMoving())
+                    {
+                        if (bEntity is CharacterRuntimeData charEntity
+                        && charEntity.HasSkill(SkillId.HpRecWhileMoving))
+                            hpIncreaseAmount *= 0.5f;
+                        else
+                            hpIncreaseAmount = 0;
+                    }
                     else
-                        hpIncreaseAmount = 0;
-                }
-                else
-                {
-                    // TODO: if(IsSitting(bEntity)) hpIncreaseAmount *= 2; // Make sitting regen faster, not higher amount
-                }
-
-                bEntity.HpRegenCounter += hpIncreaseAmount;
-                if (bEntity.HpRegenCounter >= bEntity.HpRegenTime)
-                {
-                    ChangeHp(bEntity, bEntity.HpRegenAmount.Total, bEntity);
-                    bEntity.HpRegenCounter -= bEntity.HpRegenTime;
+                    {
+                        // TODO: if(IsSitting(bEntity)) hpIncreaseAmount *= 2; // Make sitting regen faster, not higher amount
+                    }
+                    bEntity.HpRegenCounter += hpIncreaseAmount;
+                    if (bEntity.HpRegenCounter >= bEntity.HpRegenTime)
+                    {
+                        ChangeHp(bEntity, bEntity.HpRegenAmount.Total, bEntity);
+                        bEntity.HpRegenCounter -= bEntity.HpRegenTime;
+                    }
                 }
 
-                float spIncreaseAmount = deltaTime;
-                // TODO: if(IsSitting(bEntity)) spIncreaseAmount *= 2; // Make sitting regen faster, not higher amount
-                bEntity.SpRegenCounter += spIncreaseAmount;
-                if (bEntity.SpRegenCounter >= bEntity.SpRegenTime)
+                if(bEntity.SpRegenTime > 0)
                 {
-                    ChangeSp(bEntity, bEntity.SpRegenAmount.Total);
-                    bEntity.SpRegenCounter -= bEntity.SpRegenTime;
+                    float spIncreaseAmount = deltaTime;
+                    // TODO: if(IsSitting(bEntity)) spIncreaseAmount *= 2; // Make sitting regen faster, not higher amount
+                    bEntity.SpRegenCounter += spIncreaseAmount;
+                    if (bEntity.SpRegenCounter >= bEntity.SpRegenTime)
+                    {
+                        ChangeSp(bEntity, bEntity.SpRegenAmount.Total);
+                        bEntity.SpRegenCounter -= bEntity.SpRegenTime;
+                    }
                 }
             }
         }

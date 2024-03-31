@@ -12,14 +12,6 @@ namespace Server
 
         public int Initialize(int squareSidelength, GridData.Direction nextDirection = GridData.Direction.North)
         {
-            if(MaxHp.Base == 0)
-                MaxHp.SetBase(50);
-            CurrentHp = MaxHp.Total;
-
-            if(MaxSp.Base == 0)
-                MaxSp.SetBase(30);
-            CurrentSp = MaxSp.Total;
-
             _squareSidelength = squareSidelength;
             _nextDirection = nextDirection;
             return 0;

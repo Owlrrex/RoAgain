@@ -28,13 +28,12 @@ namespace Client
             MovementCooldown = data.MovementCooldown;
             Coordinates = data.Coordinates;
             Orientation = data.Orientation;
+            ModelId = data.ModelId;
 
             MaxHp.SetBase(data.MaxHp);
             CurrentHp = data.Hp;
             MaxSp.SetBase(data.MaxSp);
             CurrentSp = data.Sp;
-
-            ModelId = 1; // tmp: hardcoded value for mobs
         }
     }
 }

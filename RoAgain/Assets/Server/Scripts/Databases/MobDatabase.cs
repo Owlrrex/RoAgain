@@ -1,21 +1,25 @@
 using OwlLogging;
+using Shared;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+
+using MobDataPersistent = Shared.DictionarySerializationWrapper<int, Server.MobDataStatic>;
 
 namespace Server
 {
     [Serializable]
     public class MobDataStatic
     {
-        public int MobId; // Not sure if needed here?
+        public string DefaultDisplayName; // TODO: Localized String
+        public int ModelId;
 
-        public string DefaultDisplayName;
+        public int BaseExpReward;
+        public int JobExpReward;
+
         public int BaseLvl;
         public EntityRace Race;
         public EntitySize Size;
         public EntityElement Element;
-
 
         public int MaxHp;
         public int MaxSp;
@@ -31,68 +35,59 @@ namespace Server
         public int MinMatk;
         public int MaxMatk;
         public float HardDef;
-        public int SoftDef = -1;
         public float HardMDef;
-        public int SoftMDef = -1;
-        public int Flee = -1;
-        public int Hit = -1;
+        public float Apm;
+        public float Movespeed;
+
+        // TODO: Skills?
+        // TODO: AI
+        // TODO: Loot
     }
 
-    [CreateAssetMenu(fileName = "MobDatabase", menuName = "ScriptableObjects/MobDatabase")]
-    public class MobDatabase : ScriptableObject
+    public class MobDatabase
     {
-        public static MobDatabase Instance;
+        private const string FILE_KEY = CachedFileAccess.SERVER_DB_PREFIX + "MobDatabase";
 
-        [Serializable]
-        private class MobDatabaseEntry
-        {
-#pragma warning disable CS0649 // Field 'MobDatabase.MobDatabaseEntry.MobId' is never assigned to, and will always have its default value 0
-            public int MobId;
-            public MobDataStatic Data;
-#pragma warning restore CS0649 // Field 'MobDatabase.MobDatabaseEntry.Data' is never assigned to, and will always have its default value null
-        }
+        private static MobDatabase _instance;
 
-        [SerializeField]
-        private MobDatabaseEntry[] _entries;
-
-        // Need that data-type here
         private Dictionary<int, MobDataStatic> _mobdataById;
 
         public void Register()
         {
-            if (_entries == null)
-            {
-                OwlLogger.LogError($"Can't register MobDatabase with null entries!", GameComponent.Other);
-                return;
-            }
-
-            if (Instance != null)
+            if (_instance != null)
             {
                 OwlLogger.LogError("Duplicate MobDatabase!", GameComponent.Other);
                 return;
             }
 
-            if (_mobdataById == null)
+            MobDataPersistent persData = CachedFileAccess.GetOrLoad<MobDataPersistent>(FILE_KEY, true);
+            if(persData == null)
             {
-                _mobdataById = new();
-                foreach (MobDatabaseEntry entry in _entries)
-                {
-                    _mobdataById.Add(entry.MobId, entry.Data);
-                }
+                OwlLogger.LogError("MobDatabase failed to register - null data!", GameComponent.Other);
+                return;
             }
 
-            Instance = this;
+            _mobdataById = persData.ToDict();
+            CachedFileAccess.Purge(FILE_KEY);
+
+            _instance = this;
         }
 
-        public static MobDataStatic GetMobDataForId(int mobId)
+        public static MobDataStatic GetMobDataForId(int mobTypeId)
         {
-            if (Instance == null)
+            if (_instance == null)
             {
-                OwlLogger.LogError("Tried to get MobData for MobId before MobDatabase was available", GameComponent.Other);
+                OwlLogger.LogError($"Tried to get MobData for MobTypeId {mobTypeId} before MobDatabase was available", GameComponent.Other);
                 return null;
             }
 
-            return Instance._mobdataById[mobId];
+            if(!_instance._mobdataById.ContainsKey(mobTypeId))
+            {
+                OwlLogger.LogError($"No MobData found for MobTypeId {mobTypeId}!", GameComponent.Other);
+                return null;
+            }
+
+            return _instance._mobdataById[mobTypeId];
         }
     }
 }

@@ -360,6 +360,7 @@ public class ClientMapModule
             entity.SetPath(data.Path, data.PathCellIndex, true);
             entity.Movespeed.Value = data.Movespeed;
             entity.Orientation = data.Orientation;
+            entity.ModelId = data.ModelId;
         }
     }
 
@@ -506,10 +507,10 @@ public class ClientMapModule
             MovementCooldown = entityData.MovementCooldown,
             Orientation = entityData.Orientation,
             Coordinates = entityData.Coordinates,
+            ModelId = entityData.ModelId,
         };
         newEntity.Movespeed.Value = entityData.Movespeed;
         newEntity.SetPath(entityData.Path, entityData.PathCellIndex);
-        newEntity.ModelId = 2; // tmp: hardcoded value for npcs
         return newEntity;
     }
 

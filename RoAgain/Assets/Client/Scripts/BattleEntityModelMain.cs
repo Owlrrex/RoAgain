@@ -34,7 +34,6 @@ namespace Client
 
         private TimerFloat _skilltextTimer = new();
 
-        // tmp for scaling
         protected GameObject _model;
 
         public int Initialize(ClientBattleEntity entity)
@@ -72,17 +71,6 @@ namespace Client
 
             if (_model == null)
                 OwlLogger.LogError("Couldn't find mover on BattleEntityModel!", GameComponent.Other);
-
-            if (_entity is not ACharacterEntity)
-            {
-                float scaleFactor = Mathf.Sqrt(_entity.MaxHp.Total / 100.0f);
-                _model.transform.localScale = new(transform.localScale.x * scaleFactor, transform.localScale.y, transform.localScale.z * scaleFactor);
-            }
-            else
-            {
-                float scaleFactor = 1 + _entity.BaseLvl / 100f;
-                _model.transform.localScale = new(transform.localScale.x, transform.localScale.y * scaleFactor, transform.localScale.z);
-            }
 
             return 0;
         }

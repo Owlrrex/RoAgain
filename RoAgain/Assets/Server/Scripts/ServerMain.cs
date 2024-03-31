@@ -17,7 +17,6 @@ namespace Server
         [SerializeField]
         private SpawnDatabase _spawnDatabase;
 
-        [SerializeField]
         private MobDatabase _mobDatabase;
 
         [SerializeField]
@@ -58,8 +57,8 @@ namespace Server
             if(!OwlLogger.PrefabNullCheckAndLog(_spawnDatabase, "spawnDatabase", this, GameComponent.Other))
                 _spawnDatabase.Register();
 
-            if(!OwlLogger.PrefabNullCheckAndLog(_mobDatabase, "mobDatabase", this, GameComponent.Other))
-                _mobDatabase.Register();
+            _mobDatabase = new();
+            _mobDatabase.Register();
 
             if(!OwlLogger.PrefabNullCheckAndLog(_elementsDatabase, "elementsDatabase", this, GameComponent.Other))
                 _elementsDatabase.Register();

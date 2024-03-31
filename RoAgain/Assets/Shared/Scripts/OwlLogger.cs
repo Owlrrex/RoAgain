@@ -68,7 +68,12 @@ namespace OwlLogging
                 return;
 
             string fullMessage = ComposeMessage(message, component, severity, memberName, filePath, lineNumber);
-            Debug.Log(fullMessage);
+            if (severity == LogSeverity.Error)
+                Debug.LogError(fullMessage);
+            else if (severity == LogSeverity.Warning)
+                Debug.LogWarning(fullMessage);
+            else
+                Debug.Log(fullMessage);
         }
 
         public static void LogF(string formatString, object arg1, GameComponent component, LogSeverity severity = LogSeverity.Log, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)

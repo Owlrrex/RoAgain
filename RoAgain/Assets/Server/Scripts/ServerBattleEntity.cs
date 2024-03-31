@@ -81,6 +81,7 @@ namespace Server
                 MovementCooldown = MovementCooldown,
                 Orientation = Orientation,
                 Coordinates = Coordinates,
+                ModelId = ModelId,
 
                 MaxHp = MaxHp.Total,
                 Hp = CurrentHp,

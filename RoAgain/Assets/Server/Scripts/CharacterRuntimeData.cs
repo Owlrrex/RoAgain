@@ -342,6 +342,7 @@ namespace Server
             CalculateCrit();
             CalculateCritShield();
             CalculatePerfectFlee();
+            // TODO: Status resistances
             LukIncreaseCost = GetStatIncreaseCost(Luk.Base);
             NetworkQueue.StatUpdate(EntityPropertyType.Luk, Luk);
         }
