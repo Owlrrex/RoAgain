@@ -464,6 +464,16 @@ namespace Client
         {
             if(!MapModule.IsReady())
             {
+                foreach(GridEntityData entityData in _queuedEntities)
+                {
+                    if(entityData.UnitId == moveInfo.UnitId)
+                    {
+                        entityData.Path = moveInfo.Path;
+                        entityData.PathCellIndex = 0;
+                        return;
+                    }
+                }
+
                 OwlLogger.LogWarning($"Received EntityMovement while MapModule wasn't ready - ignoring, this may cause position desync!", GameComponent.Other);
                 return;
             }
@@ -537,12 +547,6 @@ namespace Client
 
         private void OnCellEffectGroupPlacedReceived(CellEffectData data)
         {
-            if (!MapModule.IsReady())
-            {
-                OwlLogger.LogWarning($"Received CellEffectPlaced while MapModule wasn't ready - ignoring, this may cause client desync!", GameComponent.Other);
-                return;
-            }
-
             MapModule.OnCellEffectGroupPlaced(data);
         }
 

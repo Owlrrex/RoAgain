@@ -141,9 +141,16 @@ public class ServerMapInstance
 
     public void Update(float deltaTime)
     {
+        if (Grid == null)
+            return;
+
         UpdateEntityMovementStupid(deltaTime);
 
-        foreach (var entity in Grid.GetAllOccupants())
+        if (Grid == null)
+            return; // Instance was shutdown because all players moved out of it
+
+        ICollection<GridEntity> entityList = Grid.GetAllOccupants();
+        foreach (var entity in entityList)
         {
             if(entity is ServerBattleEntity sbe)
                 sbe.Update?.Invoke(sbe, deltaTime);
@@ -176,6 +183,9 @@ public class ServerMapInstance
         // Entities in newly placed effects will be handled in AddEffect/UpdateCellEffects
         foreach (GridEntity entity in movedEntities)
         {
+            if (Grid == null)
+                break; // Grid was destroyed when previous entity moved, probably off-grid
+
             GridCellData oldCell = Grid.GetDataAtCoords(entity.LastUpdateCoordinates);
             GridCellData newCell = Grid.GetDataAtCoords(entity.Coordinates);
 

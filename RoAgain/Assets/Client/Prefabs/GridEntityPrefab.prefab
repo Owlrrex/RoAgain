@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2737677067385707318}
   - component: {fileID: 999029018374449201}
   - component: {fileID: 1262658534094146252}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: GridEntityPrefab
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 892556437479672939}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: ModelAnchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

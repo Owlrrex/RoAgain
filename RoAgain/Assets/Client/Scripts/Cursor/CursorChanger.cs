@@ -30,14 +30,15 @@ namespace Client
         private CursorEntry _attackCursor;
         [SerializeField]
         private CursorEntry _warpCursor;
-        // TODO: Speak cursor
+        [SerializeField]
+        private CursorEntry _speakCursor;
 
         [SerializeField]
         private Camera _camera;
         [SerializeField]
         private LayerMask _hoverableLayers;
 
-        private HoverTargetType _lastType = HoverTargetType.Unknown;
+        private HoverTargetType _lastType = (HoverTargetType)(-1);
 
         // Start is called before the first frame update
         void Start()

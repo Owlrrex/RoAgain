@@ -19,6 +19,7 @@ namespace Client
         [SerializeField]
         private LayerMask _clickableLayers;
 
+        private const bool _showHoverIndicator = false;
         private GameObject _indicatorInstance;
         private GameObject _clickInstance;
 
@@ -49,7 +50,8 @@ namespace Client
             _indicatorInstance = Instantiate(_navIndicator, gameObject.transform);
             _indicatorInstance.SetActive(false);
 
-            _clickInstance = Instantiate(_clickIndicator, gameObject.transform);
+            if(_showHoverIndicator)
+                _clickInstance = Instantiate(_clickIndicator, gameObject.transform);
         }
 
         // Update is called once per frame
@@ -110,7 +112,8 @@ namespace Client
 
             if(hit.collider.gameObject.layer == LayerMask.NameToLayer("ClickableTerrain"))
             {
-                _clickInstance.transform.position = hit.point;
+                if(_showHoverIndicator)
+                    _clickInstance.transform.position = hit.point;
 
                 if (!NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, 1, NavMesh.AllAreas))
                     return;

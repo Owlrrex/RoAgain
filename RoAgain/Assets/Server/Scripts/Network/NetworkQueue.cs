@@ -49,17 +49,26 @@ namespace Server
 
             foreach(GridEntity entity in _gridEntityUpdates.Values)
             {
+                if (entity.Coordinates == GridData.INVALID_COORDS) // entity got removed since it was queued, ignore
+                    continue;
+
                 _connection.Send(entity.ToDataPacket());
             }
             
             foreach(ServerBattleEntity bEntity in _battleEntityUpdates.Values)
             {
+                if (bEntity.Coordinates == GridData.INVALID_COORDS) // entity got removed since it was queued, ignore
+                    continue;
+
                 _connection.Send(bEntity.ToDataPacket());
                 // TODO: Send Cast Progress Update here
             }
 
             foreach(CharacterRuntimeData remoteChar in _remoteCharacterUpdates.Values)
             {
+                if (remoteChar.Coordinates == GridData.INVALID_COORDS) // entity got removed since it was queued, ignore
+                    continue;
+
                 _connection.Send(remoteChar.ToRemoteDataPacket());
             }
 

@@ -1,5 +1,4 @@
 using OwlLogging;
-using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -45,43 +44,73 @@ namespace Client
             _entity.PathUpdated += OnEntityPathUpdated;
             _entity.PathFinished += OnEntityPathFinished;
 
-            GameObject prefab = GetPrefabForEntity();
-            if(prefab == null)
+            switch (_entity)
             {
-                OwlLogger.LogError($"Can't find prefab for entity {_entity.Id} when creating Mover!", GameComponent.Other);
-            }
-            else
-            {
-                _model = Instantiate(prefab, _modelAnchor);
-            }
+                case ACharacterEntity rChar:
+                    SetupForCharacterEntity(rChar);
+                    break;
+                case ClientBattleEntity bEntity:
+                    SetupForBattleEntity(bEntity);
+                    break;
+                case GridEntity gEntity:
+                    SetupForGridEntity(gEntity);
+                    break;
+                default:
+                    OwlLogger.LogError($"Unrecognized entity type for entity {_entity.Id} when creating Mover!", GameComponent.Other);
+                    return;
+            }            
 
             UpdateMovementSpeed();
             SnapToCoordinates(_entity.Coordinates);
             OnEntityPathUpdated(_entity, null, _entity.Path);
         }
 
-        private GameObject GetPrefabForEntity()
+        private void SetupForCharacterEntity(ACharacterEntity cEntity)
         {
-            switch(_entity)
+            GameObject prefab = GetCharacterModelPrefab(cEntity);
+            if (prefab == null)
+                return;
+            _model = Instantiate(prefab, _modelAnchor);
+            if(_model.TryGetComponent(out CursorModifierComponent modifierComponent))
             {
-                case ACharacterEntity rChar:
-                    return GetCharacterModelPrefab(rChar);
-                case ClientBattleEntity bEntity:
-                    return GetMobModelPrefab(bEntity);
-                case GridEntity gEntity:
-                    return GetGenericModelPrefab(gEntity);
-                default:
-                    return null;
+                // It's possible to freely attack players atm, but this won't stay, so we don't give the attack-cursor
+                // TODO: Check PvP state to give Attack-cursor, maybe also check shop for "shop"-cursor
+                modifierComponent.TargetType = CursorChanger.HoverTargetType.Normal;
+            }
+        }
+
+        private void SetupForBattleEntity(ClientBattleEntity bEntity)
+        {
+            GameObject prefab = GetMobModelPrefab(bEntity);
+            if (prefab == null)
+                return;
+            _model = Instantiate(prefab, _modelAnchor);
+            if (_model.TryGetComponent(out CursorModifierComponent modifierComponent))
+            {
+                // Currently, we assume a non-character battleEntity to be a mob = attackable.
+                // That will change eventually
+                modifierComponent.TargetType = CursorChanger.HoverTargetType.Attack;
+            }
+        }
+
+        private void SetupForGridEntity(GridEntity gEntity)
+        {
+            GameObject prefab = GetGenericModelPrefab(gEntity);
+            if (prefab == null)
+                return;
+            _model = Instantiate(prefab, _modelAnchor);
+            if (_model.TryGetComponent(out CursorModifierComponent modifierComponent))
+            {
+                // Currently, we assume a non-battle grid-entity to be an NPC = talkable
+                // This will change eventually
+                modifierComponent.TargetType = CursorChanger.HoverTargetType.Attack;
             }
         }
 
         private GameObject GetCharacterModelPrefab(ACharacterEntity character)
         {
             JobTableEntry jobData = JobTable.GetDataById(character.JobId);
-            if (jobData == null)
-                return null;
-
-            return jobData.ModelPrefab;
+            return jobData?.ModelPrefab;
         }
 
         private GameObject GetMobModelPrefab(ClientBattleEntity bEntity)

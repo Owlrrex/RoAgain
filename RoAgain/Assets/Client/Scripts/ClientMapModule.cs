@@ -15,6 +15,7 @@ public class ClientMapModule
     private readonly List<GridEntity> _entitiesAwaitingRemoval = new();
 
     private readonly Dictionary<int, CellEffectDisplay> _displayedCellEffects = new(20);
+    private readonly List<CellEffectData> _queuedCellEffects = new();
 
     private readonly List<SkillId> _skillIdsFinishedReuse = new(4); // Not predicted that a unit finishes more cooldowns than this on a single tick
 
@@ -191,6 +192,12 @@ public class ClientMapModule
 
         Grid.Initialize(mapId);
 
+        foreach(CellEffectData data in _queuedCellEffects)
+        {
+            OnCellEffectGroupPlaced(data);
+        }
+        _queuedCellEffects.Clear();
+
         return 0;
     }
 
@@ -210,6 +217,14 @@ public class ClientMapModule
                 OwlLogger.LogError($"Creating GridEntity failed for EntityData, EntityId = {data.UnitId}", GameComponent.Other);
                 return;
             }
+            else
+            {
+                OwlLogger.LogF("Created Entity Display for entity {0}", data.UnitId, GameComponent.Other, LogSeverity.Verbose);
+            }
+        }
+        else
+        {
+            OwlLogger.LogF("Updating data for existing entity {0}", data.UnitId, GameComponent.Other, LogSeverity.VeryVerbose);
         }
 
         UpdateExistingEntityData(data);
@@ -231,10 +246,15 @@ public class ClientMapModule
 
         GridEntity movedEntity = Grid.Data.FindOccupant(moveInfo.UnitId);
         if (movedEntity == null)
+        {
+            OwlLogger.LogError($"Received movementInfo for unit {moveInfo.UnitId} that's not in GridData!", GameComponent.Other);
+            return;
+        }
+
         if (!_displayedGridEntities.ContainsKey(moveInfo.UnitId))
         {
             OwlLogger.LogError($"Received movement Info for unit {moveInfo.UnitId} that's not displayed!", GameComponent.Other);
-            if(moveInfo.Path.AllCells.Count > 0)
+            if (moveInfo.Path.AllCells.Count > 0)
             {
                 int range = Extensions.GridDistanceSquare(ClientMain.Instance.CurrentCharacterData.Coordinates, moveInfo.Path.AllCells[0]);
                 OwlLogger.LogError($"At range {range}", GameComponent.Other);
@@ -243,31 +263,22 @@ public class ClientMapModule
             {
                 OwlLogger.LogError($"Empty path, can't calculate range", GameComponent.Other);
             }
-            
             return;
         }
 
-        if (moveInfo.Path.AllCells.Count < 2)
+        if (moveInfo.Path == null || moveInfo.Path.AllCells.Count == 0)
         {
-            // TODO: Handle - these paths shouldn't even be sent, as they're not actual movement
-            OwlLogger.LogWarning($"Client received a path of less than 2 cells - these shouldn't be sent!", GameComponent.Other);
+            // Serialization artifact - null path may be deserialized as empty arrays
+            movedEntity.ClearPath();
             return;
+        }
+
+        if (moveInfo.Path.AllCells.Count == 1)
+        {
+            OwlLogger.LogWarning($"Client received a path of 1 cell length - these shouldn't be sent!", GameComponent.Other);
         }
 
         Vector2Int coordinatesAlongPath = moveInfo.Path.AllCells[0];
-        //GridEntity movedEntity = Grid.Data.GetOccupantFromCell(coordinatesAlongPath, moveInfo.UnitId);
-        //if (movedEntity == null)
-        //{
-        //    movedEntity = Grid.Data.FindOccupant(moveInfo.UnitId);
-        //    if (movedEntity == null)
-        //    {
-        //        OwlLogger.LogError($"Could not find GridEntity with id {moveInfo.UnitId} on grid! Removing mover.", GameComponent.Other);
-        //        _displayedGridEntities.Remove(moveInfo.UnitId);
-        //        return;
-        //    }
-        //    OwlLogger.LogWarning($"Could not find GridEntity with id {moveInfo.UnitId} on expected coordinates {coordinatesAlongPath}! Found instead at: {movedEntity.Coordinates} Forcing position.", GameComponent.Other);
-        //}
-
         Grid.Data.MoveOccupant(movedEntity, movedEntity.Coordinates, coordinatesAlongPath);
         movedEntity.SetPath(moveInfo.Path, 0, true);
     }
@@ -543,7 +554,7 @@ public class ClientMapModule
     {
         if(!_displayedGridEntities.ContainsKey(entity.Id))
         {
-            OwlLogger.LogError($"Tried to remove mover entity {entity.Id} that's not displayed!", GameComponent.Other);
+            OwlLogger.Log($"Tried to remove mover entity {entity.Id} that's not displayed!", GameComponent.Other);
             return -1;
         }
 
@@ -586,6 +597,12 @@ public class ClientMapModule
 
     public void OnCellEffectGroupPlaced(CellEffectData data)
     {
+        if (!IsReady())
+        {
+            _queuedCellEffects.Add(data);
+            return;
+        }
+
         if(_displayedCellEffects.ContainsKey(data.GroupId))
         {
             OwlLogger.Log($"Updating existing Display for GroupId {data.GroupId}", GameComponent.Other);
@@ -618,9 +635,18 @@ public class ClientMapModule
 
     public void OnCellEffectGroupRemoved(int groupId)
     {
-        if(!_displayedCellEffects.ContainsKey(groupId))
+        if(!IsReady()
+            || !_displayedCellEffects.ContainsKey(groupId))
         {
-            OwlLogger.LogError($"Tried to remove CellEffectGroupId {groupId} that wasn't displayed!", GameComponent.Other);
+            // Already shutdown, or not yet loaded
+            // Clear any potential queue for this group, and then ignore it
+            for(int i = _queuedCellEffects.Count -1; i >= 0; i--)
+            {
+                if (_queuedCellEffects[i].GroupId == groupId)
+                    _queuedCellEffects.RemoveAt(i);
+            }
+
+            OwlLogger.Log($"Tried to remove CellEffectGroupId {groupId} that wasn't displayed!", GameComponent.Other);
             return;
         }
 

@@ -15,10 +15,6 @@ namespace Client
             }
             Id = data.UnitId;
             Name = data.UnitName;
-            if(!string.IsNullOrEmpty(MapId) && MapId != data.MapId)
-            {
-                OwlLogger.LogWarning($"Unit Id {Id} has its MapId changed from {MapId} to {data.MapId}", GameComponent.Other);
-            }
             MapId = data.MapId;
             if (data.Path != null)
             {
