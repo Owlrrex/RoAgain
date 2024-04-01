@@ -1,16 +1,19 @@
 using OwlLogging;
 using Shared;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Client
 {
-    public class BattleEntityModelMain : MonoBehaviour
+    public class BattleEntityModelMain : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField]
         protected Slider _hpSlider;
         [SerializeField]
         protected Slider _spSlider;
+        [SerializeField]
+        protected bool _showOnHover;
 
         // TODO: This will need to be moved to a general GridEntityModel eventually, since it displays chat
         // as well and NPCs can also talk
@@ -71,6 +74,9 @@ namespace Client
 
             if (_model == null)
                 OwlLogger.LogError("Couldn't find mover on BattleEntityModel!", GameComponent.Other);
+
+            if(_showOnHover)
+                OnPointerExit(null);
 
             return 0;
         }
@@ -284,6 +290,26 @@ namespace Client
         private void OnJobChanged(ACharacterEntity character)
         {
             SetSkilltext($"Job changed to {character.JobId}!", 5);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (!_showOnHover)
+                return;
+
+            _entityNameText.gameObject.SetActive(true);
+            _hpSlider.gameObject.SetActive(true);
+            _spSlider.gameObject.SetActive(true);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (!_showOnHover)
+                return;
+
+            _entityNameText.gameObject.SetActive(false);
+            _hpSlider.gameObject.SetActive(false);
+            _spSlider.gameObject.SetActive(false);
         }
     }
 }

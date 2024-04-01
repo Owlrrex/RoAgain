@@ -1897,6 +1897,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hpSlider: {fileID: 373287405358257968}
   _spSlider: {fileID: 5344836120466231454}
+  _showOnHover: 1
   _skillNameText: {fileID: 3077956381057995630}
   _castTimeSlider: {fileID: 4986751424906741057}
   _entityNameText: {fileID: 5175398488822109869}
