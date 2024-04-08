@@ -56,6 +56,7 @@ MonoBehaviour:
     type: 2}
   _modelTable: {fileID: 11400000, guid: 9b40c31666854e34a8cba41965f059fe, type: 2}
   _jobTable: {fileID: 11400000, guid: cbbdb187589349a4fb02eaded9b30fc0, type: 2}
+  _stringTable: {fileID: 11400000, guid: 460e6695878e6364189d8942b67facbf, type: 2}
   _dummyUnitPrefab: {fileID: 1690524198634084755, guid: 9ecb92c84baaebb43983197e4e9a1316,
     type: 3}
   CharacterPrefab: {fileID: 290062880184334849, guid: 86b2a90c064f5794fad14b3585f54003,

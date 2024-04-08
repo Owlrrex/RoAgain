@@ -29,6 +29,8 @@ namespace Client
         private ModelTable _modelTable;
         [SerializeField]
         private JobTable _jobTable;
+        [SerializeField]
+        private LocalizedStringTable _stringTable;
 
         [SerializeField]
         private GameObject _dummyUnitPrefab;
@@ -133,6 +135,12 @@ namespace Client
 
             if (!OwlLogger.PrefabNullCheckAndLog(_jobTable, "jobTable", this, GameComponent.Other))
                 _jobTable.Register();
+
+            if (!OwlLogger.PrefabNullCheckAndLog(_stringTable, "stringTable", this, GameComponent.Other))
+                _stringTable.Register();
+
+            // TODO: Utilize Config
+            LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
         }
 
         private void Update()
