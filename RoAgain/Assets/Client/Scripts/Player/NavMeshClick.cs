@@ -51,7 +51,11 @@ namespace Client
             _indicatorInstance.SetActive(false);
 
             if(_showHoverIndicator)
+            {
+#pragma warning disable CS0162 // Unreachable code detected
                 _clickInstance = Instantiate(_clickIndicator, gameObject.transform);
+#pragma warning restore CS0162 // Unreachable code detected
+            }
         }
 
         // Update is called once per frame
@@ -113,7 +117,11 @@ namespace Client
             if(hit.collider.gameObject.layer == LayerMask.NameToLayer("ClickableTerrain"))
             {
                 if(_showHoverIndicator)
+                {
+#pragma warning disable CS0162 // Unreachable code detected
                     _clickInstance.transform.position = hit.point;
+#pragma warning restore CS0162 // Unreachable code detected
+                }    
 
                 if (!NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, 1, NavMesh.AllAreas))
                     return;

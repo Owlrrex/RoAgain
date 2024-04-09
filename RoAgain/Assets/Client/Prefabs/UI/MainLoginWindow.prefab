@@ -2045,10 +2045,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6090055008875553817, guid: 218dad0147e56134380fb184abe5c826,
+        type: 3}
+      propertyPath: _localizedStringId.Id
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7890780758867773444, guid: 218dad0147e56134380fb184abe5c826,
         type: 3}
       propertyPath: m_text
-      value: Welcome to RoAgain!
+      value: Unset
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

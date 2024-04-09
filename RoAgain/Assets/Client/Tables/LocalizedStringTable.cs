@@ -12,16 +12,50 @@ namespace Client
         German
     }
 
+    /// <summary>
+    /// Identifies a Localized String
+    /// Only an Int at the moment, but may contain information about multiple string tables or similar in the future
+    /// </summary>
+    [Serializable]
+    public struct LocalizedStringId
+    {
+        public static readonly LocalizedStringId INVALID = new() { Id = -1 };
+
+        public int Id;
+        // Can add stuff like "string bank" here, if that's being added
+
+        public override bool Equals(object obj)
+        {
+            return obj is LocalizedStringId other && Equals(other);
+        }
+
+        public bool Equals(LocalizedStringId other)
+        {
+            return Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public static bool operator ==(LocalizedStringId left, LocalizedStringId right) => left.Equals(right);
+        public static bool operator !=(LocalizedStringId left, LocalizedStringId right) => !(left == right);
+    }
+
     // TODO: Rework into a more generic file format so non-unity tools can easier digest localized strings
     [CreateAssetMenu(fileName = "StringTable", menuName = "ScriptableObjects/StringTable", order = 4)]
     public class LocalizedStringTable : ScriptableObject
     {
         private static LocalizedStringTable _instance;
+        private static ClientLanguage _currentLanguage;
+        public static event Action LanguageChanged;
 
         [Serializable]
         private class StringTableEntry
         {
 #pragma warning disable CS0649 // Field 'StringTable.StringTableEntry.Id' is never assigned to, and will always have its default value 0
+            // Don't use a LocalizedStringId here - if we have multiple StringTables or Contexts or such, they'll likely have a different persistent structure
             public int Id;
 #pragma warning restore CS0649 // Field 'StringTable.StringTableEntry.Id' is never assigned to, and will always have its default value 0
             public string TextEnglish;
@@ -31,9 +65,9 @@ namespace Client
         [SerializeField]
         private List<StringTableEntry> _entries;
 
+        // This Dictionary will probably get split up if String-banks are ever being added
+        // or LocalizedStringId becomes a more complex type than just a single int
         private Dictionary<int, string> _stringsById;
-
-        private static ClientLanguage _currentLanguage;
 
         public void Register()
         {
@@ -65,8 +99,13 @@ namespace Client
             if (_currentLanguage == newLanguage)
                 return;
 
-            if (_instance != null)
-                _instance.LoadStringsForCurrentLanguage();
+            if (_instance == null)
+                return;
+
+            _currentLanguage = newLanguage;
+            
+            _instance.LoadStringsForCurrentLanguage();
+            LanguageChanged?.Invoke();
         }
 
         private void LoadStringsForCurrentLanguage()
@@ -91,7 +130,7 @@ namespace Client
             }
         }
 
-        public static string GetStringById(int id)
+        public static string GetStringById(LocalizedStringId id)
         {
             if (_instance == null)
             {
@@ -99,10 +138,10 @@ namespace Client
                 return null;
             }
 
-            if (!_instance._stringsById.ContainsKey(id))
+            if (!_instance._stringsById.ContainsKey(id.Id))
                 return "MISSING-STRING-" + id;
 
-            return _instance._stringsById[id];
+            return _instance._stringsById[id.Id];
         }
     }
 }

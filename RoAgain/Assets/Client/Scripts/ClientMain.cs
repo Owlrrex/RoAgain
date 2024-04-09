@@ -1,6 +1,7 @@
 using OwlLogging;
 using Shared;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -68,6 +69,9 @@ namespace Client
         private Action _sessionCreationCallback;
 
         private int _sessionId;
+
+        // for language-testing
+        private bool _langSwapped = false;
 
         void Awake()
         {
@@ -141,6 +145,20 @@ namespace Client
 
             // TODO: Utilize Config
             LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
+            //StartCoroutine(LangSwapCoroutine());
+        }
+
+        private IEnumerator LangSwapCoroutine()
+        {
+            while(true)
+            {
+                yield return new WaitForSeconds(5f);
+                if (_langSwapped)
+                    LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
+                else
+                    LocalizedStringTable.SetClientLanguage(ClientLanguage.German);
+                _langSwapped = !_langSwapped;
+            }
         }
 
         private void Update()

@@ -16,3 +16,6 @@ MonoBehaviour:
   - Id: 0
     TextEnglish: -Placeholder-
     TextGerman: -Platzhalter-
+  - Id: 1
+    TextEnglish: Welcome to RoAgain!
+    TextGerman: Willkommen bei RoAgain!
