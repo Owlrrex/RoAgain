@@ -11,8 +11,8 @@ namespace Client
     public class SkillClientData
     {
         public Sprite Sprite;
-        public string Name;
-        public string Description;
+        public LocalizedStringId NameId;
+        public LocalizedStringId Description;
     }
 
     [CreateAssetMenu(fileName = "SkillClientDataTable", menuName = "ScriptableObjects/SkillClientData", order = 5)]

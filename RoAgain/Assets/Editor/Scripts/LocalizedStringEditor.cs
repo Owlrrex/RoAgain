@@ -1,0 +1,66 @@
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEngine;
+
+namespace Client
+{
+    [CustomEditor(typeof(LocalizedStringText))]
+    public class LocalizedStringEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            LocalizedStringText text = (LocalizedStringText)target;
+
+            DrawDefaultInspector();
+
+            if (!LocalizedStringTable.IsReady())
+            {
+                LocalizedStringTable loaded = AssetDatabase.LoadAssetAtPath<LocalizedStringTable>("Assets/Client/Tables/StringTable");
+                if(loaded != null)
+                {
+                    loaded.Register();
+                }
+            }
+
+            GUILayout.Label(LocalizedStringTable.GetStringById(text.LocalizedStringId));
+
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(LocalizedStringId))]
+    public class LocalizedStringIdDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            if (!LocalizedStringTable.IsReady())
+            {
+                LocalizedStringTable loaded = AssetDatabase.LoadAssetAtPath<LocalizedStringTable>("Assets/Client/Tables/StringTable.asset");
+                if (loaded != null)
+                {
+                    loaded.Register();
+                    LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
+                }
+            }
+
+            EditorGUI.BeginProperty(position, null, property);
+
+            SerializedProperty idProp = property.FindPropertyRelative("Id");
+            Rect newRect = EditorGUI.PrefixLabel(position, new GUIContent(property.name));
+            EditorGUI.PropertyField(new Rect(newRect.x, newRect.y, newRect.width, 18), idProp, GUIContent.none);
+
+            EditorGUI.indentLevel++;
+            string locValue = LocalizedStringTable.GetStringById((LocalizedStringId)property.boxedValue);
+            newRect = EditorGUI.PrefixLabel(new Rect(position.x, position.y + EditorGUI.GetPropertyHeight(idProp) + 1, position.width, 18), new GUIContent("English string: "));
+            EditorGUI.LabelField(newRect, locValue);
+            EditorGUI.indentLevel--;
+
+            EditorGUI.EndProperty();
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return 40;
+        }
+    }
+}
+#endif

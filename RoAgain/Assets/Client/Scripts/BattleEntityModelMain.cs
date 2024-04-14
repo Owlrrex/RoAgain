@@ -152,7 +152,7 @@ namespace Client
                 {
                     if(skillToShowName.SkillId != SkillId.AutoAttack)
                     {
-                        string skillname = SkillClientDataTable.GetDataForId(skillToShowName.SkillId).Name;
+                        string skillname = LocalizedStringTable.GetStringById(SkillClientDataTable.GetDataForId(skillToShowName.SkillId).NameId);
                         SetSkilltext(skillname + "!", 0);
                     }
                 }

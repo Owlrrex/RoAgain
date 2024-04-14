@@ -41,6 +41,11 @@ namespace Client
 
         public static bool operator ==(LocalizedStringId left, LocalizedStringId right) => left.Equals(right);
         public static bool operator !=(LocalizedStringId left, LocalizedStringId right) => !(left == right);
+
+        public override string ToString()
+        {
+            return Id.ToString();
+        }
     }
 
     // TODO: Rework into a more generic file format so non-unity tools can easier digest localized strings
@@ -142,6 +147,11 @@ namespace Client
                 return "MISSING-STRING-" + id;
 
             return _instance._stringsById[id.Id];
+        }
+
+        public static bool IsReady()
+        {
+            return _instance != null;
         }
     }
 }

@@ -158,7 +158,7 @@ namespace Client
             }
             else
             {
-                _skillNameText.text = data.Name;
+                _skillNameText.text = LocalizedStringTable.GetStringById(data.NameId);
             }
         }
 

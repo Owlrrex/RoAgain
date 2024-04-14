@@ -9,6 +9,7 @@ namespace Client
     {
         [SerializeField]
         private LocalizedStringId _localizedStringId = LocalizedStringId.INVALID;
+        public LocalizedStringId LocalizedStringId => _localizedStringId;
 
         private TMP_Text _text;
 
