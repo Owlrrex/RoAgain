@@ -34,6 +34,160 @@
                 "TextEnglish": "Strong Mob",
                 "TextGerman": "Starkes Monster"
             }
-        }
+        },
+		{
+            "key": 5,
+            "value": {
+                "TextEnglish": "Place Warp",
+                "TextGerman": "Teleport-Feld"
+            }
+        },
+		{
+            "key": 6,
+            "value": {
+                "TextEnglish": "Place Warp - Skill Description",
+                "TextGerman": "Teleport-Feld - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 7,
+            "value": {
+                "TextEnglish": "Basic Attack",
+                "TextGerman": "Standard-Angriff"
+            }
+        },
+		{
+            "key": 8,
+            "value": {
+                "TextEnglish": "Basic Attack - Skill Description",
+                "TextGerman": "Standard-Angriff - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 9,
+            "value": {
+                "TextEnglish": "Basic Skills",
+                "TextGerman": "Grundlegende Fähigkeiten"
+            }
+        },
+		{
+            "key": 10,
+            "value": {
+                "TextEnglish": "Basic Skills - Skill Description",
+                "TextGerman": "Grundlegende Fähigkeiten - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 11,
+            "value": {
+                "TextEnglish": "Play Dead",
+                "TextGerman": "Totstellen"
+            }
+        },
+		{
+            "key": 12,
+            "value": {
+                "TextEnglish": "Play Dead - Skill Description",
+                "TextGerman": "Totstellen - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 13,
+            "value": {
+                "TextEnglish": "First Aid",
+                "TextGerman": "Erste Hilfe"
+            }
+        },
+		{
+            "key": 14,
+            "value": {
+                "TextEnglish": "First Aid - Skill Description",
+                "TextGerman": "Erste Hilfe - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 15,
+            "value": {
+                "TextEnglish": "Bash",
+                "TextGerman": "Starker Hieb"
+            }
+        },
+		{
+            "key": 16,
+            "value": {
+                "TextEnglish": "Bash - Skill Description",
+                "TextGerman": "Starker Hieb - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 17,
+            "value": {
+                "TextEnglish": "Magnum Break",
+                "TextGerman": "Magnum Break"
+            }
+        },
+		{
+            "key": 18,
+            "value": {
+                "TextEnglish": "Magnum Break - Skill Description",
+                "TextGerman": "Magnum Break - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 19,
+            "value": {
+                "TextEnglish": "One-hand-sword Mastery",
+                "TextGerman": "Einhand-Schwert Spezialisierung"
+            }
+        },
+		{
+            "key": 20,
+            "value": {
+                "TextEnglish": "One-hand-sword Mastery - Skill Description",
+                "TextGerman": "Einhand-Schwert Spezialisierung - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 21,
+            "value": {
+                "TextEnglish": "Two-hand-sword Mastery",
+                "TextGerman": "Zweihand-Schwert Spezialisierung"
+            }
+        },
+		{
+            "key": 22,
+            "value": {
+                "TextEnglish": "Two-hand-sword Mastery - Skill Description",
+                "TextGerman": "Twohand-Schwert Spezialisierung - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 23,
+            "value": {
+                "TextEnglish": "Increased HP Recovery",
+                "TextGerman": "Verbesserte Hp Regeneration"
+            }
+        },
+		{
+            "key": 24,
+            "value": {
+                "TextEnglish": "Increased HP Recovery - Skill Description",
+                "TextGerman": "Verbesserte Hp Regeneration - Skill Beschreibung"
+            }
+        },
+		{
+            "key": 25,
+            "value": {
+                "TextEnglish": "Provoke",
+                "TextGerman": "Provoizieren"
+            }
+        },
+		{
+            "key": 26,
+            "value": {
+                "TextEnglish": "Provoke - Skill Description",
+                "TextGerman": "Provozieren - Skill Beschreibung"
+            }
+        },
     ]
 }

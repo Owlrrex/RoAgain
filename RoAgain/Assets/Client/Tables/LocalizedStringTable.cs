@@ -87,7 +87,14 @@ namespace Client
                     text = $"MISSING_TEXT_{_currentLanguage}_{kvp.Key}";
                 }
 
-                _stringsById.Add(kvp.Key, text);
+                if(_stringsById.ContainsKey(kvp.Key))
+                {
+                    OwlLogger.LogError($"Duplicate LocalizedStringId: {kvp.Key}!", GameComponent.Other);
+                }
+                else
+                {
+                    _stringsById.Add(kvp.Key, text);
+                }
             }
 
             CachedFileAccess.Purge(FILE_KEY);
