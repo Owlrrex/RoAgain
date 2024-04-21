@@ -579,8 +579,9 @@ public class GridEntityDataPacket : Packet
 {
     public override int PacketType => 29;
 
-    public int UnitId;
-    public string UnitName;
+    public int EntityId;
+    public LocalizedStringId LocalizedNameId;
+    public string NameOverride;
     public string MapId;
     public GridData.Path Path;
     public int PathCellIndex;
@@ -595,8 +596,9 @@ public class BattleEntityDataPacket : Packet
 {
     public override int PacketType => 30;
 
-    public int UnitId;
-    public string UnitName;
+    public int EntityId;
+    public LocalizedStringId LocalizedNameId;
+    public string NameOverride;
     public string MapId;
     public GridData.Path Path;
     public int PathCellIndex;
@@ -616,8 +618,8 @@ public class RemoteCharacterDataPacket : Packet
 {
     public override int PacketType => 31;
 
-    public int UnitId;
-    public string UnitName;
+    public int EntityId;
+    public string CharacterName;
     public string MapId;
     public GridData.Path Path;
     public int PathCellIndex;
@@ -642,8 +644,8 @@ public class LocalCharacterDataPacket : Packet
 {
     public override int PacketType => 32;
 
-    public int UnitId;
-    public string UnitName;
+    public int EntityId;
+    public string CharacterName;
     public string MapId;
     public GridData.Path Path;
     public int PathCellIndex;

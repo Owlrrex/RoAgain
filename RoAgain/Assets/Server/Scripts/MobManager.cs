@@ -43,7 +43,7 @@ namespace Server
         {
             MobTypeId = mobTypeId;
 
-            Name = staticData.DefaultDisplayName;
+            LocalizedNameId = staticData.DefaultDisplayName;
             ModelId = staticData.ModelId;
 
             BaseExpReward = staticData.BaseExpReward;

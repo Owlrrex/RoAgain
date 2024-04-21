@@ -10,7 +10,7 @@ namespace Server
     [Serializable]
     public class MobDataStatic
     {
-        public string DefaultDisplayName; // TODO: Localized String
+        public LocalizedStringId DefaultDisplayName;
         public int ModelId;
 
         public int BaseExpReward;

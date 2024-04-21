@@ -61,7 +61,7 @@ namespace Server
             {
                 CharacterId = runtimeData.Id,
                 AccountId = runtimeData.AccountId,
-                Name = runtimeData.Name,
+                Name = runtimeData.NameOverride,
                 BaseLevel = runtimeData.BaseLvl.Value,
                 BaseExp = runtimeData.CurrentBaseExp,
                 JobId = runtimeData.JobId,

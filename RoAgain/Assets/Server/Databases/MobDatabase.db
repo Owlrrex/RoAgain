@@ -3,7 +3,7 @@
     {
       "key": 1,
       "value": {
-		"DefaultDisplayName": "Weak Mob",
+		"DefaultDisplayName": { "Id": 2 },
         "ModelId": 2,
         "BaseExpReward": 2,
         "JobExpReward": 1,
@@ -33,7 +33,7 @@
     {
       "key": 2,
       "value": {
-        "DefaultDisplayName": "Medium Mob",
+        "DefaultDisplayName": { "Id": 3 },
         "ModelId": 3,
         "BaseExpReward": 80,
         "JobExpReward": 40,
@@ -63,7 +63,7 @@
     {
       "key": 3,
       "value": {
-        "DefaultDisplayName": "Strong Mob",
+        "DefaultDisplayName": { "Id": 4 },
         "ModelId": 4,
         "BaseExpReward": 200,
         "JobExpReward": 150,

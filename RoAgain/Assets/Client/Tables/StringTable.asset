@@ -19,3 +19,12 @@ MonoBehaviour:
   - Id: 1
     TextEnglish: Welcome to RoAgain!
     TextGerman: Willkommen bei RoAgain!
+  - Id: 2
+    TextEnglish: Weak Mob
+    TextGerman: Schwaches Monster
+  - Id: 3
+    TextEnglish: Medium Mob
+    TextGerman: Mittleres Monster
+  - Id: 4
+    TextEnglish: Strong Mob
+    TextGerman: Starkes Monster

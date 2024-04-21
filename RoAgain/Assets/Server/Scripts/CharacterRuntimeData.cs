@@ -665,8 +665,8 @@ namespace Server
         {
             return new RemoteCharacterDataPacket()
             {
-                UnitId = Id,
-                UnitName = Name,
+                EntityId = Id,
+                CharacterName = NameOverride,
                 MapId = MapId,
                 Path = Path,
                 PathCellIndex = PathCellIndex,
@@ -690,8 +690,8 @@ namespace Server
         {
             LocalCharacterDataPacket packet = new()
             {
-                UnitId = Id,
-                UnitName = Name,
+                EntityId = Id,
+                CharacterName = NameOverride,
                 MapId = MapId,
                 Path = Path,
                 PathCellIndex = PathCellIndex,

@@ -512,7 +512,8 @@ public class ClientMapModule
         GridEntity newEntity = new()
         {
             Id = entityData.UnitId,
-            Name = entityData.UnitName,
+            NameOverride = entityData.NameOverride,
+            LocalizedNameId = entityData.LocalizedNameId,
             MapId = entityData.MapId,
             
             MovementCooldown = entityData.MovementCooldown,

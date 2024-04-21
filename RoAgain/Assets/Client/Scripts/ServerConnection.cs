@@ -717,7 +717,7 @@ namespace Client
 
         private void ReceiveCharacterRuntimeData(RemoteCharacterDataPacket packet)
         {
-            OwlLogger.Log($"Received CharacterRuntimeData for Id {packet.UnitId}", GameComponent.Network);
+            OwlLogger.Log($"Received CharacterRuntimeData for Id {packet.EntityId}", GameComponent.Network);
             //ACharacterRuntimeData data = new(packet);
             //CharacterSharedRuntimeDataReceived?.Invoke(data);
         }

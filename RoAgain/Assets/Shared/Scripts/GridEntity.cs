@@ -17,7 +17,8 @@ public class GridEntity
     public static int NextEntityId => _nextGridEntityId++;
 
     public int Id;
-    public string Name; // watchable?
+    public LocalizedStringId LocalizedNameId;
+    public string NameOverride;
     public string MapId; // Map-class?
     public Vector2Int Coordinates;
     public Vector2Int LastUpdateCoordinates;
@@ -203,8 +204,9 @@ public class GridEntity
     {
         return new GridEntityDataPacket()
         {
-            UnitId = Id,
-            UnitName = Name,
+            EntityId = Id,
+            LocalizedNameId = LocalizedNameId,
+            NameOverride = NameOverride,
             MapId = MapId,
             Path = Path,
             PathCellIndex = PathCellIndex,

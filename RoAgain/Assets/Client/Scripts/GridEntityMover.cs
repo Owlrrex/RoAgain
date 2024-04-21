@@ -1,10 +1,12 @@
 using OwlLogging;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 namespace Client
 {
-    public class GridEntityMover : MonoBehaviour
+    public class GridEntityMover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private GridEntity _entity;
         private int _currentTargetCornerIndex = -1;
@@ -15,6 +17,14 @@ namespace Client
         private Transform _modelAnchor;
         private GameObject _model;
         public GameObject Model => _model;
+
+        [SerializeField]
+        protected TMP_Text _entityNameText;
+
+        [SerializeField]
+        protected bool _showOnHover;
+
+        private LocalizedStringText _entityNameLocText;
 
         public void Initialize(GridEntity entity, GridComponent grid)
         {
@@ -29,6 +39,18 @@ namespace Client
                 OwlLogger.LogError($"Can't initialize GridEntityMover with null grid", GameComponent.Other);
                 return;
             }
+
+            if (_entityNameText == null)
+            {
+                OwlLogger.LogWarning($"BattleEntityModelMain has no unitNameText!", GameComponent.UI);
+            }
+            else
+            {
+                _entityNameText.canvas.worldCamera = PlayerMain.Instance.WorldUiCamera;
+            }
+
+            if(_entityNameText != null)
+                _entityNameText.TryGetComponent(out _entityNameLocText);
 
             _entity = entity;
             _grid = grid;
@@ -58,11 +80,14 @@ namespace Client
                 default:
                     OwlLogger.LogError($"Unrecognized entity type for entity {_entity.Id} when creating Mover!", GameComponent.Other);
                     return;
-            }            
+            }
 
             UpdateMovementSpeed();
             SnapToCoordinates(_entity.Coordinates);
             OnEntityPathUpdated(_entity, null, _entity.Path);
+
+            if (_showOnHover)
+                OnPointerExit(null);
         }
 
         private void SetupForCharacterEntity(ACharacterEntity cEntity)
@@ -133,6 +158,23 @@ namespace Client
             UpdatePathing();
             // for debugging, causes MouseCursor-desync
             //SnapToCoordinates(_entity.Coordinates);
+
+            if (_entityNameText != null)
+            {
+                if (_entity.NameOverride != null)
+                {
+                    _entityNameText.text = _entity.NameOverride;
+                    if(_entityNameLocText != null)
+                    {
+                        _entityNameLocText.SetLocalizedString(LocalizedStringId.INVALID);
+                    }
+                }
+                else if (_entity.LocalizedNameId != LocalizedStringId.INVALID
+                    && _entityNameLocText != null)
+                {
+                    _entityNameLocText.SetLocalizedString(_entity.LocalizedNameId);
+                }
+            }
         }
 
         private void UpdateMovementSpeed()
@@ -242,6 +284,22 @@ namespace Client
             Reset();
             // Align to updated unit position when a path starts or finishes
             _nmAgent.Warp(_grid.CoordsToWorldPosition(_entity.Coordinates));
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (!_showOnHover)
+                return;
+
+            _entityNameText.gameObject.SetActive(true);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (!_showOnHover)
+                return;
+
+            _entityNameText.gameObject.SetActive(false);
         }
 
         public int Shutdown()

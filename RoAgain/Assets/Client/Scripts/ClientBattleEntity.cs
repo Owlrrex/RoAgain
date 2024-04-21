@@ -14,7 +14,8 @@ namespace Client
                 OwlLogger.LogWarning($"Unit Id {Id} has its ID changed to {data.UnitId}!", GameComponent.Other);
             }
             Id = data.UnitId;
-            Name = data.UnitName;
+            NameOverride = data.NameOverride;
+            LocalizedNameId = data.LocalizedNameId;
             MapId = data.MapId;
             if (data.Path != null)
             {

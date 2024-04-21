@@ -9,7 +9,8 @@ namespace Client
     public class GridEntityData
     {
         public int UnitId;
-        public string UnitName;
+        public string NameOverride = null;
+        public LocalizedStringId LocalizedNameId = LocalizedStringId.INVALID;
         public string MapId;
         public GridData.Path Path;
         public int PathCellIndex;
@@ -28,8 +29,10 @@ namespace Client
 
         public void UpdateFromPacket(GridEntityDataPacket packet)
         {
-            UnitId = packet.UnitId;
-            UnitName = packet.UnitName;
+            UnitId = packet.EntityId;
+            if (!string.IsNullOrEmpty(packet.NameOverride))
+                NameOverride = packet.NameOverride;
+            LocalizedNameId = packet.LocalizedNameId;
             MapId = packet.MapId;
             Path = packet.Path;
             PathCellIndex = packet.PathCellIndex;
@@ -57,8 +60,10 @@ namespace Client
 
         public void UpdateFromPacket(BattleEntityDataPacket packet)
         {
-            UnitId = packet.UnitId;
-            UnitName = packet.UnitName;
+            UnitId = packet.EntityId;
+            if(!string.IsNullOrEmpty(packet.NameOverride))
+                NameOverride = packet.NameOverride;
+            LocalizedNameId = packet.LocalizedNameId;
             MapId = packet.MapId;
             Path = packet.Path;
             PathCellIndex = packet.PathCellIndex;
@@ -90,8 +95,8 @@ namespace Client
 
         public void UpdateFromPacket(RemoteCharacterDataPacket packet)
         {
-            UnitId = packet.UnitId;
-            UnitName = packet.UnitName;
+            UnitId = packet.EntityId;
+            NameOverride = packet.CharacterName; // Don't bother setting localized name for characters
             MapId = packet.MapId;
             Path = packet.Path;
             PathCellIndex = packet.PathCellIndex;
@@ -168,8 +173,8 @@ namespace Client
                 return;
             }
 
-            UnitId = packet.UnitId;
-            UnitName = packet.UnitName;
+            UnitId = packet.EntityId;
+            NameOverride = packet.CharacterName; // Don't bother setting localized name for characters
             MapId = packet.MapId;
             Path = packet.Path;
             PathCellIndex = packet.PathCellIndex;

@@ -145,7 +145,7 @@ namespace Client
 
             // TODO: Utilize Config
             LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
-            //StartCoroutine(LangSwapCoroutine());
+            StartCoroutine(LangSwapCoroutine());
         }
 
         private IEnumerator LangSwapCoroutine()

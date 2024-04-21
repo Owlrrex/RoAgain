@@ -571,6 +571,11 @@ PrefabInstance:
       propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8119298664129722291, guid: 894c3916ad9264b4db0fca8b66bed555,
+        type: 3}
+      propertyPath: _showOnHover
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8223111438453708172, guid: 894c3916ad9264b4db0fca8b66bed555,
         type: 3}
       propertyPath: m_Layer
@@ -766,9 +771,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hpSlider: {fileID: 8607795755776494045}
   _spSlider: {fileID: 4068872979423743603}
+  _showOnHover: 0
   _skillNameText: {fileID: 6407565973254442371}
   _castTimeSlider: {fileID: 3994594225236777900}
-  _entityNameText: {fileID: 3857777050688948288}
   _damageNumberEmitter: {fileID: 1378774545000850259}
   _skillTargetIndicator: {fileID: 0}
   _uiCamera: {fileID: 8520167000767610340}
@@ -818,18 +823,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 8240222036462264045}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3857777050688948288 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5175398488822109869, guid: 894c3916ad9264b4db0fca8b66bed555,
-    type: 3}
-  m_PrefabInstance: {fileID: 8240222036462264045}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &3930902107818997924 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4960284992435349065, guid: 894c3916ad9264b4db0fca8b66bed555,

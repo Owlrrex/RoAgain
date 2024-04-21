@@ -157,7 +157,7 @@ namespace Client
         public void UpdateCharacterDisplay()
         {
             // TODO: Fetch localized names of class
-            _characterNameText.text = _character.Name;
+            _characterNameText.text = _character.NameOverride;
             _characterJobText.text = _character.JobId.ToString();
         }
     }

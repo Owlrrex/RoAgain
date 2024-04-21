@@ -270,6 +270,7 @@ namespace Server
             CharacterPersistenceData persData = _characterDatabase.LoadCharacterPersistenceData(characterId);
 
             // Main creation point of CharacterRuntimeData. Maybe better moved somewhere else.
+            // TODO: store CharId separately - it shouldn't also be the entityId of the entity.
             CharacterRuntimeData charData = new(connection, characterId, persData.AccountId, persData.BaseLevel, persData.JobId,
                 persData.JobLevel, persData.Str, persData.Agi, persData.Vit, persData.Int, persData.Dex, persData.Luk)
             {
@@ -281,7 +282,7 @@ namespace Server
                 Element = EntityElement.Neutral1,
 
                 // Fields from the persistentData
-                Name = persData.Name,
+                NameOverride = persData.Name,
                 MapId = persData.MapId,
                 Coordinates = persData.Coordinates,
                 RequiredBaseExp = _expModule.GetRequiredBaseExpOnLevel(persData.BaseLevel, false),

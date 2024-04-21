@@ -72,8 +72,9 @@ namespace Server
         {
             return new BattleEntityDataPacket()
             {
-                UnitId = Id,
-                UnitName = Name,
+                EntityId = Id,
+                LocalizedNameId = LocalizedNameId,
+                NameOverride = NameOverride,
                 MapId = MapId,
                 Path = Path,
                 PathCellIndex = PathCellIndex,

@@ -13,7 +13,7 @@ namespace Server
                 return -1;
 
             int healMode = 0;
-            string targetName = sender.Name;
+            string targetName = sender.NameOverride;
 
             if(args.Length >= 2)
             {
@@ -31,7 +31,7 @@ namespace Server
 
             // Resolve target name
             CharacterRuntimeData target = sender;
-            if (targetName != sender.Name)
+            if (targetName != sender.NameOverride)
             {
                 target = FindPlayerByName(targetName);
                 if (target == null)
@@ -150,7 +150,7 @@ namespace Server
             if (!VerifyArgCount(args, 1, 2))
                 return -1;
 
-            string targetName = sender.Name;
+            string targetName = sender.NameOverride;
 
             if (args.Length == 2)
             {
@@ -159,7 +159,7 @@ namespace Server
 
             // Resolve target name
             CharacterRuntimeData target = sender;
-            if (targetName != sender.Name)
+            if (targetName != sender.NameOverride)
             {
                 target = FindPlayerByName(targetName);
                 if (target == null)
@@ -478,7 +478,7 @@ namespace Server
         {
             foreach (CharacterRuntimeData charData in ServerMain.Instance.Server.LoggedInCharacters)
             {
-                if (charData.Name == name)
+                if (charData.NameOverride == name)
                 {
                     return charData;
                 }

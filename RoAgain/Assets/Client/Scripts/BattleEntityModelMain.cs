@@ -24,9 +24,6 @@ namespace Client
         protected Slider _castTimeSlider;
 
         [SerializeField]
-        protected Text _entityNameText;
-
-        [SerializeField]
         protected DamageNumberEmitter _damageNumberEmitter;
 
         [SerializeField]
@@ -74,9 +71,6 @@ namespace Client
 
             if (_model == null)
                 OwlLogger.LogError("Couldn't find mover on BattleEntityModel!", GameComponent.Other);
-
-            if(_showOnHover)
-                OnPointerExit(null);
 
             return 0;
         }
@@ -167,11 +161,6 @@ namespace Client
                 }
                 _castTimeSlider.gameObject.SetActive(false);
             }
-
-            if (_entityNameText != null)
-            {
-                _entityNameText.text = _entity.Name;
-            }
         }
 
         // Start is called before the first frame update
@@ -211,15 +200,6 @@ namespace Client
             else
             {
                 _skillNameText.canvas.worldCamera = PlayerMain.Instance.WorldUiCamera;
-            }
-
-            if (_entityNameText == null)
-            {
-                OwlLogger.LogWarning($"BattleEntityModelMain has no unitNameText!", GameComponent.UI);
-            }
-            else
-            {
-                _entityNameText.canvas.worldCamera = PlayerMain.Instance.WorldUiCamera;
             }
 
             if (_damageNumberEmitter == null)
@@ -297,7 +277,6 @@ namespace Client
             if (!_showOnHover)
                 return;
 
-            _entityNameText.gameObject.SetActive(true);
             _hpSlider.gameObject.SetActive(true);
             _spSlider.gameObject.SetActive(true);
         }
@@ -307,7 +286,6 @@ namespace Client
             if (!_showOnHover)
                 return;
 
-            _entityNameText.gameObject.SetActive(false);
             _hpSlider.gameObject.SetActive(false);
             _spSlider.gameObject.SetActive(false);
         }

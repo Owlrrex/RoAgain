@@ -158,7 +158,7 @@ namespace Server
             {
                 SenderId = chatMessage.SenderId,
                 Message = chatMessage.Message,
-                SenderName = chatMessage.Sender.Name,
+                SenderName = chatMessage.Sender.NameOverride,
                 MessageScope = ChatMessagePacket.Scope.Global
             };
 
@@ -184,7 +184,7 @@ namespace Server
             {
                 SenderId = chatMessage.SenderId,
                 Message = chatMessage.Message,
-                SenderName = chatMessage.Sender.Name,
+                SenderName = chatMessage.Sender.NameOverride,
                 MessageScope = ChatMessagePacket.Scope.Proximity
             };
 
@@ -203,13 +203,13 @@ namespace Server
             {
                 SenderId = chatMessage.SenderId,
                 Message = chatMessage.Message,
-                SenderName = chatMessage.Sender.Name,
+                SenderName = chatMessage.Sender.NameOverride,
                 MessageScope = ChatMessagePacket.Scope.Whisper
             };
 
             foreach (CharacterRuntimeData charData in _server.LoggedInCharacters)
             {
-                if (charData.Name == chatMessage.TargetName)
+                if (charData.NameOverride == chatMessage.TargetName)
                 {
                     charData.Connection.Send(packet);
                     return SendSenderFeedback(chatMessage);
