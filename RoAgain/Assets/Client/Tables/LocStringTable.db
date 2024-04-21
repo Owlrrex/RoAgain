@@ -1,0 +1,39 @@
+{
+    "entries": [
+        {
+            "key": 0,
+            "value": {
+                "TextEnglish": "-Placeholder-",
+                "TextGerman": "-Platzhalter-"
+            }
+        },
+        {
+            "key": 1,
+            "value": {
+                "TextEnglish": "Welcome to RoAgain!",
+                "TextGerman": "Willkommen bei RoAgain!"
+            }
+        },
+        {
+            "key": 2,
+            "value": {
+                "TextEnglish": "Weak Mob",
+                "TextGerman": "Schwaches Monster"
+            }
+        },
+        {
+            "key": 3,
+            "value": {
+                "TextEnglish": "Medium Mob",
+                "TextGerman": "Mittleres Monster"
+            }
+        },
+        {
+            "key": 4,
+            "value": {
+                "TextEnglish": "Strong Mob",
+                "TextGerman": "Starkes Monster"
+            }
+        }
+    ]
+}

@@ -30,8 +30,6 @@ namespace Client
         private ModelTable _modelTable;
         [SerializeField]
         private JobTable _jobTable;
-        [SerializeField]
-        private LocalizedStringTable _stringTable;
 
         [SerializeField]
         private GameObject _dummyUnitPrefab;
@@ -72,6 +70,8 @@ namespace Client
 
         // for language-testing
         private bool _langSwapped = false;
+
+        private LocalizedStringTable _stringTable;
 
         void Awake()
         {
@@ -140,8 +140,14 @@ namespace Client
             if (!OwlLogger.PrefabNullCheckAndLog(_jobTable, "jobTable", this, GameComponent.Other))
                 _jobTable.Register();
 
-            if (!OwlLogger.PrefabNullCheckAndLog(_stringTable, "stringTable", this, GameComponent.Other))
-                _stringTable.Register();
+            if(LocalizedStringTable.IsReady())
+            {
+                // String Table already registered from Editor
+                // We re-register so that the Client's operation is as little effected by the Editor as possible
+                LocalizedStringTable.Unregister();
+            }
+            _stringTable = new();
+            _stringTable.Register();
 
             // TODO: Utilize Config
             LocalizedStringTable.SetClientLanguage(ClientLanguage.English);

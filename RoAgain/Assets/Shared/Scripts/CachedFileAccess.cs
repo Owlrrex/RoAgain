@@ -21,7 +21,7 @@ namespace Shared
 
         private static Dictionary<string, object> _loadedSets = new();
 
-        public static int Load<T>(string key, bool createIfNotFound) where T : class, new()
+        public static int Load<T>(string key, bool createIfNotFound) where T : class
         {
             if(string.IsNullOrWhiteSpace(key))
             {
@@ -49,7 +49,7 @@ namespace Shared
                 if(createIfNotFound)
                 {
                     // No savefile available: Create default config & write it to disk
-                    file = new();
+                    file = default;
                     Save(key, file);
                 }
                 else
@@ -68,7 +68,7 @@ namespace Shared
             return 0;
         }
 
-        public static T Get<T>(string key) where T : class, new()
+        public static T Get<T>(string key) where T : class
         {
             if (string.IsNullOrWhiteSpace(key))
             {
@@ -85,7 +85,7 @@ namespace Shared
             return _loadedSets[key] as T;
         }
 
-        public static T GetOrLoad<T>(string key, bool createIfNotFound) where T : class, new()
+        public static T GetOrLoad<T>(string key, bool createIfNotFound) where T : class
         {
             if (!IsLoaded(key))
             {
@@ -105,7 +105,7 @@ namespace Shared
             return _loadedSets.ContainsKey(key);
         }
 
-        public static int Save<T>(string key, T newData) where T : class, new()
+        public static int Save<T>(string key, T newData) where T : class
         {
             string path = MakePath(key);
             try
@@ -146,7 +146,7 @@ namespace Shared
             }
             else if(key.StartsWith(CLIENT_DB_PREFIX))
             {
-                return Path.Combine(Application.dataPath, "Client", "Databases", key.Remove(0, CLIENT_DB_PREFIX.Length) + ".db");
+                return Path.Combine(Application.dataPath, "Client", "Tables", key.Remove(0, CLIENT_DB_PREFIX.Length) + ".db");
             }
             return "";
         }
@@ -155,7 +155,7 @@ namespace Shared
         {
             if (!_loadedSets.ContainsKey(key))
             {
-                OwlLogger.LogWarning($"Tried to purge BufferedFileAccess for type {key} that wasn't loaded yet!", GameComponent.Other);
+                OwlLogger.LogWarning($"Tried to purge CachedFileAccess for type {key} that wasn't loaded yet!", GameComponent.Other);
                 return -1;
             }
 

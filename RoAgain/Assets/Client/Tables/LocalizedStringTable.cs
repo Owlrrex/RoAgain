@@ -1,4 +1,5 @@
 using OwlLogging;
+using Shared;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,9 +13,7 @@ namespace Client
         German
     }
 
-    // TODO: Rework into a more generic file format so non-unity tools can easier digest localized strings
-    [CreateAssetMenu(fileName = "StringTable", menuName = "ScriptableObjects/StringTable", order = 4)]
-    public class LocalizedStringTable : ScriptableObject
+    public class LocalizedStringTable
     {
         private static LocalizedStringTable _instance;
         private static ClientLanguage _currentLanguage;
@@ -23,44 +22,34 @@ namespace Client
         [Serializable]
         private class StringTableEntry
         {
-#pragma warning disable CS0649 // Field 'StringTable.StringTableEntry.Id' is never assigned to, and will always have its default value 0
-            // Don't use a LocalizedStringId here - if we have multiple StringTables or Contexts or such, they'll likely have a different persistent structure
-            public int Id;
-#pragma warning restore CS0649 // Field 'StringTable.StringTableEntry.Id' is never assigned to, and will always have its default value 0
             public string TextEnglish;
             public string TextGerman;
         }
 
-        [SerializeField]
-        private List<StringTableEntry> _entries;
-
+        // Contains only the strings for the currently loaded language
         // This Dictionary will probably get split up if String-banks are ever being added
         // or LocalizedStringId becomes a more complex type than just a single int
         private Dictionary<int, string> _stringsById;
 
+        private const string FILE_KEY = CachedFileAccess.CLIENT_DB_PREFIX + "LocStringTable";
+
         public void Register()
         {
-            if (_entries == null)
-            {
-                OwlLogger.LogError($"Can't register StringTable with null entries!", GameComponent.Other);
-                return;
-            }
-
             if (_instance != null)
             {
                 if (_instance == this)
-                    OwlLogger.LogError("Duplicate StringTable!", GameComponent.Other);
+                    OwlLogger.LogError("Duplicate StringTable registration!", GameComponent.Other);
                 else
-                    OwlLogger.LogError($"Tried to register StringTable {name} while another is registered: {_instance.name}", GameComponent.Other);
+                    OwlLogger.LogError($"Tried to register StringTable while another is registered", GameComponent.Other);
                 return;
             }
+
+            _instance = this;
 
             if(_currentLanguage != ClientLanguage.Unknown)
             {
                 LoadStringsForCurrentLanguage();
             }
-
-            _instance = this;
         }
 
         public static void SetClientLanguage(ClientLanguage newLanguage)
@@ -79,24 +68,29 @@ namespace Client
 
         private void LoadStringsForCurrentLanguage()
         {
+            var rawData = CachedFileAccess.GetOrLoad<DictionarySerializationWrapper<int, StringTableEntry>>(FILE_KEY, true);
+            Dictionary<int, StringTableEntry> allLangData = rawData.ToDict();
+
             _stringsById ??= new();
 
             _stringsById.Clear();
-            foreach (StringTableEntry entry in _entries)
+            foreach (KeyValuePair<int, StringTableEntry> kvp in allLangData)
             {
                 string text = _currentLanguage switch
                 {
-                    ClientLanguage.English => entry.TextEnglish,
-                    ClientLanguage.German => entry.TextGerman,
+                    ClientLanguage.English => kvp.Value.TextEnglish,
+                    ClientLanguage.German => kvp.Value.TextGerman,
                     _ => null
                 };
                 if(string.IsNullOrEmpty(text))
                 {
-                    text = $"MISSING_TEXT_{_currentLanguage}_{entry.Id}";
+                    text = $"MISSING_TEXT_{_currentLanguage}_{kvp.Key}";
                 }
 
-                _stringsById.Add(entry.Id, text);
+                _stringsById.Add(kvp.Key, text);
             }
+
+            CachedFileAccess.Purge(FILE_KEY);
         }
 
         public static string GetStringById(LocalizedStringId id)
@@ -116,6 +110,17 @@ namespace Client
         public static bool IsReady()
         {
             return _instance != null;
+        }
+
+        public static void Unregister()
+        {
+            if (_instance == null)
+            {
+                OwlLogger.LogWarning("Can't unregister LocalizedStringTable - none registered.", GameComponent.Other);
+                return;
+            }
+
+            _instance = null;
         }
     }
 }

@@ -15,11 +15,9 @@ namespace Client
 
             if (!LocalizedStringTable.IsReady())
             {
-                LocalizedStringTable loaded = AssetDatabase.LoadAssetAtPath<LocalizedStringTable>("Assets/Client/Tables/StringTable");
-                if(loaded != null)
-                {
-                    loaded.Register();
-                }
+                LocalizedStringTable loaded = new();
+                loaded.Register();
+                LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
             }
 
             GUILayout.Label(LocalizedStringTable.GetStringById(text.LocalizedStringId));
@@ -34,12 +32,9 @@ namespace Client
         {
             if (!LocalizedStringTable.IsReady())
             {
-                LocalizedStringTable loaded = AssetDatabase.LoadAssetAtPath<LocalizedStringTable>("Assets/Client/Tables/StringTable.asset");
-                if (loaded != null)
-                {
-                    loaded.Register();
-                    LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
-                }
+                LocalizedStringTable loaded = new();
+                loaded.Register();
+                LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
             }
 
             EditorGUI.BeginProperty(position, null, property);

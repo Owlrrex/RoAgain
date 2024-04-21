@@ -28,6 +28,7 @@ namespace Client
         private void OnEnable()
         {
             LocalizedStringTable.LanguageChanged += OnLanguageChanged;
+            UpdateStringDisplay();
         }
 
         private void OnDisable()
