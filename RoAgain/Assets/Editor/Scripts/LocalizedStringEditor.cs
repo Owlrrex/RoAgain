@@ -20,8 +20,11 @@ namespace Client
                 LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
             }
 
-            GUILayout.Label(LocalizedStringTable.GetStringById(text.LocalizedStringId));
 
+            if (!LocalizedStringTable.IsReady())
+                return;
+
+            GUILayout.Label(LocalizedStringTable.GetStringById(text.LocalizedStringId));
         }
     }
 
@@ -36,6 +39,9 @@ namespace Client
                 loaded.Register();
                 LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
             }
+
+            if (!LocalizedStringTable.IsReady())
+                return;
 
             EditorGUI.BeginProperty(position, null, property);
 
