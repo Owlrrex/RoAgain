@@ -239,7 +239,7 @@ MonoBehaviour:
   m_StopNaN: 0
   m_Dithering: 0
   m_ClearDepth: 1
-  m_AllowXRRendering: 1
+  m_AllowXRRendering: 0
   m_AllowHDROutput: 1
   m_UseScreenCoordOverride: 0
   m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
@@ -641,6 +641,11 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1173575409529498644, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_BlockingObjects
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1477407048800252897, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -744,6 +749,16 @@ PrefabInstance:
     - target: {fileID: 1763130634801166067, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_RenderMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1763130634801166067, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_SortingLayerID
+      value: -374137929
+      objectReference: {fileID: 0}
+    - target: {fileID: 1763130634801166067, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2107240447188001604, guid: fd93911793d93ff4db4873020a286564,
@@ -1249,6 +1264,11 @@ PrefabInstance:
     - target: {fileID: 8817418680280685586, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8879889656551020213, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8989864058686444355, guid: fd93911793d93ff4db4873020a286564,
