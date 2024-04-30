@@ -14,6 +14,7 @@ namespace Server
         public NetworkQueue NetworkQueue;
 
         public string AccountId;
+        public int CharacterId;
 
         public JobId JobId;
         public Action<CharacterRuntimeData> JobChanged;
@@ -195,8 +196,9 @@ namespace Server
         }
 
         public CharacterRuntimeData(ClientConnection connection, int charId, string accountId, int baseLvl, JobId jobId, int jobLvl,
-            int str, int agi, int vit, int intelligence, int dex, int luk) : this(connection, charId)
+            int str, int agi, int vit, int intelligence, int dex, int luk) : this(connection, NextEntityId)
         {
+            CharacterId = charId;
             AccountId = accountId;
             BaseLvl.Value = baseLvl;
             JobId = jobId;

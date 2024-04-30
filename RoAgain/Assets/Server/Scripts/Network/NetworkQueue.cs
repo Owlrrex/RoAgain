@@ -203,7 +203,7 @@ namespace Server
         {
             if (entity is CharacterRuntimeData charData)
             {
-                if(charData.Id == _connection.CharacterId)
+                if(charData.CharacterId == _connection.CharacterId)
                 {
                     OwlLogger.Log($"LocalCharacterDataPacket queued for entity {entity.Id}", GameComponent.Network, LogSeverity.VeryVerbose);
 

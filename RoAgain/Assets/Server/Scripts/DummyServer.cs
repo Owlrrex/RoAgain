@@ -205,8 +205,11 @@ namespace Server
                 return;
             }
 
+            OwlLogger.LogF("Starting Character login for character id {0}", characterId, GameComponent.Other);
+
             CharacterRuntimeData charData = CreateAndSetupCharacterInstance(connection, characterId);
             connection.CharacterId = characterId;
+            connection.EntityId = charData.Id;
 
             // Send main Character data
             charData.NetworkQueue.GridEntityDataUpdate(charData);
@@ -263,6 +266,8 @@ namespace Server
                 Result = resultCode,
             };
             charData.Connection.Send(resultPacket);
+
+            OwlLogger.LogF("Character login finished for character id {0}", charData.CharacterId, GameComponent.Other);
         }
 
         private CharacterRuntimeData CreateAndSetupCharacterInstance(ClientConnection connection, int characterId)
@@ -323,7 +328,7 @@ namespace Server
             ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
             if (mapInstance == null)
             {
-                OwlLogger.LogError($"Fetching/creating Mapinstance failed for CharacterLogin id {charData.Id}, mapid {charData.MapId}!", GameComponent.Other);
+                OwlLogger.LogError($"Fetching/creating Mapinstance failed for CharacterLogin id {charData.CharacterId}, mapid {charData.MapId}!", GameComponent.Other);
                 return null;
             }
 
@@ -333,7 +338,7 @@ namespace Server
             //charData.MapInstance = mapInstance;
 
             if (charData.IsDead())
-                ReceivedReturnAfterDeathRequest(charData.Connection, charData.Id);
+                ReceivedReturnAfterDeathRequest(charData.Connection, charData.CharacterId);
 
             // This applies JobLevel bonuses & passive skills that're learnt
             _jobModule.InitJob(charData);
@@ -448,9 +453,10 @@ namespace Server
         // TODO: Move this to whatever system is best to handle this
         private void ReceiveStatIncreaseRequest(ClientConnection connection, EntityPropertyType statType)
         {
-            if (_mapModule.FindEntityOnAllMaps(connection.CharacterId) is not CharacterRuntimeData character)
+            // TODO: Use TryGetLoggedInCharacter instead
+            if(!TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData character))
             {
-                OwlLogger.LogError($"Character id {connection.CharacterId} not found on grid, but received StatIncreaseRequest.", GameComponent.Other);
+                OwlLogger.LogError($"Character id {connection.CharacterId} not found logged in, but received StatIncreaseRequest.", GameComponent.Other);
                 return;
             }
 
@@ -562,7 +568,7 @@ namespace Server
                 return;
             }
 
-            if(_loggedInCharacters.Find(x => x.Id == charId) != null)
+            if(TryGetLoggedInCharacter(charId, out _))
             {
                 OwlLogger.LogError($"Can't delete characterId {charId} while logged in!", GameComponent.Persistence);
                 connection.Send(new CharacterDeletionResponsePacket() { Result = -11 });
@@ -585,7 +591,7 @@ namespace Server
             AccountPersistenceData accData = _accountDatabase.GetAccountData(accountId);
             foreach(int charId in accData.CharacterIds)
             {
-                if(_loggedInCharacters.Find(x => x.Id == charId) != null)
+                if(TryGetLoggedInCharacter(charId, out _))
                 {
                     OwlLogger.LogError($"Can't delete Account {accountId} - character {charId} is logged in!", GameComponent.Persistence);
                     connection.Send(new AccountDeletionResponsePacket() { Result = -11 });
@@ -796,6 +802,7 @@ namespace Server
             _loggedInCharacters.Remove(charData);
 
             charData.Connection.CharacterId = -1;
+            charData.Connection.EntityId = -1;
         }
 
         public override void Update(float deltaTime)
@@ -825,7 +832,7 @@ namespace Server
 
         public override bool TryGetLoggedInCharacter(int characterId, out CharacterRuntimeData charData)
         {
-            charData = _loggedInCharacters.Find(item => item.Id == characterId);
+            charData = _loggedInCharacters.Find(item => item.CharacterId == characterId);
             return charData != null;
         }
     }

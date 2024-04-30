@@ -31,6 +31,7 @@ namespace Server
 
         public string AccountId;
         public int CharacterId = -1;
+        public int EntityId = -1;
 
         public abstract bool IsInitialized();
 

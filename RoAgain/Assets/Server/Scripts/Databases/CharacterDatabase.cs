@@ -59,7 +59,7 @@ namespace Server
 
             CharacterPersistenceData data = new()
             {
-                CharacterId = runtimeData.Id,
+                CharacterId = runtimeData.CharacterId,
                 AccountId = runtimeData.AccountId,
                 Name = runtimeData.NameOverride,
                 BaseLevel = runtimeData.BaseLvl.Value,
@@ -316,9 +316,9 @@ namespace Server
                 return -2;
             }
 
-            if(charData.Id <= 0)
+            if(charData.CharacterId <= 0)
             {
-                OwlLogger.LogError($"Can't persist invalid characterId {charData.Id}", GameComponent.Persistence);
+                OwlLogger.LogError($"Can't persist invalid characterId {charData.CharacterId}", GameComponent.Persistence);
                 return -1;
             }
 
