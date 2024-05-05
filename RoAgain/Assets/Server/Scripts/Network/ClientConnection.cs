@@ -26,6 +26,8 @@ namespace Server
         public Action<ClientConnection, SkillId, int> SkillPointAllocateRequestReceived;
         public Action<ClientConnection, int> ReturnAfterDeathRequestReceived;
         public Action<ClientConnection> CharacterLogoutRequestReceived;
+        public Action<ClientConnection, int, bool> ConfigStorageRequestReceived;
+        public Action<ClientConnection, int, bool> ConfigReadRequestReceived;
 
         public abstract int Initialize(CentralConnection central, int sessionId);
 
@@ -96,90 +98,62 @@ namespace Server
         {
             OwlLogger.Log($"ServerSide ClientConnection received Packet: {packet.SerializeReflection()}", GameComponent.Network, LogSeverity.VeryVerbose);
 
-            Type packetType = packet.GetType();
-            if (packetType == typeof(LoginRequestPacket))
+            switch (packet)
             {
-                LoginRequestPacket loginPacket = packet as LoginRequestPacket;
-                LoginRequestRecieved?.Invoke(this, loginPacket.Username, loginPacket.Password);
-            }
-            else if (packetType == typeof(CharacterSelectionRequestPacket))
-            {
-                CharacterSelectionRequestReceived?.Invoke(this);
-            }
-            else if (packetType == typeof(CharacterLoginPacket))
-            {
-                CharacterLoginPacket charLoginPacket = packet as CharacterLoginPacket;
-                CharacterLoginReceived?.Invoke(this, charLoginPacket.CharacterId); // have to use packet's ID here, since ClientConnection.CharacterId will only be set in response to this packet
-            }
-            else if (packetType == typeof(MovementRequestPacket))
-            {
-                MovementRequestPacket movementPacket = packet as MovementRequestPacket;
-                MovementRequestReceived?.Invoke(this, movementPacket.TargetCoordinates);
-            }
-            else if(packetType == typeof(SkillUseEntityRequestPacket))
-            {
-                SkillUseEntityRequestPacket skillPacket = packet as SkillUseEntityRequestPacket;
-                EntitySkillRequestReceived?.Invoke(this, skillPacket.SkillId, skillPacket.SkillLvl, skillPacket.TargetId);
-            }
-            else if(packetType == typeof(SkillUseGroundRequestPacket))
-            {
-                SkillUseGroundRequestPacket skillPacket = packet as SkillUseGroundRequestPacket;
-                GroundSkillRequestReceived?.Invoke(this, skillPacket.SkillId, skillPacket.SkillLvl, skillPacket.TargetCoords);
-            }
-            else if(packetType == typeof(ChatMessageRequestPacket))
-            {
-                ChatMessageRequestPacket chatPacket = packet as ChatMessageRequestPacket;
-                ChatModule.ChatMessageRequestData data = new()
-                {
-                    Message = chatPacket.Message,
-                    SenderId = chatPacket.SenderId,
-                    TargetName = chatPacket.TargetName
-                };
-                ChatMessageRequestReceived?.Invoke(this, data);
-            }
-            else if(packetType == typeof(StatIncreaseRequestPacket))
-            {
-                StatIncreaseRequestPacket statIncPacket = packet as StatIncreaseRequestPacket;
-                StatIncreaseRequestReceived?.Invoke(this, statIncPacket.StatType);
-            }
-            else if(packetType == typeof(AccountCreationRequestPacket))
-            {
-                AccountCreationRequestPacket accCreaPacket = packet as AccountCreationRequestPacket;
-                AccountCreationRequestReceived?.Invoke(this, accCreaPacket.Username, accCreaPacket.Password);
-            }
-            else if (packetType == typeof(AccountDeletionRequestPacket))
-            {
-                AccountDeletionRequestPacket accDelPacket = packet as AccountDeletionRequestPacket;
-                AccountDeletionRequestReceived?.Invoke(this, accDelPacket.AccountId);
-            }
-            else if(packetType == typeof(CharacterCreationRequestPacket))
-            {
-                CharacterCreationRequestPacket charCreaPacket = packet as CharacterCreationRequestPacket;
-                CharacterCreationRequestReceived?.Invoke(this, charCreaPacket.Name, charCreaPacket.Gender);
-            }
-            else if(packetType == typeof(CharacterDeletionRequestPacket))
-            {
-                CharacterDeletionRequestPacket charDelPacket = packet as CharacterDeletionRequestPacket;
-                CharacterDeletionRequestReceived?.Invoke(this, charDelPacket.CharacterId);
-            }
-            else if(packetType == typeof(SkillPointAllocateRequestPacket))
-            {
-                SkillPointAllocateRequestPacket skillPointAllocatePacket = packet as SkillPointAllocateRequestPacket;
-                SkillPointAllocateRequestReceived?.Invoke(this, skillPointAllocatePacket.SkillId, skillPointAllocatePacket.Amount);
-            }
-            else if(packetType == typeof(ReturnAfterDeathRequestPacket))
-            {
-                ReturnAfterDeathRequestPacket returnToSavePacket = packet as ReturnAfterDeathRequestPacket;
-                ReturnAfterDeathRequestReceived?.Invoke(this, returnToSavePacket.CharacterId);
-            }
-            else if(packetType == typeof(CharacterLogoutRequestPacket))
-            {
-                CharacterLogoutRequestPacket charLogoutPacket = packet as CharacterLogoutRequestPacket;
-                CharacterLogoutRequestReceived?.Invoke(this);
-            }
-            else
-            {
-                Debug.LogError($"ServerSide ClientConnection received unsupported packet: {packet.SerializeReflection()}");
+                case LoginRequestPacket loginRequestPacket:
+                    LoginRequestRecieved?.Invoke(this, loginRequestPacket.Username, loginRequestPacket.Password);
+                    break;
+                case CharacterSelectionRequestPacket charSelRequestPacket:
+                    CharacterSelectionRequestReceived?.Invoke(this);
+                    break;
+                case CharacterLoginPacket charLoginPacket:
+                    CharacterLoginReceived?.Invoke(this, charLoginPacket.CharacterId); // have to use packet's ID here, since ClientConnection.CharacterId will only be set in response to this packet
+                    break;
+                case MovementRequestPacket movementPacket:
+                    MovementRequestReceived?.Invoke(this, movementPacket.TargetCoordinates);
+                    break;
+                case SkillUseEntityRequestPacket skillPacket:
+                    EntitySkillRequestReceived?.Invoke(this, skillPacket.SkillId, skillPacket.SkillLvl, skillPacket.TargetId);
+                    break;
+                case SkillUseGroundRequestPacket skillPacket:
+                    GroundSkillRequestReceived?.Invoke(this, skillPacket.SkillId, skillPacket.SkillLvl, skillPacket.TargetCoords);
+                    break;
+                case ChatMessageRequestPacket chatPacket:
+                    ChatModule.ChatMessageRequestData data = new()
+                    {
+                        Message = chatPacket.Message,
+                        SenderId = chatPacket.SenderId,
+                        TargetName = chatPacket.TargetName
+                    };
+                    ChatMessageRequestReceived?.Invoke(this, data);
+                    break;
+                case StatIncreaseRequestPacket statIncPacket:
+                    StatIncreaseRequestReceived?.Invoke(this, statIncPacket.StatType);
+                    break;
+                case AccountCreationRequestPacket accCreaPacket:
+                    AccountCreationRequestReceived?.Invoke(this, accCreaPacket.Username, accCreaPacket.Password);
+                    break;
+                case AccountDeletionRequestPacket accDelPacket:
+                    AccountDeletionRequestReceived?.Invoke(this, accDelPacket.AccountId);
+                    break;
+                case CharacterCreationRequestPacket charCreaPacket:
+                    CharacterCreationRequestReceived?.Invoke(this, charCreaPacket.Name, charCreaPacket.Gender);
+                    break;
+                case CharacterDeletionRequestPacket charDelPacket:
+                    CharacterDeletionRequestReceived?.Invoke(this, charDelPacket.CharacterId);
+                    break;
+                case SkillPointAllocateRequestPacket skillPointAllocatePacket:
+                    SkillPointAllocateRequestReceived?.Invoke(this, skillPointAllocatePacket.SkillId, skillPointAllocatePacket.Amount);
+                    break;
+                case ReturnAfterDeathRequestPacket returnToSavePacket:
+                    ReturnAfterDeathRequestReceived?.Invoke(this, returnToSavePacket.CharacterId);
+                    break;
+                case CharacterLogoutRequestPacket charLogoutPacket:
+                    CharacterLogoutRequestReceived?.Invoke(this);
+                    break;
+                default:
+                    OwlLogger.LogError($"ServerSide ClientConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);
+                    break;
             }
         }
     }

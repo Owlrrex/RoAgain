@@ -195,148 +195,116 @@ namespace Client
                 return;
             }
 
-            if (packet is SessionCreationPacket sessionPacket)
+            switch(packet)
             {
-                _sessionId = sessionPacket.AssignedSessionId;
-                OwlLogger.Log($"Client got assigned SessionId {_sessionId}", GameComponent.Network);
-                SessionReceived?.Invoke(_sessionId);
-            }
-            else if (packet is AccountLoginResponsePacket loginPacket)
-            {
-                ReceiveAccountLoginResponse(loginPacket);
-            }
-            else if (packet is CharacterSelectionDataPacket charSelPacket)
-            {
-                ReceiveCharacterSelectionData(charSelPacket);
-            }
-            else if (packet is CharacterLoginResponsePacket charLoginPacket)
-            {
-                ReceiveCharacterLoginResponse(charLoginPacket);
-            }
-            else if (packet is EntityPathUpdatePacket pathPacket)
-            {
-                ReceiveMovement(pathPacket);
-            }
-            else if (packet is GridEntityDataPacket gridDataPacket)
-            {
-                ReceiveGridEntityData(gridDataPacket);
-            }
-            else if (packet is BattleEntityDataPacket battleDataPacket)
-            {
-                ReceiveBattleEntityData(battleDataPacket);
-            }
-            else if (packet is RemoteCharacterDataPacket remoteDataPacket)
-            {
-                ReceiveRemoteCharacterData(remoteDataPacket);
-            }
-            else if (packet is LocalCharacterDataPacket localDataPacket)
-            {
-                ReceiveLocalCharacterData(localDataPacket);
-            }
-            else if (packet is EntityRemovedPacket entityRemovedPacket)
-            {
-                ReceiveEntityRemoved(entityRemovedPacket);
-            }
-            //else if(packetType == typeof(MapChangePacket))
-            //{
-            //    ReceiveMapChange(packet as MapChangePacket);
-            //}
-            else if (packet is CellEffectGroupPlacedPacket groupPlacedPacket)
-            {
-                ReceiveCellEffectGroupPlaced(groupPlacedPacket);
-            }
-            else if (packet is CellEffectGroupRemovedPacket groupRemovedPacket)
-            {
-                ReceiveCellEffectGroupRemoved(groupRemovedPacket);
-            }
-            else if (packet is DamageTakenPacket damagePacket)
-            {
-                ReceiveDamageTakenPacket(damagePacket);
-            }
-            else if (packet is CastProgressPacket castPacket)
-            {
-                ReceiveCastProgressPacket(castPacket);
-            }
-            else if (packet is EntitySkillExecutePacket entitySkillPacket)
-            {
-                ReceiveEntitySkillPacket(entitySkillPacket);
-            }
-            else if (packet is GroundSkillExecutePacket groundSkillPacket)
-            {
-                ReceiveGroundSkillPacket(groundSkillPacket);
-            }
-            else if (packet is ChatMessagePacket chatMsgPacket)
-            {
-                ReceiveChatMessagePacket(chatMsgPacket);
-            }
-            else if (packet is HpUpdatePacket hpUpdatePacket)
-            {
-                ReceiveHpUpdatePacket(hpUpdatePacket);
-            }
-            else if (packet is SpUpdatePacket spUpdatePacket)
-            {
-                ReceiveSpUpdatePacket(spUpdatePacket);
-            }
-            else if (packet is SkillFailPacket skillFailPacket)
-            {
-                ReceiveSkillFailPacket(skillFailPacket);
-            }
-            else if (packet is StatUpdatePacket statUpdatePacket)
-            {
-                ReceiveStatUpdatePacket(statUpdatePacket);
-            }
-            else if (packet is StatFloatUpdatePacket statFloatUpdatePacket)
-            {
-                ReceiveStatFloatUpdatePacket(statFloatUpdatePacket);
-            }
-            else if (packet is StatCostUpdatePacket statCostUpdatePacket)
-            {
-                ReceiveStatCostUpdatePacket(statCostUpdatePacket);
-            }
-            else if (packet is StatPointUpdatePacket statPointPacket)
-            {
-                ReceiveStatPointUpdatePacket(statPointPacket);
-            }
-            else if (packet is ExpUpdatePacket expPacket)
-            {
-                ReceiveExpUpdatePacket(expPacket);
-            }
-            else if (packet is LevelUpPacket levelPacket)
-            {
-                ReceiveLevelUpPacket(levelPacket);
-            }
-            else if (packet is AccountCreationResponsePacket accCreaRespPacket)
-            {
-                AccountCreationResponseReceived?.Invoke(accCreaRespPacket.Result);
-            }
-            else if(packet is CharacterCreationResponsePacket charCreaRespPacket)
-            {
-                CharacterCreationResponseReceived?.Invoke(charCreaRespPacket.Result);
-            }
-            else if(packet is LocalPlayerEntitySkillQueuedPacket entitySkillQueuedPacket)
-            {
-                LocalPlayerEntitySkillQueuedReceived?.Invoke(entitySkillQueuedPacket.SkillId, entitySkillQueuedPacket.TargetId);
-            }
-            else if(packet is LocalPlayerGroundSkillQueuedPacket groundSkillQueuedPacket)
-            {
-                LocalPlayerGroundSkillQueuedReceived?.Invoke(groundSkillQueuedPacket.SkillId, groundSkillQueuedPacket.Target);
-            }
-            else if(packet is SkillTreeEntryPacket skillTreeUpdatePacket)
-            {
-                SkillTreeEntry entry = new(skillTreeUpdatePacket);
-                SkillTreeEntryUpdateReceived?.Invoke(entry);
-            }
-            else if(packet is SkillTreeRemovePacket skillTreeRemovePacket)
-            {
-                SkillTreeEntryRemoveReceived?.Invoke(skillTreeRemovePacket.SkillId);
-            }
-            else if(packet is SkillPointUpdatePacket skillPointResponsePacket)
-            {
-                SkillPointAllocateResponseReceived?.Invoke(skillPointResponsePacket.RemainingSkillPoints);
-            }
-            else
-            {
-                Debug.LogError($"Clientside DummyServerConnection received unsupported packet: {packet.SerializeReflection()}");
+                case SessionCreationPacket sessionPacket:
+                    _sessionId = sessionPacket.AssignedSessionId;
+                    OwlLogger.Log($"Client got assigned SessionId {_sessionId}", GameComponent.Network);
+                    SessionReceived?.Invoke(_sessionId);
+                    break;
+                case AccountLoginResponsePacket loginPacket:
+                    ReceiveAccountLoginResponse(loginPacket);
+                    break;
+                case CharacterSelectionDataPacket charSelPacket:
+                    ReceiveCharacterSelectionData(charSelPacket);
+                    break;
+                case CharacterLoginResponsePacket charLoginPacket:
+                    ReceiveCharacterLoginResponse(charLoginPacket);
+                    break;
+                case EntityPathUpdatePacket pathPacket:
+                    ReceiveMovement(pathPacket);
+                    break;
+                case GridEntityDataPacket gridDataPacket:
+                    ReceiveGridEntityData(gridDataPacket);
+                    break;
+                case BattleEntityDataPacket battleDataPacket:
+                    ReceiveBattleEntityData(battleDataPacket);
+                    break;
+                case RemoteCharacterDataPacket remoteDataPacket:
+                    ReceiveRemoteCharacterData(remoteDataPacket);
+                    break;
+                case LocalCharacterDataPacket localDataPacket:
+                    ReceiveLocalCharacterData(localDataPacket);
+                    break;
+                case EntityRemovedPacket entityRemovedPacket:
+                    ReceiveEntityRemoved(entityRemovedPacket);
+                    break;
+                //case MapChangePacket mapChangePacket:
+                //    ReceiveMapChange(mapChangePacket);
+                //    break;
+                case CellEffectGroupPlacedPacket groupPlacedPacket:
+                    ReceiveCellEffectGroupPlaced(groupPlacedPacket);
+                    break;
+                case CellEffectGroupRemovedPacket groupRemovedPacket:
+                    ReceiveCellEffectGroupRemoved(groupRemovedPacket);
+                    break;
+                case DamageTakenPacket damagePacket:
+                    ReceiveDamageTakenPacket(damagePacket);
+                    break;
+                case CastProgressPacket castPacket:
+                    ReceiveCastProgressPacket(castPacket);
+                    break;
+                case EntitySkillExecutePacket entitySkillPacket:
+                    ReceiveEntitySkillPacket(entitySkillPacket);
+                    break;
+                case GroundSkillExecutePacket groundSkillPacket:
+                    ReceiveGroundSkillPacket(groundSkillPacket);
+                    break;
+                case ChatMessagePacket chatMsgPacket:
+                    ReceiveChatMessagePacket(chatMsgPacket);
+                    break;
+                case HpUpdatePacket hpUpdatePacket:
+                    ReceiveHpUpdatePacket(hpUpdatePacket);
+                    break;
+                case SpUpdatePacket spUpdatePacket:
+                    ReceiveSpUpdatePacket(spUpdatePacket);
+                    break;
+                case SkillFailPacket skillFailPacket:
+                    ReceiveSkillFailPacket(skillFailPacket);
+                    break;
+                case StatUpdatePacket statUpdatePacket:
+                    ReceiveStatUpdatePacket(statUpdatePacket);
+                    break;
+                case StatFloatUpdatePacket statFloatUpdatePacket:
+                    ReceiveStatFloatUpdatePacket(statFloatUpdatePacket);
+                    break;
+                case StatCostUpdatePacket statCostUpdatePacket:
+                    ReceiveStatCostUpdatePacket(statCostUpdatePacket);
+                    break;
+                case StatPointUpdatePacket statPointPacket:
+                    ReceiveStatPointUpdatePacket(statPointPacket);
+                    break;
+                case ExpUpdatePacket expPacket:
+                    ReceiveExpUpdatePacket(expPacket);
+                    break;
+                case LevelUpPacket levelPacket:
+                    ReceiveLevelUpPacket(levelPacket);
+                    break;
+                case AccountCreationResponsePacket accCreaRespPacket:
+                    AccountCreationResponseReceived?.Invoke(accCreaRespPacket.Result);
+                    break;
+                case CharacterCreationResponsePacket charCreaRespPacket:
+                    CharacterCreationResponseReceived?.Invoke(charCreaRespPacket.Result);
+                    break;
+                case LocalPlayerEntitySkillQueuedPacket entitySkillQueuedPacket:
+                    LocalPlayerEntitySkillQueuedReceived?.Invoke(entitySkillQueuedPacket.SkillId, entitySkillQueuedPacket.TargetId);
+                    break;
+                case LocalPlayerGroundSkillQueuedPacket groundSkillQueuedPacket:
+                    LocalPlayerGroundSkillQueuedReceived?.Invoke(groundSkillQueuedPacket.SkillId, groundSkillQueuedPacket.Target);
+                    break;
+                case SkillTreeEntryPacket skillTreeUpdatePacket:
+                    SkillTreeEntry entry = new(skillTreeUpdatePacket);
+                    SkillTreeEntryUpdateReceived?.Invoke(entry);
+                    break;
+                case SkillTreeRemovePacket skillTreeRemovePacket:
+                    SkillTreeEntryRemoveReceived?.Invoke(skillTreeRemovePacket.SkillId);
+                    break;
+                case SkillPointUpdatePacket skillPointResponsePacket:
+                    SkillPointAllocateResponseReceived?.Invoke(skillPointResponsePacket.RemainingSkillPoints);
+                    break;
+                default:
+                    OwlLogger.LogError($"Clientside DummyServerConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);
+                    break;
             }
         }
 
