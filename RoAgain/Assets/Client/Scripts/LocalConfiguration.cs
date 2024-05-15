@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-using HotkeyConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigurableHotkey, Client.ClientConfiguration.HotkeyConfigEntry>;
+using HotkeyConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigurableHotkey, Client.LocalConfiguration.HotkeyConfigEntry>;
 using MiscConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigurationKey, string>;
 
 namespace Client
@@ -46,12 +46,12 @@ namespace Client
         // Used for settings that aren't related to hotkeys, like audio Volume
     }
 
-    public class ClientConfiguration
+    public class LocalConfiguration
     {
         private const string HOTKEY_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "HotkeyConfig";
         private const string MISC_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "MiscConfig";
 
-        public static ClientConfiguration Instance { get; private set; }
+        public static LocalConfiguration Instance { get; private set; }
 
         [Serializable]
         public class HotkeyConfigEntry

@@ -250,6 +250,15 @@ abstract public class Packet
             case 59:
                 packet = JsonUtility.FromJson<CharacterLogoutResponsePacket>(json);
                 break;
+            case 60:
+                packet = JsonUtility.FromJson<ConfigStorageRequestPacket>(json);
+                break;
+            case 61:
+                packet = JsonUtility.FromJson<ConfigReadRequestPacket>(json);
+                break;
+            case 62:
+                packet = JsonUtility.FromJson<ConfigValuePacket>(json);
+                break;
             default:
                 OwlLogger.LogError($"Invalid Packet type {packetType} received!", GameComponent.Network);
                 return null;
@@ -925,6 +934,32 @@ public class CharacterLogoutResponsePacket : Packet
     public override int PacketType => 59;
 }
 
+public class ConfigStorageRequestPacket : Packet
+{
+    public override int PacketType => 60;
+
+    public int Key;
+    public int Value;
+    public bool UseAccountStorage;
+}
+
+public class ConfigReadRequestPacket : Packet
+{
+    public override int PacketType => 61;
+
+    public int Key;
+    public bool PreferAccountStorage;
+}
+
+public class ConfigValuePacket : Packet
+{
+    public override int PacketType => 62;
+
+    public int Key;
+    public int Value;
+    public bool IsAccountStorage;
+}
+
 // Move & adjust this comment when adding new packets, to make dev easier
-// Next PacketType = 60
+// Next PacketType = 62
 // Unused Ids: 8, 15

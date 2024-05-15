@@ -44,6 +44,7 @@ namespace Client
         public Action<SkillTreeEntry> SkillTreeEntryUpdateReceived;
         public Action<SkillId> SkillTreeEntryRemoveReceived;
         public Action<int> SkillPointAllocateResponseReceived;
+        public Action<RemoteConfigKey, int, bool> ConfigValueReceived;
 
         public abstract int Initialize(string serverConfigDataHere);
 
@@ -301,6 +302,9 @@ namespace Client
                     break;
                 case SkillPointUpdatePacket skillPointResponsePacket:
                     SkillPointAllocateResponseReceived?.Invoke(skillPointResponsePacket.RemainingSkillPoints);
+                    break;
+                case ConfigValuePacket configValuePacket:
+                    ConfigValueReceived?.Invoke((RemoteConfigKey)configValuePacket.Key, configValuePacket.Value, configValuePacket.IsAccountStorage);
                     break;
                 default:
                     OwlLogger.LogError($"Clientside DummyServerConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);

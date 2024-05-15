@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using Shared;
 
 namespace Server
 {
@@ -15,6 +16,7 @@ namespace Server
         public string Username;
         public string PasswordHash;
         public List<int> CharacterIds = new();
+        public DictionarySerializationWrapper<int, int> AccountConfig = new();
     }
 
     public abstract class AAccountDatabase
@@ -112,11 +114,16 @@ namespace Server
             return !string.IsNullOrEmpty(password)
                 && password.Length > 6;
         }
+
+        public abstract bool GetConfigValue(string accountId, int configKey, out int value);
+
+        public abstract void SetConfigValue(string accountId, int configKey, int value);
     }
 
     public class AccountDatabase : AAccountDatabase
     {
         private string _folderPath;
+        private Dictionary<string, RemoteConfigStorage> _storedAccConfigs = new();
 
         public override int Initialize(string config)
         {
@@ -149,6 +156,7 @@ namespace Server
         public override void Shutdown()
         {
             Persist();
+            _storedAccConfigs.Clear();
         }
 
         private int LoadAccountData()
@@ -190,6 +198,7 @@ namespace Server
                     continue;
                 }
                 _accounts[persData.Username] = persData;
+                _storedAccConfigs[persData.Username] = new(persData.AccountConfig.ToDict());
             }
 
             return 0;
@@ -212,6 +221,11 @@ namespace Server
             {
                 OwlLogger.LogError($"Can't persist accountId {accountId} that's not managed by AccountDb!", GameComponent.Persistence);
                 return -1;
+            }
+
+            if (_storedAccConfigs.TryGetValue(accountId, out RemoteConfigStorage storage))
+            {
+                _accounts[accountId].AccountConfig.FromDict(storage.Values);
             }
 
             string data = JsonUtility.ToJson(_accounts[accountId]);
@@ -265,6 +279,29 @@ namespace Server
             }
 
             return 0;
+        }
+
+        public override bool GetConfigValue(string accountId, int configKey, out int value)
+        {
+            if(!_storedAccConfigs.TryGetValue(accountId, out RemoteConfigStorage storage))
+            {
+                value = 0;
+                return false;
+            }
+
+            value = storage.GetConfigValue(configKey);
+            return true;
+        }
+
+        public override void SetConfigValue(string accountId, int configKey, int value)
+        {
+            if (!_storedAccConfigs.TryGetValue(accountId, out RemoteConfigStorage storage))
+            {
+                storage = new(null);
+                _storedAccConfigs.Add(accountId, storage);
+            }
+
+            storage.SetConfigValue(configKey, value);
         }
     }
 }

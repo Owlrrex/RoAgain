@@ -98,7 +98,7 @@ namespace Client
 
             if (_hotkeyText != null)
             {
-                ClientConfiguration.HotkeyConfigEntry entry = ClientConfiguration.Instance.GetHotkey(hotkey);
+                LocalConfiguration.HotkeyConfigEntry entry = LocalConfiguration.Instance.GetHotkey(hotkey);
                 _hotkeyText.text = entry?.ToString();
             }
         }

@@ -16,9 +16,9 @@ public class KeyboardInput
     private Dictionary<KeyCode, HashSet<ConfigurableHotkey>> _hotkeyBanks = new();
     private HashSet<KeyCode> _usedModifierKeys = new();
 
-    private ClientConfiguration _config;
+    private LocalConfiguration _config;
 
-    public int Initialize(ClientConfiguration config)
+    public int Initialize(LocalConfiguration config)
     {
         if(Instance != null && Instance != this)
         {
@@ -51,7 +51,7 @@ public class KeyboardInput
 
     public bool IsConfigurableHotkeyDown(ConfigurableHotkey hotkey)
     {
-        ClientConfiguration.HotkeyConfigEntry entry = _config.GetHotkey(hotkey);
+        LocalConfiguration.HotkeyConfigEntry entry = _config.GetHotkey(hotkey);
         if (entry == null)
             return false;
 

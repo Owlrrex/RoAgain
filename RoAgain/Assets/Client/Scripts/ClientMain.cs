@@ -73,6 +73,8 @@ namespace Client
 
         private LocalizedStringTable _stringTable;
 
+        private RemoteConfigCache _remoteConfigCache = new();
+
         void Awake()
         {
             if (Instance == this)
@@ -89,23 +91,23 @@ namespace Client
             }
             Instance = this;
 
-            if(ClientConfiguration.Instance == null)
+            if(LocalConfiguration.Instance == null)
             {
-                ClientConfiguration config = new();
+                LocalConfiguration config = new();
                 config.LoadConfig();
             }
             else
             {
-                ClientConfiguration.Instance.LoadConfig();
+                LocalConfiguration.Instance.LoadConfig();
             }
             
             // TODO: Check for errors 
 
-            IpInput = ClientConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerIp);
-            _port = ClientConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerPort);
+            IpInput = LocalConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerIp);
+            _port = LocalConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerPort);
 
             KeyboardInput keyboardInput = new();
-            keyboardInput.Initialize(ClientConfiguration.Instance);
+            keyboardInput.Initialize(LocalConfiguration.Instance);
 
             InitializeTables();
 
@@ -163,7 +165,7 @@ namespace Client
                     LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
                 else
                     LocalizedStringTable.SetClientLanguage(ClientLanguage.German);
-                _langSwapped = !_langSwapped;
+                _langSwapped = !_langSwapped;                    
             }
         }
 
@@ -251,6 +253,7 @@ namespace Client
             ConnectionToServer.SkillTreeEntryUpdateReceived += OnSkillTreeUpdateReceived;
             ConnectionToServer.SkillTreeEntryRemoveReceived += OnSkillTreeRemoveReceived;
             ConnectionToServer.SkillPointAllocateResponseReceived += OnSkillPointUpdateReceived;
+            ConnectionToServer.ConfigValueReceived += OnConfigValueReceived;
         }
 
         private void DetachFromConnection()
@@ -324,6 +327,7 @@ namespace Client
             }
 
             CurrentCharacterData = null;
+            _remoteConfigCache.ClearAllConfig();
             MapModule?.DestroyCurrentMap();
             if(PreGameUI.Instance != null)
                 PreGameUI.Instance.OnDisconnect();
@@ -412,6 +416,7 @@ namespace Client
             // Clean up Data in Client
             CurrentCharacterData = null;
             _queuedEntities.Clear();
+            _remoteConfigCache.ClearCharacterConfig();
 
             MapModule.DestroyCurrentMap();
 
@@ -1041,6 +1046,15 @@ namespace Client
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
         }
 
+        private void OnConfigValueReceived(RemoteConfigKey configKey, int configValue, bool isAccountStorage)
+        {
+            OwlLogger.Log($"Received Remote config value: {configKey} = {configValue} (Accountwide = {isAccountStorage})", GameComponent.Other);
+            if (isAccountStorage)
+                _remoteConfigCache.AddAccountConfigValue(configKey, configValue);
+            else
+                _remoteConfigCache.AddCharConfigValue(configKey, configValue);
+        }
+
         public void DisplayOneButtonNotification(string message, Action callback)
         {
             if(_oneButtonNotification == null)
@@ -1116,8 +1130,8 @@ namespace Client
                 if(newIp != IpInput)
                 {
                     IpInput = newIp;
-                    ClientConfiguration.Instance.SetMiscConfig(ConfigurationKey.ServerIp, newIp);
-                    ClientConfiguration.Instance.SaveConfig();
+                    LocalConfiguration.Instance.SetMiscConfig(ConfigurationKey.ServerIp, newIp);
+                    LocalConfiguration.Instance.SaveConfig();
                 }
                 
             }

@@ -48,6 +48,7 @@ namespace Server
         public string SaveMapId;
         public Vector2Int SaveCoords;
 
+        public DictionarySerializationWrapper<int, int> CharConfig = new();
 
         public static CharacterPersistenceData FromRuntimeData(CharacterRuntimeData runtimeData)
         {
@@ -229,6 +230,10 @@ namespace Server
             
             return list;
         }
+
+        public abstract bool GetConfigValue(int characterId, int configKey, out int value);
+
+        public abstract void SetConfigValue(int characterId, int configKey, int value);
     }
 
     // The file-based format has to re-save the whole character every time. This may cause scaling issues.
@@ -237,6 +242,7 @@ namespace Server
     {
         private string _folderPath;
         private HashSet<string> _usedCharNames = new();
+        private Dictionary<int, RemoteConfigStorage> _storedCharConfigs = new();
 
         public override int Initialize(string config, AAccountDatabase accountDatabase)
         {
@@ -270,6 +276,8 @@ namespace Server
             _folderPath = config;
 
             // Find the highest used characterId & used names
+            OwlLogger.Log("Scanning CharacterDatabase for used CharacterIds & -names", GameComponent.Persistence);
+            int charCount = 0;
             string[] files;
             try
             {
@@ -290,17 +298,20 @@ namespace Server
                     continue;
                 }
                 _nextCharId = Math.Max(_nextCharId, charId+1);
+                charCount++;
 
                 CharacterPersistenceData charData = LoadCharacterPersistenceData(charId);
                 _usedCharNames.Add(charData.Name);
             }
+            OwlLogger.LogF("Scanned {0} characters, next characterId is {1}", charCount, _nextCharId, GameComponent.Persistence);
 
             return 0;
         }
 
         public override void Shutdown()
         {
-            
+            _usedCharNames.Clear();
+            _storedCharConfigs.Clear();
         }
 
         private string MakeFilePathForCharacter(int characterId)
@@ -355,6 +366,11 @@ namespace Server
 
             string path = MakeFilePathForCharacter(charData.CharacterId);
 
+            if(_storedCharConfigs.TryGetValue(charData.CharacterId, out RemoteConfigStorage storage))
+            {
+                charData.CharConfig.FromDict(storage.Values);
+            }
+
             string data = JsonUtility.ToJson(charData);
             try
             {
@@ -396,7 +412,14 @@ namespace Server
             }
 
             CharacterPersistenceData data = JsonUtility.FromJson<CharacterPersistenceData>(rawData);
+
+            _storedCharConfigs[data.CharacterId] = new(data.CharConfig.ToDict());
             return data;
+        }
+
+        private void OnCharacterLogout(int characterId)
+        {
+            _storedCharConfigs.Remove(characterId);
         }
 
         public override bool IsCharacterNameAvailable(string characterName)
@@ -439,6 +462,29 @@ namespace Server
             }
 
             return 0;
+        }
+
+        public override bool GetConfigValue(int characterId, int configKey, out int value)
+        {
+            if(!_storedCharConfigs.TryGetValue(characterId, out RemoteConfigStorage storage))
+            {
+                value = 0;
+                return false;
+            }
+
+            value = storage.GetConfigValue(configKey);
+            return true;
+        }
+
+        public override void SetConfigValue(int characterId, int configKey, int value)
+        {
+            if(!_storedCharConfigs.TryGetValue(characterId, out RemoteConfigStorage storage))
+            {
+                storage = new(null);
+                _storedCharConfigs.Add(characterId, storage);
+            }
+
+            storage.SetConfigValue(configKey, value);
         }
     }
 }

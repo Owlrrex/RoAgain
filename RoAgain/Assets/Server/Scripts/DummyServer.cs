@@ -338,7 +338,7 @@ namespace Server
             //charData.MapInstance = mapInstance;
 
             if (charData.IsDead())
-                ReceivedReturnAfterDeathRequest(charData.Connection, charData.CharacterId);
+                ReceiveReturnAfterDeathRequest(charData.Connection, charData.CharacterId);
 
             // This applies JobLevel bonuses & passive skills that're learnt
             _jobModule.InitJob(charData);
@@ -706,7 +706,7 @@ namespace Server
             connection.Send(responsePacket);
         }
 
-        private void ReceivedReturnAfterDeathRequest(ClientConnection connection, int characterId)
+        private void ReceiveReturnAfterDeathRequest(ClientConnection connection, int characterId)
         {
             if (!TryGetLoggedInCharacter(characterId, out CharacterRuntimeData charData))
             {
@@ -739,7 +739,7 @@ namespace Server
             return ServerMain.Instance.Server.MapModule.MoveEntityBetweenMaps(charData.Id, charData.MapId, charData.SaveMapId, charData.SaveCoords);
         }
 
-        private void ReceivedCharacterLogoutRequest(ClientConnection connection)
+        private void ReceiveCharacterLogoutRequest(ClientConnection connection)
         {
             if(connection.CharacterId < 0)
             {
@@ -748,6 +748,77 @@ namespace Server
             }
 
             DisconnectCharacter(connection.CharacterId);
+        }
+
+        private void ReceiveConfigStorageRequest(ClientConnection connection, int configKey, int configValue, bool useAccountStorage)
+        {
+            if (configKey == (int)RemoteConfigKey.Unknown)
+            {
+                OwlLogger.LogError("Can't store remote config value for key 'Unknown'!", GameComponent.Persistence);
+                return;
+            }
+
+            if (useAccountStorage)
+                ReceiveAccountConfigStorageRequest(connection, configKey, configValue);
+            else
+                ReceiveCharConfigStorageRequest(connection, configKey, configValue);
+        }
+
+        private void ReceiveCharConfigStorageRequest(ClientConnection connection, int key, int value)
+        {
+            if(connection.CharacterId == -1)
+            {
+                OwlLogger.LogError($"Can't store character config value '{key}' = '{value}' - no char logged in!", GameComponent.Persistence);
+                return;
+            }
+
+            _characterDatabase.SetConfigValue(connection.CharacterId, key, value);
+        }
+
+        private void ReceiveAccountConfigStorageRequest(ClientConnection connection, int key, int value)
+        {
+            if (connection.AccountId == null)
+            {
+                OwlLogger.LogError($"Can't store character config value '{key}' = '{value}' - no char logged in!", GameComponent.Persistence);
+                return;
+            }
+
+            _accountDatabase.SetConfigValue(connection.AccountId, key, value);
+        }
+
+        private void ReceiveConfigReadRequest(ClientConnection connection, int key, bool preferAccountStorage)
+        {
+            if (key == (int)RemoteConfigKey.Unknown)
+            {
+                OwlLogger.LogError("Can't read config value for key 'Unknown'!", GameComponent.Persistence);
+                return;
+            }
+
+            // TODO validations
+            if (!preferAccountStorage)
+            {
+                if(connection.CharacterId == -1)
+                {
+                    // TODO log
+                    return;
+                }
+            }
+
+            if (connection.AccountId == null)
+            {
+                // TODO log
+                return;
+            }
+
+            int result = 0;
+            bool found = false;
+            if (!preferAccountStorage)
+                found = _characterDatabase.GetConfigValue(connection.CharacterId, key, out result);
+
+            if(!found)
+                found = _accountDatabase.GetConfigValue(connection.AccountId, key, out result);
+
+            connection.Send(new ConfigValuePacket() { Key = key, Value = result });
         }
 
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
@@ -771,8 +842,10 @@ namespace Server
             newConnection.CharacterCreationRequestReceived += ReceiveCharCreationRequest;
             newConnection.CharacterDeletionRequestReceived += ReceiveCharacterDeletionRequest;
             newConnection.SkillPointAllocateRequestReceived += ReceiveSkillPointAllocateRequest;
-            newConnection.ReturnAfterDeathRequestReceived += ReceivedReturnAfterDeathRequest;
-            newConnection.CharacterLogoutRequestReceived += ReceivedCharacterLogoutRequest;
+            newConnection.ReturnAfterDeathRequestReceived += ReceiveReturnAfterDeathRequest;
+            newConnection.CharacterLogoutRequestReceived += ReceiveCharacterLogoutRequest;
+            newConnection.ConfigStorageRequestReceived += ReceiveConfigStorageRequest;
+            newConnection.ConfigReadRequestReceived += ReceiveConfigReadRequest;
             
             return 0;
         }

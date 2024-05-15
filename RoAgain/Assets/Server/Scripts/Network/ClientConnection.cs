@@ -26,7 +26,7 @@ namespace Server
         public Action<ClientConnection, SkillId, int> SkillPointAllocateRequestReceived;
         public Action<ClientConnection, int> ReturnAfterDeathRequestReceived;
         public Action<ClientConnection> CharacterLogoutRequestReceived;
-        public Action<ClientConnection, int, bool> ConfigStorageRequestReceived;
+        public Action<ClientConnection, int, int, bool> ConfigStorageRequestReceived;
         public Action<ClientConnection, int, bool> ConfigReadRequestReceived;
 
         public abstract int Initialize(CentralConnection central, int sessionId);
@@ -150,6 +150,12 @@ namespace Server
                     break;
                 case CharacterLogoutRequestPacket charLogoutPacket:
                     CharacterLogoutRequestReceived?.Invoke(this);
+                    break;
+                case ConfigStorageRequestPacket configStoragePacket:
+                    ConfigStorageRequestReceived?.Invoke(this, configStoragePacket.Key, configStoragePacket.Value, configStoragePacket.UseAccountStorage);
+                    break;
+                case ConfigReadRequestPacket configReadPacket:
+                    ConfigReadRequestReceived?.Invoke(this, configReadPacket.Key, configReadPacket.PreferAccountStorage);
                     break;
                 default:
                     OwlLogger.LogError($"ServerSide ClientConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);
