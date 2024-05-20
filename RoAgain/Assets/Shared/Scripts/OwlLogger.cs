@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEngine;
 
 namespace OwlLogging
@@ -21,8 +22,9 @@ namespace OwlLogging
         Persistence     = 1 << 11,
         Config          = 1 << 12,
         ChatCommands    = 1 << 13,
+        Scripts         = 1 << 14,
 
-        All = Other | Input | Character | UI | Battle | Network | Grid | Editor | Skill | CellEffect | Chat | Persistence | Config | ChatCommands,
+        All = Other | Input | Character | UI | Battle | Network | Grid | Editor | Skill | CellEffect | Chat | Persistence | Config | ChatCommands | Scripts,
     }
 
     public enum LogSeverity
@@ -44,10 +46,11 @@ namespace OwlLogging
     public class OwlLogger
     {
         public static LogSeverity CurrentLogVerbosity = LogSeverity.Verbose;
-        //public static LogDetail CurrentLogDetail = LogDetail.CallerNames | LogDetail.CallLocation;
-        public static LogDetail CurrentLogDetail = LogDetail.CallerNames;
+        public static LogDetail CurrentLogDetail = LogDetail.CallerNames | LogDetail.CallLocation;
+        //public static LogDetail CurrentLogDetail = LogDetail.CallerNames;
         public static GameComponent EnabledComponents = GameComponent.All;
         //public static GameComponent EnabledComponents = GameComponent.Grid | GameComponent.Network;
+        private static StringBuilder logBuilder = new(); // this makes the logger non-threadsafe!
 
         public static void LogError(string message, GameComponent component, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {
@@ -162,34 +165,28 @@ namespace OwlLogging
 
         private static string ComposeMessage(string message, GameComponent component, LogSeverity severity, string memberName, string filePath, int lineNumber)
         {
-            string fullMessage = "";
+            logBuilder.Clear();
+            logBuilder.AppendFormat("{0} - {1}: {2}", severity, component, message);
 
-            if (severity < LogSeverity.Log)
-                fullMessage += $"{severity} - ";
-
-            fullMessage += $"{component}: ";
-
-            fullMessage += $"{message}";
-
-            string details = " ";
-            if (CurrentLogDetail.HasFlag(LogDetail.CallerNames))
+            if(CurrentLogDetail.HasFlag(LogDetail.CallerNames)
+                || CurrentLogDetail.HasFlag(LogDetail.CallLocation))
             {
-                details += $"{memberName}";
+                logBuilder.Append(" (");
+                if (CurrentLogDetail.HasFlag(LogDetail.CallerNames))
+                {
+                    logBuilder.Append(memberName);
+                }
+
+                if(CurrentLogDetail.HasFlag(LogDetail.CallLocation))
+                {
+                    if (CurrentLogDetail.HasFlag(LogDetail.CallerNames))
+                        logBuilder.Append(" ");
+                    logBuilder.AppendFormat("@ {0}:{1}", filePath, lineNumber);
+                }
+                logBuilder.Append(")");
             }
 
-            if (CurrentLogDetail.HasFlag(LogDetail.CallLocation))
-            {
-                if (details != " ")
-                    details += " ";
-                details += $"@ {filePath}:{lineNumber}";
-            }
-
-            if (details != " ")
-            {
-                fullMessage += $"({details})";
-            }
-
-            return fullMessage;
+            return logBuilder.ToString();
         }
     }
 }
