@@ -3,7 +3,7 @@ using Shared;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
+using static Client.LocalConfiguration;
 using HotkeyConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigurableHotkey, Client.LocalConfiguration.HotkeyConfigEntry>;
 using MiscConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigurationKey, string>;
 
@@ -294,6 +294,33 @@ namespace Client
                 return;
 
             _miscConfig[key] = value;
+        }
+    }
+
+    public static class HotkeyEntryExtensions
+    {
+        public static uint ToUInt(this HotkeyConfigEntry hotkey)
+        {
+            if ((uint)hotkey.Modifier > ushort.MaxValue
+                || (uint)hotkey.Key > ushort.MaxValue)
+            {
+                OwlLogger.LogError($"Can't convert configurable hotkey to int - key values are too big! Key = {hotkey.Key}, Modifier = {hotkey.Modifier}", GameComponent.Other);
+                return 0;
+            }
+
+            ushort key = (ushort)hotkey.Key;
+            ushort mod = (ushort)hotkey.Modifier;
+            uint result = key + (uint)(mod << 16);
+            return result;
+        }
+
+        public static HotkeyConfigEntry ToConfigurableHotkey(this uint value)
+        {
+            uint tophalf = value & 0xFFFF0000;
+            uint bothalf = value & 0x0000FFFF;
+            ushort key = (ushort)bothalf;
+            ushort mod = (ushort)(tophalf >> 16);
+            return new() { Key = (KeyCode)key, Modifier = (KeyCode)mod };
         }
     }
 }
