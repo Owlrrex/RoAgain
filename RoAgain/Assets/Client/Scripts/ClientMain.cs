@@ -100,11 +100,15 @@ namespace Client
             {
                 LocalConfiguration.Instance.LoadConfig();
             }
-            
+
+            MixedConfiguration mixedConfig = new();
+            mixedConfig.Initialize(_remoteConfigCache, LocalConfiguration.Instance);
+
             // TODO: Check for errors 
 
-            IpInput = LocalConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerIp);
-            _port = LocalConfiguration.Instance.GetMiscConfig(ConfigurationKey.ServerPort);
+            // TODO: Hook up with config again
+            IpInput = "127.0.0.1";
+            _port = "13337";
 
             KeyboardInput keyboardInput = new();
             keyboardInput.Initialize(LocalConfiguration.Instance);
@@ -201,6 +205,8 @@ namespace Client
                 return false;
             }
 
+            _remoteConfigCache.Initialize(ConnectionToServer);
+
             return true;
         }
 
@@ -253,7 +259,6 @@ namespace Client
             ConnectionToServer.SkillTreeEntryUpdateReceived += OnSkillTreeUpdateReceived;
             ConnectionToServer.SkillTreeEntryRemoveReceived += OnSkillTreeRemoveReceived;
             ConnectionToServer.SkillPointAllocateResponseReceived += OnSkillPointUpdateReceived;
-            ConnectionToServer.ConfigValueReceived += OnConfigValueReceived;
         }
 
         private void DetachFromConnection()
@@ -295,6 +300,8 @@ namespace Client
             ConnectionToServer.SkillTreeEntryUpdateReceived -= OnSkillTreeUpdateReceived;
             ConnectionToServer.SkillTreeEntryRemoveReceived -= OnSkillTreeRemoveReceived;
             ConnectionToServer.SkillPointAllocateResponseReceived -= OnSkillPointUpdateReceived;
+
+            _remoteConfigCache.Shutdown();
         }
 
         public void Disconnect()
@@ -1046,15 +1053,6 @@ namespace Client
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
         }
 
-        private void OnConfigValueReceived(RemoteConfigKey configKey, int configValue, bool isAccountStorage)
-        {
-            OwlLogger.Log($"Received Remote config value: {configKey} = {configValue} (Accountwide = {isAccountStorage})", GameComponent.Other);
-            if (isAccountStorage)
-                _remoteConfigCache.AddAccountConfigValue(configKey, configValue);
-            else
-                _remoteConfigCache.AddCharConfigValue(configKey, configValue);
-        }
-
         public void DisplayOneButtonNotification(string message, Action callback)
         {
             if(_oneButtonNotification == null)
@@ -1130,8 +1128,7 @@ namespace Client
                 if(newIp != IpInput)
                 {
                     IpInput = newIp;
-                    LocalConfiguration.Instance.SetMiscConfig(ConfigurationKey.ServerIp, newIp);
-                    LocalConfiguration.Instance.SaveConfig();
+                    // TODO: Save Ip
                 }
                 
             }

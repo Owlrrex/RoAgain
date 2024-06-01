@@ -4,75 +4,47 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static Client.LocalConfiguration;
-using HotkeyConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigurableHotkey, Client.LocalConfiguration.HotkeyConfigEntry>;
-using MiscConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigurationKey, string>;
+using LocalConfigPersistent = Shared.DictionarySerializationWrapper<Client.ConfigKey, int>;
+using System.Text;
 
 namespace Client
 {
-    public enum ConfigurableHotkey
+    [Serializable]
+    public class HotkeyConfigEntry
     {
-        Unknown,
-        // Hotbar
-        Hotbar1,
-        Hotbar2,
-        Hotbar3,
-        Hotbar4,
-        Hotbar5,
-        Hotbar6,
-        Hotbar7,
-        Hotbar8,
-        Hotbar9,
-        Hotbar10,
-        // Showing/Hiding/minimizing windows
-        ToggleCharMainWindow,
-        ToggleStatWindow,
-        ToggleSkillWindow,
-        ToggleHotbar,
-        ToggleGameMenuWindow,
-        // Chat
-        ToggleChatInput,
-        // General UI
-        ConfirmDialog,
+        public KeyCode Key = KeyCode.None;
+        public KeyCode Modifier = KeyCode.None;
 
-        // TODO
-    }
+        public bool IsValid()
+        {
+            if (Key == KeyCode.None)
+                return false;
 
-    public enum ConfigurationKey
-    {
-        Unknown,
-        TestMiscConfigEntry,
-        ServerIp,
-        ServerPort
-        // Used for settings that aren't related to hotkeys, like audio Volume
+            if (Modifier == Key)
+                return false;
+
+            return true; // Keys with and without modifier are always valid
+        }
+
+        public override string ToString()
+        {
+            string keyString = Key.ToHotkeyString();
+            if (Modifier != KeyCode.None)
+            {
+                keyString = $"{Modifier} + {keyString}";
+            }
+            return keyString;
+        }
     }
 
     public class LocalConfiguration
     {
-        private const string HOTKEY_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "HotkeyConfig";
-        private const string MISC_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "MiscConfig";
+        private const string LOCAL_FILE_KEY = CachedFileAccess.CONFIG_PREFIX + "MiscConfig";
 
         public static LocalConfiguration Instance { get; private set; }
 
-        [Serializable]
-        public class HotkeyConfigEntry
-        {
-            public KeyCode Key = KeyCode.None;
-            public KeyCode Modifier = KeyCode.None;
-
-            public override string ToString()
-            {
-                string keyString = Key.ToHotkeyString();
-                if (Modifier != KeyCode.None)
-                {
-                    keyString = $"{Modifier} + {keyString}";
-                }
-                return keyString;
-            }
-        }
-
-        private Dictionary<ConfigurableHotkey, HotkeyConfigEntry> _hotkeyConfig = new();
-        private Dictionary<ConfigurationKey, string> _miscConfig = new();
-        
+        private Dictionary<ConfigKey, HotkeyConfigEntry> _hotkeyConfig = new();
+        private Dictionary<ConfigKey, int> _miscConfig = new();
 
         public int LoadConfig()
         {
@@ -83,26 +55,36 @@ namespace Client
             }
 
             bool changedAnyConfig = false;
-            // Hotkeys
-            HotkeyConfigPersistent hotkeyPers = CachedFileAccess.GetOrLoad<HotkeyConfigPersistent>(HOTKEY_FILE_KEY, false);
-            if(hotkeyPers == null) // indicates file didn't exist
+
+            // Misc Config
+            LocalConfigPersistent localPers = CachedFileAccess.GetOrLoad<LocalConfigPersistent>(LOCAL_FILE_KEY, false);
+            if (localPers != null) // file did exist
             {
-                LoadDefaultHotkeyConfig();
-                changedAnyConfig = true;
+                _miscConfig = localPers.ToDict();
             }
-            else
+
+            // Validate Misc Config
+            changedAnyConfig |= FillInDefaultMiscConfig();
+
+            // Populate Hotkey Config
+            _hotkeyConfig.Clear();
+            foreach (KeyValuePair<ConfigKey, int> kvp in _miscConfig)
             {
-                _hotkeyConfig = hotkeyPers.ToDict();
+                if (!kvp.Key.IsHotkey())
+                    continue;
+
+                HotkeyConfigEntry entry = ((uint)kvp.Value).ToConfigurableHotkey();
+                _hotkeyConfig.Add(kvp.Key, entry);
             }
 
             // Validate Hotkeys
-            List<ConfigurableHotkey> invalidKeys = new();
-            foreach (KeyValuePair<ConfigurableHotkey, HotkeyConfigEntry> kvp in _hotkeyConfig)
+            List<ConfigKey> invalidKeys = new();
+            foreach (KeyValuePair<ConfigKey, HotkeyConfigEntry> kvp in _hotkeyConfig)
             {
-                if(!IsHotkeyConfigValid(kvp.Value))
+                if (!kvp.Value.IsValid())
                     invalidKeys.Add(kvp.Key);
             }
-            foreach(ConfigurableHotkey key in invalidKeys)
+            foreach (ConfigKey key in invalidKeys)
             {
                 OwlLogger.LogError($"Hotkey Config for hotkey {key} was invalid and discarded!", GameComponent.Config);
                 _hotkeyConfig.Remove(key);
@@ -110,100 +92,47 @@ namespace Client
 
             changedAnyConfig |= FillInDefaultHotkeyConfig();
 
-            // Misc Config
-            MiscConfigPersistent miscPers = CachedFileAccess.GetOrLoad<MiscConfigPersistent>(MISC_FILE_KEY, false);
-            if (miscPers == null) // indicates file didn't exist
-            {
-                LoadDefaultMiscConfig();
-                changedAnyConfig = true;
-            }
-            else
-            {
-                _miscConfig = miscPers.ToDict();
-            }
-
-            // Validate Misc Config
-            changedAnyConfig |= FillInDefaultMiscConfig();
-
-            if(changedAnyConfig)
+            if (changedAnyConfig)
             {
                 SaveConfig();
             }
-            else
-            {
-                CachedFileAccess.Purge(HOTKEY_FILE_KEY);
-                CachedFileAccess.Purge(MISC_FILE_KEY);
-            }
+
+            CachedFileAccess.Purge(LOCAL_FILE_KEY);
 
             Instance = this;
 
             return 0;
         }
 
-        public int LoadDefaultHotkeyConfig()
-        {
-            _hotkeyConfig.Clear();
-
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar1, new() { Key = KeyCode.Alpha1 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar2, new() { Key = KeyCode.Alpha2 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar3, new() { Key = KeyCode.Alpha3 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar4, new() { Key = KeyCode.Alpha4 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar5, new() { Key = KeyCode.Alpha5 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar6, new() { Key = KeyCode.Alpha6 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar7, new() { Key = KeyCode.Alpha7 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar8, new() { Key = KeyCode.Alpha8 });
-            _hotkeyConfig.Add(ConfigurableHotkey.Hotbar9, new() { Key = KeyCode.Alpha9 });
-            // Hotkey10 currently not used - hotbar is 9 slots long
-
-            _hotkeyConfig.Add(ConfigurableHotkey.ToggleCharMainWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.V });
-            _hotkeyConfig.Add(ConfigurableHotkey.ToggleStatWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.A });
-            _hotkeyConfig.Add(ConfigurableHotkey.ToggleSkillWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.S });
-            _hotkeyConfig.Add(ConfigurableHotkey.ToggleHotbar, new() { Key = KeyCode.F12 });
-            _hotkeyConfig.Add(ConfigurableHotkey.ToggleGameMenuWindow, new() { Key = KeyCode.Escape });
-
-            return 0;
-        }
-
-        public bool FillInDefaultHotkeyConfig()
+        private bool FillInDefaultHotkeyConfig()
         {
             bool anyChange = false;
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar1, new() { Key = KeyCode.Alpha1 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar2, new() { Key = KeyCode.Alpha2 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar3, new() { Key = KeyCode.Alpha3 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar4, new() { Key = KeyCode.Alpha4 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar5, new() { Key = KeyCode.Alpha5 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar6, new() { Key = KeyCode.Alpha6 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar7, new() { Key = KeyCode.Alpha7 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar8, new() { Key = KeyCode.Alpha8 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.Hotbar9, new() { Key = KeyCode.Alpha9 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar11, new() { Key = KeyCode.Alpha1 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar12, new() { Key = KeyCode.Alpha2 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar13, new() { Key = KeyCode.Alpha3 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar14, new() { Key = KeyCode.Alpha4 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar15, new() { Key = KeyCode.Alpha5 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar16, new() { Key = KeyCode.Alpha6 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar17, new() { Key = KeyCode.Alpha7 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar18, new() { Key = KeyCode.Alpha8 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_Hotbar19, new() { Key = KeyCode.Alpha9 });
             // Hotkey10 currently not used - hotbar is 9 slots long
 
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleCharMainWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.V });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleStatWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.A });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleSkillWindow, new() { Modifier = KeyCode.LeftAlt, Key = KeyCode.S });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleHotbar, new() { Key = KeyCode.F12 });
-            anyChange |= _hotkeyConfig.TryAdd(ConfigurableHotkey.ToggleGameMenuWindow, new() { Key = KeyCode.Escape });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleCharMainWindow, new() { Key = KeyCode.V });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleStatWindow, new() { Key = KeyCode.A });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleSkillWindow, new() { Key = KeyCode.S });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleHotbar, new() { Key = KeyCode.F12 });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleGameMenuWindow, new() { Key = KeyCode.Escape });
+
             return anyChange;
         }
 
-        public int LoadDefaultMiscConfig()
-        {
-            _miscConfig.Clear();
-
-            _miscConfig.Add(ConfigurationKey.TestMiscConfigEntry, "testValue1");
-            _miscConfig.Add(ConfigurationKey.ServerIp, "127.0.0.1");
-            _miscConfig.Add(ConfigurationKey.ServerPort, "13337");
-            // Config entries here
-
-            return 0;
-        }
-
-        public bool FillInDefaultMiscConfig()
+        private bool FillInDefaultMiscConfig()
         {
             bool anyChange = false;
-            anyChange |= _miscConfig.TryAdd(ConfigurationKey.TestMiscConfigEntry, "testValue1");
-            anyChange |= _miscConfig.TryAdd(ConfigurationKey.ServerIp, "127.0.0.1");
-            anyChange |= _miscConfig.TryAdd(ConfigurationKey.ServerPort, "13337");
+
+            anyChange |= _miscConfig.TryAdd(ConfigKey.ServerIp, (int)"127.0.0.1".ToIpAddressUint());
+            anyChange |= _miscConfig.TryAdd(ConfigKey.ServerPort, 13337);
             // Config entries here
 
             return anyChange;
@@ -217,47 +146,35 @@ namespace Client
                 return 0;
             }
 
-            HotkeyConfigPersistent hotkeyPers = new(_hotkeyConfig);
-
-            MiscConfigPersistent miscPers = new(_miscConfig);
-
-            int hotkeyResult = CachedFileAccess.Save(HOTKEY_FILE_KEY, hotkeyPers);
-            int miscResult = CachedFileAccess.Save(MISC_FILE_KEY, miscPers);
-
-            CachedFileAccess.Purge(HOTKEY_FILE_KEY);
-            CachedFileAccess.Purge(MISC_FILE_KEY);
-
-            if (hotkeyResult != 0 || miscResult != 0)
+            foreach(KeyValuePair<ConfigKey, HotkeyConfigEntry> kvp in _hotkeyConfig)
             {
-                OwlLogger.LogError($"Saving of some configurations failed. hotkeyResult = {hotkeyResult}, miscresult = {miscResult}", GameComponent.Other);
+                _miscConfig[kvp.Key] = (int)kvp.Value.ToUInt();
+            }
+
+            LocalConfigPersistent localPers = new(_miscConfig);
+
+            int miscResult = CachedFileAccess.Save(LOCAL_FILE_KEY, localPers);
+
+            CachedFileAccess.Purge(LOCAL_FILE_KEY);
+
+            if (miscResult != 0)
+            {
+                OwlLogger.LogError($"Saving of some configurations failed. miscresult = {miscResult}", GameComponent.Config);
                 return -1;
             }
 
             return 0;
         }
 
-        private bool IsHotkeyConfigValid(HotkeyConfigEntry entry)
+        public HotkeyConfigEntry GetHotkey(ConfigKey hotkey)
         {
-            if (entry.Key == KeyCode.None)
-                return false;
+            if (!hotkey.IsHotkey())
+            {
+                OwlLogger.LogError($"Tried to get Hotkey for non-hotkey config {hotkey}!", GameComponent.Config);
+                return null;
+            }
 
-            if (entry.Modifier == entry.Key)
-                return false;
-
-            return true; // Keys with and without modifier are always valid
-        }
-
-        public int ResetConfig()
-        {
-            // TODO: Implement pending changes system
-            // TODO: Discard any pending changes
-            // TODO: Reload from disk?
-            return -1;
-        }
-
-        public HotkeyConfigEntry GetHotkey(ConfigurableHotkey hotkey)
-        {
-            if(!_hotkeyConfig.ContainsKey(hotkey))
+            if (!_hotkeyConfig.ContainsKey(hotkey))
             {
                 return null;
             }
@@ -265,12 +182,7 @@ namespace Client
             return _hotkeyConfig[hotkey];
         }
 
-        public Dictionary<ConfigurableHotkey, HotkeyConfigEntry> GetHotkeyConfig()
-        {
-            return _hotkeyConfig;
-        }
-
-        public void SetHotkey(ConfigurableHotkey hotkey, HotkeyConfigEntry entry)
+        public void SetHotkey(ConfigKey hotkey, HotkeyConfigEntry entry)
         {
             if (entry == null)
                 return;
@@ -278,26 +190,33 @@ namespace Client
             _hotkeyConfig[hotkey] = entry;
         }
 
-        public string GetMiscConfig(ConfigurationKey key)
+        public int GetConfig(ConfigKey key)
         {
+            if (key.IsHotkey())
+            {
+                OwlLogger.LogError($"ConfigKey {key} is a Hotkey - should use GetHotkey() instead of GetConfig()!", GameComponent.Config);
+            }
+
             if(!_miscConfig.ContainsKey(key))
             {
-                return null;
+                return 0;
             }
 
             return _miscConfig[key];
         }
 
-        public void SetMiscConfig(ConfigurationKey key, string value)
+        public void SetConfig(ConfigKey key, int value)
         {
-            if (value == null)
-                return;
+            if(key.IsHotkey())
+            {
+                OwlLogger.LogError($"ConfigKey {key} is a Hotkey - should use SetHotkey() instead, value {value} will be overwritten when saving!", GameComponent.Config);
+            }
 
             _miscConfig[key] = value;
         }
     }
 
-    public static class HotkeyEntryExtensions
+    public static class ConfigExtensions
     {
         public static uint ToUInt(this HotkeyConfigEntry hotkey)
         {
@@ -321,6 +240,238 @@ namespace Client
             ushort key = (ushort)bothalf;
             ushort mod = (ushort)(tophalf >> 16);
             return new() { Key = (KeyCode)key, Modifier = (KeyCode)mod };
+        }
+
+        public static uint ToIpAddressUint(this string ipAddress)
+        {
+            if (ipAddress == null)
+            {
+                return 0;
+            }
+
+            string[] parts = ipAddress.Split('.');
+            if (parts.Length != 4)
+            {
+                return 0;
+            }
+
+            uint result = 0;
+            byte value;
+            if (!byte.TryParse(parts[0], out value))
+            {
+                return 0;
+            }
+            result += value;
+
+            if (!byte.TryParse(parts[1], out value))
+            {
+                return 0;
+            }
+            result += (uint)(value << 8);
+
+            if (!byte.TryParse(parts[2], out value))
+            {
+                return 0;
+            }
+            result += (uint)(value << 16);
+
+            if (!byte.TryParse(parts[3], out value))
+            {
+                return 0;
+            }
+            result += (uint)(value << 24);
+
+            return result;
+        }
+        
+        public static string ToIpAddressString(this uint ipAddress)
+        {
+            StringBuilder builder = new();
+            builder.Append(ipAddress & 0xFF);
+            builder.Append(".");
+            builder.Append((ipAddress & 0xFF00) >> 8);
+            builder.Append(".");
+            builder.Append((ipAddress & 0xFF0000) >> 16);
+            builder.Append(".");
+            builder.Append((ipAddress & 0xFF000000) >> 24);
+            return builder.ToString();
+        }
+
+        public static bool IsHotkey(this ConfigKey key)
+        {
+            return key >= ConfigKey.Hotkey_BEGIN && key <= ConfigKey.Hotkey_END;
+        }
+    }
+
+    public enum MixedConfigSource
+    {
+        Unknown,
+        Local,
+        Account,
+        Character
+    }
+
+    public class MixedConfiguration
+    {
+        public static MixedConfiguration Instance;
+
+        private RemoteConfigCache _remoteConfig;
+        private LocalConfiguration _localConfig;
+
+        public int Initialize(RemoteConfigCache remoteConfig, LocalConfiguration localConfig)
+        {
+            if(remoteConfig == null || localConfig == null)
+            {
+                OwlLogger.LogError("Can't initialize MixedConfiguration with null remote/local config!", GameComponent.Config);
+                return -1;
+            }
+
+            if(Instance != null)
+            {
+                OwlLogger.LogError("Can't initialize MixedConfiguration when another already exists!", GameComponent.Config);
+                return -2;
+            }
+
+            _remoteConfig = remoteConfig;
+            _localConfig = localConfig;
+
+            Instance = this;
+
+            return 0;
+        }
+
+        public int GetConfigValue(ConfigKey key)
+        {
+            if(!IsLocalOnly(key) && _remoteConfig.TryGetConfigValueFallthrough(key, out int value))
+                return value;
+
+            return _localConfig.GetConfig(key);
+        }
+
+        public int GetConfigValue(ConfigKey key, MixedConfigSource source)
+        {
+            switch (source)
+            {
+                case MixedConfigSource.Local:
+                    return _localConfig.GetConfig(key);
+                case MixedConfigSource.Account:
+                    if (_remoteConfig.TryGetAccConfigValue(key, out int value))
+                        return value;
+                    break;
+                case MixedConfigSource.Character:
+                    if (_remoteConfig.TryGetCharConfigValue(key, out int val))
+                        return val;
+                    break;
+                default:
+                    OwlLogger.LogError("Can't get config value from unknown Source!", GameComponent.Config);
+                    break;
+            }
+            return 0;
+        }
+
+        public HotkeyConfigEntry GetHotkey(ConfigKey key)
+        {
+            if (!IsLocalOnly(key) && _remoteConfig.TryGetConfigValueFallthrough(key, out int value))
+                return ((uint)value).ToConfigurableHotkey();
+
+            return _localConfig.GetHotkey(key);
+        }
+
+        public HotkeyConfigEntry GetHotkey(ConfigKey key, MixedConfigSource source)
+        {
+            switch (source)
+            {
+                case MixedConfigSource.Local:
+                    return _localConfig.GetHotkey(key);
+                case MixedConfigSource.Account:
+                    if (_remoteConfig.TryGetAccConfigValue(key, out int value))
+                        return ((uint)value).ToConfigurableHotkey();
+                    break;
+                case MixedConfigSource.Character:
+                    if (_remoteConfig.TryGetCharConfigValue(key, out int val))
+                        return ((uint)val).ToConfigurableHotkey();
+                    break;
+                default:
+                    OwlLogger.LogError("Can't get config value from unknown Source!", GameComponent.Config);
+                    break;
+            }
+            return null;
+        }
+
+        public void SetConfigValue(ConfigKey key, int value, MixedConfigSource target)
+        {
+            switch(target)
+            {
+                case MixedConfigSource.Local:
+                    _localConfig.SetConfig(key, value);
+                    _localConfig.SaveConfig();
+                    return;
+                case MixedConfigSource.Account:
+                    _remoteConfig.SaveAccountConfigValue(key, value);
+                    return;
+                case MixedConfigSource.Character:
+                    _remoteConfig.SaveCharConfigValue(key, value);
+                    return;
+                default:
+                    OwlLogger.LogError($"Can't save config value {key} = {value} for unknown target {target}!", GameComponent.Config);
+                    return;
+            }
+        }
+
+        public void SetHotkey(ConfigKey key, HotkeyConfigEntry entry, MixedConfigSource target)
+        {
+            switch (target)
+            {
+                case MixedConfigSource.Local:
+                    _localConfig.SetHotkey(key, entry);
+                    _localConfig.SaveConfig();
+                    return;
+                case MixedConfigSource.Account:
+                    _remoteConfig.SaveAccountConfigValue(key, (int)entry.ToUInt());
+                    return;
+                case MixedConfigSource.Character:
+                    _remoteConfig.SaveCharConfigValue(key, (int)entry.ToUInt());
+                    return;
+                default:
+                    OwlLogger.LogError($"Can't save hotkey config {key} = {entry} for unknown target {target}!", GameComponent.Config);
+                    return;
+            }
+        }
+
+        public bool IsLocalOnly(ConfigKey key)
+        {
+            return key switch
+            {
+                ConfigKey.ServerIp => true,
+                ConfigKey.ServerPort => true,
+                _ => false
+            };
+        }
+
+        public void FetchAccountSettings()
+        {
+            for (ConfigKey key = ConfigKey.Hotkey_BEGIN; key <= ConfigKey.Hotkey_END; key++)
+            {
+                _remoteConfig.FetchConfigValue(key, true);
+            }
+        }
+
+        public void FetchCharacterSettings()
+        {
+            for (ConfigKey key = ConfigKey.Hotkey_BEGIN; key <= ConfigKey.Hotkey_END; key++)
+            {
+                _remoteConfig.FetchConfigValue(key, false);
+            }
+
+            for (ConfigKey key = ConfigKey.SkillData_Hotbar10; key <= ConfigKey.SkillData_Hotbar40; key++)
+            {
+                _remoteConfig.FetchConfigValue(key, false);
+            }
+        }
+
+        public bool AnyRequestsPending()
+        {
+            return _remoteConfig.AnyRequestsPending();
         }
     }
 }

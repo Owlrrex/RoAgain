@@ -948,13 +948,14 @@ public class ConfigReadRequestPacket : Packet
     public override int PacketType => 61;
 
     public int Key;
-    public bool PreferAccountStorage;
+    public bool UseAccountStorage;
 }
 
 public class ConfigValuePacket : Packet
 {
     public override int PacketType => 62;
 
+    public bool Exists;
     public int Key;
     public int Value;
     public bool IsAccountStorage;

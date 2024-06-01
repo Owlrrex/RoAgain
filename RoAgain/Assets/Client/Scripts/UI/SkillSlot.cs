@@ -26,7 +26,7 @@ namespace Client
         private TMP_Text _skillParamText;
 
         private SkillIcon _skillIcon = null;
-        private ConfigurableHotkey _hotkey;
+        private ConfigKey _hotkey;
 
         public void SetSkillId(SkillId skillId)
         {
@@ -92,13 +92,13 @@ namespace Client
             SkillDataChanged?.Invoke(this);
         }
 
-        public void SetHotkey(ConfigurableHotkey hotkey)
+        public void SetHotkey(ConfigKey hotkey)
         {
             _hotkey = hotkey;
 
             if (_hotkeyText != null)
             {
-                LocalConfiguration.HotkeyConfigEntry entry = LocalConfiguration.Instance.GetHotkey(hotkey);
+                HotkeyConfigEntry entry = LocalConfiguration.Instance.GetHotkey(hotkey);
                 _hotkeyText.text = entry?.ToString();
             }
         }
@@ -106,7 +106,10 @@ namespace Client
         public void OnDrop(PointerEventData eventData)
         {
             Debug.Log($"Slot ondrop {gameObject.name}");
-            SkillIcon droppedSkillIcon = eventData.pointerDrag?.GetComponent<SkillIcon>();
+            SkillIcon droppedSkillIcon = null;
+            if(eventData.pointerDrag != null)
+                droppedSkillIcon = eventData.pointerDrag.GetComponent<SkillIcon>();
+
             if (droppedSkillIcon == null)
             {
                 OwlLogger.Log($"Received non-SkillIcon drop in SkillSlot", GameComponent.UI, LogSeverity.Verbose);

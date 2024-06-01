@@ -9,11 +9,7 @@ public class KeyboardInput
 
     public bool ChatMode = false; // disables inputs on keys which are defined as "chatbox-related"
 
-    private static readonly HashSet<KeyCode> _chatKeys = new() {
-        KeyCode.None
-    };
-
-    private Dictionary<KeyCode, HashSet<ConfigurableHotkey>> _hotkeyBanks = new();
+    private Dictionary<KeyCode, HashSet<ConfigKey>> _hotkeyBanks = new();
     private HashSet<KeyCode> _usedModifierKeys = new();
 
     private LocalConfiguration _config;
@@ -33,15 +29,19 @@ public class KeyboardInput
 
         _hotkeyBanks[KeyCode.None] = new();
 
-        foreach(var kvp in config.GetHotkeyConfig())
+        for(ConfigKey key = ConfigKey.Hotkey_BEGIN; key <= ConfigKey.Hotkey_END; key++)
         {
-            if(kvp.Value.Modifier != KeyCode.None)
+            HotkeyConfigEntry entry = LocalConfiguration.Instance.GetHotkey(key);
+            if (entry == null)
+                continue;
+
+            if (entry.Modifier != KeyCode.None)
             {
-                _usedModifierKeys.Add(kvp.Value.Modifier);
-                if(!_hotkeyBanks.ContainsKey(kvp.Value.Modifier))
-                    _hotkeyBanks[kvp.Value.Modifier] = new();
+                _usedModifierKeys.Add(entry.Modifier);
+                if (!_hotkeyBanks.ContainsKey(entry.Modifier))
+                    _hotkeyBanks[entry.Modifier] = new();
             }
-            _hotkeyBanks[kvp.Value.Modifier].Add(kvp.Key);
+            _hotkeyBanks[entry.Modifier].Add(key);
         }
 
         Instance = this;
@@ -49,13 +49,13 @@ public class KeyboardInput
         return 0;
     }
 
-    public bool IsConfigurableHotkeyDown(ConfigurableHotkey hotkey)
+    public bool IsConfigurableHotkeyDown(ConfigKey hotkey)
     {
-        LocalConfiguration.HotkeyConfigEntry entry = _config.GetHotkey(hotkey);
+        HotkeyConfigEntry entry = _config.GetHotkey(hotkey);
         if (entry == null)
             return false;
 
-        bool mod = entry.Modifier != KeyCode.None ? Input.GetKey(entry.Modifier) : true;
+        bool mod = entry.Modifier == KeyCode.None || Input.GetKey(entry.Modifier);
         bool key = Input.GetKeyDown(entry.Key);
         return mod && key;
     }

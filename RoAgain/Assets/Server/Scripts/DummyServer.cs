@@ -810,15 +810,20 @@ namespace Server
                 return;
             }
 
-            int result = 0;
-            bool found = false;
-            if (!preferAccountStorage)
-                found = _characterDatabase.GetConfigValue(connection.CharacterId, key, out result);
-
-            if(!found)
+            int result;
+            bool found;
+            bool isAccountStorage = false;
+            if (preferAccountStorage)
+            {
+                isAccountStorage = true;
                 found = _accountDatabase.GetConfigValue(connection.AccountId, key, out result);
+            }
+            else
+            {
+                found = _characterDatabase.GetConfigValue(connection.CharacterId, key, out result);
+            }
 
-            connection.Send(new ConfigValuePacket() { Key = key, Value = result });
+            connection.Send(new ConfigValuePacket() { Key = key, Value = result, Exists = found, IsAccountStorage = isAccountStorage });
         }
 
         public override int SetupWithNewClientConnection(ClientConnection newConnection)

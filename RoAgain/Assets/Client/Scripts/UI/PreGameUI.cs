@@ -75,6 +75,7 @@ namespace Client
 
         private void UpdateLoginPhaseUI()
         {
+            _accountLogin.Update();
             if (_accountLogin.CurrentState != _lastAccountLoginState)
             {
                 _lastAccountLoginState = _accountLogin.CurrentState;
@@ -87,7 +88,11 @@ namespace Client
                         DeleteCurrentWindow();
                         ClientMain.Instance.DisplayZeroButtonNotification("Logging into Account...");
                         break;
+                    case AccountLogin.State.WaitingForAccountConfig:
+                        ClientMain.Instance.DisplayZeroButtonNotification("Loading Account configuration...");
+                        break;
                     case AccountLogin.State.Error_LoginFail:
+                        ClientMain.Instance.DisplayZeroButtonNotification(null);
                         ClientMain.Instance.DisplayOneButtonNotification("Login failed!", () =>
                         {
                             ClientMain.Instance.DisplayOneButtonNotification(null, null);
@@ -106,6 +111,7 @@ namespace Client
                 _hasShownCharSelection = true;
             }
 
+            _characterLogin.Update();
             if(_waitingForCharLogin && _characterLogin.IsFinished())
             {
                 _waitingForCharLogin = false;

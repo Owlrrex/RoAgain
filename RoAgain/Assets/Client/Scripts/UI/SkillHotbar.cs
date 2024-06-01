@@ -15,7 +15,7 @@ namespace Client
         {
             public SkillId SkillId;
             public int SkillParam;
-            public ConfigurableHotkey Hotkey;
+            public ConfigKey Hotkey;
         }
 
         [SerializeField]

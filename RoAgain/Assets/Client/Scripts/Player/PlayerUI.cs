@@ -79,7 +79,7 @@ public class PlayerUI : MonoBehaviour
 
         foreach (SkillHotbar.SkillHotbarEntry entry in _hotbar.Data)
         {
-            if (entry.Hotkey == ConfigurableHotkey.Unknown)
+            if (entry.Hotkey == ConfigKey.Unknown)
                 continue;
 
             if (KeyboardInput.Instance?.IsConfigurableHotkeyDown(entry.Hotkey) == true)
@@ -88,7 +88,7 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigurableHotkey.ToggleStatWindow) == true)
+        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleStatWindow) == true)
         {
             if(StatWindow.gameObject.activeSelf)
             {
@@ -101,7 +101,7 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if (KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigurableHotkey.ToggleSkillWindow) == true)
+        if (KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleSkillWindow) == true)
         {
             if(SkillTreeWindow.gameObject.activeSelf)
             {
@@ -114,7 +114,7 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if (KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigurableHotkey.ToggleHotbar) == true)
+        if (KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleHotbar) == true)
         {
             if(_hotbar.gameObject.activeSelf)
             {
@@ -127,7 +127,7 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigurableHotkey.ToggleGameMenuWindow) == true)
+        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleGameMenuWindow) == true)
         {
             if(GameMenuWindow.gameObject.activeSelf)
             {

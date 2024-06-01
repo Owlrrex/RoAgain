@@ -1,11 +1,57 @@
+using OwlLogging;
 using System.Collections.Generic;
 
 namespace Client
 {
     public class RemoteConfigCache
     {
-        private Dictionary<RemoteConfigKey, int> _characterConfig = new();
-        private Dictionary<RemoteConfigKey, int> _accountConfig = new();
+        private Dictionary<ConfigKey, int> _characterConfig = new();
+        private Dictionary<ConfigKey, int> _accountConfig = new();
+
+        private HashSet<ConfigKey> _pendingCharRequests = new();
+        private HashSet<ConfigKey> _pendingAccRequests = new();
+
+        private ServerConnection _connection;
+
+        public int Initialize(ServerConnection connection)
+        {
+            if(connection == null)
+            {
+                OwlLogger.LogError("Can't initialize RemoteConfigCache with null connection!", GameComponent.Config);
+                return -1;
+            }
+
+            _connection = connection;
+            _connection.ConfigValueReceived += OnConfigValueReceived;
+
+            return 0;
+        }
+
+        public void Shutdown()
+        {
+            ClearAllConfig();
+
+            if(_connection != null)
+            {
+                _connection.ConfigValueReceived -= OnConfigValueReceived;
+                _connection = null;
+            }
+        }
+
+        private void OnConfigValueReceived(ConfigKey configKey, int configValue, bool isAccountStorage)
+        {
+            OwlLogger.Log($"Received Remote config value: {configKey} = {configValue} (Accountwide = {isAccountStorage})", GameComponent.Other);
+            if (isAccountStorage)
+            {
+                AddAccountConfigValue(configKey, configValue);
+                _pendingAccRequests.Remove(configKey);
+            }
+            else
+            {
+                AddCharConfigValue(configKey, configValue);
+                _pendingCharRequests.Remove(configKey);
+            }
+        }
 
         public void ClearCharacterConfig()
         {
@@ -18,38 +64,94 @@ namespace Client
             _accountConfig.Clear();
         }
 
-        public void AddCharConfigValue(RemoteConfigKey key, int value)
+        public void FetchConfigValue(ConfigKey key, bool useAccountStorage)
         {
+            _connection.Send(new ConfigReadRequestPacket() { Key = (int)key, UseAccountStorage = useAccountStorage });
+            if (useAccountStorage)
+                _pendingAccRequests.Add(key);
+            else
+                _pendingCharRequests.Add(key);
+        }
+
+        public bool AnyRequestsPending()
+        {
+            return _pendingAccRequests.Count > 0 || _pendingCharRequests.Count > 0;
+        }
+
+        public void AddCharConfigValue(ConfigKey key, int value)
+        {
+            if (key == ConfigKey.Unknown)
+            {
+                OwlLogger.LogError("Can't use Unknown Configkey in RemoteConfigCache!", GameComponent.Config);
+                return;
+            }
+
             _characterConfig[key] = value;
         }
 
-        public void AddAccountConfigValue(RemoteConfigKey key, int value)
+        public void AddAccountConfigValue(ConfigKey key, int value)
         {
+            if (key == ConfigKey.Unknown)
+            {
+                OwlLogger.LogError("Can't use Unknown Configkey in RemoteConfigCache!", GameComponent.Config);
+                return;
+            }
+
             _accountConfig[key] = value;
         }
 
-        public int GetConfigValueFallthrough(RemoteConfigKey key)
+        public void SaveCharConfigValue(ConfigKey key, int value)
         {
-            if(_accountConfig.ContainsKey(key))
+            if (key == ConfigKey.Unknown)
             {
-                return GetAccConfigValue(key);
+                OwlLogger.LogError("Can't use Unknown Configkey in RemoteConfigCache!", GameComponent.Config);
+                return;
             }
-            
-            return GetCharConfigValue(key);
+
+            AddCharConfigValue(key, value);
+            ClientMain.Instance.ConnectionToServer.Send(new ConfigStorageRequestPacket() { Key = (int)key, Value = value, UseAccountStorage = false });
         }
 
-        public int GetCharConfigValue(RemoteConfigKey key)
+        public void SaveAccountConfigValue(ConfigKey key, int value)
         {
+            if (key == ConfigKey.Unknown)
+            {
+                OwlLogger.LogError("Can't use Unknown Configkey in RemoteConfigCache!", GameComponent.Config);
+                return;
+            }
+
+            AddAccountConfigValue(key, value);
+            ClientMain.Instance.ConnectionToServer.Send(new ConfigStorageRequestPacket() { Key = (int)key, Value = value, UseAccountStorage = true });
+        }
+
+        public bool TryGetConfigValueFallthrough(ConfigKey key, out int value)
+        {
+            if (!TryGetCharConfigValue(key, out value))
+            {
+                return TryGetAccConfigValue(key, out value);
+            }
+
+            return true;
+        }
+
+        public bool TryGetCharConfigValue(ConfigKey key, out int value)
+        {
+            value = 0;
             if (!_characterConfig.ContainsKey(key))
-                return 0;
-            return _characterConfig[key];
+                return false;
+
+            value = _characterConfig[key];
+            return true;
         }
 
-        public int GetAccConfigValue(RemoteConfigKey key)
+        public bool TryGetAccConfigValue(ConfigKey key, out int value)
         {
+            value = 0;
             if (!_accountConfig.ContainsKey(key))
-                return 0;
-            return _accountConfig[key];
+                return false;
+
+            value = _accountConfig[key];
+            return true;
         }
     }
 }

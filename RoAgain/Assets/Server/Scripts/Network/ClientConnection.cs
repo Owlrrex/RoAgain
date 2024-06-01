@@ -155,7 +155,7 @@ namespace Server
                     ConfigStorageRequestReceived?.Invoke(this, configStoragePacket.Key, configStoragePacket.Value, configStoragePacket.UseAccountStorage);
                     break;
                 case ConfigReadRequestPacket configReadPacket:
-                    ConfigReadRequestReceived?.Invoke(this, configReadPacket.Key, configReadPacket.PreferAccountStorage);
+                    ConfigReadRequestReceived?.Invoke(this, configReadPacket.Key, configReadPacket.UseAccountStorage);
                     break;
                 default:
                     OwlLogger.LogError($"ServerSide ClientConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);

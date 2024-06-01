@@ -11,6 +11,7 @@ namespace Client
         {
             Ready,
             WaitingForAccountLogin,
+            WaitingForAccountConfig,
             Error_LoginFail,
             Complete
         }
@@ -69,7 +70,23 @@ namespace Client
             }
 
             SessionId = loginResponse.SessionId;
-            CurrentState = State.Complete;
+            if (MixedConfiguration.Instance == null)
+            {
+                CurrentState = State.Complete;
+                return;
+            }
+
+            MixedConfiguration.Instance.FetchAccountSettings();
+            CurrentState = State.WaitingForAccountConfig;
+        }
+
+        public void Update()
+        {
+            if (CurrentState != State.WaitingForAccountConfig)
+                return;
+
+            if (!MixedConfiguration.Instance.AnyRequestsPending())
+                CurrentState = State.Complete;
         }
     }
 
@@ -132,6 +149,8 @@ namespace Client
         public List<SkillTreeEntry> SkillTreeEntries = new();
 
         private bool _isStarted = false;
+        private bool _isFetchingConfig = false;
+        private bool _isConfigComplete = false;
 
         public int Start(ServerConnection connection, int characterId)
         {
@@ -182,7 +201,16 @@ namespace Client
         private void CharacterLoginResponseReceived(int result)
         {
             ResultCode = result;
-            FinalizeIfFinished();
+
+            if (MixedConfiguration.Instance == null)
+            {
+                _isConfigComplete = true;
+                FinalizeIfFinished();
+                return;
+            }
+
+            MixedConfiguration.Instance.FetchCharacterSettings();
+            _isFetchingConfig = true;
         }
 
         private void FinalizeIfFinished()
@@ -201,7 +229,20 @@ namespace Client
 
         public bool IsFinished()
         {
-            return ResultCode != int.MinValue && CharacterData != null;
+            return ResultCode != int.MinValue && CharacterData != null && _isConfigComplete;
+        }
+
+        public void Update()
+        {
+            if(_isFetchingConfig)
+            {
+                if(!MixedConfiguration.Instance.AnyRequestsPending())
+                {
+                    _isFetchingConfig = false;
+                    _isConfigComplete = true;
+                    FinalizeIfFinished();
+                }    
+            }
         }
 
         public int Clear()
@@ -220,6 +261,8 @@ namespace Client
             SkillTreeEntries.Clear();
 
             _isStarted = false;
+            _isFetchingConfig = false;
+            _isConfigComplete = false;
 
             return 0;
         }
