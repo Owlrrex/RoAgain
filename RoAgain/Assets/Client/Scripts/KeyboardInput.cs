@@ -12,9 +12,9 @@ public class KeyboardInput
     private Dictionary<KeyCode, HashSet<ConfigKey>> _hotkeyBanks = new();
     private HashSet<KeyCode> _usedModifierKeys = new();
 
-    private LocalConfiguration _config;
+    private MixedConfiguration _config;
 
-    public int Initialize(LocalConfiguration config)
+    public int Initialize(MixedConfiguration config)
     {
         if(Instance != null && Instance != this)
         {
@@ -31,7 +31,7 @@ public class KeyboardInput
 
         for(ConfigKey key = ConfigKey.Hotkey_BEGIN; key <= ConfigKey.Hotkey_END; key++)
         {
-            HotkeyConfigEntry entry = LocalConfiguration.Instance.GetHotkey(key);
+            HotkeyConfigEntry entry = _config.GetHotkey(key);
             if (entry == null)
                 continue;
 

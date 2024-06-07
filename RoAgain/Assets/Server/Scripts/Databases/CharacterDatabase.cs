@@ -472,7 +472,13 @@ namespace Server
                 return false;
             }
 
-            value = storage.GetConfigValue(configKey);
+            if(!storage.TryGetConfigValue(configKey, out int result))
+            {
+                value = 0;
+                return false;
+            }
+
+            value = result;
             return true;
         }
 

@@ -4,8 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Mono.Nat;
-using System.Linq;
+using Open.Nat;
+using System.Threading;
+using System.Net;
 
 namespace Server
 {
@@ -28,6 +29,8 @@ namespace Server
 
     public class CentralConnectionImpl : CentralConnection
     {
+        private CancellationTokenSource upnpDiscoveryCts = new CancellationTokenSource();
+
         private Dictionary<int, ClientConnection> _connectionsBySessionId = new();
         private Dictionary<int, string> _clientTargetsBySessionId = new();
 
@@ -147,9 +150,22 @@ namespace Server
 
             _parentServer = parentServer;
 
-            NatUtility.DeviceFound += OnDeviceFound;
+            var nat = new NatDiscoverer();
+            upnpDiscoveryCts.CancelAfter(5000);
 
-            NatUtility.StartDiscovery();
+            nat.DiscoverDevicesAsync(PortMapper.Upnp, upnpDiscoveryCts).ContinueWith(task =>
+            {
+                foreach (var device in task.Result)
+                {
+                    device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 13337, 13337, 0, "RoAgain")).ContinueWith(task =>
+                    {
+                        if (!task.IsCompletedSuccessfully)
+                        {
+                            OwlLogger.LogError($"Error while registering for UPnP with device {device}: {task.Exception}", GameComponent.Network);
+                        }
+                    });
+                }
+            });
 
             _server = new(ipPort);
             // Setup settings here like this:
@@ -166,13 +182,13 @@ namespace Server
             return 0;
         }
 
-        private void OnDeviceFound(object sender, DeviceEventArgs e)
-        {
-            if (e.Device.GetSpecificMapping(Protocol.Tcp, 13337).PublicPort == -1)
-            {
-                e.Device.CreatePortMap(new(Protocol.Tcp, 13337, 13337));
-            }
-        }
+        //private void OnDeviceFound(object sender, DeviceEventArgs e)
+        //{
+        //    if (e.Device.GetSpecificMapping(Protocol.Tcp, 13337).PublicPort == -1)
+        //    {
+        //        e.Device.CreatePortMap(new(Protocol.Tcp, 13337, 13337));
+        //    }
+        //}
 
         private void OnClientConnected(object sender, ConnectionEventArgs args)
         {
@@ -298,7 +314,9 @@ namespace Server
 
         public override int Shutdown()
         {
-            foreach(var kvp in _connectionsBySessionId)
+            upnpDiscoveryCts.Cancel();
+
+            foreach (var kvp in _connectionsBySessionId)
             {
                 kvp.Value.Shutdown();
             }
@@ -437,7 +455,6 @@ namespace Server
 
         public override int Shutdown()
         {
-            NatUtility.StopDiscovery();
             _parentServer = null;
             // Close Server: ADummyInternet.Instance.CloseServer(this);
             return 0;

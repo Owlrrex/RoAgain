@@ -37,6 +37,7 @@ namespace Client
 
     public class LocalCharacterEntity : ACharacterEntity
     {
+        public int CharacterId;
         public int JobLvl;
 
         public Stat Str;
@@ -92,7 +93,7 @@ namespace Client
         {
             base.SetData(charData);
 
-            BaseLvl = charData.BaseLvl;
+            CharacterId = charData.CharacterId;
 
             JobId oldJob = JobId;
             JobId = charData.JobId;

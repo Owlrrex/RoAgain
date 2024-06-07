@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Open.NAT</id>
+    <version>2.1.0.0</version>
+    <title>Open.NAT</title>
+    <authors>Alan McGovern, Ben Motmans, Lucas Ontivero</authors>
+    <owners>Alan McGovern, Ben Motmans, Lucas Ontivero</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/lontivero/Open.NAT</projectUrl>
+    <iconUrl>http://github.com/lontivero/Open.Nat/raw/gh-pages/images/logos/64.jpg</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Open.NAT is a lightweight and easy-to-use class library to allow port forwarding in NAT devices (Network Address Translator) that support Universal Plug and Play (UPNP) and/or Port Mapping Protocol (PMP).</description>
+    <summary>Library to allow port forwarding in NAT devices that support UPNP and/or PMP.</summary>
+    <releaseNotes>Please look at https://github.com/lontivero/Open.NAT/blob/master/CHANGELOG.md</releaseNotes>
+    <copyright>Please see LICENSE for more details.</copyright>
+    <language>en-US</language>
+    <tags>NAT TRAVERSAL UPNP PMP PORT FORWARD .NET MONO</tags>
+  </metadata>
+</package>

@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "2a728b401a9f7687dffec4f354e27ddd3d613fa5"
+      "hash": "c7a7bbf74e102495c2afeb03e4b25ffb802611b7"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
@@ -184,6 +184,12 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "nuget-packages": {
+      "version": "file:nuget-packages",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

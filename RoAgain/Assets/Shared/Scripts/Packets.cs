@@ -617,6 +617,7 @@ public class BattleEntityDataPacket : Packet
     public Vector2Int Coordinates; // for units that don't have a path right now
     public int ModelId;
 
+    public int BaseLvl;
     public int MaxHp;
     public int Hp;
     public int MaxSp;
@@ -637,12 +638,12 @@ public class RemoteCharacterDataPacket : Packet
     public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
     public Vector2Int Coordinates; // for units that don't have a path right now
 
+    public int BaseLvl;
     public int MaxHp;
     public int Hp;
     public int MaxSp;
     public int Sp;
 
-    public int BaseLvl;
     public JobId JobId;
     public int Gender;
     // TODO: Cosmetic info

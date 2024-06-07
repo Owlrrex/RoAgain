@@ -27,6 +27,7 @@ namespace Client
             Orientation = data.Orientation;
             ModelId = data.ModelId;
 
+            BaseLvl = data.BaseLvl;
             MaxHp.SetBase(data.MaxHp);
             CurrentHp = data.Hp;
             MaxSp.SetBase(data.MaxSp);

@@ -46,6 +46,7 @@ namespace Client
 
     public class BattleEntityData : GridEntityData
     {
+        public int BaseLvl;
         public int MaxHp;
         public int Hp;
         public int MaxSp;
@@ -60,6 +61,7 @@ namespace Client
 
         public void UpdateFromPacket(BattleEntityDataPacket packet)
         {
+            BaseLvl = packet.BaseLvl;
             UnitId = packet.EntityId;
             if(!string.IsNullOrEmpty(packet.NameOverride))
                 NameOverride = packet.NameOverride;
@@ -82,7 +84,6 @@ namespace Client
 
     public class RemoteCharacterData : BattleEntityData
     {
-        public int BaseLvl;
         public JobId JobId;
         public int Gender;
         
@@ -118,6 +119,7 @@ namespace Client
 
     public class LocalCharacterData : RemoteCharacterData // If necessary, inherit from BattleEntityData instead
     {
+        public int CharacterId;
         public int JobLvl;
 
         public Stat Str;

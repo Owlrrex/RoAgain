@@ -69,6 +69,11 @@ namespace Client
         private void LoadStringsForCurrentLanguage()
         {
             var rawData = CachedFileAccess.GetOrLoad<DictionarySerializationWrapper<int, StringTableEntry>>(FILE_KEY, true);
+            if(rawData == null)
+            {
+                OwlLogger.LogError("No Localization table available - file is likely missing!", GameComponent.Other);
+                return;
+            }
             Dictionary<int, StringTableEntry> allLangData = rawData.ToDict();
 
             _stringsById ??= new();

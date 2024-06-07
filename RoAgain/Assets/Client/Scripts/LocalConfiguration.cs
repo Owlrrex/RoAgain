@@ -448,6 +448,11 @@ namespace Client
             };
         }
 
+        public bool IsRemoteOnly(ConfigKey key)
+        {
+            return false;
+        }
+
         public void FetchAccountSettings()
         {
             for (ConfigKey key = ConfigKey.Hotkey_BEGIN; key <= ConfigKey.Hotkey_END; key++)

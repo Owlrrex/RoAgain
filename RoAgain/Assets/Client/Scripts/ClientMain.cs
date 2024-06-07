@@ -111,7 +111,7 @@ namespace Client
             _port = "13337";
 
             KeyboardInput keyboardInput = new();
-            keyboardInput.Initialize(LocalConfiguration.Instance);
+            keyboardInput.Initialize(MixedConfiguration.Instance);
 
             InitializeTables();
 
@@ -1101,7 +1101,7 @@ namespace Client
 
             ReturnAfterDeathRequestPacket packet = new()
             {
-                CharacterId = CurrentCharacterData.Id
+                CharacterId = CurrentCharacterData.CharacterId
             };
 
             ConnectionToServer.Send(packet);

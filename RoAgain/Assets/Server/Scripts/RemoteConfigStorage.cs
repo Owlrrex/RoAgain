@@ -28,11 +28,13 @@ namespace Server
             }
         }
 
-        public int GetConfigValue(int key)
+        public bool TryGetConfigValue(int key, out int value)
         {
+            value = 0;
             if (!Values.ContainsKey(key))
-                return 0;
-            return Values[key];
+                return false;
+            value = Values[key];
+            return true;
         }
 
         public void SetConfigValue(int key, int value)

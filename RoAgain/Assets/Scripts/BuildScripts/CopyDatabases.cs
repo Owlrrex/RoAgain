@@ -11,18 +11,30 @@ public class CopyDatabases
     public static void OnPostprocessbuild(BuildTarget buildTarget, string pathToBuiltProject)
     {
         string buildFolder = Path.GetDirectoryName(pathToBuiltProject);
-        string sourceFolder = Path.Combine(Application.dataPath, "Server", "Databases");
-        string targetFolder = Path.Combine(buildFolder, Application.productName + "_Data", "Databases");
+
+        CopyAllFilesFromToFolder(
+            Path.Combine(Application.dataPath, "Server", "Databases"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "Databases"),
+            "*.db");
+
+        CopyAllFilesFromToFolder(
+            Path.Combine(Application.dataPath, "Client", "Tables"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Client", "Tables"),
+            "*.db");
+    }
+
+    private static void CopyAllFilesFromToFolder(string sourceFolder, string targetFolder, string nameMask)
+    {
         if (!Directory.Exists(targetFolder))
         {
             Directory.CreateDirectory(targetFolder);
         }
 
-        foreach (string file in Directory.GetFiles(sourceFolder, "*.db"))
+        foreach (string file in Directory.GetFiles(sourceFolder, nameMask))
         {
             string pureFilename = Path.GetFileName(file);
             string targetPath = Path.Combine(targetFolder, pureFilename);
-            Debug.Log($"Copying mapfile {file} to {targetPath}");
+            Debug.Log($"Copying file {file} to {targetPath}");
             File.Copy(file, targetPath, true);
         }
     }

@@ -38,17 +38,19 @@ namespace Client
             }
         }
 
-        private void OnConfigValueReceived(ConfigKey configKey, int configValue, bool isAccountStorage)
+        private void OnConfigValueReceived(ConfigKey configKey, bool exists, int configValue, bool isAccountStorage)
         {
-            OwlLogger.Log($"Received Remote config value: {configKey} = {configValue} (Accountwide = {isAccountStorage})", GameComponent.Other);
+            OwlLogger.Log($"Received Remote config value: {configKey} = {configValue} (Exists = {exists}, Accountwide = {isAccountStorage})", GameComponent.Other);
             if (isAccountStorage)
             {
-                AddAccountConfigValue(configKey, configValue);
+                if(exists)
+                    AddAccountConfigValue(configKey, configValue);
                 _pendingAccRequests.Remove(configKey);
             }
             else
             {
-                AddCharConfigValue(configKey, configValue);
+                if (exists)
+                    AddCharConfigValue(configKey, configValue);
                 _pendingCharRequests.Remove(configKey);
             }
         }
