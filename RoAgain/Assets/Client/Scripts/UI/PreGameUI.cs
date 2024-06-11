@@ -20,6 +20,25 @@ namespace Client
         [SerializeField]
         private GameObject _characterCreationWindowPrefab;
 
+        [SerializeField]
+        private LocalizedStringId _loggingIntoAccountLocId;
+        [SerializeField]
+        private LocalizedStringId _loadingAccountConfigLocId;
+        [SerializeField]
+        private LocalizedStringId _loginFailedLocId;
+        [SerializeField]
+        private LocalizedStringId _loadingCharactersLocId;
+        [SerializeField]
+        private LocalizedStringId _creatingAccountLocId;
+        [SerializeField]
+        private LocalizedStringId _creatingCharacterLocId;
+        [SerializeField]
+        private LocalizedStringId _connectingToWorldLocId;
+        [SerializeField]
+        private LocalizedStringId _loginFailAlreadyLoggedInLocId;
+        [SerializeField]
+        private LocalizedStringId _loginFailUnknownLocId;
+
         private GameObject _currentWindow;
 
         private ServerConnection _currentConnection;
@@ -86,14 +105,15 @@ namespace Client
                         break;
                     case AccountLogin.State.WaitingForAccountLogin:
                         DeleteCurrentWindow();
-                        ClientMain.Instance.DisplayZeroButtonNotification("Logging into Account...");
+                        ClientMain.Instance.DisplayZeroButtonNotification(_loggingIntoAccountLocId);
                         break;
                     case AccountLogin.State.WaitingForAccountConfig:
-                        ClientMain.Instance.DisplayZeroButtonNotification("Loading Account configuration...");
+                        ClientMain.Instance.DisplayZeroButtonNotification(_loadingAccountConfigLocId);
                         break;
                     case AccountLogin.State.Error_LoginFail:
                         ClientMain.Instance.DisplayZeroButtonNotification(null);
-                        ClientMain.Instance.DisplayOneButtonNotification("Login failed!", () =>
+                        // TODO: Look up string for error codes & display failure reason
+                        ClientMain.Instance.DisplayOneButtonNotification(_loginFailedLocId, () =>
                         {
                             ClientMain.Instance.DisplayOneButtonNotification(null, null);
                             ShowAccountLoginWindow();
@@ -119,13 +139,12 @@ namespace Client
                 switch (_characterLogin.ResultCode)
                 {
                     case 0:
-                        // Fall out of switch
                         break;
                     case -1:
-                        ClientMain.Instance.DisplayOneButtonNotification("Login failed: Character is already logged in!", ShowCharacterSelection);
+                        ClientMain.Instance.DisplayOneButtonNotification(_loginFailAlreadyLoggedInLocId, ShowCharacterSelection);
                         return;
                     default:
-                        ClientMain.Instance.DisplayOneButtonNotification($"Login failed with unknown error code: {_characterLogin.ResultCode}", ShowCharacterSelection);
+                        ClientMain.Instance.DisplayOneButtonNotification(string.Format(LocalizedStringTable.GetStringById(_loginFailUnknownLocId), _characterLogin.ResultCode), ShowCharacterSelection);
                         return;
                 }
 
@@ -135,7 +154,7 @@ namespace Client
 
         private void StartCharacterSelectionFetch()
         {
-            ClientMain.Instance.DisplayZeroButtonNotification("Loading Characters...");
+            ClientMain.Instance.DisplayZeroButtonNotification(_loadingCharactersLocId);
             _hasShownCharSelection = false;
             _characterSelectionData.Fetch(ClientMain.Instance.ConnectionToServer);
         }
@@ -159,7 +178,7 @@ namespace Client
 
         public void CreateAccount(string username, string password)
         {
-            ClientMain.Instance.DisplayZeroButtonNotification("Creating account...");
+            ClientMain.Instance.DisplayZeroButtonNotification(_creatingAccountLocId);
 
             if (_currentConnection == null)
             {
@@ -228,7 +247,7 @@ namespace Client
                 return;
             }
 
-            ClientMain.Instance.DisplayZeroButtonNotification("Creating Character...");
+            ClientMain.Instance.DisplayZeroButtonNotification(_creatingCharacterLocId);
 
             CharacterCreationRequestPacket packet = new()
             {
@@ -305,14 +324,16 @@ namespace Client
 
         public void StartCharacterLogin(int characterId)
         {
-            if(_characterLogin.IsStarted())
+            if(_characterLogin.IsStarted() && !_characterLogin.IsFinished())
             {
                 OwlLogger.LogError("Can't start CharacterLogin while previous login attempt is still running!", GameComponent.Other);
                 return;
             }
 
+            _characterLogin.Clear();
+
             DeleteCurrentWindow();
-            ClientMain.Instance.DisplayZeroButtonNotification("Connecting to world...");
+            ClientMain.Instance.DisplayZeroButtonNotification(_connectingToWorldLocId);
 
             // we can't start the gameplay-scene load here yet, because the login may still fail for this character
 

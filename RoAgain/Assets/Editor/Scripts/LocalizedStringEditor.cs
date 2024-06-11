@@ -62,6 +62,14 @@ namespace Client
         {
             return 40;
         }
+
+#if UNITY_EDITOR
+        [MenuItem("Localization/Reload Localization Table")]
+        public static void ReloadLocTableEditor()
+        {
+            LocalizedStringTable.ReloadStrings();
+        }
+#endif
     }
 }
 #endif

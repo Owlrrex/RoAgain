@@ -25,6 +25,9 @@ namespace Client
         [SerializeField]
         private Button _createAcctButton;
 
+        [SerializeField]
+        private LocalizedStringId _enterNameAndPwLocId;
+
         // Start is called before the first frame update
         void Awake()
         {
@@ -45,7 +48,7 @@ namespace Client
             if(string.IsNullOrWhiteSpace(username)
                 || string.IsNullOrWhiteSpace(password))
             {
-                ClientMain.Instance.DisplayOneButtonNotification("Please enter Username & Password!", null);
+                ClientMain.Instance.DisplayOneButtonNotification(_enterNameAndPwLocId, null);
                 return;
             }
 

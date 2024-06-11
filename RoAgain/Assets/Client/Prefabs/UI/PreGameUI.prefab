@@ -24,13 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8305862680564325727}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8305862680564325726
 MonoBehaviour:
@@ -52,3 +52,21 @@ MonoBehaviour:
     type: 3}
   _characterCreationWindowPrefab: {fileID: 5624254441870603929, guid: defaa0d7fe33d4b459d2b35761e56c6f,
     type: 3}
+  _loggingIntoAccountLocId:
+    Id: 150
+  _loadingAccountConfigLocId:
+    Id: 151
+  _loginFailedLocId:
+    Id: 152
+  _loadingCharactersLocId:
+    Id: 153
+  _creatingAccountLocId:
+    Id: 154
+  _creatingCharacterLocId:
+    Id: 155
+  _connectingToWorldLocId:
+    Id: 156
+  _loginFailAlreadyLoggedInLocId:
+    Id: 165
+  _loginFailUnknownLocId:
+    Id: 166

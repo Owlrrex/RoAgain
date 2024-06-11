@@ -1347,6 +1347,8 @@ MonoBehaviour:
   _loginButton: {fileID: 5588489382660616129}
   _quitButton: {fileID: 3621701761257463350}
   _createAcctButton: {fileID: 2224872126939525857}
+  _enterNameAndPwLocId:
+    Id: 164
 --- !u!1 &5752028431515290004
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,6 +20,11 @@ namespace Client
         [SerializeField]
         private Button _createButton;
 
+        [SerializeField]
+        private LocalizedStringId _enterCharNameLocId;
+        [SerializeField]
+        private LocalizedStringId _enterGenderLocId;
+
         private void Awake()
         {
             OwlLogger.PrefabNullCheckAndLog(_charNameInput, "charNameInput", this, GameComponent.UI);
@@ -41,14 +46,14 @@ namespace Client
 
             if (string.IsNullOrWhiteSpace(charname))
             {
-                ClientMain.Instance.DisplayOneButtonNotification("Please enter a character name!", null);
+                ClientMain.Instance.DisplayOneButtonNotification(_enterCharNameLocId, null);
                 return;
             }
 
             var selectedToggles = _genderSelectGroup.ActiveToggles();
             if (selectedToggles.Count() != 1)
             {
-                ClientMain.Instance.DisplayOneButtonNotification("Please select a gender for your character!", null);
+                ClientMain.Instance.DisplayOneButtonNotification(_enterGenderLocId, null);
                 return;
             }
 

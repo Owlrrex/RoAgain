@@ -1029,6 +1029,146 @@
                 "TextEnglish": "Holy Light - Skill Description",
                 "TextGerman": "Heiliges Licht - Skill Beschreibung"
             }
+        },
+		{
+            "key": 147,
+            "value": {
+                "TextEnglish": "Ok",
+                "TextGerman": "Ok"
+            }
+        },
+		{
+            "key": 148,
+            "value": {
+                "TextEnglish": "Message",
+                "TextGerman": "Nachricht"
+            }
+        },
+		{
+            "key": 149,
+            "value": {
+                "TextEnglish": "Loading world...",
+                "TextGerman": "Welt wird geladen..."
+            }
+        },
+		{
+            "key": 150,
+            "value": {
+                "TextEnglish": "Logging into Account...",
+                "TextGerman": "Account wird geladen..."
+            }
+        },
+		{
+            "key": 151,
+            "value": {
+                "TextEnglish": "Loading Account configuration...",
+                "TextGerman": "Account-Konfiguration wird geladen..."
+            }
+        },
+		{
+            "key": 152,
+            "value": {
+                "TextEnglish": "Login failed!",
+                "TextGerman": "Login fehlgeschlagen!"
+            }
+        },
+		{
+            "key": 153,
+            "value": {
+                "TextEnglish": "Loading Characters...",
+                "TextGerman": "Charaktere werden geladen..."
+            }
+        },
+		{
+            "key": 154,
+            "value": {
+                "TextEnglish": "Creating account...",
+                "TextGerman": "Account wird erstellt..."
+            }
+        },
+		{
+            "key": 155,
+            "value": {
+                "TextEnglish": "Creating character...",
+                "TextGerman": "Charakter wird erstellt..."
+            }
+        },
+		{
+            "key": 156,
+            "value": {
+                "TextEnglish": "Connection to world...",
+                "TextGerman": "Welt wird betreten..."
+            }
+        },
+		{
+            "key": 157,
+            "value": {
+                "TextEnglish": "Connection to world...",
+                "TextGerman": "Welt wird betreten..."
+            }
+        },
+		{
+            "key": 158,
+            "value": {
+                "TextEnglish": "Please enter a username!",
+                "TextGerman": "Bitte gib einen Accountnamen an!"
+            }
+        },
+		{
+            "key": 159,
+            "value": {
+                "TextEnglish": "Please enter a password!",
+                "TextGerman": "Bitte gib ein Passwort an!"
+            }
+        },
+		{
+            "key": 160,
+            "value": {
+                "TextEnglish": "You have to repeat the password correctly!",
+                "TextGerman": "Das Passwort muss exact wiederholt sein!"
+            }
+        },
+		{
+            "key": 161,
+            "value": {
+                "TextEnglish": "Please enter a character name!",
+                "TextGerman": "Bitte gib einen Charakternamen an!"
+            }
+        },
+		{
+            "key": 162,
+            "value": {
+                "TextEnglish": "Please select a gender for your character!",
+                "TextGerman": "Bitte wähle ein Geschlecht für deinen Charakter!"
+            }
+        },
+		{
+            "key": 163,
+            "value": {
+                "TextEnglish": "Please select a character first!",
+                "TextGerman": "Bitte wähle zuerst einen Charakter aus!"
+            }
+        },
+		{
+            "key": 164,
+            "value": {
+                "TextEnglish": "Please enter Username & Password!",
+                "TextGerman": "Bitte gib einen Accountnamen & Passwort ein!"
+            }
+        },
+		{
+            "key": 165,
+            "value": {
+                "TextEnglish": "Login failed: Character is already logged in!",
+                "TextGerman": "Login fehlgeschlagen: Charakter ist schon im Spiel!"
+            }
+        },
+		{
+            "key": 166,
+            "value": {
+                "TextEnglish": "Login failed with unknown error code: {0}",
+                "TextGerman": "Login fehlgeschlagen, unbekannter Fehler: {0}"
+            }
         }
     ]
 }

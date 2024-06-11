@@ -64,6 +64,9 @@ namespace Client
         [SerializeField]
         private TMP_Text _lukText;
 
+        [SerializeField]
+        private LocalizedStringId _selectCharLocId;
+
         private List<CharacterSelectionData> _charData;
 
         private List<CharacterSelectWidget> _createdCharWidgets = new();
@@ -232,7 +235,7 @@ namespace Client
         {
             if (_selectedCharIndex == -1)
             {
-                ClientMain.Instance.DisplayOneButtonNotification("Please select a character first!", null);
+                ClientMain.Instance.DisplayOneButtonNotification(_selectCharLocId, null);
                 return;
             }
 

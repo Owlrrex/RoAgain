@@ -32,7 +32,7 @@ namespace Client
         private JobTable _jobTable;
 
         [SerializeField]
-        private GameObject _dummyUnitPrefab;
+        private LocalizedStringId _loadingWorldLocId;
 
         // TODO: Will be replaced by Character-Class dependent asset database
         public GameObject CharacterPrefab;
@@ -155,9 +155,9 @@ namespace Client
             _stringTable = new();
             _stringTable.Register();
 
-            // TODO: Utilize Config
+            // TODO: Use Config to store language
             LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
-            StartCoroutine(LangSwapCoroutine());
+            //StartCoroutine(LangSwapCoroutine());
         }
 
         private IEnumerator LangSwapCoroutine()
@@ -376,7 +376,7 @@ namespace Client
             OwlLogger.Log($"Character Login completed, new CurrentChar has ID {charData.UnitId}", GameComponent.Character);
 
             // TODO: Proper loading-screen
-            DisplayZeroButtonNotification("Loading world...");
+            DisplayZeroButtonNotification(_loadingWorldLocId);
             AsyncOperation asyncOp = SceneManager.LoadSceneAsync("Gameplay"); // Maybe load a loading-screen-scene instead?
             asyncOp.allowSceneActivation = true;
             asyncOp.completed += OnGameplaySceneLoadCompleted;
@@ -1053,15 +1053,47 @@ namespace Client
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
         }
 
+        public void SetOneButtonNotificationTitle(LocalizedStringId title)
+        {
+            if (_oneButtonNotification == null)
+            {
+                OwlLogger.LogError($"Tried to set title but notification is not available!", GameComponent.UI);
+                return;
+            }
+
+            _oneButtonNotification.SetTitle(LocalizedStringTable.GetStringById(title));
+        }
+
+        public void SetOneButtonNotificationButtonText(LocalizedStringId buttonText)
+        {
+            if (_oneButtonNotification == null)
+            {
+                OwlLogger.LogError($"Tried to set button text but notification is not available!", GameComponent.UI);
+                return;
+            }
+
+            _oneButtonNotification.SetButtonText(LocalizedStringTable.GetStringById(buttonText));
+        }
+
+        public void DisplayOneButtonNotification(LocalizedStringId message, Action callback, bool resetTitleAndButton = true)
+        {
+            if(resetTitleAndButton)
+            {
+                _oneButtonNotification.ResetStrings();
+            }
+
+            DisplayOneButtonNotification(LocalizedStringTable.GetStringById(message), callback);
+        }
+
         public void DisplayOneButtonNotification(string message, Action callback)
         {
-            if(_oneButtonNotification == null)
+            if (_oneButtonNotification == null)
             {
                 OwlLogger.LogError($"Tried to display generic notification {message} but notification is not available!", GameComponent.UI);
                 return;
             }
 
-            if(message == null)
+            if (message == null)
             {
                 _oneButtonNotification.Hide();
             }
@@ -1072,15 +1104,32 @@ namespace Client
             }
         }
 
+        public void DisplayZeroButtonNotification(LocalizedStringId message)
+        {
+            DisplayZeroButtonNotification(message, LocalizedStringId.INVALID);
+        }
+
+        public void DisplayZeroButtonNotification(LocalizedStringId message, LocalizedStringId title)
+        {
+            _zeroButtonNotification.ResetStrings();
+
+            if (title != LocalizedStringId.INVALID)
+            {
+                _zeroButtonNotification.SetTitle(LocalizedStringTable.GetStringById(title));
+            }
+
+            DisplayZeroButtonNotification(LocalizedStringTable.GetStringById(message));
+        }
+
         public void DisplayZeroButtonNotification(string message)
         {
-            if(_zeroButtonNotification == null)
+            if (_zeroButtonNotification == null)
             {
                 OwlLogger.LogError($"Tried to display zero-button notification {message} but notification is not available!", GameComponent.UI);
                 return;
             }
 
-            if(message == null)
+            if (message == null)
             {
                 _zeroButtonNotification.Hide();
             }

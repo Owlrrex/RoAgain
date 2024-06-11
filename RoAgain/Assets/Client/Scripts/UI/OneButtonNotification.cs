@@ -14,11 +14,24 @@ namespace Client
         private TMP_Text _messageText;
 
         [SerializeField]
+        private TMP_Text _titleText;
+
+        [SerializeField]
+        private TMP_Text _buttonText;
+
+        [SerializeField]
         private Button _okButton;
+
+        [SerializeField]
+        private LocalizedStringId _defaultTitle;
+        [SerializeField]
+        private LocalizedStringId _defaultButtonText;
 
         public void Awake()
         {
-            OwlLogger.PrefabNullCheckAndLog(_messageText, "messageText", this, GameComponent.UI);
+            OwlLogger.PrefabNullCheckAndLog(_messageText, nameof(_messageText), this, GameComponent.UI);
+            OwlLogger.PrefabNullCheckAndLog(_titleText, nameof(_titleText), this, GameComponent.UI);
+            OwlLogger.PrefabNullCheckAndLog(_buttonText, nameof(_buttonText), this, GameComponent.UI);
             if(!OwlLogger.PrefabNullCheckAndLog(_okButton, "okButton", this, GameComponent.UI))
                 _okButton.onClick.AddListener(OnOkButtonCallback);
         }
@@ -29,6 +42,23 @@ namespace Client
             _okCallback = callback;
 
             gameObject.SetActive(true);
+        }
+
+        public void SetTitle(string title)
+        {
+            _titleText.text = title;
+        }
+
+        public void SetButtonText(string buttonText)
+        {
+            _buttonText.text = buttonText;
+        }
+
+        public void ResetStrings()
+        {
+            _titleText.text = LocalizedStringTable.GetStringById(_defaultTitle);
+            _buttonText.text = LocalizedStringTable.GetStringById(_defaultButtonText);
+            _messageText.text = LocalizedStringTable.GetStringById(LocalizedStringId.INVALID);
         }
 
         private void OnOkButtonCallback()

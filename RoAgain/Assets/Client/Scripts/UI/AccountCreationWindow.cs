@@ -22,6 +22,13 @@ namespace Client
         [SerializeField]
         private Button _createButton;
 
+        [SerializeField]
+        private LocalizedStringId _enterUsernameLocId;
+        [SerializeField]
+        private LocalizedStringId _enterPasswordLocId;
+        [SerializeField]
+        private LocalizedStringId _repeatPasswordLocId;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -40,19 +47,19 @@ namespace Client
 
             if (string.IsNullOrWhiteSpace(username))
             {
-                ClientMain.Instance.DisplayOneButtonNotification("Please enter a username!", null);
+                ClientMain.Instance.DisplayOneButtonNotification(_enterUsernameLocId, null);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(_passwordInput.text))
             {
-                ClientMain.Instance.DisplayOneButtonNotification("Please enter a password!", null);
+                ClientMain.Instance.DisplayOneButtonNotification(_enterPasswordLocId, null);
                 return;
             }
 
             if (_passwordInput.text != _passwordRepeatInput.text)
             {
-                ClientMain.Instance.DisplayOneButtonNotification("You have to repeat you password correctly!", null);
+                ClientMain.Instance.DisplayOneButtonNotification(_repeatPasswordLocId, null);
                 return;
             }
 

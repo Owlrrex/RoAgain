@@ -32,7 +32,6 @@ RectTransform:
   - {fileID: 1627611729637177004}
   - {fileID: 8453684952436947905}
   m_Father: {fileID: 8328150590223539404}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -70,7 +69,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1393859201344809150}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -146,7 +144,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1393859201344809150}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -283,7 +280,6 @@ RectTransform:
   m_Children:
   - {fileID: 1393859201344809150}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -303,6 +299,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _messageText: {fileID: 5662224333056976551}
+  _titleText: {fileID: 4633221789078876120}
+  _defaultTitle:
+    Id: 148
 --- !u!222 &4385657637205054150
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -346,6 +345,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 1393859201344809150}
     m_Modifications:
     - target: {fileID: 4083706059714065414, guid: 218dad0147e56134380fb184abe5c826,
@@ -383,12 +383,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6090055008875553817, guid: 218dad0147e56134380fb184abe5c826,
+        type: 3}
+      propertyPath: _localizedStringId.Id
+      value: 148
+      objectReference: {fileID: 0}
     - target: {fileID: 7890780758867773444, guid: 218dad0147e56134380fb184abe5c826,
         type: 3}
       propertyPath: m_text
       value: Message
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6090055008875553817, guid: 218dad0147e56134380fb184abe5c826, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 218dad0147e56134380fb184abe5c826, type: 3}
 --- !u!224 &1627611729637177004 stripped
 RectTransform:
@@ -396,3 +405,15 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 3300344543427717084}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4633221789078876120 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7890780758867773444, guid: 218dad0147e56134380fb184abe5c826,
+    type: 3}
+  m_PrefabInstance: {fileID: 3300344543427717084}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

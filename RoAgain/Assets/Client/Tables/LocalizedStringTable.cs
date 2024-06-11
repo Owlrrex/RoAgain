@@ -105,6 +105,14 @@ namespace Client
             CachedFileAccess.Purge(FILE_KEY);
         }
 
+        public static void ReloadStrings()
+        {
+            if (_instance == null)
+                return;
+
+            _instance.LoadStringsForCurrentLanguage();
+        }
+
         public static string GetStringById(LocalizedStringId id)
         {
             if (_instance == null)
@@ -112,6 +120,9 @@ namespace Client
                 OwlLogger.LogError("Tried to get String by Id before StringTable was available", GameComponent.Other);
                 return null;
             }
+
+            if (id == LocalizedStringId.INVALID)
+                return "INVALID-LOCALIZED-STRING";
 
             if (!_instance._stringsById.ContainsKey(id.Id))
                 return "MISSING-STRING-" + id;
