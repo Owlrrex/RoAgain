@@ -63,25 +63,24 @@ public class StatWindow : MonoBehaviour
 
     [SerializeField]
     private TMP_Text AtkText;
-
     [SerializeField]
     private TMP_Text MatkText;
-
     [SerializeField]
     private TMP_Text HitText;
-
     [SerializeField]
     private TMP_Text CriticalText;
-
     [SerializeField]
-    private TMP_Text DefText;
-
+    private TMP_Text HardDefText;
     [SerializeField]
-    private TMP_Text MdefText;
-
+    private TMP_Text SoftDefText;
+    [SerializeField]
+    private TMP_Text HardMdefText;
+    [SerializeField]
+    private TMP_Text SoftMdefText;
     [SerializeField]
     private TMP_Text FleeText;
-
+    [SerializeField]
+    private TMP_Text PdodgeText;
     [SerializeField]
     private TMP_Text AspdText;
 
@@ -135,9 +134,12 @@ public class StatWindow : MonoBehaviour
         OwlLogger.PrefabNullCheckAndLog(MatkText, "MatkText", this, GameComponent.UI);
         OwlLogger.PrefabNullCheckAndLog(HitText, "HitText", this, GameComponent.UI);
         OwlLogger.PrefabNullCheckAndLog(CriticalText, "CriticalText", this, GameComponent.UI);
-        OwlLogger.PrefabNullCheckAndLog(DefText, "DefText", this, GameComponent.UI);
-        OwlLogger.PrefabNullCheckAndLog(MdefText, "MdefText", this, GameComponent.UI);
+        OwlLogger.PrefabNullCheckAndLog(HardDefText, "DefText", this, GameComponent.UI);
+        OwlLogger.PrefabNullCheckAndLog(SoftDefText, "DefText", this, GameComponent.UI);
+        OwlLogger.PrefabNullCheckAndLog(HardMdefText, "MdefText", this, GameComponent.UI);
+        OwlLogger.PrefabNullCheckAndLog(SoftMdefText, "MdefText", this, GameComponent.UI);
         OwlLogger.PrefabNullCheckAndLog(FleeText, "FleeText", this, GameComponent.UI);
+        OwlLogger.PrefabNullCheckAndLog(PdodgeText, "FleeText", this, GameComponent.UI);
         OwlLogger.PrefabNullCheckAndLog(AspdText, "AspdText", this, GameComponent.UI);
         OwlLogger.PrefabNullCheckAndLog(StatPointText, "StatPointText", this, GameComponent.UI);
         if (!OwlLogger.PrefabNullCheckAndLog(_closeButton, "closeButton", this, GameComponent.UI))
@@ -201,8 +203,8 @@ public class StatWindow : MonoBehaviour
         UpdateMatkDisplay();
         UpdateHitDisplay();
         UpdateCritDisplay();
-        UpdateDefDisplay();
-        UpdateMdefDisplay();
+        UpdateHardDefDisplay();
+        UpdateHardMdefDisplay();
         UpdateFleeDisplay();
         UpdateAspdDisplay();
         UpdateStatPointDisplay();
@@ -276,19 +278,34 @@ public class StatWindow : MonoBehaviour
         CriticalText.text = (_character.Crit.Total * 100).ToString("F1");
     }
 
-    public void UpdateDefDisplay()
+    public void UpdateHardDefDisplay()
     {
-        DefText.text = $"{_character.HardDef.Total} + {_character.SoftDef.Total}";
+        HardDefText.text = _character.HardDef.Total.ToString();
     }
 
-    public void UpdateMdefDisplay()
+    public void UpdateSoftDefDisplay()
     {
-        MdefText.text = $"{_character.HardMdef.Total} + {_character.SoftMdef.Total}";
+        SoftDefText.text = _character.SoftDef.Total.ToString();
+    }
+
+    public void UpdateHardMdefDisplay()
+    {
+        HardMdefText.text = _character.HardMdef.Total.ToString();
+    }
+
+    public void UpdateSoftMdefDisplay()
+    {
+        SoftMdefText.text = _character.SoftMdef.Total.ToString();
     }
 
     public void UpdateFleeDisplay()
     {
-        FleeText.text = $"{_character.Flee.Total} + {_character.PerfectFlee.Total * 100:F0}";
+        FleeText.text = _character.Flee.Total.ToString();
+    }
+
+    public void UpdatePdodgeDisplay()
+    {
+        PdodgeText.text = $"{_character.PerfectFlee.Total * 100:F0}";
     }
 
     public void UpdateAspdDisplay()
