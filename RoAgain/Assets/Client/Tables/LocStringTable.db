@@ -1169,6 +1169,160 @@
                 "TextEnglish": "Login failed with unknown error code: {0}",
                 "TextGerman": "Login fehlgeschlagen, unbekannter Fehler: {0}"
             }
-        }
+        },
+		{
+			"key": 167,
+			"value": {
+				"TextEnglish": "Create Character",
+				"TextGerman": "Charakter erstellen"
+			}
+		},
+		{
+			"key": 168,
+			"value": {
+				"TextEnglish": "Create Account",
+				"TextGerman": "Account erstellen"
+			}
+		},
+		{
+			"key": 169,
+			"value": {
+				"TextEnglish": "Back",
+				"TextGerman": "Zurück"
+			}
+		},
+		{
+			"key": 170,
+			"value": {
+				"TextEnglish": "Attack Power",
+				"TextGerman": "Angriffskraft"
+			}
+		},
+		{
+			"key": 171,
+			"value": {
+				"TextEnglish": "Magic Attack",
+				"TextGerman": "Magische Kraft"
+			}
+		},
+		{
+			"key": 172,
+			"value": {
+				"TextEnglish": "Precision",
+				"TextGerman": "Genauigkeit"
+			}
+		},
+		{
+			"key": 173,
+			"value": {
+				"TextEnglish": "Critical Chance",
+				"TextGerman": "Kritische Chance"
+			}
+		},
+		{
+			"key": 174,
+			"value": {
+				"TextEnglish": "Attackspeed",
+				"TextGerman": "Angriffstempo"
+			}
+		},
+		{
+			"key": 175,
+			"value": {
+				"TextEnglish": "Armor",
+				"TextGerman": "Rüstung"
+			}
+		},
+		{
+			"key": 176,
+			"value": {
+				"TextEnglish": "Toughness",
+				"TextGerman": "Robustheit"
+			}
+		},
+		{
+			"key": 177,
+			"value": {
+				"TextEnglish": "Magic Armor",
+				"TextGerman": "Magie-Rüstung"
+			}
+		},
+		{
+			"key": 178,
+			"value": {
+				"TextEnglish": "Magic Toughness",
+				"TextGerman": "Magie-Robustheit"
+			}
+		},
+		{
+			"key": 179,
+			"value": {
+				"TextEnglish": "Evasion",
+				"TextGerman": "Ausweichen"
+			}
+		},
+		{
+			"key": 180,
+			"value": {
+				"TextEnglish": "Lucky Evade",
+				"TextGerman": "Glück-Ausweichen"
+			}
+		},
+		{
+			"key": 181,
+			"value": {
+				"TextEnglish": "Status",
+				"TextGerman": "Status"
+			}
+		},
+		{
+			"key": 182,
+			"value": {
+				"TextEnglish": "Status Points",
+				"TextGerman": "Status-Punkte"
+			}
+		},
+		{
+			"key": 183,
+			"value": {
+				"TextEnglish": "STR",
+				"TextGerman": "STR"
+			}
+		},
+		{
+			"key": 184,
+			"value": {
+				"TextEnglish": "AGI",
+				"TextGerman": "AGI"
+			}
+		},
+		{
+			"key": 185,
+			"value": {
+				"TextEnglish": "VIT",
+				"TextGerman": "VIT"
+			}
+		},
+		{
+			"key": 186,
+			"value": {
+				"TextEnglish": "INT",
+				"TextGerman": "INT"
+			}
+		},
+		{
+			"key": 187,
+			"value": {
+				"TextEnglish": "DEX",
+				"TextGerman": "DEX"
+			}
+		},
+		{
+			"key": 188,
+			"value": {
+				"TextEnglish": "LUK",
+				"TextGerman": "LUK"
+			}
+		}
     ]
 }

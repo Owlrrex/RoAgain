@@ -52,7 +52,7 @@ namespace Client
             }
         }
 
-        public static void SetClientLanguage(ClientLanguage newLanguage)
+        public static void SetClientLanguage(ClientLanguage newLanguage, bool forceReload = false)
         {
             if (_currentLanguage == newLanguage)
                 return;
@@ -62,14 +62,20 @@ namespace Client
 
             _currentLanguage = newLanguage;
             
-            _instance.LoadStringsForCurrentLanguage();
+            _instance.LoadStringsForCurrentLanguage(forceReload);
             LanguageChanged?.Invoke();
         }
 
-        private void LoadStringsForCurrentLanguage()
+        private void LoadStringsForCurrentLanguage(bool forceReload = false)
         {
+            if (forceReload)
+            {
+                CachedFileAccess.Load<DictionarySerializationWrapper<int, StringTableEntry>>(FILE_KEY, true);
+            }
+
             var rawData = CachedFileAccess.GetOrLoad<DictionarySerializationWrapper<int, StringTableEntry>>(FILE_KEY, true);
-            if(rawData == null)
+
+            if (rawData == null)
             {
                 OwlLogger.LogError("No Localization table available - file is likely missing!", GameComponent.Other);
                 return;

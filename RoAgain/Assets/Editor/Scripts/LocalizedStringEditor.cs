@@ -9,22 +9,17 @@ namespace Client
     {
         public override void OnInspectorGUI()
         {
-            LocalizedStringText text = (LocalizedStringText)target;
-
-            DrawDefaultInspector();
-
             if (!LocalizedStringTable.IsReady())
             {
                 LocalizedStringTable loaded = new();
                 loaded.Register();
-                LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
             }
 
+            LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
 
-            if (!LocalizedStringTable.IsReady())
-                return;
+            LocalizedStringText text = (LocalizedStringText)target;
 
-            GUILayout.Label(LocalizedStringTable.GetStringById(text.LocalizedStringId));
+            DrawDefaultInspector();
         }
     }
 
@@ -63,13 +58,11 @@ namespace Client
             return 40;
         }
 
-#if UNITY_EDITOR
         [MenuItem("Localization/Reload Localization Table")]
         public static void ReloadLocTableEditor()
         {
             LocalizedStringTable.ReloadStrings();
         }
-#endif
     }
 }
 #endif
