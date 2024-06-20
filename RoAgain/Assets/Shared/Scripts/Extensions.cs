@@ -90,7 +90,7 @@ public static class Extensions
     {
         return keyCode switch
         {
-            KeyCode.None => string.Empty,
+            KeyCode.None => "...",
             KeyCode.Alpha1 => "1",
             KeyCode.Alpha2 => "2",
             KeyCode.Alpha3 => "3",

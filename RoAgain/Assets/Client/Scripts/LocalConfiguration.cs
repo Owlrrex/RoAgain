@@ -28,12 +28,14 @@ namespace Client
 
         public override string ToString()
         {
-            string keyString = Key.ToHotkeyString();
             if (Modifier != KeyCode.None)
             {
-                keyString = $"{Modifier} + {keyString}";
+                return $"{Modifier.ToHotkeyString()} + {Key.ToHotkeyString()}";
             }
-            return keyString;
+            else
+            {
+                return Key.ToHotkeyString();
+            }
         }
     }
 
@@ -148,7 +150,7 @@ namespace Client
 
             foreach(KeyValuePair<ConfigKey, HotkeyConfigEntry> kvp in _hotkeyConfig)
             {
-                _miscConfig[kvp.Key] = (int)kvp.Value.ToUInt();
+                _miscConfig[kvp.Key] = kvp.Value.ToInt();
             }
 
             LocalConfigPersistent localPers = new(_miscConfig);
@@ -218,7 +220,7 @@ namespace Client
 
     public static class ConfigExtensions
     {
-        public static uint ToUInt(this HotkeyConfigEntry hotkey)
+        public static int ToInt(this HotkeyConfigEntry hotkey)
         {
             if ((uint)hotkey.Modifier > ushort.MaxValue
                 || (uint)hotkey.Key > ushort.MaxValue)
@@ -230,7 +232,7 @@ namespace Client
             ushort key = (ushort)hotkey.Key;
             ushort mod = (ushort)hotkey.Modifier;
             uint result = key + (uint)(mod << 16);
-            return result;
+            return (int)result;
         }
 
         public static HotkeyConfigEntry ToConfigurableHotkey(this uint value)
@@ -427,10 +429,10 @@ namespace Client
                     _localConfig.SaveConfig();
                     return;
                 case MixedConfigSource.Account:
-                    _remoteConfig.SaveAccountConfigValue(key, (int)entry.ToUInt());
+                    _remoteConfig.SaveAccountConfigValue(key, entry.ToInt());
                     return;
                 case MixedConfigSource.Character:
-                    _remoteConfig.SaveCharConfigValue(key, (int)entry.ToUInt());
+                    _remoteConfig.SaveCharConfigValue(key, entry.ToInt());
                     return;
                 default:
                     OwlLogger.LogError($"Can't save hotkey config {key} = {entry} for unknown target {target}!", GameComponent.Config);
