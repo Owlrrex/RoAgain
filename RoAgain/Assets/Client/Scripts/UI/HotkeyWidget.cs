@@ -4,11 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Client
 {
-    public class HotkeyWidget : MonoBehaviour
+    public class HotkeyWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private static HotkeyWidget _currentlyEditingWidget;
 
@@ -23,6 +24,9 @@ namespace Client
         [SerializeField]
         private TMP_Text _hotkeyText;
 
+        [SerializeField]
+        private Button _clearButton;
+
         private Event _event = new();
         private KeyCode _firstKey = KeyCode.None;
 
@@ -32,6 +36,9 @@ namespace Client
                 _editButton.onClick.AddListener(OnEditClicked);
 
             OwlLogger.PrefabNullCheckAndLog(_hotkeyText, nameof(_hotkeyText), this, GameComponent.UI);
+
+            if (!OwlLogger.PrefabNullCheckAndLog(_clearButton, nameof(_clearButton), this, GameComponent.UI))
+                _clearButton.onClick.AddListener(OnClearClicked);
         }
 
         public void SetValue(HotkeyConfigEntry value)
@@ -116,7 +123,7 @@ namespace Client
                 if (_firstKey == KeyCode.None)
                 {
                     _firstKey = _event.keyCode;
-                    SetEditingUIMessage($"Please press the key/s you want to assign...\n{_firstKey} + ...");
+                    SetEditingUIMessage($"Please press the key/s you want to assign to {Value.Key}.\n{_firstKey} + ...");
                 }
                 else
                 {
@@ -129,7 +136,7 @@ namespace Client
                 if (_firstKey != KeyCode.None && _firstKey == _event.keyCode)
                 {
                     _firstKey = KeyCode.None;
-                    SetEditingUIMessage("Please press the key/s you want to assign...");
+                    SetEditingUIMessage($"Please press the key/s you want to assign to {Value.Key}.");
                     DisableEditing(KeyCode.None, _event.keyCode);
                 }
             }
@@ -156,6 +163,31 @@ namespace Client
         public bool IsEditing()
         {
             return _currentlyEditingWidget == this;
+        }
+
+        private void OnClearClicked()
+        {
+            if (IsEditing())
+            {
+                DisableEditing(KeyCode.None, KeyCode.None);
+            }
+            else
+            {
+                Value.Modifier = KeyCode.None;
+                Value.Key = KeyCode.None;
+                UpdateHotkeyText();
+                ValueChanged?.Invoke(this);
+            }
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            _clearButton.gameObject.SetActive(true);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _clearButton.gameObject.SetActive(false);
         }
     }
 }
