@@ -772,7 +772,14 @@ namespace Server
                 return;
             }
 
-            _characterDatabase.SetConfigValue(connection.CharacterId, key, value);
+            if (value == ConfigStorageRequestPacket.VALUE_CLEAR)
+            {
+                _characterDatabase.ClearConfigValue(connection.CharacterId, key);
+            }
+            else
+            {
+                _characterDatabase.SetConfigValue(connection.CharacterId, key, value);
+            }
         }
 
         private void ReceiveAccountConfigStorageRequest(ClientConnection connection, int key, int value)
@@ -783,7 +790,14 @@ namespace Server
                 return;
             }
 
-            _accountDatabase.SetConfigValue(connection.AccountId, key, value);
+            if (value == ConfigStorageRequestPacket.VALUE_CLEAR)
+            {
+                _accountDatabase.ClearConfigValue(connection.AccountId, key);
+            }
+            else
+            {
+                _accountDatabase.SetConfigValue(connection.AccountId, key, value);
+            }
         }
 
         private void ReceiveConfigReadRequest(ClientConnection connection, int key, bool preferAccountStorage)

@@ -1,14 +1,10 @@
 using OwlLogging;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Client
 {
-    public class ConfigLineData
+    public class HotkeyLineData
     {
         public ConfigKey Key;
         public HotkeyConfigEntry LocalValue;
@@ -16,7 +12,7 @@ namespace Client
         public HotkeyConfigEntry AccValue;
     }  
 
-    public class HotkeyLineWidget : MonoBehaviour
+    public class HotkeyLineWidget : AConfigLineWidget
     {
         [SerializeField]
         private TMP_Text _keyText;
@@ -28,7 +24,7 @@ namespace Client
         [SerializeField]
         private HotkeyWidget _charHotkeyWidget;
 
-        private ConfigLineData _data;
+        private HotkeyLineData _data;
 
         private void Awake()
         {
@@ -42,7 +38,7 @@ namespace Client
             _charHotkeyWidget.ValueChanged += OnCharValueChanged;
         }
 
-        public void Init(ConfigKey configKey)
+        public override void Init(ConfigKey configKey)
         {
             if(!configKey.IsHotkey())
             {
@@ -50,7 +46,7 @@ namespace Client
                 return;
             }
 
-            ConfigLineData data = new ConfigLineData();
+            HotkeyLineData data = new HotkeyLineData();
             data.Key = configKey;
             data.LocalValue = MixedConfiguration.Instance.GetHotkey(configKey, MixedConfigSource.Local) ?? new();
             data.AccValue = MixedConfiguration.Instance.GetHotkey(configKey, MixedConfigSource.Account) ?? new();
@@ -59,7 +55,7 @@ namespace Client
             Init(data);
         }
 
-        public void Init(ConfigLineData data)
+        public void Init(HotkeyLineData data)
         {
             _data = data;
             UpdateKeyString();
@@ -94,7 +90,7 @@ namespace Client
 
             UpdateLocalHotkeyWidget();
 
-            MixedConfiguration.Instance.SetHotkey(_data.Key, _data.LocalValue, MixedConfigSource.Local);
+            ValueChanged?.Invoke(_data.Key);
         }
 
         private void OnAccValueChanged(HotkeyWidget _)
@@ -103,7 +99,7 @@ namespace Client
 
             UpdateAccHotkeyWidget();
 
-            MixedConfiguration.Instance.SetHotkey(_data.Key, _data.AccValue, MixedConfigSource.Account);
+            ValueChanged?.Invoke(_data.Key);
         }
 
         private void OnCharValueChanged(HotkeyWidget _)
@@ -112,7 +108,25 @@ namespace Client
 
             UpdateCharHotkeyWidget();
 
-            MixedConfiguration.Instance.SetHotkey(_data.Key, _data.CharValue, MixedConfigSource.Character);
+            ValueChanged?.Invoke(_data.Key);
+        }
+
+        public override void Save()
+        {
+            if (_data.LocalValue.IsValid())
+                MixedConfiguration.Instance.SetHotkey(_data.Key, _data.LocalValue, MixedConfigSource.Local);
+            else
+                MixedConfiguration.Instance.ClearConfigValue(_data.Key, MixedConfigSource.Local);
+
+            if (_data.AccValue.IsValid())
+                MixedConfiguration.Instance.SetHotkey(_data.Key, _data.AccValue, MixedConfigSource.Account);
+            else
+                MixedConfiguration.Instance.ClearConfigValue(_data.Key, MixedConfigSource.Account);
+
+            if (_data.CharValue.IsValid())
+                MixedConfiguration.Instance.SetHotkey(_data.Key, _data.CharValue, MixedConfigSource.Character);
+            else
+                MixedConfiguration.Instance.ClearConfigValue(_data.Key, MixedConfigSource.Character);
         }
     }
 }

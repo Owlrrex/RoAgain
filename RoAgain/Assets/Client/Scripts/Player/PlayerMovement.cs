@@ -38,23 +38,26 @@ namespace Client
         {
             NavMeshClick.Instance.Camera = _ownCamera;
 
-            if (Input.GetMouseButtonDown(0) && !PlayerUI.Instance.IsHoveringUI(Input.mousePosition))
+            if (Input.GetMouseButtonDown(0))
             {
-                if (NavMeshClick.Instance == null)
+                if(!PlayerUI.Instance.IsHoveringUI(Input.mousePosition))
                 {
-                    OwlLogger.LogError("PlayerMovement has no NavMeshInput - cannot click-move!", GameComponent.Input);
-                }
-                else
-                {
-                    Vector2Int mouseCoords = NavMeshClick.Instance.GetMouseGridCoords();
-                    if (mouseCoords == GridData.INVALID_COORDS)
-                        return;
-
-                    MovementRequestPacket movementRequestPacket = new()
+                    if (NavMeshClick.Instance == null)
                     {
-                        TargetCoordinates = mouseCoords
-                    };
-                    ClientMain.Instance.ConnectionToServer.Send(movementRequestPacket);
+                        OwlLogger.LogError("PlayerMovement has no NavMeshInput - cannot click-move!", GameComponent.Input);
+                    }
+                    else
+                    {
+                        Vector2Int mouseCoords = NavMeshClick.Instance.GetMouseGridCoords();
+                        if (mouseCoords == GridData.INVALID_COORDS)
+                            return;
+
+                        MovementRequestPacket movementRequestPacket = new()
+                        {
+                            TargetCoordinates = mouseCoords
+                        };
+                        ClientMain.Instance.ConnectionToServer.Send(movementRequestPacket);
+                    }
                 }
             }
             else if (Input.GetMouseButton(0))

@@ -53,7 +53,8 @@ namespace Client
 
         private void OnOptionsButtonClicked()
         {
-
+            // Once the Client can receive options menu configuration from outside, we'll call into the module that holds that data here
+            PlayerUI.Instance.ShowOptionsWindow(OptionsMenuData.GetDefault());
         }
 
         private void OnGameGuideButtonClicked()

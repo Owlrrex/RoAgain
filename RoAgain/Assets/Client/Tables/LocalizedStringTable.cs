@@ -116,7 +116,7 @@ namespace Client
             if (_instance == null)
                 return;
 
-            _instance.LoadStringsForCurrentLanguage();
+            _instance.LoadStringsForCurrentLanguage(true);
         }
 
         public static string GetStringById(LocalizedStringId id)

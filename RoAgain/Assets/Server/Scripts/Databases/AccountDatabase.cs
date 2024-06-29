@@ -118,6 +118,8 @@ namespace Server
         public abstract bool GetConfigValue(string accountId, int configKey, out int value);
 
         public abstract void SetConfigValue(string accountId, int configKey, int value);
+
+        public abstract void ClearConfigValue(string accountId, int configKey);
     }
 
     public class AccountDatabase : AAccountDatabase
@@ -307,6 +309,14 @@ namespace Server
             }
 
             storage.SetConfigValue(configKey, value);
+        }
+
+        public override void ClearConfigValue(string accountId, int configKey)
+        {
+            if (!_storedAccConfigs.TryGetValue(accountId, out RemoteConfigStorage storage))
+                return;
+
+            storage.ClearConfigValue(configKey);
         }
     }
 }

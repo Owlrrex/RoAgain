@@ -937,6 +937,8 @@ public class CharacterLogoutResponsePacket : Packet
 
 public class ConfigStorageRequestPacket : Packet
 {
+    public const int VALUE_CLEAR = int.MinValue;
+
     public override int PacketType => 60;
 
     public int Key;

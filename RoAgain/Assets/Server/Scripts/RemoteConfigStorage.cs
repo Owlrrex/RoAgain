@@ -41,5 +41,10 @@ namespace Server
         {
             Values[key] = value;
         }
+
+        public void ClearConfigValue(int key)
+        {
+            Values.Remove(key);
+        }
     }
 }

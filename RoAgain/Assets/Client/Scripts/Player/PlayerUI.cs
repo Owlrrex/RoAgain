@@ -28,9 +28,16 @@ public class PlayerUI : MonoBehaviour
     [field: SerializeField]
     public GameMenuWindow GameMenuWindow { get; private set; }
 
+    [field: SerializeField]
+    public OptionsWindow OptionsWindow { get; private set; }
+    [SerializeField]
+    private ConfigWidgetRegistry _configWidgetRegistry;
+
     public GraphicRaycaster uiRaycaster;
     private List<RaycastResult> _raycastResults = new();
     private PointerEventData _isHoveringUiEventData;
+    private bool? _isHoveringUi;
+    private int _uiLayer;
 
     // Skill Dragging
     public GameObject SkillIconPrefab;
@@ -39,15 +46,17 @@ public class PlayerUI : MonoBehaviour
     private SkillHotbar _hotbar;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         Instance = this;
 
+        _uiLayer = LayerMask.NameToLayer("UI");
+
         OwlLogger.PrefabNullCheckAndLog(_hotbar, "hotbar", this, GameComponent.UI);
-        if(!OwlLogger.PrefabNullCheckAndLog(ChatSystem, "ChatSystem", this, GameComponent.UI))
+        if (!OwlLogger.PrefabNullCheckAndLog(ChatSystem, "ChatSystem", this, GameComponent.UI))
             ChatSystem.Initialize();
 
-        if(!OwlLogger.PrefabNullCheckAndLog(CharacterWindow, "CharacterWindow", this, GameComponent.UI))
+        if (!OwlLogger.PrefabNullCheckAndLog(CharacterWindow, "CharacterWindow", this, GameComponent.UI))
             CharacterWindow.Initialize(ClientMain.Instance.CurrentCharacterData);
 
         if (!OwlLogger.PrefabNullCheckAndLog(StatWindow, "StatWindow", this, GameComponent.UI))
@@ -56,21 +65,44 @@ public class PlayerUI : MonoBehaviour
         if (!OwlLogger.PrefabNullCheckAndLog(SkillTreeWindow, "SkillTreeWindow", this, GameComponent.UI))
             SkillTreeWindow.gameObject.SetActive(false);
 
-        if(!OwlLogger.PrefabNullCheckAndLog(DeathWindow, "DeathWindow", this, GameComponent.UI))
+        if (!OwlLogger.PrefabNullCheckAndLog(DeathWindow, "DeathWindow", this, GameComponent.UI))
             DeathWindow.gameObject.SetActive(false);
 
-        if(!OwlLogger.PrefabNullCheckAndLog(GameMenuWindow, "GameMenuWindow", this, GameComponent.UI))
+        if (!OwlLogger.PrefabNullCheckAndLog(GameMenuWindow, "GameMenuWindow", this, GameComponent.UI))
             GameMenuWindow.gameObject.SetActive(false);
+
+        if (!OwlLogger.PrefabNullCheckAndLog(OptionsWindow, "OptionsWindow", this, GameComponent.UI))
+            OptionsWindow.gameObject.SetActive(false);
+
+        if (!OwlLogger.PrefabNullCheckAndLog(_configWidgetRegistry, nameof(_configWidgetRegistry), this, GameComponent.UI))
+            _configWidgetRegistry.Init();
     }
 
     public bool IsHoveringUI(Vector2 position)
     {
+        if (_isHoveringUi != null)
+            return _isHoveringUi == true;
+
         _isHoveringUiEventData ??= new(EventSystem.current);
         _isHoveringUiEventData.position = position;
         _raycastResults.Clear();
-        uiRaycaster.Raycast(_isHoveringUiEventData, _raycastResults);
-        return _raycastResults.Count > 0;
-    }    
+        EventSystem.current.RaycastAll(_isHoveringUiEventData, _raycastResults);
+        _isHoveringUi = false;
+        foreach(RaycastResult result in _raycastResults)
+        {
+            if(result.gameObject.layer == LayerMask.NameToLayer("UI"))
+            {
+                _isHoveringUi = true;
+                break;
+            }
+        }
+        return _isHoveringUi == true;
+    }
+
+    private void LateUpdate()
+    {
+        _isHoveringUi = null;
+    }
 
     private void Update()
     {
@@ -200,5 +232,11 @@ public class PlayerUI : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public void ShowOptionsWindow(OptionsMenuData data)
+    {
+        OptionsWindow.Init(data);
+        OptionsWindow.gameObject.SetActive(true);
     }
 }

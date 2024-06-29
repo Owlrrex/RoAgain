@@ -216,6 +216,14 @@ namespace Client
 
             _miscConfig[key] = value;
         }
+
+        public void ClearConfig(ConfigKey key)
+        {
+            if (key.IsHotkey())
+                _hotkeyConfig.Remove(key);
+            else
+                _miscConfig.Remove(key);
+        }
     }
 
     public static class ConfigExtensions
@@ -436,6 +444,26 @@ namespace Client
                     return;
                 default:
                     OwlLogger.LogError($"Can't save hotkey config {key} = {entry} for unknown target {target}!", GameComponent.Config);
+                    return;
+            }
+        }
+
+        public void ClearConfigValue(ConfigKey key, MixedConfigSource target)
+        {
+            switch(target)
+            {
+                case MixedConfigSource.Local:
+                    _localConfig.ClearConfig(key);
+                    _localConfig.SaveConfig();
+                    return;
+                case MixedConfigSource.Account:
+                    _remoteConfig.ClearAccountConfigValue(key);
+                    return;
+                case MixedConfigSource.Character:
+                    _remoteConfig.ClearCharConfigValue(key);
+                    return;
+                default:
+                    OwlLogger.LogError($"Can't save config value {key} for unknown target {target}!", GameComponent.Config);
                     return;
             }
         }

@@ -234,6 +234,8 @@ namespace Server
         public abstract bool GetConfigValue(int characterId, int configKey, out int value);
 
         public abstract void SetConfigValue(int characterId, int configKey, int value);
+
+        public abstract void ClearConfigValue(int characterId, int configKey);
     }
 
     // The file-based format has to re-save the whole character every time. This may cause scaling issues.
@@ -491,6 +493,14 @@ namespace Server
             }
 
             storage.SetConfigValue(configKey, value);
+        }
+
+        public override void ClearConfigValue(int characterId, int configKey)
+        {
+            if (!_storedCharConfigs.TryGetValue(characterId, out RemoteConfigStorage storage))
+                return;
+
+            storage.ClearConfigValue(configKey);
         }
     }
 }

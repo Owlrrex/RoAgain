@@ -1323,6 +1323,62 @@
 				"TextEnglish": "LUK",
 				"TextGerman": "LUK"
 			}
+		},
+		{
+			"key": 189,
+			"value": {
+				"TextEnglish": "Options",
+				"TextGerman": "Optionen"
+			}
+		},
+		{
+			"key": 190,
+			"value": {
+				"TextEnglish": "Apply",
+				"TextGerman": "Anwenden"
+			}
+		},
+		{
+			"key": 191,
+			"value": {
+				"TextEnglish": "Revert",
+				"TextGerman": "Zurücknehmen"
+			}
+		},
+		{
+			"key": 192,
+			"value": {
+				"TextEnglish": "Hotkeys",
+				"TextGerman": "Tastenkürzel"
+			}
+		},
+		{
+			"key": 193,
+			"value": {
+				"TextEnglish": "Misc",
+				"TextGerman": "Anderes"
+			}
+		},
+		{
+			"key": 194,
+			"value": {
+				"TextEnglish": "Local",
+				"TextGerman": "Lokal"
+			}
+		},
+		{
+			"key": 195,
+			"value": {
+				"TextEnglish": "Character",
+				"TextGerman": "Charakter"
+			}
+		},
+		{
+			"key": 196,
+			"value": {
+				"TextEnglish": "Account",
+				"TextGerman": "Account"
+			}
 		}
     ]
 }

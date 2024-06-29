@@ -8,23 +8,24 @@ namespace Client
     public class SkillTreeCategoryButton : MonoBehaviour
     {
         public SkillCategory Category = SkillCategory.FirstClass;
-        public Action<SkillCategory> OnClick;
+        public Action<SkillTreeCategoryButton> OnClick;
+        public Button Button { get; private set; }
 
-        private void Start()
+        private void Awake()
         {
-            Button button = GetComponentInChildren<Button>();
-            if (button == null)
+            Button = GetComponentInChildren<Button>();
+            if (Button == null)
             {
                 OwlLogger.LogError("Can't find button on GameObject!", GameComponent.UI);
                 return;
             }
 
-            button.onClick.AddListener(OnButtonClicked);
+            Button.onClick.AddListener(OnButtonClicked);
         }
 
         private void OnButtonClicked()
         {
-            OnClick?.Invoke(Category);
+            OnClick?.Invoke(this);
         }
     }
 }

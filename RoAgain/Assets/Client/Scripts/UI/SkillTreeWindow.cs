@@ -77,7 +77,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
     private GridLayoutGroup _skillIconContainerLayout = null;
 
-    private SkillCategory _currentCategory = SkillCategory.FirstClass;
+    private SkillTreeCategoryButton _currentCategoryButton = null;
 
     private Dictionary<SkillId, int> _plannedSkillPoints = new();
     private int _projectedRemaining = 99;
@@ -107,10 +107,10 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
             }
         }
 
+        SetupCategoryButtons();
+
         // Fill child list with entryWidgets & set to empty
         PopulateUiFromEntries();
-
-        SetupCategoryButtons();
 
         UpdateRemainingSkillPoints();
 
@@ -125,7 +125,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
         }
         _skillWidgets.Clear();
 
-        if(_currentCategory != SkillCategory.Temporary)
+        if(_currentCategoryButton.Category != SkillCategory.Temporary)
         {
             foreach (SkillTreeEntry entry in _permEntries.Values)
             {
@@ -135,7 +135,7 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
                     continue;
                 }
 
-                if (entry.Category != _currentCategory)
+                if (entry.Category != _currentCategoryButton.Category)
                     continue;
 
                 AddEntryToUi(entry);
@@ -194,22 +194,31 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
             OwlLogger.Log($"SkillTreeWindow discovered CategoryButton for category {categoryButton.Category}: {categoryButton.gameObject.name}", GameComponent.UI, LogSeverity.VeryVerbose);
 
+            if (_currentCategoryButton == null)
+            {
+                _currentCategoryButton = categoryButton;
+                _currentCategoryButton.Button.interactable = false;
+            }
+
             categoryButton.OnClick += OnCategoryButtonClicked;
         }
     }
 
-    private void OnCategoryButtonClicked(SkillCategory category)
+    private void OnCategoryButtonClicked(SkillTreeCategoryButton button)
     {
-        if (category == _currentCategory)
+        if (button == _currentCategoryButton)
             return;
 
-        _currentCategory = category;
+        _currentCategoryButton.Button.interactable = true;
+        _currentCategoryButton = button;
 
-        PopulateUiFromEntries();
+        button.Button.interactable = false;
 
         // have to clean up some internal values that we can't carry over through disabling & reenabling a category
         _plannedSkillPoints.Clear();
         UpdateRemainingSkillPoints();
+
+        PopulateUiFromEntries();
     }
 
     private void FillChildrenForIndex(int index)
@@ -385,7 +394,10 @@ public class SkillTreeWindow : MonoBehaviour, IPointerMoveHandler
 
         if (!OwlLogger.PrefabNullCheckAndLog(_closeButton, "closeButton", this, GameComponent.UI))
             _closeButton.onClick.AddListener(OnCloseButtonClicked);
+    }
 
+    private void Start()
+    {
         if (ClientMain.Instance.CurrentCharacterData == null)
         {
             OwlLogger.LogError("SkillTreeWindow opened before CurrentCharacterData was available!", GameComponent.UI);

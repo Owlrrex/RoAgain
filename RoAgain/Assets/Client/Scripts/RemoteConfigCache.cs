@@ -126,6 +126,30 @@ namespace Client
             ClientMain.Instance.ConnectionToServer.Send(new ConfigStorageRequestPacket() { Key = (int)key, Value = value, UseAccountStorage = true });
         }
 
+        public void ClearCharConfigValue(ConfigKey key)
+        {
+            if (key == ConfigKey.Unknown)
+            {
+                OwlLogger.LogError("Can't use Unknown Configkey in RemoteConfigCache!", GameComponent.Config);
+                return;
+            }
+
+            _characterConfig.Remove(key);
+            ClientMain.Instance.ConnectionToServer.Send(new ConfigStorageRequestPacket() { Key = (int)key, Value = ConfigStorageRequestPacket.VALUE_CLEAR, UseAccountStorage = false });
+        }
+
+        public void ClearAccountConfigValue(ConfigKey key)
+        {
+            if (key == ConfigKey.Unknown)
+            {
+                OwlLogger.LogError("Can't use Unknown Configkey in RemoteConfigCache!", GameComponent.Config);
+                return;
+            }
+
+            _accountConfig.Remove(key);
+            ClientMain.Instance.ConnectionToServer.Send(new ConfigStorageRequestPacket() { Key = (int)key, Value = ConfigStorageRequestPacket.VALUE_CLEAR, UseAccountStorage = true });
+        }
+
         public bool TryGetConfigValueFallthrough(ConfigKey key, out int value)
         {
             if (!TryGetCharConfigValue(key, out value))

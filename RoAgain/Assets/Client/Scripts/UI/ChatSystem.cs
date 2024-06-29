@@ -148,7 +148,7 @@ namespace Client
 
             ChatMessageRequestPacket packet = new()
             {
-                SenderId = ClientMain.Instance.CurrentCharacterData.Id,
+                SenderId = ClientMain.Instance.CurrentCharacterData.CharacterId,
                 Message = data.Message,
                 TargetName = targetName
             };
