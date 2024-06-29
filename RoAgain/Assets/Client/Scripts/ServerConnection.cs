@@ -183,7 +183,15 @@ namespace Client
                 return -1;
             }
 
-            _client.Send(serializedB);
+            try
+            {
+                _client.Send(serializedB);
+            }
+            catch(InvalidOperationException e)
+            {
+                OwlLogger.LogError($"Exception while sending: {e.Message}", GameComponent.Network);
+                return -2;
+            }
 
             return 0;
         }

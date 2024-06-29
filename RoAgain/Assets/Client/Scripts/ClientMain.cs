@@ -322,7 +322,8 @@ namespace Client
             // This client could've belonged to a "ClientMenu" scene (launch as client) or a "MainMenu" scene (launch as both)
             // We could write detection for that in Start or sth, and return to the correct one,
             // but for now, we can just go back to the start scene
-            if (SceneManager.GetActiveScene().buildIndex != 0)
+            // And we do so only if we've left the pre-game flow, assuming that the pre-game can handle disconnects itself
+            if (SceneManager.GetActiveScene().name == "Gameplay")
             {
                 // TODO: This cleanup doesn't clean up statics, or other classes.
                 // cleanup this current ClientMain object because it's dontDestroyOnLoad

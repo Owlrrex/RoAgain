@@ -115,6 +115,7 @@ namespace Client
                         // TODO: Look up string for error codes & display failure reason
                         ClientMain.Instance.DisplayOneButtonNotification(_loginFailedLocId, () =>
                         {
+                            _accountLogin.Logout(); // to reset internal state
                             ClientMain.Instance.DisplayOneButtonNotification(null, null);
                             ShowAccountLoginWindow();
                         });
@@ -127,7 +128,7 @@ namespace Client
 
             if (!_hasShownCharSelection && _characterSelectionData.Data != null)
             {
-                ShowCharacterSelectionWindow(_characterSelectionData.Data);
+                ShowCharacterSelection();
                 _hasShownCharSelection = true;
             }
 
@@ -216,6 +217,7 @@ namespace Client
 
         public void ShowCharacterSelection()
         {
+            ClientMain.Instance.DisplayZeroButtonNotification(null);
             ShowCharacterSelectionWindow(_characterSelectionData.Data);
         }
 
@@ -343,6 +345,13 @@ namespace Client
 
         public void OnDisconnect()
         {
+            if(_currentConnection != null)
+            {
+                _currentConnection.AccountCreationResponseReceived -= OnAccountCreationResponseReceived;
+                _currentConnection.CharacterCreationResponseReceived -= OnCharacterCreationResponseReceived;
+                _currentConnection = null;
+            }
+            
             _characterLogin.Clear();
             _characterSelectionData.Clear();
             _hasShownCharSelection = false;
