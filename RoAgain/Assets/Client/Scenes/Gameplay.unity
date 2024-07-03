@@ -799,6 +799,21 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 864910650722452681, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 864910650722452681, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 864910650722452681, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 872486565223929535, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1984,6 +1999,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4049873006710795335, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.000030517578
+      objectReference: {fileID: 0}
     - target: {fileID: 4052356541577683315, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -2044,6 +2064,56 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4201792611898588174, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: _referenceCamera
+      value: 
+      objectReference: {fileID: 388639111}
+    - target: {fileID: 4236599357990522386, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 4236599357990522386, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_SortingLayerID
+      value: -374137929
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293796143404858926, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293796143404858926, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293796143404858926, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293796143404858926, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293796143404858926, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293796143404858926, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4312919131754362528, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: _referenceCamera
+      value: 
+      objectReference: {fileID: 388639111}
     - target: {fileID: 4359480716918191933, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -2297,6 +2367,16 @@ PrefabInstance:
     - target: {fileID: 5037542814747952710, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5085721421217673938, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5085721421217673938, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5194953378583793086, guid: fd93911793d93ff4db4873020a286564,

@@ -243,6 +243,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: OptionsMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 2507289257072784683, guid: 257fbaa238c23424e920cb4d22bdd612,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5637245860366890137, guid: 257fbaa238c23424e920cb4d22bdd612,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -648,6 +653,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GameMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 7794884174125288774, guid: b3ea4ec284d6e38409fa30f2929af4ae,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8266372702832422428, guid: b3ea4ec284d6e38409fa30f2929af4ae,
         type: 3}
@@ -2011,6 +2021,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: StatsWindow
       objectReference: {fileID: 0}
+    - target: {fileID: 4092214504296955356, guid: b0e8a9df9ab9c874ea387c2c27e67ab1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4169072719475010270, guid: b0e8a9df9ab9c874ea387c2c27e67ab1,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -3124,6 +3139,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ChatWindow
       objectReference: {fileID: 0}
+    - target: {fileID: 2601961266122821383, guid: d9e5dba3ddbc4fb4b8cfe12090a7a47e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4984709447681977622, guid: d9e5dba3ddbc4fb4b8cfe12090a7a47e,
         type: 3}
       propertyPath: m_Value
@@ -3425,6 +3445,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: SkillTreeWindow
       objectReference: {fileID: 0}
+    - target: {fileID: 7322155885325594184, guid: 63cb8f4a511c1bb499afa558ffc513ab,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7937350558896984374, guid: 63cb8f4a511c1bb499afa558ffc513ab,
         type: 3}
       propertyPath: m_Pivot.x
@@ -3595,6 +3620,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SkillHotbar
+      objectReference: {fileID: 0}
+    - target: {fileID: 345842253021539802, guid: 9db1fa73390c4154ab29c3ddfd6d7326,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 620818144523781465, guid: 9db1fa73390c4154ab29c3ddfd6d7326,
         type: 3}

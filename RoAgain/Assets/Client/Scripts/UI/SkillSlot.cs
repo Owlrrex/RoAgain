@@ -25,8 +25,20 @@ namespace Client
         [SerializeField]
         private TMP_Text _skillParamText;
 
+        [SerializeField]
+        private MouseTooltipTriggerString _tooltipTrigger;
+
         private SkillIcon _skillIcon = null;
         private ConfigKey _hotkey;
+
+        private void Awake()
+        {
+            OwlLogger.PrefabNullCheckAndLog(_iconSlot, nameof(_iconSlot), this, GameComponent.UI);
+            OwlLogger.PrefabNullCheckAndLog(_hotkeyText, nameof(_hotkeyText), this, GameComponent.UI);
+            OwlLogger.PrefabNullCheckAndLog(_skillParamText, nameof(_skillParamText), this, GameComponent.UI);
+            OwlLogger.PrefabNullCheckAndLog(_tooltipTrigger, nameof(_tooltipTrigger), this, GameComponent.UI);
+            UpdateTooltip();
+        }
 
         public void SetSkillId(SkillId skillId)
         {
@@ -44,6 +56,8 @@ namespace Client
             }
             _skillIcon.SetSkillData(skillId, _skillIcon.SkillParam);
 
+            UpdateTooltip();
+
             SkillDataChanged?.Invoke(this);
         }
 
@@ -56,6 +70,8 @@ namespace Client
                 Destroy(_skillIcon.gameObject);
                 _skillIcon = null;
             }
+
+            UpdateTooltip();
 
             SkillDataChanged?.Invoke(this);
         }
@@ -89,6 +105,8 @@ namespace Client
                 _skillIcon.SetSkillData(_skillIcon.SkillId, newParam);
             }
 
+            UpdateTooltip();
+
             SkillDataChanged?.Invoke(this);
         }
 
@@ -101,6 +119,8 @@ namespace Client
                 HotkeyConfigEntry entry = MixedConfiguration.Instance.GetHotkey(hotkey);
                 _hotkeyText.text = entry?.ToString();
             }
+
+            UpdateTooltip();
         }
 
         public void OnDrop(PointerEventData eventData)
@@ -132,6 +152,23 @@ namespace Client
             _skillIcon.CurrentSlot = null;
             _skillIcon = null; // Set this to null first so that Clearskill() doesn't destroy the icon that's being dragged
             SetSkillId(SkillId.Unknown);
+        }
+
+        private void UpdateTooltip()
+        {
+            if (SkillId == SkillId.Unknown)
+            {
+                _tooltipTrigger.Message = "Empty Skill Slot";
+            }
+            else
+            {
+                HotkeyConfigEntry entry = MixedConfiguration.Instance.GetHotkey(_hotkey);
+                string hotkey = entry?.ToString();
+
+                string skillName = SkillId.ToString();
+                string skillParam = _skillParamText != null ? _skillParamText.text : null;
+                _tooltipTrigger.Message = $"{hotkey}: {skillName} ({skillParam})";
+            }
         }
     }
 }
