@@ -33,6 +33,7 @@ namespace Client
             }
 
             Instance = this;
+            gameObject.SetActive(false);
         }
 
         // Update is called once per frame

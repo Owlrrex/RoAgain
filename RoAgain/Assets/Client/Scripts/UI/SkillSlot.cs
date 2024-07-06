@@ -29,7 +29,7 @@ namespace Client
         private MouseTooltipTriggerString _tooltipTrigger;
 
         private SkillIcon _skillIcon = null;
-        private ConfigKey _hotkey;
+        private ConfigKey _hotkey = ConfigKey.Unknown;
 
         private void Awake()
         {
@@ -162,8 +162,12 @@ namespace Client
             }
             else
             {
-                HotkeyConfigEntry entry = MixedConfiguration.Instance.GetHotkey(_hotkey);
-                string hotkey = entry?.ToString();
+                string hotkey = null;
+                if(_hotkey != ConfigKey.Unknown)
+                {
+                    HotkeyConfigEntry entry = MixedConfiguration.Instance.GetHotkey(_hotkey);
+                    hotkey = entry?.ToString();
+                }
 
                 string skillName = SkillId.ToString();
                 string skillParam = _skillParamText != null ? _skillParamText.text : null;
