@@ -2,7 +2,9 @@ using OwlLogging;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Client
 {
@@ -12,10 +14,10 @@ namespace Client
 
         public int CellSize = 1;
 
+        public string EditorMapId;
 #if UNITY_EDITOR
         public List<Vector3> GizmoDots { get; private set; } = new();
 
-        public string EditorMapId;
         public Vector2Int EditorBounds;
         public float GridVisualizationHeight = 0.0f;
 
@@ -28,6 +30,10 @@ namespace Client
         private Vector3 _lastWorldPos;
         private Quaternion _lastWorldRot;
         private Vector3 _lastWorldSize;
+
+        //tmp
+        private static Vector3 _queriedCellCenter;
+        private static Vector3 _cellQueryMarkerSize;
 
         private void BuildGridLineSegments()
         {
@@ -110,6 +116,92 @@ namespace Client
                 Handles.DrawLines(_gridLineSegments);
                 Handles.color = prev;
             }
+
+            if(_queriedCellCenter != Vector3.zero)
+            {
+                Color prev = Handles.color;
+                Handles.color = Color.red;
+                Handles.DrawWireCube(_queriedCellCenter, _cellQueryMarkerSize);
+                Handles.color = prev;
+            }
+        }
+
+        [MenuItem("Map/Check Coordinates _g")]
+        private static void ScheduleCheckGridCoordinates()
+        {
+            SceneView.duringSceneGui += OnSceneGUI;
+        }
+
+        private static void CheckGridCoordinates()
+        {
+            GridComponent gridComponent = null;
+            PrefabStage pStage = PrefabStageUtility.GetCurrentPrefabStage();
+            Scene scene = SceneManager.GetActiveScene();
+            if (pStage != null)
+            {
+                scene = pStage.scene;
+            }
+
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                GridComponent candidate = root.GetComponentInChildren<GridComponent>();
+                if (candidate != null)
+                {
+                    if (gridComponent != null)
+                    {
+                        OwlLogger.LogError("Multiple GridComponents found in Scene - Coodinate tracking may not work!", GameComponent.Editor);
+                        break;
+                    }
+                    gridComponent = candidate;
+                }
+            }
+
+            if(gridComponent == null)
+            {
+                OwlLogger.LogError("Can't check Coordinates without a GridComponent in the scene!", GameComponent.Editor);
+                return;
+            }
+
+            if(string.IsNullOrEmpty(gridComponent.EditorMapId))
+            {
+                OwlLogger.LogWarning("The EditorMapId in GridComponent has to be set to perform Coordinate-check!", GameComponent.Editor);
+                return;
+            }
+
+            if (gridComponent.Data == null)
+            {
+                gridComponent.Initialize(gridComponent.EditorMapId);
+            }
+
+            Vector2 mousePos = Event.current.mousePosition;
+            Ray ray = HandleUtility.GUIPointToWorldRay(mousePos);
+            //Debug.Log($"{mousePos}");
+            RaycastHit hit;
+            PhysicsScene pScene = scene.GetPhysicsScene();
+            if(!pScene.Raycast(ray.origin, ray.direction, out hit, float.PositiveInfinity, LayerMask.GetMask(new string[] { "ClickableTerrain" })))
+                return;
+
+            Vector2Int coordinates = gridComponent.FreePosToGridCoords(hit.point);
+            if (coordinates == GridData.INVALID_COORDS)
+            {
+                Debug.LogWarning("Hovered coordinates: Not in Map");
+                _queriedCellCenter = Vector3.zero;
+                return;
+            }
+
+            Vector3 center = gridComponent.CoordsToWorldPosition(coordinates);
+            Debug.LogWarning("Hovered coordinates: " + coordinates);
+            _queriedCellCenter = center;
+            _cellQueryMarkerSize.x = gridComponent.CellSize;
+            _cellQueryMarkerSize.y = 0;
+            _cellQueryMarkerSize.z = gridComponent.CellSize;
+            gridComponent.GridVisualizationHeight = center.y;
+        }
+
+        private static void OnSceneGUI(SceneView sceneView)
+        {
+            SceneView.duringSceneGui -= OnSceneGUI;
+            CheckGridCoordinates();
         }
 #endif
 
@@ -133,8 +225,6 @@ namespace Client
 
         public int Initialize(string mapId)
         {
-            Data ??= new();
-
             Data = GridData.LoadMapFromFiles(mapId);
             if(Data == null)
             {
@@ -142,6 +232,11 @@ namespace Client
                 return -1;
             }
             return 0;
+        }
+
+        public bool IsInitialized()
+        {
+            return Data != null;
         }
 
         public Vector2Int FreePosToGridCoords(Vector3 freePos)
