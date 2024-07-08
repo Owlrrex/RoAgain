@@ -88,20 +88,23 @@ namespace Server
 
             ulong connectionInitError = 10 * (ulong)_centralConnection.Initialize(this, "0.0.0.0:13337");
 
-            ulong mapModuleError = 100 * (ulong)_mapModule.Initialize(_expModule);
+            _npcModule = new();
+            ulong npcModuleError = 100* (ulong)_npcModule.Initialize();
 
-            ulong chatModuleError = 1000 * (ulong)_chatModule.Initialize(_mapModule, this);
+            ulong mapModuleError = 1000 * (ulong)_mapModule.Initialize(_expModule, _npcModule);
 
-            ulong expModuleError = 10000 * (ulong)_expModule.Initialize(_mapModule);
+            ulong chatModuleError = 10000 * (ulong)_chatModule.Initialize(_mapModule, this);
+
+            ulong expModuleError = 100000 * (ulong)_expModule.Initialize(_mapModule);
 
             _accountDatabase = new AccountDatabase();
-            ulong accountDbError = 100000 * (ulong)_accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
+            ulong accountDbError = 1000000 * (ulong)_accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
 
             _characterDatabase = new CharacterDatabase();
-            ulong charDbError = 1000000 * (ulong)_characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
+            ulong charDbError = 10000000 * (ulong)_characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
 
             _jobDatabase = new();
-            ulong jobDbError = 10000000 * (ulong)_jobDatabase.Register();
+            ulong jobDbError = 100000000 * (ulong)_jobDatabase.Register();
 
             _skillStaticDataDatabase = new();
             _skillStaticDataDatabase.Register();
@@ -110,10 +113,8 @@ namespace Server
             _timingScheduler.Init();
 
             _jobModule = new();
-            ulong jobModuleError = 100000000 * (ulong)_jobModule.Initialize();
+            ulong jobModuleError = 1000000000 * (ulong)_jobModule.Initialize();
 
-            _npcModule = new();
-            ulong npcModuleError = 100000000 * (ulong)_npcModule.Initialize();
             _npcModule.LoadNpcDefinitions();
 
             ulong aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError + jobModuleError;

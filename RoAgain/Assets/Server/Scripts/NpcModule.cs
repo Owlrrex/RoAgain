@@ -90,13 +90,52 @@ namespace Server
 
         public List<GridEntity> CreateNpcsForMap(string mapId)
         {
-            //  Find correct MapModule & create NPC (don't link to the Script yet, scripts may be lazy-loaded!)
+            if (string.IsNullOrWhiteSpace(mapId))
+            {
+                OwlLogger.LogError("Cant place npcs on empty mapId!", GameComponent.Scripts);
+                return null;
+            }
+
+            if (!_npcDefsByMapId.ContainsKey(mapId))
+            {
+                return new();
+            }
+
+            ServerMapInstance map = ServerMain.Instance.Server.MapModule.GetMapInstance(mapId);
+            if (map == null)
+            {
+                OwlLogger.LogError($"Can't place npcs on map {mapId} - map instance not found!", GameComponent.Scripts);
+                return null;
+            }
+
+            foreach(NpcDefinition npcDef in _npcDefsByMapId[mapId])
+            {
+                GridEntity npc = CreateNpc(npcDef);
+                map.Grid.PlaceOccupant(npc, npcDef.Coordinates);
+            }
+            
+            // don't link to the Script yet, scripts may be lazy-loaded!
             return null;
+        }
+
+        private GridEntity CreateNpc(NpcDefinition npcDef)
+        {
+            GridEntity entity = new()
+            {
+                Coordinates = npcDef.Coordinates,
+                Id = GridEntity.NextEntityId,
+                MapId = npcDef.MapId,
+                LocalizedNameId = npcDef.NameLocId,
+                ModelId = npcDef.ModelId
+            };
+            entity.Movespeed.Value = 1;
+            return entity;
         }
 
         public void Shutdown()
         {
             _npcDefsByMapId.Clear();
+            // TODO: Clean up created NPCs, just in case the Grid itself doesn't get discarded
         }
     }
 

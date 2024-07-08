@@ -12,8 +12,9 @@ namespace Server
         private Dictionary<string, ServerMapInstance> _mapInstances = new();
 
         private ExperienceModule _expModule;
+        private NpcModule _npcModule;
 
-        public int Initialize(ExperienceModule expModule)
+        public int Initialize(ExperienceModule expModule, NpcModule npcModule)
         {
             if(expModule == null)
             {
@@ -21,7 +22,14 @@ namespace Server
                 return -1;
             }
 
+            if (npcModule == null)
+            {
+                OwlLogger.LogError("Can't initialize ServerMapModule with null NpcModule!", GameComponent.Other);
+                return -1;
+            }
+
             _expModule = expModule;
+            _npcModule = npcModule;
 
             return 0;
         }
@@ -68,6 +76,7 @@ namespace Server
             ServerMapInstance newInstance = new();
             newInstance.Initialize(mapId, _expModule);
             _mapInstances.Add(mapId, newInstance);
+            _npcModule.CreateNpcsForMap(mapId);
             return newInstance;
         }
 
@@ -200,6 +209,8 @@ namespace Server
                 mapInstance.Shutdown();
             }
             _mapInstances = null;
+            _npcModule = null;
+            _expModule = null;
         }
     }
 }

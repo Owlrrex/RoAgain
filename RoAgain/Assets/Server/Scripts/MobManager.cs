@@ -263,10 +263,9 @@ namespace Server
                 return null; // logged inside GetMobDataForId()
 
             // tmp: Use SquareWalkers, to make the map more lively
-            int id = GridEntity.NextEntityId;
             SquareWalkerEntity mob = new()
             {
-                Id = id,
+                Id = GridEntity.NextEntityId,
                 HpRegenTime = 30,
                 SpRegenTime = 30,
             };
