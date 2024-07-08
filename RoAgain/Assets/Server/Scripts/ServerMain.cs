@@ -28,7 +28,6 @@ namespace Server
         [SerializeField]
         private SkillTreeDatabase _skillTreeDatabase;
 
-        // Start is called before the first frame update
         void Start()
         {
             if (Instance == this)

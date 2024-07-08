@@ -146,6 +146,9 @@ namespace Server
             OwlLogger.Log($"Creating character {name} for account {accountId}", GameComponent.Persistence);
 
             CharacterPersistenceData charPersData;
+
+            MapCoordinate spawn = Configuration.Instance.GetMainConfig(ConfigurationKey.NewCharacterSpawn).ToMapCoordinate();
+            MapCoordinate save = Configuration.Instance.GetMainConfig(ConfigurationKey.NewCharacterSave).ToMapCoordinate();
             // Create default persistence data
             charPersData = new()
             {
@@ -158,7 +161,7 @@ namespace Server
                 JobId = JobId.Novice,
                 JobLevel = 1,
                 JobExp = 0,
-                Coordinates = new(5,5), // TODO: Better system for a starting-pos
+                Coordinates = spawn.Coord.ToVector(),
                 Str = 1,
                 Agi = 1,
                 Vit = 1,
@@ -166,12 +169,12 @@ namespace Server
                 Dex = 1,
                 Luk = 1,
                 SkillPoints = 0,
-                StatPoints = 44, // TODO: Config-value for this
+                StatPoints = int.Parse(Configuration.Instance.GetMainConfig(ConfigurationKey.NewCharacterStatPoints)),
                 CurrentHP = 99999,
                 CurrentSP = 9999,
-                MapId = "test_map", // TODO: Better system for a starting-pos
-                SaveMapId = "test_map", // TODO: Better system for initial save point
-                SaveCoords = new(5, 5)
+                MapId = spawn.MapId,
+                SaveMapId = save.MapId,
+                SaveCoords = save.Coord.ToVector()
             };
 
             int charPersistResult = Persist(charPersData);

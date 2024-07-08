@@ -34,4 +34,55 @@ public struct LocalizedStringId
     {
         return Id.ToString();
     }
+
+    public static bool TryParse(string input, out LocalizedStringId outId)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            outId = INVALID;
+            return false;
+        }
+
+        if(!int.TryParse(input, out outId.Id))
+        {
+            outId = INVALID;
+            return false;
+        }
+
+        return true;
+    }
+
+    public static bool TryParse(ReadOnlySpan<char> input, out LocalizedStringId outId)
+    {
+        if (input.Length == 0)
+        {
+            outId = INVALID;
+            return false;
+        }
+
+        if (!int.TryParse(input, out outId.Id))
+        {
+            outId = INVALID;
+            return false;
+        }
+
+        return true;
+    }
+
+    public static bool TryParse(char[] input, out LocalizedStringId outId)
+    {
+        if (input.Length == 0)
+        {
+            outId = INVALID;
+            return false;
+        }
+
+        if (!int.TryParse(input, out outId.Id))
+        {
+            outId = INVALID;
+            return false;
+        }
+
+        return true;
+    }
 }

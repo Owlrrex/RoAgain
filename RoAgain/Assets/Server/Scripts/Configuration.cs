@@ -13,6 +13,10 @@ namespace Server
         ChatCommandSymbol,
         HitFleeEqualChance,
         BattleMultiplicativeStacking,
+        NpcDefinitionDirectory,
+        NewCharacterSpawn,
+        NewCharacterSave,
+        NewCharacterStatPoints
     }
 
     public class Configuration
@@ -31,44 +35,23 @@ namespace Server
                 return -1;
             }
 
-            bool changedAnyConfig = false;
-
             MainConfigPersistent mainPers = CachedFileAccess.GetOrLoad<MainConfigPersistent>(CONFIG_FILE_KEY, true);
-            if (mainPers == null) // indicates file didn't exist
-            {
-                LoadDefaultMiscConfig();
-                changedAnyConfig = true;
-            }
-            else
+            if (mainPers != null) // indicates file didn't exist
             {
                 _mainConfig = mainPers.ToDict();
             }
 
-            // Validate Misc Config
-            changedAnyConfig |= FillInDefaultMiscConfig();
+            // Validate Config
+            bool changedAnyConfig = FillInDefaultMiscConfig();
 
             if (changedAnyConfig)
             {
                 SaveConfig();
             }
-            else
-            {
-                CachedFileAccess.Purge(CONFIG_FILE_KEY);
-            }
+
+            CachedFileAccess.Purge(CONFIG_FILE_KEY);
 
             Instance = this;
-            return 0;
-        }
-
-        public int LoadDefaultMiscConfig()
-        {
-            _mainConfig.Clear();
-
-            _mainConfig.Add(ConfigurationKey.TestServerConfigEntry, "testServerValue1");
-            _mainConfig.Add(ConfigurationKey.ChatCommandSymbol, "#");
-            _mainConfig.Add(ConfigurationKey.HitFleeEqualChance, "80");
-            _mainConfig.Add(ConfigurationKey.BattleMultiplicativeStacking, "0");
-
             return 0;
         }
 
@@ -79,6 +62,10 @@ namespace Server
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.ChatCommandSymbol, "#");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.HitFleeEqualChance, "80");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.BattleMultiplicativeStacking, "0");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.NpcDefinitionDirectory, "NpcDefs");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterSpawn, "test_map/5/5");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterSave, "test_map/5/5");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterStatPoints, "44");
             // Add additional config entries here
 
             return anyChange;

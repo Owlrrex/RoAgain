@@ -56,8 +56,6 @@ namespace Client
                 return -1;
             }
 
-            bool changedAnyConfig = false;
-
             // Misc Config
             LocalConfigPersistent localPers = CachedFileAccess.GetOrLoad<LocalConfigPersistent>(LOCAL_FILE_KEY, false);
             if (localPers != null) // file did exist
@@ -66,7 +64,7 @@ namespace Client
             }
 
             // Validate Misc Config
-            changedAnyConfig |= FillInDefaultMiscConfig();
+            bool changedAnyConfig = FillInDefaultMiscConfig();
 
             // Populate Hotkey Config
             _hotkeyConfig.Clear();
