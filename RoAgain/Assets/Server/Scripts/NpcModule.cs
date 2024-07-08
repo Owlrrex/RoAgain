@@ -43,18 +43,36 @@ namespace Server
         {
             bool pass = true;
             HashSet<int> usedNpcIds = new();
-            foreach(List<NpcDefinition> defList in _npcDefsByMapId.Values)
+            int passCount = 0;
+            int failCount = 0;
+            bool npcPass = true;
+            List<int> faultyDefIdxs = new();
+            foreach (List<NpcDefinition> defList in _npcDefsByMapId.Values)
             {
-                foreach (NpcDefinition def in defList)
+                faultyDefIdxs.Clear();
+                for(int i = 0; i < defList.Count; i++)
                 {
+                    NpcDefinition def = defList[i];
+                    npcPass = true;
                     if (!usedNpcIds.Add(def.NpcId))
                     {
                         OwlLogger.LogError($"NpcId {def.NpcId} is used more than once!", GameComponent.Scripts);
                         pass = false;
+                        npcPass = false;
+                        faultyDefIdxs.Add(i);
                     }
+
+                    if (npcPass)
+                        passCount++;
+                }
+                foreach(int faultyIdx in faultyDefIdxs)
+                {
+                    defList.RemoveAt(faultyIdx);
+                    failCount++;
                 }
             }
 
+            OwlLogger.LogF("NpcDefinition validation complete: {0} pass, {1} fail", passCount, failCount, GameComponent.Scripts);
             return pass;
         }
 
