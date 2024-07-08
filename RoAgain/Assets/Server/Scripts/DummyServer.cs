@@ -64,10 +64,12 @@ namespace Server
 
         public override ExperienceModule ExpModule => _expModule;
 
+        private NpcModule _npcModule;
+
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
 
-        public int Initialize()
+        public ulong Initialize()
         {
             _loggedInCharactersReadOnly = _loggedInCharacters.AsReadOnly();
 
@@ -82,24 +84,24 @@ namespace Server
             _centralConnection.ClientDisconnected += OnClientDisconnected;
 
             Configuration config = new();
-            int configError = 1000000 * config.LoadConfig();
+            ulong configError = (ulong)config.LoadConfig();
 
-            int connectionInitError = _centralConnection.Initialize(this, "0.0.0.0:13337");
+            ulong connectionInitError = 10 * (ulong)_centralConnection.Initialize(this, "0.0.0.0:13337");
 
-            int mapModuleError = 10 * _mapModule.Initialize(_expModule);
+            ulong mapModuleError = 100 * (ulong)_mapModule.Initialize(_expModule);
 
-            int chatModuleError = 100 * _chatModule.Initialize(_mapModule, this);
+            ulong chatModuleError = 1000 * (ulong)_chatModule.Initialize(_mapModule, this);
 
-            int expModuleError = 1000 * _expModule.Initialize(_mapModule);
+            ulong expModuleError = 10000 * (ulong)_expModule.Initialize(_mapModule);
 
             _accountDatabase = new AccountDatabase();
-            int accountDbError = 10000 * _accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
+            ulong accountDbError = 100000 * (ulong)_accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
 
             _characterDatabase = new CharacterDatabase();
-            int charDbError = 100000 * _characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
+            ulong charDbError = 1000000 * (ulong)_characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
 
             _jobDatabase = new();
-            int jobDbError = 10000000 * _jobDatabase.Register();
+            ulong jobDbError = 10000000 * (ulong)_jobDatabase.Register();
 
             _skillStaticDataDatabase = new();
             _skillStaticDataDatabase.Register();
@@ -108,9 +110,13 @@ namespace Server
             _timingScheduler.Init();
 
             _jobModule = new();
-            int jobModuleError = 1000000 * _jobModule.Initialize();
+            ulong jobModuleError = 100000000 * (ulong)_jobModule.Initialize();
 
-            int aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError + jobModuleError;
+            _npcModule = new();
+            ulong npcModuleError = 100000000 * (ulong)_npcModule.Initialize();
+            _npcModule.LoadNpcDefinitions();
+
+            ulong aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError + jobModuleError;
             return aggregateError;
         }
 
@@ -453,7 +459,6 @@ namespace Server
         // TODO: Move this to whatever system is best to handle this
         private void ReceiveStatIncreaseRequest(ClientConnection connection, EntityPropertyType statType)
         {
-            // TODO: Use TryGetLoggedInCharacter instead
             if(!TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData character))
             {
                 OwlLogger.LogError($"Character id {connection.CharacterId} not found logged in, but received StatIncreaseRequest.", GameComponent.Other);
