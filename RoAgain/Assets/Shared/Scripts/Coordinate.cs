@@ -30,9 +30,31 @@ public struct Coordinate
         return new Vector2Int(X, Y);
     }
 
+    public static bool operator==(Coordinate self, Coordinate other)
+    {
+        return self.Equals(other);
+    }
+
+    public static bool operator !=(Coordinate self, Coordinate other)
+    {
+        return !(self == other);
+    }
+
     public override readonly string ToString()
     {
         return $"{X}/{Y}";
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Coordinate coordinate &&
+               X == coordinate.X &&
+               Y == coordinate.Y;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
     }
 }
 
@@ -43,9 +65,31 @@ public struct MapCoordinate
     public Coordinate Coord;
     public string MapId;
 
+    public static bool operator ==(MapCoordinate self, MapCoordinate other)
+    {
+        return self.Equals(other);
+    }
+
+    public static bool operator !=(MapCoordinate self, MapCoordinate other)
+    {
+        return !(self == other);
+    }
+
     public override readonly string ToString()
     {
         return $"{MapId}/{Coord}";
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is MapCoordinate coordinate &&
+               Coord.Equals(coordinate.Coord) &&
+               MapId == coordinate.MapId;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Coord, MapId);
     }
 }
 
@@ -84,6 +128,7 @@ public static class CoordinateExtensions
         {
             return MapCoordinate.INVALID;
         }
+        coord.MapId = parts[0];
 
         return coord;
     }

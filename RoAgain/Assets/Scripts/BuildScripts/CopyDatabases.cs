@@ -26,6 +26,11 @@ public class CopyDatabases
             Path.Combine(Application.dataPath, "Server", "NpcDefs"),
             Path.Combine(buildFolder, Application.productName + "_Data", "Server", "NpcDefs"),
             "*.npc");
+
+        CopyAllFilesFromToFolder(
+            Path.Combine(Application.dataPath, "Server", "WarpDefs"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "WarpDefs"),
+            "*.warp");
     }
 
     private static void CopyAllFilesFromToFolder(string sourceFolder, string targetFolder, string nameMask)

@@ -1,4 +1,4 @@
 sver 1
 // Don't use tabs - the parser doesn't treat them as whitespace!
-// 	npc_id	map_id		x	y	model_id	name_locId	script_id
-npc 1       test_map    7   12  1           197         0
+// 	npc_id	map_id/x/y			model_id	name_locId	script_id
+npc 1       test_map/7/12       1           197         0

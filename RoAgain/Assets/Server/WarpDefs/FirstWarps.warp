@@ -1,0 +1,6 @@
+sver 1
+// 		source_map	min_x/min_y	max_x/max_y	target_map/x/y 
+warp    test_map    8/30        12/35       test_map2/5/6
+warp    test_map2   41/20       43/21       test_map2/10/41
+warp    test_map2   8/40        9/42        test_map2/42/19
+warp    test_map2   46/40       47/42       test_map/5/5

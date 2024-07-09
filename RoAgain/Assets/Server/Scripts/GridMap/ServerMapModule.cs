@@ -13,8 +13,9 @@ namespace Server
 
         private ExperienceModule _expModule;
         private NpcModule _npcModule;
+        private WarpModule _warpModule;
 
-        public int Initialize(ExperienceModule expModule, NpcModule npcModule)
+        public int Initialize(ExperienceModule expModule, NpcModule npcModule, WarpModule warpModule)
         {
             if(expModule == null)
             {
@@ -28,8 +29,15 @@ namespace Server
                 return -1;
             }
 
+            if (warpModule == null)
+            {
+                OwlLogger.LogError("Can't initialize ServerMapModule with null WarpModule!", GameComponent.Other);
+                return -1;
+            }
+
             _expModule = expModule;
             _npcModule = npcModule;
+            _warpModule = warpModule;
 
             return 0;
         }
@@ -77,6 +85,7 @@ namespace Server
             newInstance.Initialize(mapId, _expModule);
             _mapInstances.Add(mapId, newInstance);
             _npcModule.CreateNpcsForMap(mapId);
+            _warpModule.CreateWarpsForMap(mapId);
             return newInstance;
         }
 
@@ -211,6 +220,7 @@ namespace Server
             _mapInstances = null;
             _npcModule = null;
             _expModule = null;
+            _warpModule = null;
         }
     }
 }

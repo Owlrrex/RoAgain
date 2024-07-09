@@ -7,6 +7,8 @@ using UnityEngine.UIElements;
 [Serializable]
 public abstract class GridShape
 {
+    public bool IncludeVoid;
+
     public abstract List<GridCellData> GatherCellDatas(GridData grid);
 
     public abstract List<Vector2Int> GatherCoordinates(GridData grid);
@@ -19,7 +21,6 @@ public class RectangleBoundsGridShape : GridShape
 {
     public Vector2Int SourceBoundsMin;
     public Vector2Int SourceBoundsMax;
-    public bool IncludeVoid;
 
     public override List<GridCellData> GatherCellDatas(GridData grid)
     {
@@ -38,11 +39,10 @@ public class RectangleBoundsGridShape : GridShape
 }
 
 [Serializable]
-public class RectangleCenterGridShape : GridShape
+public class SquareCenterGridShape : GridShape
 {
     public Vector2Int Center;
     public int Radius;
-    public bool IncludeVoid;
 
     public override List<GridCellData> GatherCellDatas(GridData grid)
     {

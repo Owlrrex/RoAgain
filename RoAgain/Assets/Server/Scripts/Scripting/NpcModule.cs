@@ -1,11 +1,19 @@
 using OwlLogging;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 namespace Server
 {
+    public class NpcDefinition
+    {
+        public int NpcId;
+        public MapCoordinate Location;
+        public int ModelId;
+        public LocalizedStringId NameLocId;
+        public int ScriptId;
+    }
+
     public class NpcModule
     {
         private Dictionary<string, List<NpcDefinition>> _npcDefsByMapId = new();
@@ -17,7 +25,7 @@ namespace Server
             return 0;
         }
 
-        public void LoadNpcDefinitions()
+        public void LoadDefinitions()
         {
             List<NpcDefinition> npcDefs = new();
             List<string> filePaths = GetNpcFilePaths(); 
@@ -30,22 +38,20 @@ namespace Server
 
             foreach (NpcDefinition def in npcDefs)
             {
-                if (!_npcDefsByMapId.ContainsKey(def.MapId))
-                    _npcDefsByMapId[def.MapId] = new();
+                if (!_npcDefsByMapId.ContainsKey(def.Location.MapId))
+                    _npcDefsByMapId[def.Location.MapId] = new();
 
-                _npcDefsByMapId[def.MapId].Add(def);
+                _npcDefsByMapId[def.Location.MapId].Add(def);
             }
 
             ValidateNpcDefinitions();
         }
 
-        public bool ValidateNpcDefinitions()
+        public void ValidateNpcDefinitions()
         {
-            bool pass = true;
             HashSet<int> usedNpcIds = new();
             int passCount = 0;
             int failCount = 0;
-            bool npcPass = true;
             List<int> faultyDefIdxs = new();
             foreach (List<NpcDefinition> defList in _npcDefsByMapId.Values)
             {
@@ -53,17 +59,14 @@ namespace Server
                 for(int i = 0; i < defList.Count; i++)
                 {
                     NpcDefinition def = defList[i];
-                    npcPass = true;
                     if (!usedNpcIds.Add(def.NpcId))
                     {
                         OwlLogger.LogError($"NpcId {def.NpcId} is used more than once!", GameComponent.Scripts);
-                        pass = false;
-                        npcPass = false;
                         faultyDefIdxs.Add(i);
+                        continue;
                     }
 
-                    if (npcPass)
-                        passCount++;
+                    passCount++;
                 }
                 foreach(int faultyIdx in faultyDefIdxs)
                 {
@@ -73,7 +76,6 @@ namespace Server
             }
 
             OwlLogger.LogF("NpcDefinition validation complete: {0} pass, {1} fail", passCount, failCount, GameComponent.Scripts);
-            return pass;
         }
 
         private List<string> GetNpcFilePaths()
@@ -108,23 +110,25 @@ namespace Server
                 return null;
             }
 
-            foreach(NpcDefinition npcDef in _npcDefsByMapId[mapId])
+            List<GridEntity> placedNpcs = new();
+            foreach (NpcDefinition npcDef in _npcDefsByMapId[mapId])
             {
                 GridEntity npc = CreateNpc(npcDef);
-                map.Grid.PlaceOccupant(npc, npcDef.Coordinates);
+                map.Grid.PlaceOccupant(npc, npcDef.Location.Coord.ToVector());
+                placedNpcs.Add(npc);
             }
             
             // don't link to the Script yet, scripts may be lazy-loaded!
-            return null;
+            return placedNpcs;
         }
 
         private GridEntity CreateNpc(NpcDefinition npcDef)
         {
             GridEntity entity = new()
             {
-                Coordinates = npcDef.Coordinates,
+                Coordinates = npcDef.Location.Coord.ToVector(),
                 Id = GridEntity.NextEntityId,
-                MapId = npcDef.MapId,
+                MapId = npcDef.Location.MapId,
                 LocalizedNameId = npcDef.NameLocId,
                 ModelId = npcDef.ModelId
             };
@@ -137,13 +141,6 @@ namespace Server
             _npcDefsByMapId.Clear();
             // TODO: Clean up created NPCs, just in case the Grid itself doesn't get discarded
         }
-    }
-
-    // TODO: Separate file for this, if it will contain also non-npc script commands (like for item scripts)?
-    public static class ScriptCommandStrings
-    {
-        public const string NpcScriptVersion = "sver";
-        public const string KeywordNpcHeader = "npc";
     }
 }
 

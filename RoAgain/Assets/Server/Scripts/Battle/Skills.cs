@@ -354,7 +354,7 @@ namespace Server
         public override void OnExecute(ServerSkillExecution skillExec)
         {
             base.OnExecute(skillExec);
-            RectangleCenterGridShape shape = new() { Center = skillExec.Target.GroundTarget, Radius = skillExec.Var1 };
+            SquareCenterGridShape shape = new() { Center = skillExec.Target.GroundTarget, Radius = skillExec.Var1 };
             WarpCellEffectGroup cellEffectGroup = new();
             cellEffectGroup.Create(skillExec.Map.Grid, shape, skillExec.User.MapId, skillExec.User.Coordinates, skillExec.Var2);
         }

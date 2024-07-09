@@ -41,50 +41,6 @@ public class ServerMapInstance
         SkillModule = new();
         SkillModule.Initialize(this);
 
-        // Pre-place stuff
-        if(mapId == "test_map")
-        {
-            // CellEffect test: A warp somewhere
-            GridShape shape = new RectangleBoundsGridShape()
-            {
-                IncludeVoid = false,
-                SourceBoundsMin = new(8, 30),
-                SourceBoundsMax = new(12, 35)
-            };
-            WarpCellEffectGroup group = new();
-            group.Create(Grid, shape, "test_map2", new(5, 6));
-        }
-        else
-        {
-            // CellEffect test: A warp somewhere
-            GridShape hillToBridge = new RectangleBoundsGridShape()
-            {
-                IncludeVoid = false,
-                SourceBoundsMin = new(41, 20),
-                SourceBoundsMax = new(43, 21)
-            };
-            WarpCellEffectGroup group = new();
-            group.Create(Grid, hillToBridge, "test_map2", new(10, 41));
-
-            GridShape bridgeToHill = new RectangleBoundsGridShape()
-            {
-                IncludeVoid = false,
-                SourceBoundsMin = new(8, 40),
-                SourceBoundsMax = new(9, 42)
-            };
-            group = new WarpCellEffectGroup();
-            group.Create(Grid, bridgeToHill, "test_map2", new(42, 19));
-
-            GridShape bridgeToMap = new RectangleBoundsGridShape()
-            {
-                IncludeVoid = false,
-                SourceBoundsMin = new(46, 40),
-                SourceBoundsMax = new(47, 42)
-            };
-            group = new WarpCellEffectGroup();
-            group.Create(Grid, bridgeToMap, "test_map", new(5, 5));
-        }
-
         return loadError;
     }
 

@@ -66,6 +66,8 @@ namespace Server
 
         private NpcModule _npcModule;
 
+        private WarpModule _warpModule;
+
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
 
@@ -91,20 +93,26 @@ namespace Server
             _npcModule = new();
             ulong npcModuleError = 100* (ulong)_npcModule.Initialize();
 
-            ulong mapModuleError = 1000 * (ulong)_mapModule.Initialize(_expModule, _npcModule);
+            _warpModule = new();
+            ulong warpModuleError = 1000 * (ulong)_warpModule.Initialize();
 
-            ulong chatModuleError = 10000 * (ulong)_chatModule.Initialize(_mapModule, this);
+            ulong mapModuleError = 10000 * (ulong)_mapModule.Initialize(_expModule, _npcModule, _warpModule);
 
-            ulong expModuleError = 100000 * (ulong)_expModule.Initialize(_mapModule);
+            ulong chatModuleError = 100000 * (ulong)_chatModule.Initialize(_mapModule, this);
+
+            ulong expModuleError = 1000000 * (ulong)_expModule.Initialize(_mapModule);
 
             _accountDatabase = new AccountDatabase();
-            ulong accountDbError = 1000000 * (ulong)_accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
+            ulong accountDbError = 10000000 * (ulong)_accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
 
             _characterDatabase = new CharacterDatabase();
-            ulong charDbError = 10000000 * (ulong)_characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
+            ulong charDbError = 100000000 * (ulong)_characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
 
             _jobDatabase = new();
-            ulong jobDbError = 100000000 * (ulong)_jobDatabase.Register();
+            ulong jobDbError = 1000000000 * (ulong)_jobDatabase.Register();
+
+            _jobModule = new();
+            ulong jobModuleError = 10000000000 * (ulong)_jobModule.Initialize();
 
             _skillStaticDataDatabase = new();
             _skillStaticDataDatabase.Register();
@@ -112,12 +120,10 @@ namespace Server
             _timingScheduler = new();
             _timingScheduler.Init();
 
-            _jobModule = new();
-            ulong jobModuleError = 1000000000 * (ulong)_jobModule.Initialize();
+            _npcModule.LoadDefinitions();
+            _warpModule.LoadDefinitions();
 
-            _npcModule.LoadNpcDefinitions();
-
-            ulong aggregateError = connectionInitError + mapModuleError + chatModuleError + expModuleError + accountDbError + charDbError + jobModuleError;
+            ulong aggregateError = configError + connectionInitError + mapModuleError + npcModuleError + warpModuleError + chatModuleError + expModuleError + accountDbError + charDbError + jobDbError + jobModuleError;
             return aggregateError;
         }
 

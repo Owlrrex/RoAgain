@@ -14,6 +14,7 @@ namespace Server
         HitFleeEqualChance,
         BattleMultiplicativeStacking,
         NpcDefinitionDirectory,
+        WarpDefinitionDirectory,
         NewCharacterSpawn,
         NewCharacterSave,
         NewCharacterStatPoints
@@ -63,6 +64,7 @@ namespace Server
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.HitFleeEqualChance, "80");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.BattleMultiplicativeStacking, "0");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.NpcDefinitionDirectory, "NpcDefs");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.WarpDefinitionDirectory, "WarpDefs");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterSpawn, "test_map/5/5");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterSave, "test_map/5/5");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterStatPoints, "44");
