@@ -31,6 +31,8 @@ public class TemporaryOverlayCamera : MonoBehaviour
         if (Camera.main == null)
             return;
 
+        Debug.Log(gameObject.name);
+
         UniversalAdditionalCameraData data = Camera.main.GetUniversalAdditionalCameraData();
         if (data == null
             || data.cameraStack == null)

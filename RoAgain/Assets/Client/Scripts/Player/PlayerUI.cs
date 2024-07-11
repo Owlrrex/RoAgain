@@ -57,7 +57,12 @@ public class PlayerUI : MonoBehaviour
             ChatSystem.Initialize();
 
         if (!OwlLogger.PrefabNullCheckAndLog(CharacterWindow, "CharacterWindow", this, GameComponent.UI))
-            CharacterWindow.Initialize(ClientMain.Instance.CurrentCharacterData);
+        {
+            if(ClientMain.Instance != null && ClientMain.Instance.CurrentCharacterData != null)
+            {
+                CharacterWindow.Initialize(ClientMain.Instance.CurrentCharacterData);
+            }
+        }
 
         if (!OwlLogger.PrefabNullCheckAndLog(StatWindow, "StatWindow", this, GameComponent.UI))
             StatWindow.gameObject.SetActive(false);
@@ -76,6 +81,16 @@ public class PlayerUI : MonoBehaviour
 
         if (!OwlLogger.PrefabNullCheckAndLog(_configWidgetRegistry, nameof(_configWidgetRegistry), this, GameComponent.UI))
             _configWidgetRegistry.Init();
+
+        gameObject.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        if (ClientMain.Instance.CurrentCharacterData != null)
+        {
+            CharacterWindow.Initialize(ClientMain.Instance.CurrentCharacterData);
+        }
     }
 
     public bool IsHoveringUI(Vector2 position)
@@ -106,6 +121,26 @@ public class PlayerUI : MonoBehaviour
 
     private void Update()
     {
+        if (ClientMain.Instance.CurrentCharacterData != null)
+        {
+            if (ClientMain.Instance.CurrentCharacterData.IsDead())
+            {
+                if (!DeathWindow.gameObject.activeSelf)
+                {
+                    DeathWindow.gameObject.SetActive(true);
+                    PlayerMain.Instance.DisplayDeathAnimation(true);
+                }
+            }
+            else
+            {
+                if (DeathWindow.gameObject.activeSelf)
+                {
+                    DeathWindow.gameObject.SetActive(false);
+                    PlayerMain.Instance.DisplayDeathAnimation(false);
+                }
+            }
+        }
+
         if (ChatSystem.IsChatFocused)
             return; // don't process hotkeys while chat is open
 
@@ -159,35 +194,15 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleGameMenuWindow) == true)
+        if (KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleGameMenuWindow) == true)
         {
-            if(GameMenuWindow.gameObject.activeSelf)
+            if (GameMenuWindow.gameObject.activeSelf)
             {
                 GameMenuWindow.gameObject.SetActive(false);
             }
             else
             {
                 GameMenuWindow.gameObject.SetActive(true);
-            }
-        }
-
-        if(ClientMain.Instance.CurrentCharacterData != null)
-        {
-            if (ClientMain.Instance.CurrentCharacterData.IsDead())
-            {
-                if (!DeathWindow.gameObject.activeSelf)
-                {
-                    DeathWindow.gameObject.SetActive(true);
-                    PlayerMain.Instance.DisplayDeathAnimation(true);
-                }
-            }
-            else
-            {
-                if (DeathWindow.gameObject.activeSelf)
-                {
-                    DeathWindow.gameObject.SetActive(false);
-                    PlayerMain.Instance.DisplayDeathAnimation(false);
-                }
             }
         }
     }

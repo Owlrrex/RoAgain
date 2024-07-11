@@ -26,7 +26,9 @@ public class PlayerMain : BattleEntityModelMain
 
     public int Initialize(ACharacterEntity charData)
     {
-        return base.Initialize(charData);
+        int initResult = base.Initialize(charData);
+        PlayerUI.Instance.gameObject.SetActive(true);
+        return initResult;
     }
 
     public new void Shutdown()
