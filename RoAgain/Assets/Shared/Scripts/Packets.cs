@@ -502,6 +502,7 @@ public class ChatMessagePacket : Packet
     public string SenderName;
     public string Message;
     public Scope MessageScope;
+   
 }
 
 public class ChatMessageRequestPacket : Packet

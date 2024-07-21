@@ -18,9 +18,6 @@ MonoBehaviour:
   - MapId: test_map2
     Prefab: {fileID: 3034903845812676434, guid: 383120d81c8bfd84db0d989ccf177343,
       type: 3}
-  _mapIds:
-  - test_map
-  - test_map2
-  _prefabs:
-  - {fileID: 438481646142332114, guid: 62735e30a6957b24a8b41f28e8ebb8e8, type: 3}
-  - {fileID: 3034903845812676434, guid: 383120d81c8bfd84db0d989ccf177343, type: 3}
+  - MapId: tutorial01
+    Prefab: {fileID: 1859768034187144499, guid: 0c086b73260eafb47ad795b26c648003,
+      type: 3}

@@ -1,0 +1,6 @@
+sver 1
+// Don't use tabs - the parser doesn't treat them as whitespace!
+// 	npc_id	map_id/x/y			model_id	name_locId	script_id
+npc 101     tutorial01/9/24     1           0           0
+npc 102     tutorial01/12/24    1           0           0
+npc 103     tutorial01/27/37    1           0           0

@@ -305,7 +305,7 @@ Transform:
   m_GameObject: {fileID: 7147838118421780929}
   serializedVersion: 2
   m_LocalRotation: {x: 0.51916105, y: -0, z: -0, w: 0.8546764}
-  m_LocalPosition: {x: -0.12, y: 19.19, z: -10.67}
+  m_LocalPosition: {x: -0.11999631, y: 12.089751, z: -6.9820747}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -994,7 +994,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccaca65bfada875498050c5233fdc0fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horiRotateSpeed: 140
+  horiRotateSpeed: 180
   vertRotateSpeed: 80
   _cameraAnchor: {fileID: 7876111354369121188}
   _mainCamera: {fileID: 7147838118421780929}
