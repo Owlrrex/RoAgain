@@ -73,7 +73,7 @@ namespace Server
             // Only logged in players are allowed to send a chat-message to the server
             // TODO: This means NPCs can't send messages right now. Also, Announcements may be a problem?
             // Need an alternative flow for those, or adjust this restriction
-            if (!_server.TryGetLoggedInCharacter(chatMessage.SenderId, out CharacterRuntimeData charData))
+            if (!_server.TryGetLoggedInCharacterByEntityId(chatMessage.SenderId, out CharacterRuntimeData charData))
             {
                 OwlLogger.LogError($"Cannot send chat message for sender id {chatMessage.SenderId} - not a logged in character!", GameComponent.Chat);
                 return -1;

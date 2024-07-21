@@ -24,7 +24,9 @@ namespace Server
 
         public abstract void Update(float deltaTime);
 
-        public abstract bool TryGetLoggedInCharacter(int characterId, out CharacterRuntimeData charData);
+        public abstract bool TryGetLoggedInCharacterByCharacterId(int characterId, out CharacterRuntimeData charData);
+
+        public abstract bool TryGetLoggedInCharacterByEntityId(int entityId, out CharacterRuntimeData charData);
 
         public abstract void Shutdown();
     }
@@ -207,7 +209,7 @@ namespace Server
 
         private void ReceiveCharacterLogin(ClientConnection connection, int characterId)
         {
-            if (TryGetLoggedInCharacter(characterId, out _))
+            if (TryGetLoggedInCharacterByCharacterId(characterId, out _))
             {
                 OwlLogger.LogError("Tried to login character who's already logged in!", GameComponent.Other);
                 CharacterLoginResponsePacket failedCharLoginPacket = new()
@@ -379,7 +381,7 @@ namespace Server
 
         public void ReceiveMovementRequest(ClientConnection connection, Vector2Int targetCoordinates)
         {
-            if (!TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData characterData))
+            if (!TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData characterData))
             {
                 OwlLogger.LogError($"Could not find logged in character for Id {connection.CharacterId} - dropping MovementRequest!", GameComponent.Other);
                 return;
@@ -414,7 +416,7 @@ namespace Server
         {
             // needing an entity-lookup for each skill isn't super efficient, but it may be ok for now.
             // create lookup-tables entityId -> mapInstance if profiling shows it's needed
-            TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData user);
+            TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData user);
             if(user == null)
             {
                 OwlLogger.LogError($"Received EntitySkillRequest for user {connection.CharacterId} that's not logged in!", GameComponent.Skill);
@@ -441,7 +443,7 @@ namespace Server
         {
             // needing an entity-lookup for each skill isn't super efficient, but it may be ok for now.
             // create lookup-tables entityId -> mapInstance if profiling shows it's needed
-            TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData user);
+            TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData user);
             if (user == null)
             {
                 OwlLogger.LogError($"Received EntitySkillRequest for user {connection.CharacterId} that's not found on any map!", GameComponent.Skill);
@@ -466,7 +468,7 @@ namespace Server
         // TODO: Move this to whatever system is best to handle this
         private void ReceiveStatIncreaseRequest(ClientConnection connection, EntityPropertyType statType)
         {
-            if(!TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData character))
+            if(!TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData character))
             {
                 OwlLogger.LogError($"Character id {connection.CharacterId} not found logged in, but received StatIncreaseRequest.", GameComponent.Other);
                 return;
@@ -580,7 +582,7 @@ namespace Server
                 return;
             }
 
-            if(TryGetLoggedInCharacter(charId, out _))
+            if(TryGetLoggedInCharacterByCharacterId(charId, out _))
             {
                 OwlLogger.LogError($"Can't delete characterId {charId} while logged in!", GameComponent.Persistence);
                 connection.Send(new CharacterDeletionResponsePacket() { Result = -11 });
@@ -603,7 +605,7 @@ namespace Server
             AccountPersistenceData accData = _accountDatabase.GetAccountData(accountId);
             foreach(int charId in accData.CharacterIds)
             {
-                if(TryGetLoggedInCharacter(charId, out _))
+                if(TryGetLoggedInCharacterByCharacterId(charId, out _))
                 {
                     OwlLogger.LogError($"Can't delete Account {accountId} - character {charId} is logged in!", GameComponent.Persistence);
                     connection.Send(new AccountDeletionResponsePacket() { Result = -11 });
@@ -633,7 +635,7 @@ namespace Server
                 RemainingSkillPoints = -1
             };
 
-            if (!TryGetLoggedInCharacter(connection.CharacterId, out CharacterRuntimeData characterData))
+            if (!TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData characterData))
             {
                 OwlLogger.LogError($"Could not find logged in character for Id {connection.CharacterId} - dropping SkillPointAllocateRequest!", GameComponent.Other);
                 connection.Send(responsePacket);
@@ -720,7 +722,7 @@ namespace Server
 
         private void ReceiveReturnAfterDeathRequest(ClientConnection connection, int characterId)
         {
-            if (!TryGetLoggedInCharacter(characterId, out CharacterRuntimeData charData))
+            if (!TryGetLoggedInCharacterByCharacterId(characterId, out CharacterRuntimeData charData))
             {
                 OwlLogger.LogError($"Received ReturnTosave for characterId {characterId} that wasn't logged in!", GameComponent.Other);
                 return;
@@ -890,7 +892,7 @@ namespace Server
 
         private void DisconnectCharacter(int characterId)
         {
-            if (!TryGetLoggedInCharacter(characterId, out CharacterRuntimeData charData))
+            if (!TryGetLoggedInCharacterByCharacterId(characterId, out CharacterRuntimeData charData))
             {
                 OwlLogger.LogError($"Received CharacterDisconnected for characterId {characterId} that wasn't logged in!", GameComponent.Other);
                 return;
@@ -934,9 +936,15 @@ namespace Server
             _timingScheduler?.Update(deltaTime);
         }
 
-        public override bool TryGetLoggedInCharacter(int characterId, out CharacterRuntimeData charData)
+        public override bool TryGetLoggedInCharacterByCharacterId(int characterId, out CharacterRuntimeData charData)
         {
             charData = _loggedInCharacters.Find(item => item.CharacterId == characterId);
+            return charData != null;
+        }
+
+        public override bool TryGetLoggedInCharacterByEntityId(int entityId, out CharacterRuntimeData charData)
+        {
+            charData = _loggedInCharacters.Find(item => item.Id == entityId);
             return charData != null;
         }
     }
