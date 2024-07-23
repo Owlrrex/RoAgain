@@ -1,5 +1,6 @@
 using OwlLogging;
 using System.Collections.Generic;
+using Shared;
 
 namespace Server
 {
@@ -11,6 +12,7 @@ namespace Server
             public GridEntity Sender;
             public string Message;
             public string TargetName;
+            public string ChannelTag;
         }
 
         private ServerMapModule _mapModule;
@@ -87,7 +89,7 @@ namespace Server
             {
                 int commandResult =  100 * HandleServerCommand(chatMessage.Message, charData);
                 if (commandResult == 0 // No error,
-                    || commandResult >= 1000) // Error during command execution, but the command started execution
+                    || commandResult >= 1000) // Error during command execution, but the command was recognized & allowed to execute
                     return 0;
             }
 
@@ -97,15 +99,20 @@ namespace Server
                 return -2;
             }
 
-            if (chatMessage.TargetName == ChatMessageRequestPacket.TARGET_GLOBAL)
+            if (chatMessage.ChannelTag == DefaultChannelTags.GLOBAL
+                || chatMessage.ChannelTag == DefaultChannelTags.BROADCAST) // Treat Global & Broadcasts the same for now
             {
                 return HandleGlobalMessage(chatMessage) * 10;
             }
 
-            if (chatMessage.TargetName == ChatMessageRequestPacket.TARGET_PROX)
+            if (chatMessage.ChannelTag == DefaultChannelTags.PROXIMITY)
             {
                 return HandleProximityMessage(chatMessage) * 10;
             }
+
+            // TODO: Handling for Party- & Guild-messages and other user-accssible channels
+
+            // TODO: Any handling needed for debug-functionality of sending messages into non-useraccessible channels?
 
             return HandleWhisperMessage(chatMessage) * 10;
         }
@@ -159,7 +166,7 @@ namespace Server
                 SenderId = chatMessage.SenderId,
                 Message = chatMessage.Message,
                 SenderName = chatMessage.Sender.NameOverride,
-                MessageScope = ChatMessagePacket.Scope.Global
+                ChannelTag = DefaultChannelTags.GLOBAL
             };
 
             foreach (CharacterRuntimeData charData in _server.LoggedInCharacters)
@@ -185,7 +192,7 @@ namespace Server
                 SenderId = chatMessage.SenderId,
                 Message = chatMessage.Message,
                 SenderName = chatMessage.Sender.NameOverride,
-                MessageScope = ChatMessagePacket.Scope.Proximity
+                ChannelTag = DefaultChannelTags.PROXIMITY
             };
 
             foreach (CharacterRuntimeData charData in map.Grid.GetOccupantsInRangeSquareLowAlloc<CharacterRuntimeData>(chatMessage.Sender.Coordinates, PROXIMITY_CHAT_RANGE))
@@ -204,7 +211,7 @@ namespace Server
                 SenderId = chatMessage.SenderId,
                 Message = chatMessage.Message,
                 SenderName = chatMessage.Sender.NameOverride,
-                MessageScope = ChatMessagePacket.Scope.Whisper
+                ChannelTag = DefaultChannelTags.WHISPER
             };
 
             foreach (CharacterRuntimeData charData in _server.LoggedInCharacters)
@@ -212,7 +219,7 @@ namespace Server
                 if (charData.NameOverride == chatMessage.TargetName)
                 {
                     charData.Connection.Send(packet);
-                    return SendSenderFeedback(chatMessage);
+                    return SendWhisperSenderFeedback(chatMessage);
                 }
             }
 
@@ -220,7 +227,7 @@ namespace Server
             return -1;
         }
 
-        private int SendSenderFeedback(ChatMessageRequestData chatMessage)
+        private int SendWhisperSenderFeedback(ChatMessageRequestData chatMessage)
         {
             if (chatMessage.Sender is not CharacterRuntimeData charSender)
                 return 0;
@@ -230,7 +237,7 @@ namespace Server
                 SenderId = chatMessage.SenderId,
                 Message = chatMessage.Message,
                 SenderName = $"To {chatMessage.TargetName}",
-                MessageScope = ChatMessagePacket.Scope.Whisper
+                ChannelTag = DefaultChannelTags.WHISPER
             };
 
             charSender.Connection.Send(feedbackMessagePacket);

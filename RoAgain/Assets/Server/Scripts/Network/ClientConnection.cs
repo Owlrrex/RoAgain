@@ -123,7 +123,8 @@ namespace Server
                     {
                         Message = chatPacket.Message,
                         SenderId = chatPacket.SenderId,
-                        TargetName = chatPacket.TargetName
+                        TargetName = chatPacket.TargetName,
+                        ChannelTag = chatPacket.ChannelTag,
                     };
                     ChatMessageRequestReceived?.Invoke(this, data);
                     break;

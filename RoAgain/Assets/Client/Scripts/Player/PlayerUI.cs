@@ -11,7 +11,7 @@ public class PlayerUI : MonoBehaviour
     public static PlayerUI Instance { get; private set; }
 
     [field: SerializeField]
-    public ChatSystem ChatSystem { get; private set; }
+    public UIChatSystem ChatSystem { get; private set; }
 
     [field: SerializeField]
     public CharacterWindow CharacterWindow { get; private set; }
@@ -45,6 +45,9 @@ public class PlayerUI : MonoBehaviour
     [SerializeField]
     private SkillHotbar _hotbar;
 
+
+    private bool _chatSystemNeedsInit = false;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -54,7 +57,16 @@ public class PlayerUI : MonoBehaviour
 
         OwlLogger.PrefabNullCheckAndLog(_hotbar, "hotbar", this, GameComponent.UI);
         if (!OwlLogger.PrefabNullCheckAndLog(ChatSystem, "ChatSystem", this, GameComponent.UI))
-            ChatSystem.Initialize();
+        {
+            if(ClientMain.Instance != null)
+            {
+                ChatSystem.Initialize(ClientMain.Instance.ChatModule);
+            }
+            else
+            {
+                _chatSystemNeedsInit = true;
+            }
+        }
 
         if (!OwlLogger.PrefabNullCheckAndLog(CharacterWindow, "CharacterWindow", this, GameComponent.UI))
         {
@@ -121,6 +133,15 @@ public class PlayerUI : MonoBehaviour
 
     private void Update()
     {
+        if(_chatSystemNeedsInit)
+        {
+            if(ClientMain.Instance  != null)
+            {
+                ChatSystem.Initialize(ClientMain.Instance.ChatModule);
+                _chatSystemNeedsInit = false;
+            }
+        }
+
         if (ClientMain.Instance.CurrentCharacterData != null)
         {
             if (ClientMain.Instance.CurrentCharacterData.IsDead())

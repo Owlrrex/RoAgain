@@ -1,6 +1,7 @@
 using OwlLogging;
 using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Client
 {
@@ -9,7 +10,7 @@ namespace Client
         public int SenderId; // for showing chatbubbles
         public string Message;
         public string SenderName;
-        public ChatMessagePacket.Scope Scope;
+        public string ChannelTag;
     }
 
     public class ChatMessageComponent : MonoBehaviour
@@ -19,7 +20,7 @@ namespace Client
 
         public ChatMessageData Message { get; private set; }
 
-        public int Initialize(ChatMessageData message)
+        public int Initialize(ChatMessageData message, Dictionary<string, Color> colormap)
         {
             if (_textDisplay == null)
             {
@@ -31,22 +32,27 @@ namespace Client
 
             string fullMessage = $"{message.SenderName}: {message.Message}";
             _textDisplay.text = fullMessage;
-            SetTextColor();
+            SetTextColor(colormap);
             return 0;
         }
 
-        private void SetTextColor()
+        private void SetTextColor(Dictionary<string, Color> colormap)
         {
-            if (Message == null)
+            if (Message == null || colormap == null)
                 return;
 
-            _textDisplay.color = Message.Scope switch
+            Color color;
+            if(colormap.ContainsKey(Message.ChannelTag))
             {
-                ChatMessagePacket.Scope.Global => Color.yellow,
-                ChatMessagePacket.Scope.Whisper => Color.magenta,
-                ChatMessagePacket.Scope.Proximity => Color.white,
-                _ => Color.grey,
-            };
+                color = colormap[Message.ChannelTag];
+            }
+            else
+            {
+                OwlLogger.LogError($"ChatMessage initialized with no color-mapping for ChannelTag {Message.ChannelTag}, choosing default color!", GameComponent.UI);
+                color = Color.black;
+            }
+
+            _textDisplay.color = color;
         }
     }
 }

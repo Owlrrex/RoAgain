@@ -56,7 +56,7 @@ namespace Client
         // TODO: move to MapModule, since that one manages movers
         private GridEntityMover _characterGridMover;
 
-        public ClientMapModule MapModule { get; private set; }
+        public MapModule MapModule { get; private set; }
 
         public string IpInput;
         private string _port;
@@ -74,6 +74,8 @@ namespace Client
         private LocalizedStringTable _stringTable;
 
         private RemoteConfigCache _remoteConfigCache = new();
+
+        public ChatModule ChatModule { get; private set; } = new();
 
         void Awake()
         {
@@ -117,6 +119,8 @@ namespace Client
 
             MapModule = new();
             MapModule.Initialize();
+
+            ChatModule.Initialize(MapModule); // TODO: Check for errors
 
             DontDestroyOnLoad(gameObject);
         }
@@ -738,28 +742,7 @@ namespace Client
 
         private void OnChatMessageReceived(ChatMessageData data)
         {
-            DisplayChatMessageIfVisible(data);
-            PlayerUI.Instance.ChatSystem.DisplayInChatWindow(data);
-        }
-
-        private void DisplayChatMessageIfVisible(ChatMessageData data)
-        {
-            // No overhead display wanted for whispers
-            if (data.Scope == ChatMessagePacket.Scope.Whisper)
-                return;
-
-            // Player model is easily available
-            if(data.SenderId == CurrentCharacterData.Id)
-            {
-                PlayerMain.Instance.SetSkilltext($"{data.SenderName}: {data.Message}", 5);
-                return;
-            }
-
-            BattleEntityModelMain bModel = MapModule.GetComponentFromEntityDisplay<BattleEntityModelMain>(data.SenderId);
-            if(bModel == null)
-                return;
-
-            bModel.SetSkilltext($"{data.SenderName}: {data.Message}", 5);
+            ChatModule.OnChatMessageReceived(data);
         }
 
         private void OnHpChangeReceived(int entityId, int newHp)

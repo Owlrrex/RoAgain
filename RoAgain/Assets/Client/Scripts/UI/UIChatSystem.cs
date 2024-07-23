@@ -1,14 +1,13 @@
 using OwlLogging;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Shared;
 
 namespace Client
 {
-    public class ChatSystem : MonoBehaviour
+    public class UIChatSystem : MonoBehaviour
     {
         public const int CHAT_MESSAGE_MAX_COUNT = 100;
         public TMP_InputField ChatInput;
@@ -25,8 +24,22 @@ namespace Client
 
         public bool IsChatFocused => ChatInput.isFocused || ChatTargetInput.isFocused;
 
-        public void Initialize()
+        // This will probably be replaced by a more expansive "ChatChannelData" struct that stores more than just color
+        // If functional data is also stored, part of it may be moved to Client.ChatModule
+        private Dictionary<string, Color> _colorPerMessageTag = new();
+
+        private ChatModule _chatModule;
+
+        public void Initialize(ChatModule chatModule)
         {
+            if(chatModule == null)
+            {
+                OwlLogger.LogError("Can't initialize UIChatSystem with null Chatmodule!", GameComponent.UI);
+                return;
+            }
+
+            _chatModule = chatModule;
+
             if(!OwlLogger.PrefabNullCheckAndLog(ChatInput, "ChatInput", this, GameComponent.UI))
                 ChatInput.onSubmit.AddListener(OnChatSubmit);
             if (!OwlLogger.PrefabNullCheckAndLog(ChatTargetInput, "ChatTargetInput", this, GameComponent.UI))
@@ -40,6 +53,30 @@ namespace Client
                 ChatMessageScroll.onValueChanged.AddListener(OnScrollValueChanged);
                 ChatMessageScroll.verticalNormalizedPosition = 0;
             }
+
+            LoadTagColors();
+        }
+
+        private void LoadTagColors()
+        {
+            _colorPerMessageTag.Clear();
+            LoadDefaultTagColors();
+
+            // TODO: Load any other tags this client "knows" from wherever they're stored
+        }
+
+        private void LoadDefaultTagColors()
+        {
+            _colorPerMessageTag.Add(DefaultChannelTags.BROADCAST, Color.yellow);
+            _colorPerMessageTag.Add(DefaultChannelTags.COMMAND_FEEDBACK, Color.green);
+            _colorPerMessageTag.Add(DefaultChannelTags.EMOTE, Color.grey);
+            _colorPerMessageTag.Add(DefaultChannelTags.GENERIC_ERROR, Color.red);
+            _colorPerMessageTag.Add(DefaultChannelTags.GLOBAL, Color.yellow);
+            _colorPerMessageTag.Add(DefaultChannelTags.GUILD, Color.blue);
+            _colorPerMessageTag.Add(DefaultChannelTags.PARTY, Color.cyan);
+            _colorPerMessageTag.Add(DefaultChannelTags.PROXIMITY, Color.white);
+            _colorPerMessageTag.Add(DefaultChannelTags.SKILL_ERROR, Color.red);
+            _colorPerMessageTag.Add(DefaultChannelTags.WHISPER, Color.magenta);
         }
 
         public void EnableChatInput()
@@ -63,7 +100,7 @@ namespace Client
                 return -2;
             }
 
-            comp.Initialize(message);
+            comp.Initialize(message, _colorPerMessageTag);
             // Calculate the correct size for the chatmessage after its text has been set.
             LayoutRebuilder.ForceRebuildLayoutImmediate(comp.GetComponent<RectTransform>());
             newMessage.transform.SetParent(ChatMessageScroll.content, false);
@@ -117,43 +154,30 @@ namespace Client
 
         private void OnChatSendClicked()
         {
-            // TODO: Separate Chat system that sends the packet, instad of general UI class
             ChatMessageData data = GetChatMessage();
             if (string.IsNullOrEmpty(data.Message))
                 return;
 
-            string targetName = string.IsNullOrEmpty(data.SenderName) ? ChatMessageRequestPacket.TARGET_PROX : data.SenderName;
-            // TODO: Set Target with more distinction: Prox, Global, Whisper
-            // Prox should be default for empty targetname, Global should be by user's choice (like #map), Whisper otherwise
-
-            if (targetName.Length > ChatMessageRequestPacket.NAME_LENGTH)
+            if(string.IsNullOrEmpty(data.SenderName))
             {
-                OwlLogger.LogError($"Can't send chatmessage to targetName of length {targetName.Length}: Too long!", GameComponent.UI);
-                return;
+                // Promote empty Whisper-box to Proximity-chat
+                // TODO: Respect any ChatChannel-selecting UI
+                data.ChannelTag = DefaultChannelTags.PROXIMITY;
             }
-            else if (targetName.Length < ChatMessageRequestPacket.NAME_LENGTH)
+            else if(_colorPerMessageTag.ContainsKey(data.SenderName))
             {
-                targetName = targetName.PadRight(ChatMessageRequestPacket.NAME_LENGTH, '.');
+                // Debug functionality: Allow sending to any chat-channel via the Whisper-box
+                // TODO: Channel-select UI, so that name-collisions between channels & character are unambiguous
+                data.ChannelTag = data.SenderName;
             }
-
-            if (data.Message.Length > ChatMessageRequestPacket.MESSAGE_LENGTH)
+            else
             {
-                OwlLogger.LogError($"Can't send chatmessage content of length {data.Message.Length}: Too long!", GameComponent.UI);
-                return;
-            }
-            else if (data.Message.Length < ChatMessageRequestPacket.MESSAGE_LENGTH)
-            {
-                data.Message = data.Message.PadRight(ChatMessageRequestPacket.MESSAGE_LENGTH, '.');
+                data.ChannelTag = DefaultChannelTags.WHISPER;
             }
 
-            ChatMessageRequestPacket packet = new()
-            {
-                SenderId = ClientMain.Instance.CurrentCharacterData.Id,
-                Message = data.Message,
-                TargetName = targetName
-            };
-            ClientMain.Instance.ConnectionToServer.Send(packet);
-            ChatInput.text = "";
+            int sendResult = _chatModule.SendChatMessage(data);
+            if(sendResult == 0)
+                ChatInput.text = "";
         }
 
         private void Update()
@@ -161,6 +185,7 @@ namespace Client
             if (IsChatFocused)
                 return;
 
+            // TODO: Replace with configurable hotkey
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 EnableChatInput();

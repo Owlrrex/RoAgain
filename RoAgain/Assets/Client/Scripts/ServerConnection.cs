@@ -517,7 +517,7 @@ namespace Client
                 SenderId = packet.SenderId,
                 Message = packet.Message,
                 SenderName = packet.SenderName,
-                Scope = packet.MessageScope
+                ChannelTag = packet.ChannelTag
             };
             ChatMessageReceived?.Invoke(data);
         }

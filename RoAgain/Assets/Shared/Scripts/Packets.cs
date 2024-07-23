@@ -486,23 +486,10 @@ public class ChatMessagePacket : Packet
 {
     public override int PacketType => 21;
 
-    // This cannot easily accomodate named chat channels (since an additional string to the SenderName is needed)
-    // TODO: Named channels/scopes
-    public enum Scope
-    {
-        Global = 1,
-        Whisper = 2,
-        Proximity = 3,
-        Party = 4,
-        Guild = 5,
-        Announce = 6,
-    }
-
     public int SenderId;
     public string SenderName;
     public string Message;
-    public Scope MessageScope;
-   
+    public string ChannelTag;
 }
 
 public class ChatMessageRequestPacket : Packet
@@ -511,12 +498,11 @@ public class ChatMessageRequestPacket : Packet
 
     public const int NAME_LENGTH = 20;
     public const int MESSAGE_LENGTH = 200;
-    public const string TARGET_GLOBAL = "tar_global"; // padding will be removed before comparing
-    public const string TARGET_PROX = "tar_prox"; // padding will be removed before comparing
 
     public int SenderId;
     public string Message;
     public string TargetName;
+    public string ChannelTag;
 
     public override bool Validate()
     {
@@ -527,6 +513,10 @@ public class ChatMessageRequestPacket : Packet
             return false;
 
         if (Message.Length != MESSAGE_LENGTH)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(ChannelTag)
+            || ChannelTag == DefaultChannelTags.INVALID)
             return false;
 
         return true;
