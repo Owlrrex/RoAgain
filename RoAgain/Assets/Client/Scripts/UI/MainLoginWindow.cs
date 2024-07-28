@@ -1,6 +1,5 @@
 using OwlLogging;
-using System.Collections;
-using System.Collections.Generic;
+using Shared;
 using TMPro;
 using UnityEditor;
 using UnityEngine;

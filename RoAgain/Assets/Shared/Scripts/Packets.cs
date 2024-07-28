@@ -481,7 +481,6 @@ public class GroundSkillExecutePacket : Packet
 
 // TODO: Skill Cooldown packet
 
-// Serialization/verification code of this will use fixed length for any string field so that packet length is known at compile time (for waiting on bytes)
 public class ChatMessagePacket : Packet
 {
     public override int PacketType => 21;
@@ -489,6 +488,16 @@ public class ChatMessagePacket : Packet
     public int SenderId;
     public string SenderName;
     public string Message;
+    public string ChannelTag;
+}
+
+public class LocalizedChatMessagePacket : Packet
+{
+    public override int PacketType => 15;
+
+    public int SenderId;
+    public string SenderName;
+    public LocalizedStringId MessageLocId;
     public string ChannelTag;
 }
 

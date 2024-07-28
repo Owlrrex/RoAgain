@@ -62,21 +62,21 @@ namespace Client
             _colorPerMessageTag.Clear();
             LoadDefaultTagColors();
 
-            // TODO: Load any other tags this client "knows" from wherever they're stored
+            // TODO: Load any other tags this client "knows" from wherever they're stored & colors for tags
         }
 
         private void LoadDefaultTagColors()
         {
-            _colorPerMessageTag.Add(DefaultChannelTags.BROADCAST, Color.yellow);
-            _colorPerMessageTag.Add(DefaultChannelTags.COMMAND_FEEDBACK, Color.green);
-            _colorPerMessageTag.Add(DefaultChannelTags.EMOTE, Color.grey);
-            _colorPerMessageTag.Add(DefaultChannelTags.GENERIC_ERROR, Color.red);
-            _colorPerMessageTag.Add(DefaultChannelTags.GLOBAL, Color.yellow);
-            _colorPerMessageTag.Add(DefaultChannelTags.GUILD, Color.blue);
-            _colorPerMessageTag.Add(DefaultChannelTags.PARTY, Color.cyan);
-            _colorPerMessageTag.Add(DefaultChannelTags.PROXIMITY, Color.white);
-            _colorPerMessageTag.Add(DefaultChannelTags.SKILL_ERROR, Color.red);
-            _colorPerMessageTag.Add(DefaultChannelTags.WHISPER, Color.magenta);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.BROADCAST, Color.yellow);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.COMMAND_FEEDBACK, Color.green);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.EMOTE, Color.grey);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.GENERIC_ERROR, Color.red);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.GLOBAL, Color.yellow);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.GUILD, Color.blue);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.PARTY, Color.cyan);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.PROXIMITY, Color.white);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.SKILL_ERROR, Color.red);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.WHISPER, Color.magenta);
         }
 
         public void EnableChatInput()

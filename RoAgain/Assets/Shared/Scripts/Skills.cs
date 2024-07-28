@@ -5,18 +5,24 @@ using UnityEngine;
 
 namespace Shared
 {
+    // Order of entries in this enum determines the order in which errors will be reported to the user when multiple occur at the same time
     public enum SkillFailReason
     {
+        // internal errors, not reported to users
         None,
-        NotEnoughSp,
         AnimationLocked,
-        AlreadyCasting,
         NotLearned,
+        WrongMap,
+        // user-facing errors
         OutOfRange,
+        UserDead,
+        AlreadyCasting,
         OnCooldown,
-        Death,
-        TargetInvalid,
-        WrongMap
+        NotEnoughSp,
+        NotEnoughHp,
+        NotEnoughAmmo,
+        TargetDead,
+        TargetInvalid
     }
 
     public static class Skills

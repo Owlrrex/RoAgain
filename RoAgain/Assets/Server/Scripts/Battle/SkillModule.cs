@@ -1,5 +1,6 @@
 using OwlLogging;
 using Shared;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -149,14 +150,14 @@ namespace Server
             if(executeReason != SkillFailReason.None
                 && executeReason != SkillFailReason.AnimationLocked)
             {
-                // TODO: Deny
+                SendMostRelevantErrorToUser(executeReason, targetReason, user, skillId);
                 return ((int)executeReason) * 1000 + ((int)targetReason * 10); // TODO: Remove hack or wrap in functions
             }
 
             if(targetReason != SkillFailReason.None
                 && targetReason != SkillFailReason.OutOfRange)
             {
-                // TODO: Deny
+                SendMostRelevantErrorToUser(executeReason, targetReason, user, skillId);
                 return ((int)executeReason) * 1000 + ((int)targetReason * 10); // TODO: Remove hack or wrap in functions
             }
 
@@ -584,6 +585,31 @@ namespace Server
             skillExec.User.CurrentlyResolvingSkills.Remove(skillExec);
         }
 
+        private void SendMostRelevantErrorToUser(SkillFailReason executeReason, SkillFailReason targetReason, ServerBattleEntity user, SkillId skillId)
+        {
+            if (user is not CharacterRuntimeData character)
+                return;
+
+            if (skillId == SkillId.Unknown)
+                return;
+
+            SkillFailReason highestPrioReason = (SkillFailReason)Math.Max((int)executeReason, (int)targetReason);
+
+            // filter out non-userfacing errors
+            if (highestPrioReason == SkillFailReason.None
+            || highestPrioReason == SkillFailReason.AnimationLocked
+            || highestPrioReason == SkillFailReason.NotLearned // (this could occur via some UI malfunction related to temporary skills?)
+            || highestPrioReason == SkillFailReason.WrongMap)
+                return;
+
+            character.Connection.Send(new SkillFailPacket()
+            {
+                EntityId = user.Id,
+                SkillId = skillId,
+                Reason = highestPrioReason
+            });
+        }
+
         public int Shutdown()
         {
             _mapInstance = null;
@@ -640,11 +666,6 @@ namespace Server
             character.PermanentSkills[SkillId.PlaceWarp] = 5;
 
             character.Connection.Send(new SkillPointUpdatePacket() { RemainingSkillPoints = character.RemainingSkillPoints });
-        }
-
-        public void AddTemporarySkill(SkillId skillId, int skillLvl)
-        {
-
         }
     }
 }

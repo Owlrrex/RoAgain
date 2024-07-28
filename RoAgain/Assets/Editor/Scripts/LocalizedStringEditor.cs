@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using Shared;
 using UnityEditor;
 using UnityEngine;
 

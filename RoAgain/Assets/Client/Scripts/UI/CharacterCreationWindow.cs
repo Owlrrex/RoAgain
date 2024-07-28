@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using OwlLogging;
 using System.Linq;
+using Shared;
 
 namespace Client
 {

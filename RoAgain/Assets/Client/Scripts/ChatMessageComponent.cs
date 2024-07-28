@@ -30,7 +30,16 @@ namespace Client
 
             Message = message;
 
-            string fullMessage = $"{message.SenderName}: {message.Message}";
+            string fullMessage;
+            if(string.IsNullOrWhiteSpace(message.SenderName))
+            {
+                fullMessage = message.Message;
+            }
+            else
+            {
+                fullMessage = $"{message.SenderName}: {message.Message}";
+            }
+            
             _textDisplay.text = fullMessage;
             SetTextColor(colormap);
             return 0;

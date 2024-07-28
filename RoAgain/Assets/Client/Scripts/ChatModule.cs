@@ -40,18 +40,32 @@ namespace Client
             if (data.ChannelTag == DefaultChannelTags.WHISPER)
                 return;
 
+            if (data.SenderId <= 0)
+                return;
+
+            string print;
+            if (string.IsNullOrWhiteSpace(data.SenderName))
+            {
+                print = data.Message;
+            }
+            else
+            {
+                print = $"{data.SenderName}: {data.Message}";
+            }
+
             // Player model is easily available
             if (data.SenderId == ClientMain.Instance.CurrentCharacterData.Id)
             {
-                PlayerMain.Instance.SetSkilltext($"{data.SenderName}: {data.Message}", 5);
+                PlayerMain.Instance.SetSkilltext(print, 5);
                 return;
             }
 
+            // TODO: Allow non-BattleEntities to display Chatmessages, probably by having a dedicated chat-display instead of reusing SetSkilltext()
             BattleEntityModelMain bModel = _mapModule.GetComponentFromEntityDisplay<BattleEntityModelMain>(data.SenderId);
             if (bModel == null)
                 return;
 
-            bModel.SetSkilltext($"{data.SenderName}: {data.Message}", 5);
+            bModel.SetSkilltext(print, 5);
         }
 
         public int SendChatMessage(ChatMessageData data)

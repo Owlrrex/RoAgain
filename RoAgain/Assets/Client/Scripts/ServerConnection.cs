@@ -262,6 +262,9 @@ namespace Client
                 case ChatMessagePacket chatMsgPacket:
                     ReceiveChatMessagePacket(chatMsgPacket);
                     break;
+                case LocalizedChatMessagePacket localizedChatMessagePacket:
+                    ReceiveLocalizedChatMessagePacket(localizedChatMessagePacket);
+                    break;
                 case HpUpdatePacket hpUpdatePacket:
                     ReceiveHpUpdatePacket(hpUpdatePacket);
                     break;
@@ -516,6 +519,18 @@ namespace Client
             {
                 SenderId = packet.SenderId,
                 Message = packet.Message,
+                SenderName = packet.SenderName,
+                ChannelTag = packet.ChannelTag
+            };
+            ChatMessageReceived?.Invoke(data);
+        }
+
+        private void ReceiveLocalizedChatMessagePacket(LocalizedChatMessagePacket packet)
+        {
+            ChatMessageData data = new()
+            {
+                SenderId = packet.SenderId,
+                Message = LocalizedStringTable.GetStringById(packet.MessageLocId),
                 SenderName = packet.SenderName,
                 ChannelTag = packet.ChannelTag
             };

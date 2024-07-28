@@ -191,7 +191,7 @@ namespace Server
             else
             {
                 if (skillExec.Target.EntityTarget.IsDead())
-                    return SkillFailReason.Death;
+                    return SkillFailReason.TargetDead;
 
                 if (skillExec.Target.EntityTarget.MapId != skillExec.User.MapId)
                     return SkillFailReason.WrongMap;
@@ -209,7 +209,7 @@ namespace Server
         public virtual SkillFailReason CanBeExecuted(ServerSkillExecution skillExec, BattleEntity user)
         {
             if (user.IsDead())
-                return SkillFailReason.Death;
+                return SkillFailReason.UserDead;
 
             if (!user.CanAct())
                 return SkillFailReason.AnimationLocked;

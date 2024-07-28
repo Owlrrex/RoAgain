@@ -1386,6 +1386,69 @@
 				"TextEnglish": "First Test Npc",
 				"TextGerman": "Erster Test Npc"
 			}
+		},
+		{
+			"key": 198,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: Not enough SP",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug SP"
+			}
+		},
+		{
+			"key": 199,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: Can't reach the target",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Ziel ist ausser Reichweite"
+			}
+		},
+		{
+			"key": 200,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: You're dead.",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Du bist tot."
+			}
+		},
+		{
+			"key": 201,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: Already casting another skill.",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Du wirkst eine andere Fähigkeit."
+			}
+		},
+		{
+			"key": 202,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: On Cooldown.",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Abklingzeit noch nicht abgelaufen."
+			}
+		},
+		{
+			"key": 203,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: Not enough HP.",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug HP."
+			}
+		},
+		{
+			"key": 204,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: Not enough Ammo.",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug Munition."
+			}
+		},
+		{
+			"key": 205,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: Target is dead.",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Ziel ist tot."
+			}
+		},
+		{
+			"key": 206,
+			"value": {
+				"TextEnglish": "Skill {0} Failed: Can't us this skill on this target.",
+				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Fähigkeit kann nicht auf dieses Ziel verwendet werden."
+			}
 		}
     ]
 }

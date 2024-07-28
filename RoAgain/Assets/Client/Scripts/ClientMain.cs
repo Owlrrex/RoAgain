@@ -263,6 +263,7 @@ namespace Client
             ConnectionToServer.SkillTreeEntryUpdateReceived += OnSkillTreeUpdateReceived;
             ConnectionToServer.SkillTreeEntryRemoveReceived += OnSkillTreeRemoveReceived;
             ConnectionToServer.SkillPointAllocateResponseReceived += OnSkillPointUpdateReceived;
+            ConnectionToServer.SkillFailReceived += OnSkillFailReceived;
         }
 
         private void DetachFromConnection()
@@ -304,6 +305,7 @@ namespace Client
             ConnectionToServer.SkillTreeEntryUpdateReceived -= OnSkillTreeUpdateReceived;
             ConnectionToServer.SkillTreeEntryRemoveReceived -= OnSkillTreeRemoveReceived;
             ConnectionToServer.SkillPointAllocateResponseReceived -= OnSkillPointUpdateReceived;
+            ConnectionToServer.SkillFailReceived -= OnSkillFailReceived;
 
             _remoteConfigCache.Shutdown();
         }
@@ -1035,6 +1037,28 @@ namespace Client
 
             CurrentCharacterData.RemainingSkillPoints = remainingSkillPoints;
             CurrentCharacterData.SkillTreeUpdated?.Invoke();
+        }
+
+        private void OnSkillFailReceived(int userEntityId, SkillId skillId, SkillFailReason reason)
+        {
+            if (PlayerUI.Instance == null)
+                return;
+
+            ChatMessageData data = new()
+            {
+                ChannelTag = DefaultChannelTags.SKILL_ERROR,
+                Message = CreateMessageForSkillError(reason, skillId)
+            };
+
+            PlayerUI.Instance.ChatSystem.DisplayInChatWindow(data);
+        }
+
+        private string CreateMessageForSkillError(SkillFailReason reason, SkillId skillId)
+        {
+            LocalizedStringId messageLocId = reason.GetErrorMessage();
+            string skillName = LocalizedStringTable.GetStringById(SkillClientDataTable.GetDataForId(skillId).NameId);
+            string format = LocalizedStringTable.GetStringById(messageLocId);
+            return string.Format(format, skillName);
         }
 
         public void SetOneButtonNotificationTitle(LocalizedStringId title)
