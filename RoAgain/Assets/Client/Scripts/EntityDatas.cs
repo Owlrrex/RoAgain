@@ -146,6 +146,7 @@ namespace Client
         public int RemainingStatPoints;
         public int RemainingSkillPoints;
         public Stat Weightlimit;
+        public int CurrentWeight;
 
         public int CurrentBaseExp;
         public int RequiredBaseExp;
@@ -158,6 +159,8 @@ namespace Client
         public int IntIncreaseCost;
         public int DexIncreaseCost;
         public int LukIncreaseCost;
+
+        public int InventoryId;
 
 
         public static LocalCharacterData FromPacket(LocalCharacterDataPacket packet)
@@ -217,6 +220,7 @@ namespace Client
             RemainingStatPoints = packet.RemainingStatPoints;
             RemainingSkillPoints = packet.RemainingSkillPoints;
             Weightlimit = packet.Weightlimit;
+            CurrentWeight = packet.CurrentWeight;
 
             AtkMin = packet.AtkMin;
             AtkMax = packet.AtkMax;
@@ -232,6 +236,8 @@ namespace Client
             IntIncreaseCost = packet.IntIncreaseCost;
             DexIncreaseCost = packet.DexIncreaseCost;
             LukIncreaseCost = packet.LukIncreaseCost;
+
+            InventoryId = packet.InventoryId;
         }
     }
 }

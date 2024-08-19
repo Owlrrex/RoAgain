@@ -124,6 +124,7 @@ namespace Server
 
     public class AccountDatabase : AAccountDatabase
     {
+        private const string FILE_SUFFIX = ".accdb";
         private string _folderPath;
         private Dictionary<string, RemoteConfigStorage> _storedAccConfigs = new();
 
@@ -167,7 +168,7 @@ namespace Server
             string[] accFiles;
             try
             {
-                accFiles = Directory.GetFiles(_folderPath, "*.accdb", SearchOption.TopDirectoryOnly);
+                accFiles = Directory.GetFiles(_folderPath, "*"+FILE_SUFFIX, SearchOption.TopDirectoryOnly);
             }
             catch (Exception e)
             {
@@ -253,7 +254,7 @@ namespace Server
 
         private string MakeFilePathForAccount(string accountId)
         {
-            return Path.Combine(_folderPath, $"{accountId}.accdb");
+            return Path.Combine(_folderPath, $"{accountId}{FILE_SUFFIX}");
         }
 
         public override int DeleteAccount(string accountId)

@@ -64,6 +64,7 @@ namespace Client
         public int RemainingStatPoints;
         public int RemainingSkillPoints;
         public Stat Weightlimit;
+        public int CurrentWeight;
 
         public int CurrentBaseExp;
         public int RequiredBaseExp;
@@ -83,6 +84,8 @@ namespace Client
         // Do we still need these? Leave around for now.
         public Dictionary<SkillId, SkillTreeEntry> PermanentSkillList = new();
         public Dictionary<SkillId, SkillTreeEntry> TemporarySkillList = new();
+
+        public int InventoryId;
 
         public LocalCharacterEntity(LocalCharacterData charData)
         {
@@ -125,6 +128,7 @@ namespace Client
             RemainingStatPoints = charData.RemainingStatPoints;
             RemainingSkillPoints = charData.RemainingSkillPoints;
             Weightlimit = charData.Weightlimit;
+            CurrentWeight = charData.CurrentWeight;
 
             AtkMin = charData.AtkMin;
             AtkMax = charData.AtkMax;
@@ -140,6 +144,8 @@ namespace Client
             IntIncreaseCost = charData.IntIncreaseCost;
             DexIncreaseCost = charData.DexIncreaseCost;
             LukIncreaseCost = charData.LukIncreaseCost;
+
+            InventoryId = charData.InventoryId;
         }
     }
 }

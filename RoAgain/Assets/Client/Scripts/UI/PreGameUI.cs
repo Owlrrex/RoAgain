@@ -266,9 +266,9 @@ namespace Client
 
             System.Action callback = null;
             string message;
-            switch(result) // TODO: Better user-facing error messages
+            switch(result) // TODO: Better user-facing error messages, localization
             {
-                case 0:
+                case > 0: // contains characterId, currently not used here
                     message = "Character creation successful!";
                     callback = StartCharacterSelectionFetch;
                     break;

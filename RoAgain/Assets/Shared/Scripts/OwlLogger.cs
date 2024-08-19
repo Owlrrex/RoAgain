@@ -23,8 +23,9 @@ namespace OwlLogging
         Config          = 1 << 12,
         ChatCommands    = 1 << 13,
         Scripts         = 1 << 14,
+        Items           = 1 << 15,
 
-        All = Other | Input | Character | UI | Battle | Network | Grid | Editor | Skill | CellEffect | Chat | Persistence | Config | ChatCommands | Scripts,
+        All = Other | Input | Character | UI | Battle | Network | Grid | Editor | Skill | CellEffect | Chat | Persistence | Config | ChatCommands | Scripts | Items,
     }
 
     public enum LogSeverity

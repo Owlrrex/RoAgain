@@ -45,6 +45,11 @@ namespace Client
         public Action<SkillId> SkillTreeEntryRemoveReceived;
         public Action<int> SkillPointAllocateResponseReceived;
         public Action<ConfigKey, bool, int, bool> ConfigValueReceived;
+        public Action<int, int> InventoryReceived;
+        public Action<int, long, int> ItemStackReceived;
+        public Action<ItemType> ItemTypeReceived;
+        public Action<int, long> ItemStackRemovedReceived;
+        public Action<int, int> WeightChangedReceived;
 
         public abstract int Initialize(string serverConfigDataHere);
 
@@ -316,6 +321,21 @@ namespace Client
                     break;
                 case ConfigValuePacket configValuePacket:
                     ConfigValueReceived?.Invoke((ConfigKey)configValuePacket.Key, configValuePacket.Exists, configValuePacket.Value, configValuePacket.IsAccountStorage);
+                    break;
+                case InventoryPacket invPacket:
+                    InventoryReceived?.Invoke(invPacket.InventoryId, invPacket.OwnerId);
+                    break;
+                case ItemStackPacket itemStackPacket:
+                    ItemStackReceived?.Invoke(itemStackPacket.InventoryId, itemStackPacket.ItemTypeId, itemStackPacket.ItemCount);
+                    break;
+                case ItemTypePacket itemTypePacket:
+                    ItemTypeReceived?.Invoke(ItemType.FromPacket(itemTypePacket));
+                    break;
+                case ItemStackRemovedPacket itemStackRemovedPacket:
+                    ItemStackRemovedReceived?.Invoke(itemStackRemovedPacket.InventoryId, itemStackRemovedPacket.ItemTypeId);
+                    break;
+                case WeightPacket weightPacket:
+                    WeightChangedReceived?.Invoke(weightPacket.EntityId, weightPacket.NewCurrentWeight);
                     break;
                 default:
                     OwlLogger.LogError($"Clientside DummyServerConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);

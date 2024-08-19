@@ -1,4 +1,5 @@
 using OwlLogging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -49,7 +50,7 @@ namespace Server
                 OwlLogger.LogWarning("Tried to double-initialize Server - aborting.", GameComponent.Other);
                 return;
             }
-            DummyServer serverInstance = new();
+            CoreServer serverInstance = new();
             serverInstance.Initialize();
             Server = serverInstance;
 

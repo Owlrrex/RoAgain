@@ -259,6 +259,21 @@ abstract public class Packet
             case 62:
                 packet = JsonUtility.FromJson<ConfigValuePacket>(json);
                 break;
+            case 63:
+                packet = JsonUtility.FromJson<InventoryPacket>(json);
+                break;
+            case 64:
+                packet = JsonUtility.FromJson<ItemStackPacket>(json);
+                break;
+            case 65:
+                packet = JsonUtility.FromJson<ItemTypePacket>(json);
+                break;
+            case 66:
+                packet = JsonUtility.FromJson<ItemStackRemovedPacket>(json);
+                break;
+            case 67:
+                packet = JsonUtility.FromJson<WeightPacket>(json);
+                break;
             default:
                 OwlLogger.LogError($"Invalid Packet type {packetType} received!", GameComponent.Network);
                 return null;
@@ -698,6 +713,7 @@ public class LocalCharacterDataPacket : Packet
     public StatFloat Crit;
     public float AttackSpeed; // What's the format for this gonna be? Attacks/Second? Should I use a Stat for this?
     public Stat Weightlimit;
+    public int CurrentWeight;
 
     public int RemainingSkillPoints;
     public int RemainingStatPoints;
@@ -713,6 +729,8 @@ public class LocalCharacterDataPacket : Packet
     public int RequiredBaseExp;
     public int CurrentJobExp;
     public int RequiredJobExp;
+
+    public int InventoryId;
 
     // TODO: cosmetic, equipment?
 }
@@ -964,6 +982,60 @@ public class ConfigValuePacket : Packet
     public bool IsAccountStorage;
 }
 
+public class InventoryPacket : Packet
+{
+    public override int PacketType => 63;
+
+    public int InventoryId;
+    public int OwnerId; // EntityId
+}
+
+public class ItemStackPacket : Packet
+{
+    public override int PacketType => 64;
+
+    public int InventoryId;
+    public long ItemTypeId;
+    public int ItemCount;
+}
+
+public class ItemTypePacket : Packet
+{
+    public override int PacketType => 65;
+
+    public long TypeId;
+    public long BaseTypeId;
+    // public bool CanStack; // Only add if needed clientside
+    public int Weight;
+    // public int SellPrice; // Probably not needed Clientside
+    public int RequiredLevel;
+    public List<JobId> RequiredJobs;
+    public int NumTotalCardSlots;
+    public ItemUsageMode UsageMode;
+    public int VisualId;
+    public LocalizedStringId NameLocId;
+    public LocalizedStringId FlavorLocId;
+    public DictionarySerializationWrapper<ModifierType, int> Modifiers;
+
+    // TODO: include various fields used by only some itemTypes, like Stats on equipment? Or have a seperate packet for that?
+}
+
+public class ItemStackRemovedPacket : Packet
+{
+    public override int PacketType => 66;
+
+    public int InventoryId;
+    public long ItemTypeId;
+}
+
+public class WeightPacket : Packet
+{
+    public override int PacketType => 67;
+
+    public int EntityId;
+    public int NewCurrentWeight;
+}
+
 // Move & adjust this comment when adding new packets, to make dev easier
-// Next PacketType = 62
+// Next PacketType = 68
 // Unused Ids: 8, 15

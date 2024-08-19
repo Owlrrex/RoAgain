@@ -37,9 +37,10 @@ namespace Server
         public int Luk = -1;
         public int CurrentHP = -1;
         public int CurrentSP = -1;
+        public int InventoryId;
 
         // TODO: Equip
-        // TODO: Inventory
+        
 
         public List<PersistentSkillListEntry> PermanentSkillList = new();
 
@@ -83,6 +84,7 @@ namespace Server
                 Gender = runtimeData.Gender.Value,
                 SaveMapId = runtimeData.SaveMapId,
                 SaveCoords = runtimeData.SaveCoords,
+                InventoryId = runtimeData.InventoryId
             };
 
             foreach(KeyValuePair<SkillId, int> kvp in runtimeData.PermanentSkills)
@@ -115,7 +117,7 @@ namespace Server
 
         public abstract int DeleteCharacter(int characterId);
 
-        public virtual int CreateCharacter(ClientConnection connection, string accountId, string name, int gender)
+        public virtual int CreateCharacter(ClientConnection connection, string accountId, string name, int gender, int newInventoryId)
         {
             int newCharacterId = GetNextCharacterId();
             if (DoesCharacterExist(newCharacterId))
@@ -174,7 +176,8 @@ namespace Server
                 CurrentSP = 9999,
                 MapId = spawn.MapId,
                 SaveMapId = save.MapId,
-                SaveCoords = save.Coord.ToVector()
+                SaveCoords = save.Coord.ToVector(),
+                InventoryId = newInventoryId
             };
 
             int charPersistResult = Persist(charPersData);
@@ -188,7 +191,7 @@ namespace Server
             acct.CharacterIds.Add(newCharacterId);
             _accountDatabase.Persist(accountId);
 
-            return 0;
+            return newCharacterId;
         }
 
         protected int GetNextCharacterId()
@@ -432,10 +435,10 @@ namespace Server
             return !_usedCharNames.Contains(characterName);
         }
 
-        public override int CreateCharacter(ClientConnection connection, string accountId, string name, int gender)
+        public override int CreateCharacter(ClientConnection connection, string accountId, string name, int gender, int inventoryId)
         {
-            int result = base.CreateCharacter(connection, accountId, name, gender);
-            if(result == 0)
+            int result = base.CreateCharacter(connection, accountId, name, gender, inventoryId);
+            if(result > 0)
                 _usedCharNames.Add(name);
             return result;
         }

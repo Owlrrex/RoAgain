@@ -6,6 +6,7 @@ namespace Shared
     [Serializable]
     public class DictionarySerializationWrapper<K, V>
     {
+        // Can't use KeyValuePair or Tuple here for Unity's Serialization & JsonUtility
         [Serializable]
         public class Entry
         {
@@ -15,7 +16,7 @@ namespace Shared
 
         public List<Entry> entries = new();
 
-        public DictionarySerializationWrapper(Dictionary<K, V> dict)
+        public DictionarySerializationWrapper(IEnumerable<KeyValuePair<K, V>> dict)
         {
             FromDict(dict);
         }
@@ -32,7 +33,7 @@ namespace Shared
             return dict;
         }
 
-        public void FromDict(Dictionary<K, V> dict)
+        public void FromDict(IEnumerable<KeyValuePair<K, V>> dict)
         {
             entries.Clear();
 

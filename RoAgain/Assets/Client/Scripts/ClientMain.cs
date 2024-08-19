@@ -68,14 +68,13 @@ namespace Client
 
         private int _sessionId;
 
-        // for language-testing
-        private bool _langSwapped = false;
-
         private LocalizedStringTable _stringTable;
 
         private RemoteConfigCache _remoteConfigCache = new();
 
         public ChatModule ChatModule { get; private set; } = new();
+
+        public InventoryModule InventoryModule { get; private set; } = new();
 
         void Awake()
         {
@@ -161,20 +160,6 @@ namespace Client
 
             // TODO: Use Config to store language
             LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
-            //StartCoroutine(LangSwapCoroutine());
-        }
-
-        private IEnumerator LangSwapCoroutine()
-        {
-            while(true)
-            {
-                yield return new WaitForSeconds(5f);
-                if (_langSwapped)
-                    LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
-                else
-                    LocalizedStringTable.SetClientLanguage(ClientLanguage.German);
-                _langSwapped = !_langSwapped;                    
-            }
         }
 
         private void Update()
@@ -208,8 +193,6 @@ namespace Client
                 ConnectionToServer = null;
                 return false;
             }
-
-            _remoteConfigCache.Initialize(ConnectionToServer);
 
             return true;
         }
@@ -264,6 +247,10 @@ namespace Client
             ConnectionToServer.SkillTreeEntryRemoveReceived += OnSkillTreeRemoveReceived;
             ConnectionToServer.SkillPointAllocateResponseReceived += OnSkillPointUpdateReceived;
             ConnectionToServer.SkillFailReceived += OnSkillFailReceived;
+            ConnectionToServer.WeightChangedReceived += OnWeightChangeReceived;
+
+            _remoteConfigCache.Initialize(ConnectionToServer);
+            InventoryModule.Initialize(ConnectionToServer);
         }
 
         private void DetachFromConnection()
@@ -306,8 +293,10 @@ namespace Client
             ConnectionToServer.SkillTreeEntryRemoveReceived -= OnSkillTreeRemoveReceived;
             ConnectionToServer.SkillPointAllocateResponseReceived -= OnSkillPointUpdateReceived;
             ConnectionToServer.SkillFailReceived -= OnSkillFailReceived;
+            ConnectionToServer.WeightChangedReceived -= OnWeightChangeReceived;
 
             _remoteConfigCache.Shutdown();
+            InventoryModule.Shutdown();
         }
 
         public void Disconnect()
@@ -1059,6 +1048,18 @@ namespace Client
             string skillName = LocalizedStringTable.GetStringById(SkillClientDataTable.GetDataForId(skillId).NameId);
             string format = LocalizedStringTable.GetStringById(messageLocId);
             return string.Format(format, skillName);
+        }
+
+        private void OnWeightChangeReceived(int entityId, int newWeight)
+        {
+            if(entityId != CurrentCharacterData.Id)
+            {
+                //OwlLogger.LogF("Received Weight data for entity {0} that's not the local main character - discarding!", entityId, GameComponent.Items);
+                OwlLogger.LogError($"Received Weight data for entity {entityId} that's not the local main character - discarding!", GameComponent.Items);
+                return;
+            }
+
+            CurrentCharacterData.CurrentWeight = newWeight;
         }
 
         public void SetOneButtonNotificationTitle(LocalizedStringId title)

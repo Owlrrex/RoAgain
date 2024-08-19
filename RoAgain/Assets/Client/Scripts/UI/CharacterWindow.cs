@@ -145,8 +145,7 @@ namespace Client
 
         public void UpdateWeightDisplay()
         {
-            // TODO: Read weight properly
-            _weightText.text = $"451 / {_character.Weightlimit.Total}";
+            _weightText.text = $"{_character.CurrentWeight} / {_character.Weightlimit.Total}";
         }
 
         public void UpdateZenyDisplay()

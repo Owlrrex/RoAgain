@@ -98,6 +98,12 @@ namespace Shared
 
         public static void Return(T returnedObject)
         {
+            if (returnedObject == null)
+            {
+                OwlLogger.LogError("Tried to return null to pool!", GameComponent.Other);
+                return;
+            }
+
             if (!_reservedPool.Contains(returnedObject))
             {
                 OwlLogger.LogError("Tried to return object to pool that's not found in reservedPool!", GameComponent.Other);

@@ -31,11 +31,13 @@ namespace Server
         public abstract void Shutdown();
     }
 
-    public class DummyServer : AServer
+    public class CoreServer : AServer
     {
         // TODO: Config values
         public readonly string ACCOUNT_DB_FOLDER = Path.Combine(Application.dataPath, "AccountDb");
         public readonly string CHAR_DB_FOLDER = Path.Combine(Application.dataPath, "CharDb");
+        public readonly string ITEMTYPE_DB_FOLDER = Path.Combine(Application.dataPath, "ItemTypeDb");
+        public readonly string INVENTORY_DB_FOLDER = Path.Combine(Application.dataPath, "InventoryDb");
 
         private ServerMapModule _mapModule;
         public override ServerMapModule MapModule => _mapModule;
@@ -70,10 +72,15 @@ namespace Server
 
         private WarpModule _warpModule;
 
+        private ItemTypeDatabase _itemTypeDatabase;
+        private InventoryDatabase _inventoryDatabase;
+        private ItemTypeModule  _itemTypeModule;
+        private InventoryModule _inventoryModule;
+
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
 
-        public ulong Initialize()
+        public int Initialize()
         {
             _loggedInCharactersReadOnly = _loggedInCharacters.AsReadOnly();
 
@@ -88,33 +95,33 @@ namespace Server
             _centralConnection.ClientDisconnected += OnClientDisconnected;
 
             Configuration config = new();
-            ulong configError = (ulong)config.LoadConfig();
+            int configError = config.LoadConfig();
 
-            ulong connectionInitError = 10 * (ulong)_centralConnection.Initialize(this, "0.0.0.0:13337");
+            int connectionInitError = _centralConnection.Initialize(this, "0.0.0.0:13337");
 
             _npcModule = new();
-            ulong npcModuleError = 100* (ulong)_npcModule.Initialize();
+            int npcModuleError = _npcModule.Initialize();
 
             _warpModule = new();
-            ulong warpModuleError = 1000 * (ulong)_warpModule.Initialize();
+            int warpModuleError = _warpModule.Initialize();
 
-            ulong mapModuleError = 10000 * (ulong)_mapModule.Initialize(_expModule, _npcModule, _warpModule);
+            int mapModuleError = _mapModule.Initialize(_expModule, _npcModule, _warpModule);
 
-            ulong chatModuleError = 100000 * (ulong)_chatModule.Initialize(_mapModule, this);
+            int chatModuleError = _chatModule.Initialize(_mapModule, this);
 
-            ulong expModuleError = 1000000 * (ulong)_expModule.Initialize(_mapModule);
+            int expModuleError = _expModule.Initialize(_mapModule);
 
             _accountDatabase = new AccountDatabase();
-            ulong accountDbError = 10000000 * (ulong)_accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
+            int accountDbError = _accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
 
             _characterDatabase = new CharacterDatabase();
-            ulong charDbError = 100000000 * (ulong)_characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
+            int charDbError = _characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
 
             _jobDatabase = new();
-            ulong jobDbError = 1000000000 * (ulong)_jobDatabase.Register();
+            int jobDbError = _jobDatabase.Register();
 
             _jobModule = new();
-            ulong jobModuleError = 10000000000 * (ulong)_jobModule.Initialize();
+            int jobModuleError = _jobModule.Initialize();
 
             _skillStaticDataDatabase = new();
             _skillStaticDataDatabase.Register();
@@ -125,8 +132,30 @@ namespace Server
             _npcModule.LoadDefinitions();
             _warpModule.LoadDefinitions();
 
-            ulong aggregateError = configError + connectionInitError + mapModuleError + npcModuleError + warpModuleError + chatModuleError + expModuleError + accountDbError + charDbError + jobDbError + jobModuleError;
-            return aggregateError;
+            _itemTypeDatabase = new();
+            int itemTypeDbError = _itemTypeDatabase.Initialize(ITEMTYPE_DB_FOLDER);
+            _inventoryDatabase = new();
+            int inventoryDbError = _inventoryDatabase.Initialize(INVENTORY_DB_FOLDER);
+            _itemTypeModule = new();
+            int itemTypeModError = _itemTypeModule.Initialize(_itemTypeDatabase);
+            _inventoryModule = new();
+            int invModError = _inventoryModule.Initialize(_itemTypeModule, _inventoryDatabase);
+
+            return configError
+                + connectionInitError
+                + mapModuleError
+                + npcModuleError
+                + warpModuleError
+                + chatModuleError
+                + expModuleError
+                + accountDbError
+                + charDbError
+                + jobDbError
+                + jobModuleError
+                + itemTypeDbError
+                + inventoryDbError
+                + itemTypeModError
+                + invModError;
         }
 
         private int InitializeDummyConnection()
@@ -274,7 +303,7 @@ namespace Server
 
         private System.Collections.IEnumerator DelayedCharLoginFinish(CharacterRuntimeData charData, int resultCode)
         {
-            yield return new WaitForSeconds(0.1f); // delay some time so other packets are sent, IP-protocol ensures packets arrive in order
+            yield return new WaitForSeconds(1.0f); // delay some time so other packets are sent, IP-protocol ensures packets arrive in order
 
             CharacterLoginResponsePacket resultPacket = new()
             {
@@ -289,42 +318,8 @@ namespace Server
         {
             CharacterPersistenceData persData = _characterDatabase.LoadCharacterPersistenceData(characterId);
 
-            // Main creation point of CharacterRuntimeData. Maybe better moved somewhere else.
-            // TODO: store CharId separately - it shouldn't also be the entityId of the entity.
-            CharacterRuntimeData charData = new(connection, characterId, persData.AccountId, persData.BaseLevel, persData.JobId,
-                persData.JobLevel, persData.Str, persData.Agi, persData.Vit, persData.Int, persData.Dex, persData.Luk)
-            {
-                // Values that are always the same (Size?!) and aren't saved
-                HpRegenTime = 10,
-                SpRegenTime = 5,
-                Race = EntityRace.Humanoid,
-                Size = EntitySize.Medium,
-                Element = EntityElement.Neutral1,
-
-                // Fields from the persistentData
-                NameOverride = persData.Name,
-                MapId = persData.MapId,
-                Coordinates = persData.Coordinates,
-                RequiredBaseExp = _expModule.GetRequiredBaseExpOnLevel(persData.BaseLevel, false),
-                CurrentBaseExp = persData.BaseExp,
-                RequiredJobExp = _expModule.GetRequiredJobExpOnLevel(persData.JobLevel, persData.JobId),
-                CurrentJobExp = persData.JobExp,
-                RemainingStatPoints = persData.StatPoints,
-                CurrentHp = persData.CurrentHP,
-                CurrentSp = persData.CurrentSP,
-                RemainingSkillPoints = persData.SkillPoints,
-                SaveMapId = persData.SaveMapId,
-                SaveCoords = persData.SaveCoords,
-            };
-            charData.Gender.Value = persData.Gender;
-            charData.Movespeed.Value = 6; // close to default RO movespeed of 0.15 s/tile
-
-            //tmp: autocorrect savepoint for old characters
-            if(string.IsNullOrEmpty(charData.SaveMapId))
-            {
-                charData.SaveMapId = "test_map";
-                charData.SaveCoords = new(5, 5);
-            }
+            // Main creation point of CharacterRuntimeData. Has to be in CoreServer since too many modules are involved.
+            CharacterRuntimeData charData = new(connection, persData, _expModule);
 
             foreach (PersistentSkillListEntry entry in persData.PermanentSkillList)
             {
@@ -336,6 +331,22 @@ namespace Server
             // Add skills that all characters have
             charData.PermanentSkills[SkillId.AutoAttack] = 2;
             charData.PermanentSkills[SkillId.PlaceWarp] = 5;
+
+            //tmp: autocorrect savepoint for old characters
+            if (string.IsNullOrEmpty(charData.SaveMapId))
+            {
+                charData.SaveMapId = "test_map";
+                charData.SaveCoords = new(5, 5);
+                _characterDatabase.Persist(charData);
+            }
+
+            //tmp: Create inventory for chars lacking one (old chars)
+            if (charData.InventoryId <= 0)
+            {
+                Inventory newInv = _inventoryModule.CreateInventory();
+                charData.InventoryId = newInv.InventoryId;
+                _characterDatabase.Persist(charData);
+            }
 
             _loggedInCharacters.Add(charData);
 
@@ -367,11 +378,13 @@ namespace Server
                 impl.Apply(charData, kvp.Value);
             }
 
-            // TODO: Register & Set up Inventory & Equipment
+            // TODO: Register & Set up Equipment
+            _inventoryModule.GetOrLoadInventory(charData.InventoryId); // Preload inventory because we'll 99% chance need it
 
             // TODO: Apply Buffs/Debuffs from persistent data
 
             charData.CalculateAllStats();
+            _inventoryModule.RecalculateCharacterWeight(charData);
 
             charData.CurrentHp = Math.Clamp(charData.CurrentHp, 0, charData.MaxHp.Total);
             charData.CurrentSp = Math.Clamp(charData.CurrentSp, 0, charData.MaxSp.Total);
@@ -569,8 +582,27 @@ namespace Server
                 return;
             }
 
-            int createResult = _characterDatabase.CreateCharacter(connection, connection.AccountId, charName, gender);
+            int createResult = CreateCharacter(connection, charName, gender);
             connection.Send(new CharacterCreationResponsePacket() { Result = createResult });
+        }
+
+        private int CreateCharacter(ClientConnection connection,string charname, int gender)
+        {
+            InventoryPersistenceData newInvPersData = _inventoryDatabase.CreateInventory();
+            if (newInvPersData == null)
+            {
+                OwlLogger.LogError("Character creation failed in InventoryDb!", GameComponent.Items);
+                return -20;
+            }
+
+            int charDbResult = _characterDatabase.CreateCharacter(connection, connection.AccountId, charname, gender, newInvPersData.InventoryId);
+            if (charDbResult <= 0)
+            {
+                OwlLogger.LogError("Character creation failed in CharDb!", GameComponent.Character);
+                return charDbResult;
+            }
+
+            return charDbResult;
         }
 
         private void ReceiveCharacterDeletionRequest(ClientConnection connection, int charId)
@@ -909,6 +941,8 @@ namespace Server
 
             charData.Connection.CharacterId = -1;
             charData.Connection.EntityId = -1;
+
+            _inventoryModule.ClearInventoryFromCache(charData.InventoryId); // We likely won't use this anymore now
         }
 
         public override void Update(float deltaTime)

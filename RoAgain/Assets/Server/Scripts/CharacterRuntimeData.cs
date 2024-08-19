@@ -31,7 +31,9 @@ namespace Server
         public Dictionary<SkillId, int> PermanentSkills = new();
         public Dictionary<SkillId, int> TemporarySkills = new();
 
-        // Inventory reference
+        // Should this be a direct memory reference? Is there a point to a character being loaded without their inventory?
+        // TODO: Persistence & adding to packet
+        public int InventoryId;
         // Equip reference
         // Cosmetic references (if not contained in Equipment)
         
@@ -48,6 +50,7 @@ namespace Server
         public readonly StatFloat CastTime = new();
         public readonly Stat CritDamage = new();
         public readonly Stat WeightLimit = new();
+        public int CurrentWeight;
 
         public bool IsTranscendent;
 
@@ -195,20 +198,46 @@ namespace Server
             NetworkQueue.Initialize(Connection);
         }
 
-        public CharacterRuntimeData(ClientConnection connection, int charId, string accountId, int baseLvl, JobId jobId, int jobLvl,
-            int str, int agi, int vit, int intelligence, int dex, int luk) : this(connection, NextEntityId)
+        public CharacterRuntimeData(ClientConnection connection, CharacterPersistenceData persData, ExperienceModule expModule) : this(connection, NextEntityId)
         {
-            CharacterId = charId;
-            AccountId = accountId;
-            BaseLvl.Value = baseLvl;
-            JobId = jobId;
-            JobLvl.Value = jobLvl;
-            Str.SetBase(str);
-            Agi.SetBase(agi);
-            Vit.SetBase(vit);
-            Int.SetBase(intelligence);
-            Dex.SetBase(dex);
-            Luk.SetBase(luk);
+            CharacterId = persData.CharacterId;
+            AccountId = persData.AccountId;
+            Gender.Value = persData.Gender;
+            Movespeed.Value = 6; // close to default RO movespeed of 0.15 s/tile
+
+            BaseLvl.Value = persData.BaseLevel;
+            JobId = persData.JobId;
+            JobLvl.Value = persData.JobLevel;
+            Str.SetBase(persData.Str);
+            Agi.SetBase(persData.Agi);
+            Vit.SetBase(persData.Vit);
+            Int.SetBase(persData.Int);
+            Dex.SetBase(persData.Dex);
+            Luk.SetBase(persData.Luk);
+
+            // Values that are always the same (Size?!) and aren't saved
+            HpRegenTime = 10;
+            SpRegenTime = 5;
+            Race = EntityRace.Humanoid;
+            Size = EntitySize.Medium; // TODO: Calculation based on mounts
+            Element = EntityElement.Neutral1;
+
+            // Fields from the persistentData
+            NameOverride = persData.Name;
+            MapId = persData.MapId;
+            Coordinates = persData.Coordinates;
+            RequiredBaseExp = expModule.GetRequiredBaseExpOnLevel(persData.BaseLevel, false);
+            CurrentBaseExp = persData.BaseExp;
+            RequiredJobExp = expModule.GetRequiredJobExpOnLevel(persData.JobLevel, persData.JobId);
+            CurrentJobExp = persData.JobExp;
+            RemainingStatPoints = persData.StatPoints;
+            CurrentHp = persData.CurrentHP;
+            CurrentSp = persData.CurrentSP;
+            RemainingSkillPoints = persData.SkillPoints;
+            SaveMapId = persData.SaveMapId;
+            SaveCoords = persData.SaveCoords;
+
+            InventoryId = persData.InventoryId;
 
             CalculateAllStats();
 
@@ -731,6 +760,7 @@ namespace Server
                 Crit = Crit,
                 AttackSpeed = GetDefaultAnimationCooldown(),
                 Weightlimit = WeightLimit,
+                CurrentWeight = CurrentWeight,
 
                 RemainingSkillPoints = RemainingSkillPoints,
                 RemainingStatPoints = RemainingStatPoints,
@@ -749,7 +779,9 @@ namespace Server
                 
                 // tmp, until ranged weapons exist.
                 AtkMin = MeleeAtkMin,
-                AtkMax = MeleeAtkMax
+                AtkMax = MeleeAtkMax,
+
+                InventoryId = InventoryId,
             };
 
             //if(IsWeaponRanged())
