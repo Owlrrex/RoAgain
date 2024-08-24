@@ -97,17 +97,32 @@ namespace Server
         {
             Inventory inventory = AutoInitResourcePool<Inventory>.Acquire();
             inventory.InventoryId = persData.InventoryId;
-            inventory.ItemStacksByTypeId = persData.ItemsWrapper.ToDict();
+            foreach(var entry in persData.ItemsWrapper.entries)
+            {
+                inventory.ItemStacksByTypeId.Add(entry.key, CreateItemStack(entry.key, entry.value));
+            }
+
             return inventory;
         }
 
         private InventoryPersistenceData InventoryToPersData(Inventory inv)
         {
-            return new()
+            InventoryPersistenceData data = new()
             {
                 InventoryId = inv.InventoryId,
-                ItemsWrapper = new(inv.ItemStacksByTypeId)
+                ItemsWrapper = new()
             };
+
+            foreach (var kvp in inv.ItemStacksByTypeId)
+            {
+                data.ItemsWrapper.entries.Add(new()
+                {
+                    key = kvp.Key,
+                    value = kvp.Value.ItemCount
+                });
+            }
+
+            return data;
         }
 
         /// <summary>
@@ -146,7 +161,7 @@ namespace Server
             return stack;
         }
 
-        public void DestroyItemStack(ItemStack stack)
+        private void DestroyItemStack(ItemStack stack)
         {
             _itemTypeModule.NotifyItemStackDestroyed(stack);
             AutoInitResourcePool<ItemStack>.Return(stack);
@@ -241,7 +256,7 @@ namespace Server
             return RemoveItemsFromInventory(inventory, stack.ItemType.TypeId, stack.ItemCount, allowDeleteStack);
         }
 
-        public int RemoveItemsFromInventory(Inventory inventory, long itemTypeId, int count, bool allowDeleteStack)
+        public int RemoveItemsFromInventory(Inventory inventory, long itemTypeId, int count, bool shouldDeleteStack)
         {
             if (inventory == null)
             {
@@ -274,12 +289,14 @@ namespace Server
                 return -5;
             }
 
+            // TODO: Check for equipped-state here - unequip items or deny deletion, based on function arguments
+
             stack.ItemCount -= count;
 
             if(stack.ItemCount == 0)
             {
                 int removeResult = RemoveItemStackFromInventory(inventory, itemTypeId);
-                if (allowDeleteStack)
+                if (shouldDeleteStack)
                 {
                     DestroyItemStack(stack);
                 }
@@ -598,6 +615,14 @@ namespace Server
             if(character.Connection.CharacterId != -1) // character login not yet completed for this character - we're currently creating this CharacterRuntimeData
             {
                 character.Connection.Send(new WeightPacket() { EntityId = character.Id, NewCurrentWeight = totalWeight });
+            }
+        }
+
+        public void PersistAllCachedInventories()
+        {
+            foreach(var kvp in _cachedInventories)
+            {
+                _invDb.Persist(InventoryToPersData(kvp.Value));
             }
         }
     }

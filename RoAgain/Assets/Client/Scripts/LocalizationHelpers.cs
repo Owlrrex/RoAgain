@@ -7,15 +7,15 @@ namespace Client
     {
         public static readonly Dictionary<SkillFailReason, LocalizedStringId> skillFailStrings = new()
         {
-            {  SkillFailReason.OutOfRange, new() { Id = 199 } },
-            {  SkillFailReason.UserDead, new() { Id = 200 } },
-            {  SkillFailReason.AlreadyCasting, new() { Id = 201 } },
-            {  SkillFailReason.OnCooldown, new() { Id = 202 } },
-            {  SkillFailReason.NotEnoughSp, new() { Id = 198 } },
-            {  SkillFailReason.NotEnoughHp, new() { Id = 203 } },
-            {  SkillFailReason.NotEnoughAmmo, new() { Id = 204 } },
-            {  SkillFailReason.TargetDead, new() { Id = 205 } },
-            {  SkillFailReason.TargetInvalid, new() { Id = 206 } }
+            {  SkillFailReason.OutOfRange, new(199) },
+            {  SkillFailReason.UserDead, new(200) },
+            {  SkillFailReason.AlreadyCasting, new(201) },
+            {  SkillFailReason.OnCooldown, new(202) },
+            {  SkillFailReason.NotEnoughSp, new(198) },
+            {  SkillFailReason.NotEnoughHp, new(203) },
+            {  SkillFailReason.NotEnoughAmmo, new(204) },
+            {  SkillFailReason.TargetDead, new(205) },
+            {  SkillFailReason.TargetInvalid, new(206) }
         };
 
         public static LocalizedStringId GetErrorMessage(this SkillFailReason reason)

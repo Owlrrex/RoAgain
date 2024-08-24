@@ -1,5 +1,6 @@
 
 using Shared;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Shared
@@ -59,6 +60,21 @@ namespace Shared
         Gypsy,
         Whitesmith,
         Creator,
+    }
+
+    [Flags]
+    public enum JobFilter
+    {
+        Unknown             = 0,
+        Any                 = 1 >> 0,
+        None                = 1 >> 1,
+        Swordman_Classes    = 1 >> 2,
+        Mage_Classes        = 1 >> 3,
+        Acolyte_Classes     = 1 >> 4,
+        Thief_Classes       = 1 >> 5,
+        Archer_Classes      = 1 >> 6,
+        Merchant_Classes    = 1 >> 7,
+        Must_Be_Trans       = 1 >> 31,
     }
 }
 

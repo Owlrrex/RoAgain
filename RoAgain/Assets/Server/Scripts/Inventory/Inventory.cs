@@ -37,7 +37,6 @@ namespace Server
         {
             InventoryId = 0;
             ItemStacksByTypeId.Clear();
-            ItemStacksByTypeId = null;
         }
     }
 }

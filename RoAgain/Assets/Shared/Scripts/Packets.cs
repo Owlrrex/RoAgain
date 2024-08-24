@@ -115,9 +115,9 @@ abstract public class Packet
             case 14:
                 packet = JsonUtility.FromJson<EntityRemovedPacket>(json);
                 break;
-            //case 15:
-            //    packet = JsonUtility.FromJson<MapChangePacket>(json);
-            //    break;
+            case 15:
+                packet = JsonUtility.FromJson<LocalizedChatMessagePacket>(json);
+                break;
             case 16:
                 packet = JsonUtility.FromJson<CellEffectGroupPlacedPacket>(json);
                 break;
@@ -172,20 +172,8 @@ abstract public class Packet
             case 33:
                 packet = JsonUtility.FromJson<ExpUpdatePacket>(json);
                 break;
-            case 34:
-                packet = JsonUtility.FromJson<ItemReceivedPacket>(json);
-                break;
-            case 35:
-                packet = JsonUtility.FromJson<EquipChangedPacket>(json);
-                break;
-            case 36:
-                packet = JsonUtility.FromJson<PlayerEquipmentInfoPacket>(json);
-                break;
             case 37:
                 packet = JsonUtility.FromJson<StatUpdatePacket>(json);
-                break;
-            case 38:
-                packet = JsonUtility.FromJson<InventoryStatePacket>(json);
                 break;
             case 39:
                 packet = JsonUtility.FromJson<StatIncreaseRequestPacket>(json);
@@ -506,6 +494,8 @@ public class ChatMessagePacket : Packet
     public string ChannelTag;
 }
 
+// TODO: Add optional parameters to this packet, or packets with parameters
+// To be used when the localized string is a format-string
 public class LocalizedChatMessagePacket : Packet
 {
     public override int PacketType => 15;
@@ -774,29 +764,6 @@ public class ExpUpdatePacket : Packet
     public int CurrentJobExp;
 }
 
-public class InventoryStatePacket : Packet
-{
-    public override int PacketType => 38;
-}
-
-public class ItemReceivedPacket : Packet
-{
-    public override int PacketType => 34;
-
-    public bool IsPickup; // for playing pickup-animation
-}
-
-public class EquipChangedPacket : Packet
-{
-    public override int PacketType => 35;
-}
-
-// Do we use this for the local player as well, or only for remote ones?
-public class PlayerEquipmentInfoPacket : Packet
-{
-    public override int PacketType => 36;
-}
-
 public class StatIncreaseRequestPacket : Packet
 {
     public override int PacketType => 39;
@@ -1009,7 +976,7 @@ public class ItemTypePacket : Packet
     public int Weight;
     // public int SellPrice; // Probably not needed Clientside
     public int RequiredLevel;
-    public List<JobId> RequiredJobs;
+    public JobFilter RequiredJobs;
     public int NumTotalCardSlots;
     public ItemUsageMode UsageMode;
     public int VisualId;
@@ -1038,4 +1005,4 @@ public class WeightPacket : Packet
 
 // Move & adjust this comment when adding new packets, to make dev easier
 // Next PacketType = 68
-// Unused Ids: 8, 15
+// Unused Ids: 8, 34, 35, 36, 38

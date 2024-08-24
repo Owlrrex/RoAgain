@@ -11,7 +11,7 @@ namespace Server
     public class InventoryPersistenceData
     {
         public int InventoryId;
-        public DictionarySerializationWrapper<long, ItemStack> ItemsWrapper;
+        public DictionarySerializationWrapper<long, int> ItemsWrapper;
     }
 
     public abstract class AInventoryDatabase
@@ -21,8 +21,6 @@ namespace Server
         public abstract int Initialize(string config);
 
         public abstract void Shutdown();
-
-        public abstract int Persist(Inventory inventory);
 
         public abstract int Persist(InventoryPersistenceData invPersData);
 
@@ -175,17 +173,6 @@ namespace Server
             InventoryPersistenceData data = JsonUtility.FromJson<InventoryPersistenceData>(rawData);
 
             return data;
-        }
-
-        public override int Persist(Inventory inventory)
-        {
-            InventoryPersistenceData data = new()
-            {
-                InventoryId = inventory.InventoryId,
-            };
-            data.ItemsWrapper.FromDict(inventory.ItemStacksByTypeId);
-
-            return Persist(data);
         }
 
         public override int Persist(InventoryPersistenceData invPersData)

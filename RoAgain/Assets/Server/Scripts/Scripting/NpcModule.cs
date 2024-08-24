@@ -104,7 +104,7 @@ namespace Server
                 return new();
             }
 
-            ServerMapInstance map = ServerMain.Instance.Server.MapModule.GetMapInstance(mapId);
+            ServerMapInstance map = AServer.Instance.MapModule.GetMapInstance(mapId);
             if (map == null)
             {
                 OwlLogger.LogError($"Can't place npcs on map {mapId} - map instance not found!", GameComponent.Scripts);

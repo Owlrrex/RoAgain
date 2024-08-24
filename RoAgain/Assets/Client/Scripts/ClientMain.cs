@@ -398,6 +398,8 @@ namespace Client
                 }
             }
 
+            InventoryModule.OnInventoryIdReceived(CurrentCharacterData.InventoryId, CurrentCharacterData.Id);
+
             ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
         }
 

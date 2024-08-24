@@ -209,6 +209,8 @@ namespace Client
                 return;
             }
 
+            OwlLogger.LogF("Client received packet type {0}", packet.PacketType, GameComponent.Network, LogSeverity.VeryVerbose);
+
             switch(packet)
             {
                 case SessionCreationPacket sessionPacket:
@@ -243,9 +245,6 @@ namespace Client
                 case EntityRemovedPacket entityRemovedPacket:
                     ReceiveEntityRemoved(entityRemovedPacket);
                     break;
-                //case MapChangePacket mapChangePacket:
-                //    ReceiveMapChange(mapChangePacket);
-                //    break;
                 case CellEffectGroupPlacedPacket groupPlacedPacket:
                     ReceiveCellEffectGroupPlaced(groupPlacedPacket);
                     break;

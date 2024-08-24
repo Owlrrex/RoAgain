@@ -16,10 +16,12 @@ namespace Server
         public int Weight;
         public int SellPrice;
         public int RequiredLevel;
-        public List<JobId> RequiredJobs;
+        public JobFilter RequiredJobs;
         public int NumTotalCardSlots;
         public ItemUsageMode UsageMode;
         public int OnUseScriptId;
+        public LocalizedStringId NameLocId;
+        public LocalizedStringId FlavorLocId;
         public DictionarySerializationWrapper<ModifierType, int> Modifiers;
 
         public bool IsValid()
@@ -144,25 +146,20 @@ namespace Server
                 OwlLogger.LogError($"Can't convert ItemPersistenceData {persData.TypeId} to ItemType - invalid SellPrice {persData.SellPrice}", GameComponent.Items);
                 return null;
             }
-            
-            ItemType type = new();
+
+            ItemType type = AutoInitResourcePool<ItemType>.Acquire();
             type.TypeId = persData.TypeId;
             type.BaseTypeId = persData.BaseTypeId;
             type.CanStack = persData.CanStack;
             type.Weight = persData.Weight;
             type.SellPrice = persData.SellPrice;
             type.RequiredLevel = persData.RequiredLevel;
-            type.RequiredJobs = new();
-            foreach(JobId jobId in persData.RequiredJobs)
-            {
-                if(!type.RequiredJobs.Add(jobId))
-                {
-                    OwlLogger.LogWarning($"ItemPersistenceData {persData.TypeId} has duplicate RequiredJob entry {jobId}!", GameComponent.Items);
-                }
-            }
+            type.RequiredJobs = persData.RequiredJobs;
             type.NumTotalCardSlots = persData.NumTotalCardSlots;
             type.UsageMode = persData.UsageMode;
             type.OnUseScript = persData.OnUseScriptId;
+            type.NameLocId = persData.NameLocId;
+            type.FlavorLocId = persData.FlavorLocId;
             foreach(var entry in persData.Modifiers.entries)
             {
                 if(type.HasModifier(entry.key))
@@ -216,11 +213,12 @@ namespace Server
             persData.Weight = type.Weight;
             persData.SellPrice = type.SellPrice;
             persData.RequiredLevel = type.RequiredLevel;
-            persData.RequiredJobs = new();
-            persData.RequiredJobs.AddRange(type.RequiredJobs);
+            persData.RequiredJobs = type.RequiredJobs;
             persData.NumTotalCardSlots = type.NumTotalCardSlots;
             persData.UsageMode = type.UsageMode;
             persData.OnUseScriptId = type.OnUseScript;
+            persData.NameLocId = type.NameLocId;
+            persData.FlavorLocId = type.FlavorLocId;
             persData.Modifiers = new();
             persData.Modifiers.FromDict(type.ReadOnlyModifiers);
 
@@ -296,13 +294,75 @@ namespace Server
 
                 ItemTypePersistentData persData = LoadItemTypePersData(value);
 
-                if (_itemTypeIdsByBaseType.ContainsKey(persData.BaseTypeId))
-                    _itemTypeIdsByBaseType[persData.BaseTypeId] = new();
-                _itemTypeIdsByBaseType[persData.BaseTypeId].Add(persData.TypeId);
+                if(persData.BaseTypeId != ItemType.BASETYPEID_NONE)
+                {
+                    if (!_itemTypeIdsByBaseType.ContainsKey(persData.BaseTypeId))
+                        _itemTypeIdsByBaseType[persData.BaseTypeId] = new();
+                    _itemTypeIdsByBaseType[persData.BaseTypeId].Add(persData.TypeId);
+                }
 
                 typeCount++;
             }
             OwlLogger.LogF("Scanned {0} ItemTypes, next itemTypeId is {1}", typeCount, _nextItemTypeId, GameComponent.Persistence);
+
+            //// tmp: Create some ItemTypes
+            //List<ItemTypePersistentData> creationList = new();
+            //creationList.Add(new()
+            //{
+            //    BaseTypeId = ItemType.BASETYPEID_NONE,
+            //    CanStack = true,
+            //    FlavorLocId = new() { Id = 2001 },
+            //    Modifiers = null,
+            //    NameLocId = new() { Id = 2000 },
+            //    NumTotalCardSlots = 0,
+            //    OnUseScriptId = 0,
+            //    RequiredJobs = JobFilter.Any,
+            //    RequiredLevel = 0,
+            //    SellPrice = 10,
+            //    TypeId = 1,
+            //    UsageMode = ItemUsageMode.Unusable,
+            //    Weight = 1
+            //});
+            //creationList.Add(new()
+            //{
+            //    BaseTypeId = ItemType.BASETYPEID_NONE,
+            //    CanStack = true,
+            //    FlavorLocId = new() { Id = 2003 },
+            //    Modifiers = null,
+            //    NameLocId = new() { Id = 2002 },
+            //    NumTotalCardSlots = 0,
+            //    OnUseScriptId = 0,
+            //    RequiredJobs = JobFilter.Any,
+            //    RequiredLevel = 0,
+            //    SellPrice = 10000,
+            //    TypeId = 2,
+            //    UsageMode = ItemUsageMode.Unusable,
+            //    Weight = 100
+            //});
+            //creationList.Add(new()
+            //{
+            //    BaseTypeId = ItemType.BASETYPEID_NONE,
+            //    CanStack = true,
+            //    FlavorLocId = new() { Id = 2005 },
+            //    Modifiers = null,
+            //    NameLocId = new() { Id = 2004 },
+            //    NumTotalCardSlots = 1,
+            //    OnUseScriptId = 0,
+            //    RequiredJobs = JobFilter.Any,
+            //    RequiredLevel = 20,
+            //    SellPrice = 1,
+            //    TypeId = 3,
+            //    UsageMode = ItemUsageMode.Usable,
+            //    Weight = 1000
+            //});
+
+            //foreach (ItemTypePersistentData type in creationList)
+            //{
+            //    string path = MakeFilePathForType(type.TypeId);
+            //    string json = JsonUtility.ToJson(type);
+            //    File.WriteAllText(path, json);
+            //}
+
             return 0;
         }
 
@@ -382,7 +442,7 @@ namespace Server
 
             ItemTypePersistentData baseData = LoadItemTypePersData(baseTypeId);
 
-            // TODO: Allow customizing this type in some ways, with different scripts or sth?
+            // TODO: Allow customizing this type in some ways, with different values from its base
             ItemTypePersistentData persdata = new();
             persdata.BaseTypeId = baseTypeId;
             persdata.CanStack = baseData.CanStack;

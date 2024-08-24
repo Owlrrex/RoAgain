@@ -1449,6 +1449,90 @@
 				"TextEnglish": "Skill {0} Failed: Can't us this skill on this target.",
 				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Fähigkeit kann nicht auf dieses Ziel verwendet werden."
 			}
+		},
+		{
+			"key": 207,
+			"value": {
+				"TextEnglish": "Light Test Item",
+				"TextGerman": "Leichtes Test-Item"
+			}
+		},
+		{
+			"key": 208,
+			"value": {
+				"TextEnglish": "These lighter-than-air items grow on upside-down apple trees",
+				"TextGerman": "Dieses Objekt ist leichter als Luft, und wächst an kopfüber Apfelbäumen."
+			}
+		},
+		{
+			"key": 209,
+			"value": {
+				"TextEnglish": "Medium Test Item",
+				"TextGerman": "Mittleres Test-Item"
+			}
+		},
+		{
+			"key": 210,
+			"value": {
+				"TextEnglish": "An object of undefined geometry.",
+				"TextGerman": "Ein Gegenstand mit unbekannter Geometrie."
+			}
+		},
+		{
+			"key": 211,
+			"value": {
+				"TextEnglish": "Heavy Test Item",
+				"TextGerman": "Schweres Test-Item"
+			}
+		},
+		{
+			"key": 212,
+			"value": {
+				"TextEnglish": "Unfathomably dense, this item's also known as 'Your mom'.",
+				"TextGerman": "Unglaublich schwer und dicht, diese Item ist auch bekannt als 'Deine Mudda'."
+			}
+		},
+		{
+			"key": 213,
+			"value": {
+				"TextEnglish": "Invalid ItemTypeId",
+				"TextGerman": "Ungültige ItemTypeId"
+			}
+		},
+		{
+			"key": 214,
+			"value": {
+				"TextEnglish": "Invalid Amount",
+				"TextGerman": "Ungültige Menge"
+			}
+		},
+		{
+			"key": 215,
+			"value": {
+				"TextEnglish": "Target Character not found or not online",
+				"TextGerman": "Ziel-Charakter nicht gefunden oder nicht online"
+			}
+		},
+		{
+			"key": 216,
+			"value": {
+				"TextEnglish": "Target Character can't hold that much weight",
+				"TextGerman": "Ziel-Charakter kann nicht genug Gewicht tragen"
+			}
+		},
+		{
+			"key": 217,
+			"value": {
+				"TextEnglish": "Item/s Created",
+				"TextGerman": "Item/s erzeugt"
+			}
+		},
+		{
+			"key": 218,
+			"value": {
+				"TextEnglish": "Inventory Cleared",
+				"TextGerman": "Inventar gelöscht"
+			}
 		}
     ]
 }

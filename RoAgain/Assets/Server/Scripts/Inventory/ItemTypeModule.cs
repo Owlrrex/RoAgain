@@ -7,7 +7,7 @@ namespace Server
     /// <summary>
     /// Represents a type of item, providing access to various of the properties that never change for individual stacks
     /// </summary>
-    public class ItemType
+    public class ItemType : IAutoInitPoolObject
     {
         public const long BASETYPEID_NONE = ItemTypeDatabase.ITEM_TYPE_ID_INVALID;
 
@@ -17,13 +17,13 @@ namespace Server
         public int Weight;
         public int SellPrice;
         public int RequiredLevel;
-        public HashSet<JobId> RequiredJobs;
+        public JobFilter RequiredJobs;
         public int NumTotalCardSlots;
         public ItemUsageMode UsageMode;
         public int OnUseScript;
         public int VisualId;
-        public LocalizedStringId NameLocId;
-        public LocalizedStringId FlavorLocId;
+        public LocalizedStringId NameLocId = LocalizedStringId.INVALID;
+        public LocalizedStringId FlavorLocId = LocalizedStringId.INVALID;
 
 
         private Dictionary<ModifierType, int> _modifiers;
@@ -42,7 +42,7 @@ namespace Server
             if (modifierType == ModifierType.Unknown)
                 return false;
 
-            return _modifiers.ContainsKey(modifierType);
+            return _modifiers != null && _modifiers.ContainsKey(modifierType);
         }
 
         public int GetModifierValue(ModifierType modifierType)
@@ -112,7 +112,7 @@ namespace Server
                 BaseTypeId = BaseTypeId,
                 Weight = Weight,
                 RequiredLevel = RequiredLevel,
-                RequiredJobs = new(RequiredJobs),
+                RequiredJobs = RequiredJobs,
                 NumTotalCardSlots = NumTotalCardSlots,
                 UsageMode = UsageMode,
                 VisualId = VisualId,
@@ -121,6 +121,23 @@ namespace Server
                 Modifiers = new(ReadOnlyModifiers)
             };
         }
+
+        public void Reset()
+        {
+            TypeId = 0;
+            BaseTypeId = BASETYPEID_NONE;
+            CanStack = false;
+            Weight = 0;
+            SellPrice = 0;
+            RequiredLevel = 0;
+            RequiredJobs = JobFilter.Unknown;
+            NumTotalCardSlots = 0;
+            UsageMode = ItemUsageMode.Unusable;
+            OnUseScript = 0;
+            VisualId = 0;
+            NameLocId = LocalizedStringId.INVALID;
+            FlavorLocId = LocalizedStringId.INVALID;
+    }
     }
 
     /// <summary>
@@ -246,6 +263,7 @@ namespace Server
                 _itemTypesByBaseTypeId[type.BaseTypeId].Remove(type);
             }
             _itemTypeUsageCount.Remove(type.TypeId);
+            AutoInitResourcePool<ItemType>.Return(type);
         }
 
         public void NotifyItemStackCreated(ItemStack stack)

@@ -187,7 +187,7 @@ namespace Server
         {
             int joblvl = character.JobLvl.Value;
 
-            ServerMain.Instance.Server.JobModule.UpdateJobBonuses(character, previousJobLevel, joblvl);
+            AServer.Instance.JobModule.UpdateJobBonuses(character, previousJobLevel, joblvl);
         }
 
         // TODO: Better place for this?

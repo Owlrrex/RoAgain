@@ -68,6 +68,8 @@ namespace Server
             _chatCommands.Add("resetstats", new StatResetChatCommand());
             _chatCommands.Add("baselvl", new BaseLevelChatCommand());
             _chatCommands.Add("joblvl", new JobLevelChatCommand());
+            _chatCommands.Add("createitem", new CreateItemExactCommant());
+            _chatCommands.Add("clearinventory", new ClearInventoryCommand());
         }
 
         public int HandleChatMessage(ChatMessageRequestData chatMessage)

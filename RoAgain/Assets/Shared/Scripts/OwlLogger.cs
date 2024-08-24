@@ -116,6 +116,30 @@ namespace OwlLogging
             Log(formattedMessage, component, severity, memberName, filePath, lineNumber);
         }
 
+        public static void LogF(string formatString, object arg1, object arg2, object arg3, object arg4, GameComponent component, LogSeverity severity = LogSeverity.Log, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
+        {
+            if (!EnabledComponents.HasFlag(component))
+                return;
+
+            if (CurrentLogVerbosity > severity)
+                return;
+
+            string formattedMessage = string.Format(formatString, arg1, arg2, arg3, arg4);
+            Log(formattedMessage, component, severity, memberName, filePath, lineNumber);
+        }
+
+        public static void LogF(string formatString, object arg1, object arg2, object arg3, object arg4, object arg5, GameComponent component, LogSeverity severity = LogSeverity.Log, [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
+        {
+            if (!EnabledComponents.HasFlag(component))
+                return;
+
+            if (CurrentLogVerbosity > severity)
+                return;
+
+            string formattedMessage = string.Format(formatString, arg1, arg2, arg3, arg4, arg5);
+            Log(formattedMessage, component, severity, memberName, filePath, lineNumber);
+        }
+
         public static void LogErrorAndBroadcast<ActionType>(Action<ActionType> action, ActionType value, string message, GameComponent component,
             [CallerMemberName] string memberName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0)
         {

@@ -68,6 +68,7 @@ namespace Client
         private void LoadDefaultTagColors()
         {
             _colorPerMessageTag.TryAdd(DefaultChannelTags.BROADCAST, Color.yellow);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.COMMAND_ERROR, Color.red);
             _colorPerMessageTag.TryAdd(DefaultChannelTags.COMMAND_FEEDBACK, Color.green);
             _colorPerMessageTag.TryAdd(DefaultChannelTags.EMOTE, Color.grey);
             _colorPerMessageTag.TryAdd(DefaultChannelTags.GENERIC_ERROR, Color.red);

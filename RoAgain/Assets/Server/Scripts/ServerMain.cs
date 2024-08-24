@@ -8,8 +8,6 @@ namespace Server
 {
     public class ServerMain : MonoBehaviour
     {
-        public static ServerMain Instance;
-
         public AServer Server;
 
         [SerializeField]
@@ -31,20 +29,6 @@ namespace Server
 
         void Start()
         {
-            if (Instance == this)
-            {
-                OwlLogger.Log("ServerMain tried to re-register itself", GameComponent.Other);
-                return;
-            }
-
-            if (Instance != null)
-            {
-                OwlLogger.LogError($"Duplicate ServerMain script on GameObject {gameObject.name}", GameComponent.Other);
-                Destroy(this);
-                return;
-            }
-            Instance = this;
-
             if (Server != null)
             {
                 OwlLogger.LogWarning("Tried to double-initialize Server - aborting.", GameComponent.Other);

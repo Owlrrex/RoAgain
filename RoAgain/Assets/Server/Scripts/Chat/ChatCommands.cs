@@ -3,6 +3,7 @@ using Shared;
 
 namespace Server
 {
+    // TODO: Make all these command send command error & Feedback messages to Client
     public class HealChatCommand : AChatCommand
     {
         // Args[1]: [Optional] Heal mode - 0 = both, 1 = hp, 2 = sp, default = 0
@@ -105,7 +106,7 @@ namespace Server
             // Resolve target id
             if(targetId != sender.Id)
             {
-                target = ServerMain.Instance.Server.MapModule.FindEntityOnAllMaps(targetId) as ServerBattleEntity;
+                target = AServer.Instance.MapModule.FindEntityOnAllMaps(targetId) as ServerBattleEntity;
                 if (target == null)
                 {
                     OwlLogger.Log($"Can't find target with id {targetId}", GameComponent.ChatCommands);
@@ -206,7 +207,7 @@ namespace Server
             // Resolve target id
             if(targetId != sender.Id)
             {
-                target = ServerMain.Instance.Server.MapModule.FindEntityOnAllMaps(targetId) as ServerBattleEntity;
+                target = AServer.Instance.MapModule.FindEntityOnAllMaps(targetId) as ServerBattleEntity;
                 if (target == null)
                 {
                     OwlLogger.Log($"Can't find target with id {targetId}", GameComponent.ChatCommands);
@@ -296,7 +297,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMain.Instance.Server.JobModule.ChangeJob(target, targetJobId, shouldReset);
+            AServer.Instance.JobModule.ChangeJob(target, targetJobId, shouldReset);
             return 0;
         }
     }
@@ -350,7 +351,7 @@ namespace Server
                 }
             }
 
-            ServerMain.Instance.Server.JobModule.StatReset(target);
+            AServer.Instance.JobModule.StatReset(target);
 
             return 0;
         }
@@ -384,7 +385,7 @@ namespace Server
                 }
             }
 
-            ServerMain.Instance.Server.ExpModule.LevelUpBase(target, levelDiff);
+            AServer.Instance.ExpModule.LevelUpBase(target, levelDiff);
 
             return 0;
         }
@@ -418,9 +419,141 @@ namespace Server
                 }
             }
 
-            ServerMain.Instance.Server.ExpModule.LevelUpJob(target, levelDiff);
+            AServer.Instance.ExpModule.LevelUpJob(target, levelDiff);
 
             return 0;
+        }
+    }
+
+    public class CreateItemExactCommant : AChatCommand
+    {
+        // args[1]: Exact itemType to be created
+        // args[2]: Amount to be created
+        // args[3]: [Optional] Name of character who's inventory to create it in. Default: Sender name
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 3, 4))
+                return -1;
+
+            if (!long.TryParse(args[1], out long targetItemTypeId))
+            {
+                sender.Connection.Send(new LocalizedChatMessagePacket()
+                {
+                    ChannelTag = DefaultChannelTags.COMMAND_ERROR,
+                    MessageLocId = new(213)
+                });
+                OwlLogger.Log($"Invalid ItemTypeId {args[1]}.", GameComponent.ChatCommands);
+                return -2;
+            }
+
+            if (!int.TryParse(args[2], out int amount))
+            {
+                sender.Connection.Send(new LocalizedChatMessagePacket()
+                {
+                    ChannelTag = DefaultChannelTags.COMMAND_ERROR,
+                    MessageLocId = new(214)
+                });
+                OwlLogger.Log($"Invalid Amount {args[2]}.", GameComponent.ChatCommands);
+                return -3;
+            }
+
+            CharacterRuntimeData target = sender;
+            if (args.Length >= 4)
+            {
+                string targetName = args[3];
+
+                target = FindPlayerByName(targetName);
+                if (target == null)
+                {
+                    sender.Connection.Send(new LocalizedChatMessagePacket()
+                    {
+                        ChannelTag = DefaultChannelTags.COMMAND_ERROR,
+                        MessageLocId = new(215)
+                    });
+                    OwlLogger.LogF("Tried to use CreateItemExactCommand on target {0}, which wasn't found.", targetName, GameComponent.ChatCommands);
+                    return -4;
+                }
+            }
+
+            int result = AServer.Instance.InventoryModule.AddItemsToInventory(target, targetItemTypeId, amount);
+            if(result == -2)
+            {
+                sender.Connection.Send(new LocalizedChatMessagePacket()
+                {
+                    ChannelTag = DefaultChannelTags.COMMAND_ERROR,
+                    MessageLocId = new(216)
+                });
+                OwlLogger.LogF("Tried to use CreateItemExactCommand on target {0}, but not enough weight capacity!", target.NameOverride, GameComponent.ChatCommands);
+            }
+            else if(result != 0)
+            {
+                OwlLogger.LogF("Generic error while using CreateItemExactCommand: {0}", result, GameComponent.ChatCommands);
+            }
+            else
+            {
+                sender.Connection.Send(new LocalizedChatMessagePacket()
+                {
+                    ChannelTag = DefaultChannelTags.COMMAND_FEEDBACK,
+                    MessageLocId = new(217)
+                });
+                // This will somewhat-duplicate item-telemetry, but this way we can more easily filter for GM activity
+                OwlLogger.LogF("{0} used chatcommand to create {1}x ItemType {2} on character {3}",
+                    sender.NameOverride, amount, targetItemTypeId, target.NameOverride, GameComponent.ChatCommands);
+            }
+
+            return result;
+        }
+    }
+
+    public class ClearInventoryCommand : AChatCommand
+    {
+        // args[1]: [Optional] Target character name. Default: Sender name
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 1, 2))
+                return -1;
+
+            CharacterRuntimeData target = sender;
+            if (args.Length >= 4)
+            {
+                string targetName = args[3];
+
+                target = FindPlayerByName(targetName);
+                if (target == null)
+                {
+                    sender.Connection.Send(new LocalizedChatMessagePacket()
+                    {
+                        ChannelTag = DefaultChannelTags.COMMAND_ERROR,
+                        MessageLocId = new(215)
+                    });
+                    OwlLogger.LogF("Tried to use ClearInventoryCommand on target {0}, which wasn't found.", targetName, GameComponent.ChatCommands);
+                    return -2;
+                }
+            }
+
+            Inventory inventory = AServer.Instance.InventoryModule.GetOrLoadInventory(target.InventoryId);
+            int totalResult = 0;
+            foreach(var kvp in inventory.ItemStacksByTypeId)
+            {
+                int partResult = AServer.Instance.InventoryModule.RemoveItemsFromInventory(target, kvp.Value, true);
+                if(partResult != 0)
+                {
+                    OwlLogger.LogError($"Failed to delete itemtype {kvp.Key} from inventory of character {target.NameOverride}", GameComponent.ChatCommands);
+                }
+                totalResult += partResult;
+            }
+
+            if(totalResult == 0)
+            {
+                sender.Connection.Send(new LocalizedChatMessagePacket()
+                {
+                    ChannelTag = DefaultChannelTags.COMMAND_FEEDBACK,
+                    MessageLocId = new(218)
+                });
+                OwlLogger.LogF("Character {0} has cleared inventory of Character {1}", sender.NameOverride, target.NameOverride, GameComponent.ChatCommands);
+            }
+
+            return totalResult;
         }
     }
 
@@ -476,7 +609,7 @@ namespace Server
 
         protected CharacterRuntimeData FindPlayerByName(string name)
         {
-            foreach (CharacterRuntimeData charData in ServerMain.Instance.Server.LoggedInCharacters)
+            foreach (CharacterRuntimeData charData in AServer.Instance.LoggedInCharacters)
             {
                 if (charData.NameOverride == name)
                 {

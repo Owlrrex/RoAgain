@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using OwlLogging;
 using Shared;
@@ -8,10 +7,10 @@ namespace Client
     public class Inventory
     {
         public int InventoryId;
-        public Dictionary<long, ItemStack> ItemStacks;
+        public Dictionary<long, ItemStack> ItemStacks = new();
     }
 
-    public class ItemStack
+    public class ItemStack // TODO: Pool these to reduce allocations from pickups & other temporary ItemStacks
     {
         public ItemType ItemType;
         public int ItemCount;
@@ -25,7 +24,7 @@ namespace Client
         public long BaseTypeId;
         public int Weight;
         public int RequiredLevel;
-        public HashSet<JobId> RequiredJobs;
+        public JobFilter RequiredJobs;
         public int NumTotalCardSlots;
         public ItemUsageMode UsageMode;
         public int VisualId;
@@ -41,7 +40,7 @@ namespace Client
                 BaseTypeId = packet.BaseTypeId,
                 Weight = packet.Weight,
                 RequiredLevel = packet.RequiredLevel,
-                RequiredJobs = new(packet.RequiredJobs),
+                RequiredJobs = packet.RequiredJobs,
                 NumTotalCardSlots = packet.NumTotalCardSlots,
                 UsageMode = packet.UsageMode,
                 VisualId = packet.VisualId,
@@ -54,13 +53,22 @@ namespace Client
 
     public class InventoryModule
     {
+        public Inventory PlayerMainInventory;
+        public Inventory PlayerCartInventory;
+        public Inventory AccountStorageInventory;
+        public Inventory GuildStorageInventory;
+        public Dictionary<int, Inventory> GenericInventories = new();
+
         private ServerConnection _connection;
         private Dictionary<long, ItemType> _knownItemTypes = new();
-        private Inventory PlayerMainInventory;
-        private Inventory PlayerCartInventory;
-        private Inventory AccountStorageInventory;
-        private Inventory GuildStorageInventory;
-        private Dictionary<int, Inventory> GenericInventories;
+
+        private class PendingItemStackEntry
+        {
+            public int InventoryId;
+            public long ItemTypeId;
+            public int Count;
+        }
+        private Dictionary<long, List<PendingItemStackEntry>> _pendingItemStacks = new();
 
         public int Initialize(ServerConnection connection)
         {
@@ -89,6 +97,11 @@ namespace Client
                 _connection.ItemTypeReceived -= OnItemTypeReceived;
             }
             _connection = null;
+            PlayerMainInventory = null;
+            PlayerCartInventory = null;
+            AccountStorageInventory = null;
+            GuildStorageInventory = null;
+            GenericInventories.Clear();
 
             _knownItemTypes.Clear();
         }
@@ -102,6 +115,15 @@ namespace Client
             }
 
             _knownItemTypes[newType.TypeId] = newType;
+
+            if (_pendingItemStacks.ContainsKey(newType.TypeId))
+            {
+                foreach(PendingItemStackEntry entry in  _pendingItemStacks[newType.TypeId])
+                {
+                    OnItemStackReceived(entry.InventoryId, entry.ItemTypeId, entry.Count);
+                }
+                _pendingItemStacks.Remove(newType.TypeId);
+            }
         }
 
         private void OnItemStackReceived(int inventoryId, long itemTypeId, int count)
@@ -110,20 +132,55 @@ namespace Client
 
             if (targetInventory == null)
             {
-                OwlLogger.LogError($"Received ItemStack for InventoryId {inventoryId} that we have not received data for!", GameComponent.Items);
-                // TODO: Should we allow blindly creating an inventory for this, assuming we'll receive an InventoryData-packet soon?
+                OwlLogger.Log($"Received ItemStack for InventoryId {inventoryId} that we have not received data for!", GameComponent.Items);
+                // Generate a mock-ownerId to hold this (hopefuly temporary) inventory
+                for(int i = int.MinValue; i < 0; i++)
+                {
+                    if (GenericInventories.ContainsKey(i) == true)
+                        continue;
+
+                    OnInventoryIdReceived(inventoryId, i);
+                    break;
+                }
+                OnItemStackReceived(inventoryId, itemTypeId, count);
                 return;
             }
 
             ItemType type = GetKnownItemType(itemTypeId);
             if(type == null)
             {
-                OwlLogger.LogError($"Received ItemStack for ItemType {itemTypeId} that we have not received data for!", GameComponent.Items);
-                // TODO: Implement "holding stack back until itemtype is recieved" system instead of logging error
+                OwlLogger.Log($"Received ItemStack for ItemType {itemTypeId} that we have not received data for!", GameComponent.Items);
+                RegisterPendingItemStack(inventoryId, itemTypeId, count);
                 return;
             }
 
-            targetInventory.ItemStacks.Add(itemTypeId, new() { ItemType = type, ItemCount = count });
+            if(targetInventory.ItemStacks.ContainsKey(type.TypeId))
+            {
+                targetInventory.ItemStacks[type.TypeId].ItemCount += count;
+            }
+            else
+            {
+                targetInventory.ItemStacks.Add(itemTypeId, new() { ItemType = type, ItemCount = count });
+            }
+        }
+
+        private void RegisterPendingItemStack(int inventoryId, long itemTypeId, int count)
+        {
+            if(!_pendingItemStacks.ContainsKey(itemTypeId))
+            {
+                _pendingItemStacks.Add(itemTypeId, new());
+            }
+
+            foreach(PendingItemStackEntry entry in _pendingItemStacks[itemTypeId])
+            {
+                if(entry.InventoryId == inventoryId)
+                {
+                    entry.Count = count;
+                    return;
+                }
+            }
+
+            _pendingItemStacks[itemTypeId].Add(new() { InventoryId = inventoryId, ItemTypeId = itemTypeId, Count = count });
         }
 
         private void OnItemStackRemovedReceived(int inventoryId, long itemTypeId)
@@ -137,95 +194,52 @@ namespace Client
                 return;
             }
 
-            if (!targetInventory.ItemStacks.ContainsKey(itemTypeId))
+            bool found = false;
+            if(_pendingItemStacks.ContainsKey(itemTypeId))
+            {
+                foreach(var pendingStack in _pendingItemStacks[itemTypeId])
+                {
+                    if (pendingStack.InventoryId == inventoryId)
+                    {
+                        _pendingItemStacks[itemTypeId].Remove(pendingStack);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (targetInventory.ItemStacks.ContainsKey(itemTypeId))
+            {
+                targetInventory.ItemStacks.Remove(itemTypeId);
+                found = true;
+            }
+            
+            if(!found)
                 OwlLogger.LogError($"Received ItemStackRemoved for InventoryId {inventoryId} & ItemType {itemTypeId} that's not contained in local copy!", GameComponent.Items);
-            targetInventory.ItemStacks.Remove(itemTypeId);
+
         }
 
-        private void OnInventoryIdReceived(int inventoryId, int ownerEntityId)
+        public void OnInventoryIdReceived(int inventoryId, int ownerEntityId)
         {
+            Inventory matchingInventory = GetInventory(inventoryId);
+            matchingInventory ??= new() { InventoryId = inventoryId };
+
             switch (ownerEntityId)
             {
                 case InventoryOwnerIds.ACCSTORAGE:
-                    if (AccountStorageInventory == null)
-                    {
-                        AccountStorageInventory = new()
-                        {
-                            InventoryId = inventoryId
-                        };
-                    }
-                    else
-                    {
-                        // Should rarely happen - the Server changed which InventoryId is our Account-Storage. In this case, we want to invalidate our local cache
-                        AccountStorageInventory.InventoryId = inventoryId;
-                        AccountStorageInventory.ItemStacks.Clear();
-                    }
+                    AccountStorageInventory = matchingInventory;
                     break;
                 case InventoryOwnerIds.GUILDSTORAGE:
-                    if (GuildStorageInventory == null)
-                    {
-                        GuildStorageInventory = new()
-                        {
-                            InventoryId = inventoryId
-                        };
-                    }
-                    else
-                    {
-                        // Should rarely happen - the Server changed which InventoryId is our Guild-Storage. In this case, we want to invalidate our local cache
-                        GuildStorageInventory.InventoryId = inventoryId;
-                        GuildStorageInventory.ItemStacks.Clear();
-                    }
+                    GuildStorageInventory = matchingInventory;
                     break;
                 case InventoryOwnerIds.PLAYERCART:
-                    if (PlayerCartInventory == null)
-                    {
-                        PlayerCartInventory = new()
-                        {
-                            InventoryId = inventoryId
-                        };
-                    }
-                    else
-                    {
-                        // Should rarely happen - the Server changed which InventoryId is our Cart. In this case, we want to invalidate our local cache
-                        PlayerCartInventory.InventoryId = inventoryId;
-                        PlayerCartInventory.ItemStacks.Clear();
-                    }
+                    PlayerCartInventory = matchingInventory;
                     break;
                 default:
-                    if (ownerEntityId == ClientMain.Instance.CurrentCharacterData.InventoryId)
-                    {
-                        if (PlayerMainInventory == null)
-                        {
-                            PlayerMainInventory = new()
-                            {
-                                InventoryId = inventoryId
-                            };
-                        }
-                        else
-                        {
-                            // Should rarely happen - the Server changed which InventoryId is our MainInventory. In this case, we want to invalidate our local cache
-                            PlayerMainInventory.InventoryId = inventoryId;
-                            PlayerMainInventory.ItemStacks.Clear();
-                        }
-                    }
+                    if (ownerEntityId == ClientMain.Instance.CurrentCharacterData.Id)
+                        PlayerMainInventory = matchingInventory;
                     else
-                    {
-                        // generic Inventories - no precedence for this in RO, what could these be used for? Trades, Inspects?
-                        // Best just keep them around
-                        if (GenericInventories.ContainsKey(ownerEntityId))
-                        {
-                            // Inventory for a certain owner has changed - clear cache
-                            GenericInventories[ownerEntityId].InventoryId = inventoryId;
-                            GenericInventories[ownerEntityId].ItemStacks.Clear();
-                        }
-                        else
-                        {
-                            GenericInventories.Add(ownerEntityId, new()
-                            {
-                                InventoryId = inventoryId
-                            });
-                        }
-                    }
+                        GenericInventories[ownerEntityId] = matchingInventory;                        
                     break;
             }
         }
@@ -245,13 +259,13 @@ namespace Client
         public Inventory GetInventory(int inventoryId)
         {
             Inventory targetInventory = null;
-            if (inventoryId == PlayerMainInventory.InventoryId)
+            if (inventoryId == PlayerMainInventory?.InventoryId)
                 targetInventory = PlayerMainInventory;
-            else if (inventoryId == PlayerCartInventory.InventoryId)
+            else if (inventoryId == PlayerCartInventory?.InventoryId)
                 targetInventory = PlayerCartInventory;
-            else if (inventoryId == AccountStorageInventory.InventoryId)
+            else if (inventoryId == AccountStorageInventory?.InventoryId)
                 targetInventory = AccountStorageInventory;
-            else if (inventoryId == GuildStorageInventory.InventoryId)
+            else if (inventoryId == GuildStorageInventory?.InventoryId)
                 targetInventory = GuildStorageInventory;
             else
             {

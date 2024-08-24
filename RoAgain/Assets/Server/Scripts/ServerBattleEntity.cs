@@ -113,10 +113,10 @@ namespace Server
 
         public ServerMapInstance GetMapInstance()
         {
-            if (ServerMain.Instance == null)
+            if (AServer.Instance == null)
                 return null;
 
-            return ServerMain.Instance.Server?.MapModule?.GetMapInstance(MapId);
+            return AServer.Instance.MapModule?.GetMapInstance(MapId);
         }
     }
 }

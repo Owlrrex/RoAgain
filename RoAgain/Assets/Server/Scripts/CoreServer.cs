@@ -5,13 +5,12 @@ using Shared;
 using System.IO;
 using System;
 
-// This class currently mixes DummyNetwork-logic (managing DummyClient, Receive-functions) with Game-logic.
-// I'll need to split this up eventually before I introduce actual Netcode.
-
 namespace Server
 {
     public abstract class AServer
     {
+        public static AServer Instance;
+
         public abstract int SetupWithNewClientConnection(ClientConnection newConnection);
 
         public abstract IReadOnlyCollection<CharacterRuntimeData> LoggedInCharacters { get; }
@@ -21,6 +20,8 @@ namespace Server
         public abstract JobModule JobModule { get; }
 
         public abstract ExperienceModule ExpModule { get; }
+
+        public abstract InventoryModule InventoryModule { get; }
 
         public abstract void Update(float deltaTime);
 
@@ -68,6 +69,8 @@ namespace Server
 
         public override ExperienceModule ExpModule => _expModule;
 
+        public override InventoryModule InventoryModule => _inventoryModule;
+
         private NpcModule _npcModule;
 
         private WarpModule _warpModule;
@@ -82,6 +85,12 @@ namespace Server
 
         public int Initialize()
         {
+            if(Instance != null)
+            {
+                OwlLogger.LogError("Initializing CoreServer while one already exists!", GameComponent.Other);
+                return -1;
+            }
+
             _loggedInCharactersReadOnly = _loggedInCharacters.AsReadOnly();
 
             // TODO: Load/Create config values
@@ -141,7 +150,7 @@ namespace Server
             _inventoryModule = new();
             int invModError = _inventoryModule.Initialize(_itemTypeModule, _inventoryDatabase);
 
-            return configError
+            int aggregateError = configError
                 + connectionInitError
                 + mapModuleError
                 + npcModuleError
@@ -156,6 +165,11 @@ namespace Server
                 + inventoryDbError
                 + itemTypeModError
                 + invModError;
+
+            if (aggregateError == 0)
+                Instance = this;
+
+            return aggregateError;
         }
 
         private int InitializeDummyConnection()
@@ -177,13 +191,24 @@ namespace Server
 
             _accountDatabase?.Persist();
 
-            // Saving complete, shutdown systems now
+            _inventoryModule.PersistAllCachedInventories();
+
+            // Saving complete, shutdown systems now (databases still live so we can still save)
+            //_chatModule?.Shutdown();
+            //_expModule?.Shutdown();
+            _inventoryModule?.Shutdown();
+            _itemTypeModule?.Shutdown();
+            _jobModule?.Shutdown();
+            _mapModule?.Shutdown();
+            _npcModule?.Shutdown();
+            _warpModule?.Shutdown();
 
             _characterDatabase?.Shutdown();
-
             _accountDatabase?.Shutdown();
 
             _centralConnection?.Shutdown();
+
+            Instance = null;
         }
 
         private void ReceiveLoginAttempt(ClientConnection connection, string username, string password)
@@ -289,7 +314,7 @@ namespace Server
                 connection.Send(packet);
             }
 
-            // TODO: Send Inventory & Equipment
+            // TODO: Send Equipment
 
             // TODO: Send buffs & debuffs
 
@@ -303,13 +328,19 @@ namespace Server
 
         private System.Collections.IEnumerator DelayedCharLoginFinish(CharacterRuntimeData charData, int resultCode)
         {
-            yield return new WaitForSeconds(1.0f); // delay some time so other packets are sent, IP-protocol ensures packets arrive in order
+            yield return new WaitForSeconds(0.5f); // mock delay to clear out previous login-data from the network
 
             CharacterLoginResponsePacket resultPacket = new()
             {
                 Result = resultCode,
             };
             charData.Connection.Send(resultPacket);
+
+            Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId);
+            foreach (var kvp in inventory.ItemStacksByTypeId)
+            {
+                _inventoryModule.SendItemStackDataToCharacter(charData, kvp.Value.ItemType.TypeId, kvp.Value.ItemCount);
+            }
 
             OwlLogger.LogF("Character login finished for character id {0}", charData.CharacterId, GameComponent.Other);
         }
@@ -782,7 +813,7 @@ namespace Server
                 return -2;
             }
 
-            return ServerMain.Instance.Server.MapModule.MoveEntityBetweenMaps(charData.Id, charData.MapId, charData.SaveMapId, charData.SaveCoords);
+            return MapModule.MoveEntityBetweenMaps(charData.Id, charData.MapId, charData.SaveMapId, charData.SaveCoords);
         }
 
         private void ReceiveCharacterLogoutRequest(ClientConnection connection)
@@ -965,6 +996,8 @@ namespace Server
                     _characterDatabase.Persist(character);
                 }
                 _autosaveTimer -= AUTOSAVE_INTERVAL;
+
+                _inventoryModule.PersistAllCachedInventories();
             }
 
             _timingScheduler?.Update(deltaTime);

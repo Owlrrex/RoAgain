@@ -9,10 +9,15 @@ namespace Shared
     [Serializable]
     public struct LocalizedStringId
     {
-        public static readonly LocalizedStringId INVALID = new() { Id = -1 };
+        public static readonly LocalizedStringId INVALID = new(-1);
 
         public int Id;
         // Can add stuff like "string bank" here, if that's being added
+
+        public LocalizedStringId(int id)
+        {
+            Id = id;
+        }
 
         public override bool Equals(object obj)
         {
@@ -87,10 +92,5 @@ namespace Shared
 
             return true;
         }
-    }
-
-    public static class SharedStringIds
-    {
-        public static readonly LocalizedStringId NotEnoughSpForSkill = new LocalizedStringId() { Id = 198 };
     }
 }
