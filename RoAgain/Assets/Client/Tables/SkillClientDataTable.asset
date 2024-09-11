@@ -13,497 +13,497 @@ MonoBehaviour:
   m_Name: SkillClientDataTable
   m_EditorClassIdentifier: 
   _entries:
-  - Type: 2
+  - Id: 2
     Data:
       Sprite: {fileID: 21300000, guid: 7e809cd7d075f914a8328b194ae7a716, type: 3}
       NameId:
         Id: 5
       Description:
         Id: 6
-  - Type: 1
+  - Id: 1
     Data:
       Sprite: {fileID: 21300000, guid: 81577529a5d956c4a8962043abc6932e, type: 3}
       NameId:
         Id: 7
       Description:
         Id: 8
-  - Type: 3
+  - Id: 3
     Data:
       Sprite: {fileID: 21300000, guid: ba5812148611fb9439c5502385b5bc9e, type: 3}
       NameId:
         Id: 9
       Description:
         Id: 10
-  - Type: 4
+  - Id: 4
     Data:
       Sprite: {fileID: 21300000, guid: 36e1149a59c37934e8791b278cc19145, type: 3}
       NameId:
         Id: 11
       Description:
         Id: 12
-  - Type: 5
+  - Id: 5
     Data:
       Sprite: {fileID: 21300000, guid: 095cd2962a94bff4b93ec8c4600490e2, type: 3}
       NameId:
         Id: 13
       Description:
         Id: 14
-  - Type: 10
+  - Id: 10
     Data:
       Sprite: {fileID: 21300000, guid: 6b01e45dae3d47d44bf480075097f2dd, type: 3}
       NameId:
         Id: 15
       Description:
         Id: 16
-  - Type: 11
+  - Id: 11
     Data:
       Sprite: {fileID: 21300000, guid: 1167bde3ea895974c8b71ec3950c725a, type: 3}
       NameId:
         Id: 17
       Description:
         Id: 18
-  - Type: 12
+  - Id: 12
     Data:
       Sprite: {fileID: 21300000, guid: d3224eac569677440881e9d4dbb9e821, type: 3}
       NameId:
         Id: 19
       Description:
         Id: 20
-  - Type: 13
+  - Id: 13
     Data:
       Sprite: {fileID: 21300000, guid: 7c8fc4e81178fa543b92fc0dba4df168, type: 3}
       NameId:
         Id: 21
       Description:
         Id: 22
-  - Type: 14
+  - Id: 14
     Data:
       Sprite: {fileID: 21300000, guid: b8814ff724897ef48b971a5ad89b3172, type: 3}
       NameId:
         Id: 23
       Description:
         Id: 24
-  - Type: 15
+  - Id: 15
     Data:
       Sprite: {fileID: 21300000, guid: 43a96363b7492584b92a371fada11e15, type: 3}
       NameId:
         Id: 25
       Description:
         Id: 26
-  - Type: 16
+  - Id: 16
     Data:
       Sprite: {fileID: 21300000, guid: fae47bba0d9224745b580a038afb4bc6, type: 3}
       NameId:
         Id: 27
       Description:
         Id: 28
-  - Type: 17
+  - Id: 17
     Data:
       Sprite: {fileID: 21300000, guid: 3d006da4e7eea9148a44db33e8c480c2, type: 3}
       NameId:
         Id: 29
       Description:
         Id: 30
-  - Type: 18
+  - Id: 18
     Data:
       Sprite: {fileID: 21300000, guid: dc22dee66641ab148bbf05e1e0a90aab, type: 3}
       NameId:
         Id: 31
       Description:
         Id: 32
-  - Type: 19
+  - Id: 19
     Data:
       Sprite: {fileID: 21300000, guid: 8e56471258d314e4283b8db5abd26dda, type: 3}
       NameId:
         Id: 33
       Description:
         Id: 34
-  - Type: 30
+  - Id: 30
     Data:
       Sprite: {fileID: 21300000, guid: 8173b1c62f7be824795a3e9d8f851f71, type: 3}
       NameId:
         Id: 35
       Description:
         Id: 36
-  - Type: 31
+  - Id: 31
     Data:
       Sprite: {fileID: 21300000, guid: 5572f91a77640614f9bb8dd90fe20bb6, type: 3}
       NameId:
         Id: 37
       Description:
         Id: 38
-  - Type: 32
+  - Id: 32
     Data:
       Sprite: {fileID: 21300000, guid: 38065d3b702365243b411fe0d0e1752e, type: 3}
       NameId:
         Id: 39
       Description:
         Id: 40
-  - Type: 33
+  - Id: 33
     Data:
       Sprite: {fileID: 21300000, guid: d30604bde7b7f8f48aee5b3daa7193ed, type: 3}
       NameId:
         Id: 41
       Description:
         Id: 42
-  - Type: 34
+  - Id: 34
     Data:
       Sprite: {fileID: 21300000, guid: 59405379f28060045822a28666ecc15f, type: 3}
       NameId:
         Id: 43
       Description:
         Id: 44
-  - Type: 35
+  - Id: 35
     Data:
       Sprite: {fileID: 21300000, guid: d9e09cf4e644bff479b3f4e7e673451f, type: 3}
       NameId:
         Id: 45
       Description:
         Id: 46
-  - Type: 36
+  - Id: 36
     Data:
       Sprite: {fileID: 21300000, guid: 6d5fae81ac8eda340aa8624abb02d9de, type: 3}
       NameId:
         Id: 47
       Description:
         Id: 48
-  - Type: 37
+  - Id: 37
     Data:
       Sprite: {fileID: 21300000, guid: 2a1b28188496a4f4fbe61eab22a56326, type: 3}
       NameId:
         Id: 49
       Description:
         Id: 50
-  - Type: 38
+  - Id: 38
     Data:
       Sprite: {fileID: 21300000, guid: 00231c42965c10846bad47e552016b6c, type: 3}
       NameId:
         Id: 51
       Description:
         Id: 52
-  - Type: 39
+  - Id: 39
     Data:
       Sprite: {fileID: 21300000, guid: c5bcc2020acae3f41bbe38970d0acf22, type: 3}
       NameId:
         Id: 53
       Description:
         Id: 54
-  - Type: 40
+  - Id: 40
     Data:
       Sprite: {fileID: 21300000, guid: 421d7923350287e43a7311703cbf3e96, type: 3}
       NameId:
         Id: 55
       Description:
         Id: 56
-  - Type: 41
+  - Id: 41
     Data:
       Sprite: {fileID: 21300000, guid: 53f0f2721b989cc4ca1a88ad48910992, type: 3}
       NameId:
         Id: 57
       Description:
         Id: 58
-  - Type: 42
+  - Id: 42
     Data:
       Sprite: {fileID: 21300000, guid: 5d99408873102f549b0825d0183eb136, type: 3}
       NameId:
         Id: 59
       Description:
         Id: 60
-  - Type: 43
+  - Id: 43
     Data:
       Sprite: {fileID: 21300000, guid: bf3fe49185bb41f43a0e6cccba33f6f2, type: 3}
       NameId:
         Id: 61
       Description:
         Id: 62
-  - Type: 50
+  - Id: 50
     Data:
       Sprite: {fileID: 21300000, guid: e189aea97009ec646acf9b7a9194baf1, type: 3}
       NameId:
         Id: 63
       Description:
         Id: 64
-  - Type: 51
+  - Id: 51
     Data:
       Sprite: {fileID: 21300000, guid: b03f10a1fa2fc164ab8170496c00a8cc, type: 3}
       NameId:
         Id: 65
       Description:
         Id: 66
-  - Type: 52
+  - Id: 52
     Data:
       Sprite: {fileID: 21300000, guid: a30b75ddb393d6845a29a9d1f48e64a8, type: 3}
       NameId:
         Id: 67
       Description:
         Id: 68
-  - Type: 53
+  - Id: 53
     Data:
       Sprite: {fileID: 21300000, guid: ea61d98ccfabfb8408a0d44484752c70, type: 3}
       NameId:
         Id: 69
       Description:
         Id: 70
-  - Type: 54
+  - Id: 54
     Data:
       Sprite: {fileID: 21300000, guid: ef8995366c6079d42a9dc4e777f7dc02, type: 3}
       NameId:
         Id: 71
       Description:
         Id: 72
-  - Type: 55
+  - Id: 55
     Data:
       Sprite: {fileID: 21300000, guid: fe89a95726154f2448d542fc448a96f6, type: 3}
       NameId:
         Id: 73
       Description:
         Id: 74
-  - Type: 56
+  - Id: 56
     Data:
       Sprite: {fileID: 21300000, guid: 39cb6fd25aaf248409dc7af01c4c6288, type: 3}
       NameId:
         Id: 75
       Description:
         Id: 76
-  - Type: 70
+  - Id: 70
     Data:
       Sprite: {fileID: 21300000, guid: 9c73ca09de5def54eb9d792809097e0f, type: 3}
       NameId:
         Id: 77
       Description:
         Id: 78
-  - Type: 71
+  - Id: 71
     Data:
       Sprite: {fileID: 21300000, guid: ae19b2995a5d56c46a9ad957f45ec14d, type: 3}
       NameId:
         Id: 79
       Description:
         Id: 80
-  - Type: 72
+  - Id: 72
     Data:
       Sprite: {fileID: 21300000, guid: d692f6c2da71be64686a121062ace1b7, type: 3}
       NameId:
         Id: 81
       Description:
         Id: 82
-  - Type: 73
+  - Id: 73
     Data:
       Sprite: {fileID: 21300000, guid: 1f38d0f38b60e6643997f242e2824366, type: 3}
       NameId:
         Id: 83
       Description:
         Id: 84
-  - Type: 74
+  - Id: 74
     Data:
       Sprite: {fileID: 21300000, guid: d19cb8f416da3794fbc82293d0f9209e, type: 3}
       NameId:
         Id: 85
       Description:
         Id: 86
-  - Type: 75
+  - Id: 75
     Data:
       Sprite: {fileID: 21300000, guid: 10a4534da5d6d51429fa270f3c43dcf5, type: 3}
       NameId:
         Id: 87
       Description:
         Id: 88
-  - Type: 76
+  - Id: 76
     Data:
       Sprite: {fileID: 21300000, guid: af9d16611cc47d447a5cd8e9bbbe70b2, type: 3}
       NameId:
         Id: 89
       Description:
         Id: 90
-  - Type: 77
+  - Id: 77
     Data:
       Sprite: {fileID: 21300000, guid: 56a823dc39d87f844a646a91be6c84c7, type: 3}
       NameId:
         Id: 91
       Description:
         Id: 92
-  - Type: 78
+  - Id: 78
     Data:
       Sprite: {fileID: 21300000, guid: a7417f5e887018247b4a6350fbe62f86, type: 3}
       NameId:
         Id: 93
       Description:
         Id: 94
-  - Type: 79
+  - Id: 79
     Data:
       Sprite: {fileID: 21300000, guid: 73a513323edff7f41a4e999d25ca8544, type: 3}
       NameId:
         Id: 95
       Description:
         Id: 96
-  - Type: 90
+  - Id: 90
     Data:
       Sprite: {fileID: 21300000, guid: d1d4a8a36a9fb2049873a99a5189df87, type: 3}
       NameId:
         Id: 97
       Description:
         Id: 98
-  - Type: 91
+  - Id: 91
     Data:
       Sprite: {fileID: 21300000, guid: d119dc0e45f1aa24f9386c8b6eefd880, type: 3}
       NameId:
         Id: 99
       Description:
         Id: 100
-  - Type: 92
+  - Id: 92
     Data:
       Sprite: {fileID: 21300000, guid: d5565d776605faf4d8a156d0a3b265f7, type: 3}
       NameId:
         Id: 101
       Description:
         Id: 102
-  - Type: 93
+  - Id: 93
     Data:
       Sprite: {fileID: 21300000, guid: 0e08c0e1e6004b64bb737dfad2b7eeaa, type: 3}
       NameId:
         Id: 103
       Description:
         Id: 104
-  - Type: 94
+  - Id: 94
     Data:
       Sprite: {fileID: 21300000, guid: ac9ceb64984779849badd9023ed25e41, type: 3}
       NameId:
         Id: 105
       Description:
         Id: 106
-  - Type: 95
+  - Id: 95
     Data:
       Sprite: {fileID: 21300000, guid: 7e0f10d3a5a05bc418c705b53c95b158, type: 3}
       NameId:
         Id: 107
       Description:
         Id: 108
-  - Type: 96
+  - Id: 96
     Data:
       Sprite: {fileID: 21300000, guid: c65b9478be552e840994682e62a6ca2d, type: 3}
       NameId:
         Id: 109
       Description:
         Id: 110
-  - Type: 97
+  - Id: 97
     Data:
       Sprite: {fileID: 21300000, guid: ecd530dfda283ed47b610492e4487f3f, type: 3}
       NameId:
         Id: 111
       Description:
         Id: 112
-  - Type: 98
+  - Id: 98
     Data:
       Sprite: {fileID: 21300000, guid: 043a03bb4a28ea64a8fa26dc7f78cf35, type: 3}
       NameId:
         Id: 113
       Description:
         Id: 114
-  - Type: 99
+  - Id: 99
     Data:
       Sprite: {fileID: 21300000, guid: 63e5b4ab61786514fb625664351c79dc, type: 3}
       NameId:
         Id: 115
       Description:
         Id: 116
-  - Type: 110
+  - Id: 110
     Data:
       Sprite: {fileID: 21300000, guid: 80529622f7651044488b1fd8803910e7, type: 3}
       NameId:
         Id: 117
       Description:
         Id: 118
-  - Type: 111
+  - Id: 111
     Data:
       Sprite: {fileID: 21300000, guid: 94c952608256a0743b22eba32016beff, type: 3}
       NameId:
         Id: 119
       Description:
         Id: 120
-  - Type: 112
+  - Id: 112
     Data:
       Sprite: {fileID: 21300000, guid: 7e809cd7d075f914a8328b194ae7a716, type: 3}
       NameId:
         Id: 121
       Description:
         Id: 122
-  - Type: 113
+  - Id: 113
     Data:
       Sprite: {fileID: 21300000, guid: dd661b6fb39070346bc6e3ac209bf262, type: 3}
       NameId:
         Id: 123
       Description:
         Id: 124
-  - Type: 114
+  - Id: 114
     Data:
       Sprite: {fileID: 21300000, guid: 81577529a5d956c4a8962043abc6932e, type: 3}
       NameId:
         Id: 125
       Description:
         Id: 126
-  - Type: 115
+  - Id: 115
     Data:
       Sprite: {fileID: 21300000, guid: 095fa070506eec144875e0e0083b7187, type: 3}
       NameId:
         Id: 127
       Description:
         Id: 128
-  - Type: 116
+  - Id: 116
     Data:
       Sprite: {fileID: 21300000, guid: 3bc57c0384a5b944c8720c7d6b1f8638, type: 3}
       NameId:
         Id: 129
       Description:
         Id: 130
-  - Type: 117
+  - Id: 117
     Data:
       Sprite: {fileID: 21300000, guid: 96ebea8278f4e284fa03f2d254d2950d, type: 3}
       NameId:
         Id: 131
       Description:
         Id: 132
-  - Type: 118
+  - Id: 118
     Data:
       Sprite: {fileID: 21300000, guid: 3e7262bc2ce245949b8cc20a08fe5111, type: 3}
       NameId:
         Id: 133
       Description:
         Id: 134
-  - Type: 119
+  - Id: 119
     Data:
       Sprite: {fileID: 21300000, guid: 540324b3352253841a33799f9d4082d3, type: 3}
       NameId:
         Id: 135
       Description:
         Id: 136
-  - Type: 120
+  - Id: 120
     Data:
       Sprite: {fileID: 21300000, guid: 9a301516f324af741b86516355e20f7d, type: 3}
       NameId:
         Id: 137
       Description:
         Id: 138
-  - Type: 121
+  - Id: 121
     Data:
       Sprite: {fileID: 21300000, guid: 9bcd6482ed3becf46907625f3dc99850, type: 3}
       NameId:
         Id: 139
       Description:
         Id: 140
-  - Type: 122
+  - Id: 122
     Data:
       Sprite: {fileID: 21300000, guid: 6f20de4cc38c72147ac7f5b65fc17986, type: 3}
       NameId:
         Id: 141
       Description:
         Id: 142
-  - Type: 123
+  - Id: 123
     Data:
       Sprite: {fileID: 21300000, guid: 4f2aecbe3684f63479e1779ab7a955b4, type: 3}
       NameId:
         Id: 143
       Description:
         Id: 144
-  - Type: 124
+  - Id: 124
     Data:
       Sprite: {fileID: 21300000, guid: 609be7d2ed9073241bbb21b51fc45231, type: 3}
       NameId:

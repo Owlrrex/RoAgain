@@ -17,6 +17,11 @@ namespace Client
             }
         }
 
+        public void OnDisable()
+        {
+            MouseAttachedTooltip.Instance.Hide();
+        }
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             if(MouseAttachedTooltip.Instance != null)

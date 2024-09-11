@@ -460,17 +460,17 @@ namespace Client
 
             // TODO: Move to subfunction/s
             // TODO: Replace with proper Prefab-Db for Entities
-            EntityPrefabTable.EntityType entityType;
+            EntityType entityType;
             if (entity is LocalCharacterEntity)
-                entityType = EntityPrefabTable.EntityType.LocalCharacter;
+                entityType = EntityType.LocalCharacter;
             else if (entity is RemoteCharacterEntity)
-                entityType = EntityPrefabTable.EntityType.RemoteCharacter;
+                entityType = EntityType.RemoteCharacter;
             else if (entity is ClientBattleEntity)
-                entityType = EntityPrefabTable.EntityType.GenericBattle;
+                entityType = EntityType.GenericBattle;
             else
-                entityType = EntityPrefabTable.EntityType.GenericGrid;
+                entityType = EntityType.GenericGrid;
 
-            GameObject prefab = EntityPrefabTable.GetPrefabForType(entityType);
+            GameObject prefab = EntityPrefabTable.GetDataForId(entityType).Prefab;
             GameObject newEntityInstance = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity); // TODO: Proper hierarchy
             GridEntityMover newMover = newEntityInstance.GetComponentInChildren<GridEntityMover>();
             if (newMover == null)
@@ -615,7 +615,7 @@ namespace Client
             // Currently not needed: Create an actual CellEffectGroup on client-side.
             // The client doesn't actually process the group on the grid
 
-            GameObject prefab = CellEffectPrefabTable.GetPrefabByType(data.Type);
+            GameObject prefab = CellEffectPrefabTable.GetDataForId(data.Type).Prefab;
             GameObject instance = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity);
             CellEffectDisplay display = instance.GetComponentInChildren<CellEffectDisplay>();
             if (display == null)

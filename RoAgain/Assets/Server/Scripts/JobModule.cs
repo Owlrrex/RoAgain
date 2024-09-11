@@ -22,7 +22,7 @@ namespace Server
                     continue;
 
                 APassiveSkillImpl impl = character.GetMapInstance().SkillModule.GetPassiveSkillImpl(kvp.Key);
-                impl.Apply(character, kvp.Value);
+                impl?.Apply(character, kvp.Value);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Server
                             continue;
 
                         APassiveSkillImpl impl = character.GetMapInstance().SkillModule.GetPassiveSkillImpl(kvp.Key);
-                        impl.Unapply(character, kvp.Value);
+                        impl?.Unapply(character, kvp.Value);
                     }
                 }
             }

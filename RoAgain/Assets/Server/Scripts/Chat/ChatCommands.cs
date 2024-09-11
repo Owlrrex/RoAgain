@@ -446,7 +446,8 @@ namespace Server
                 return -2;
             }
 
-            if (!int.TryParse(args[2], out int amount))
+            if (!int.TryParse(args[2], out int amount)
+                || amount == 0)
             {
                 sender.Connection.Send(new LocalizedChatMessagePacket()
                 {
@@ -475,7 +476,12 @@ namespace Server
                 }
             }
 
-            int result = AServer.Instance.InventoryModule.AddItemsToInventory(target, targetItemTypeId, amount);
+            int result;
+            if (amount > 0)
+                result = AServer.Instance.InventoryModule.AddItemsToInventory(target, targetItemTypeId, amount);
+            else
+                result = AServer.Instance.InventoryModule.RemoveItemsFromInventory(target, targetItemTypeId, -amount, true);
+            
             if(result == -2)
             {
                 sender.Connection.Send(new LocalizedChatMessagePacket()

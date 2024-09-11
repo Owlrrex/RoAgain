@@ -135,18 +135,18 @@ namespace Client
 
         private GameObject GetCharacterModelPrefab(ACharacterEntity character)
         {
-            JobTableEntry jobData = JobTable.GetDataById(character.JobId);
+            JobTableData jobData = JobTable.GetDataForId(character.JobId);
             return jobData?.ModelPrefab;
         }
 
         private GameObject GetMobModelPrefab(ClientBattleEntity bEntity)
         {
-            return ModelTable.GetPrefabForType(bEntity.ModelId);
+            return ModelTable.GetDataForId(bEntity.ModelId)?.Prefab;
         }
 
         private GameObject GetGenericModelPrefab(GridEntity gEntity)
         {
-            return ModelTable.GetPrefabForType(gEntity.ModelId);
+            return ModelTable.GetDataForId(gEntity.ModelId)?.Prefab;
         }
 
         // Update is called once per frame

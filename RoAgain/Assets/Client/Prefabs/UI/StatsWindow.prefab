@@ -6363,6 +6363,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8049645407238854359}
   - component: {fileID: 2106493612392883802}
+  - component: {fileID: 850083113897423130}
   m_Layer: 5
   m_Name: StatsWindow
   m_TagString: Untagged
@@ -6442,6 +6443,29 @@ MonoBehaviour:
   AspdText: {fileID: 8414042341214275607}
   StatPointText: {fileID: 5663126068588782120}
   _closeButton: {fileID: 7523705425403767697}
+--- !u!223 &850083113897423130
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4092214504296955356}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 1
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!1 &4100759588102449374
 GameObject:
   m_ObjectHideFlags: 0

@@ -53,7 +53,8 @@ namespace Client
 
         private void OnOptionsButtonClicked()
         {
-            // Once the Client can receive options menu configuration from outside, we'll call into the module that holds that data here
+            gameObject.SetActive(false);
+            // TODO: Once the Client can receive options menu configuration from outside, we'll call into the module that holds that data here
             PlayerUI.Instance.ShowOptionsWindow(OptionsMenuData.GetDefault());
         }
 
@@ -64,11 +65,13 @@ namespace Client
 
         private void OnCharSelectButtonClicked()
         {
+            gameObject.SetActive(false);
             ClientMain.Instance.ReturnToCharacterSelection();
         }
 
         private void OnQuitButtonClicked()
         {
+            gameObject.SetActive(false);
             ClientMain.Instance.Disconnect();
         }
     }

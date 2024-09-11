@@ -1,16 +1,19 @@
 using OwlLogging;
 
-public class TestRadioGroupInstance : RadioGroup<int>
+namespace Client
 {
-    private new void Start()
+    public class TestRadioGroupInstance : RadioGroup<InventoryFilter>
     {
-        base.Start();
+        private new void Start()
+        {
+            base.Start();
 
-        SelectionChanged += OnSelectionChanged;
-    }
+            SelectionChanged += OnSelectionChanged;
+        }
 
-    private void OnSelectionChanged(RadioButton<int> button)
-    {
-        OwlLogger.Log($"Selection changed to Value {button.Value}", GameComponent.UI);
+        private void OnSelectionChanged(RadioButton<InventoryFilter> button)
+        {
+            OwlLogger.Log($"Selection changed to Value {button.Value}", GameComponent.UI);
+        }
     }
 }

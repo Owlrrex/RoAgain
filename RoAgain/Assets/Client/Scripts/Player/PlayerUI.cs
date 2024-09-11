@@ -30,6 +30,10 @@ public class PlayerUI : MonoBehaviour
 
     [field: SerializeField]
     public OptionsWindow OptionsWindow { get; private set; }
+
+    [field: SerializeField]
+    public InventoryWindow InventoryWindow { get; private set; }
+
     [SerializeField]
     private ConfigWidgetRegistry _configWidgetRegistry;
 
@@ -93,6 +97,9 @@ public class PlayerUI : MonoBehaviour
 
         if (!OwlLogger.PrefabNullCheckAndLog(_configWidgetRegistry, nameof(_configWidgetRegistry), this, GameComponent.UI))
             _configWidgetRegistry.Init();
+
+        if(!OwlLogger.PrefabNullCheckAndLog(InventoryWindow, nameof(InventoryWindow), this, GameComponent.UI))
+            InventoryWindow.gameObject.SetActive(false);
 
         gameObject.SetActive(false);
     }
@@ -224,6 +231,19 @@ public class PlayerUI : MonoBehaviour
             else
             {
                 GameMenuWindow.gameObject.SetActive(true);
+            }
+        }
+
+        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleInventoryWindow) == true)
+        {
+            if(InventoryWindow.gameObject.activeSelf)
+            {
+                InventoryWindow.gameObject.SetActive(false);
+            }
+            else
+            {
+                InventoryWindow.SetData(ClientMain.Instance.InventoryModule.PlayerMainInventory);
+                InventoryWindow.gameObject.SetActive(true);
             }
         }
     }

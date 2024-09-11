@@ -123,6 +123,7 @@ namespace Client
             anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleSkillWindow, new() { Key = KeyCode.S });
             anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleHotbar, new() { Key = KeyCode.F12 });
             anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleGameMenuWindow, new() { Key = KeyCode.Escape });
+            anyChange |= _hotkeyConfig.TryAdd(ConfigKey.Hotkey_ToggleInventoryWindow, new() { Key = KeyCode.E });
 
             return anyChange;
         }

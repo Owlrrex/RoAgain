@@ -1,6 +1,5 @@
 using OwlLogging;
 using Shared;
-using System;
 using System.Collections.Generic;
 
 namespace Server
@@ -219,7 +218,7 @@ namespace Server
 
             if (count <= 0)
             {
-                OwlLogger.LogError($"Can't add ItemStack with ItemCount 0 to Inventory {inventory.InventoryId}, ItemType {itemTypeId}", GameComponent.Items);
+                OwlLogger.LogError($"Can't add ItemStack with ItemCount <=0 to Inventory {inventory.InventoryId}, ItemType {itemTypeId}", GameComponent.Items);
                 return -3;
             }
 
@@ -396,7 +395,7 @@ namespace Server
 
             if(result == 0)
             {
-                SendItemStackDataToCharacter(character, itemTypeId, count);
+                SendItemStackDataToCharacter(character, itemTypeId, inventory.GetItemCountExact(itemTypeId));
 
                 ItemType type = _itemTypeModule.GetOrLoadItemType(itemTypeId);
                 if (type == null)

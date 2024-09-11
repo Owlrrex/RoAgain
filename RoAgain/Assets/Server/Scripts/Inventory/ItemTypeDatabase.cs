@@ -22,6 +22,7 @@ namespace Server
         public int OnUseScriptId;
         public LocalizedStringId NameLocId;
         public LocalizedStringId FlavorLocId;
+        public int VisualId;
         public DictionarySerializationWrapper<ModifierType, int> Modifiers;
 
         public bool IsValid()
@@ -160,6 +161,7 @@ namespace Server
             type.OnUseScript = persData.OnUseScriptId;
             type.NameLocId = persData.NameLocId;
             type.FlavorLocId = persData.FlavorLocId;
+            type.VisualId = persData.VisualId;
             foreach(var entry in persData.Modifiers.entries)
             {
                 if(type.HasModifier(entry.key))
@@ -219,6 +221,7 @@ namespace Server
             persData.OnUseScriptId = type.OnUseScript;
             persData.NameLocId = type.NameLocId;
             persData.FlavorLocId = type.FlavorLocId;
+            persData.VisualId = type.VisualId;
             persData.Modifiers = new();
             persData.Modifiers.FromDict(type.ReadOnlyModifiers);
 

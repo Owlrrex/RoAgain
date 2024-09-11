@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using OwlLogging;
 using Shared;
@@ -8,6 +9,10 @@ namespace Client
     {
         public int InventoryId;
         public Dictionary<long, ItemStack> ItemStacks = new();
+
+        public Action<ItemStack> ItemStackAdded;
+        public Action<ItemStack> ItemStackUpdated;
+        public Action<long> ItemStackRemoved;
     }
 
     public class ItemStack // TODO: Pool these to reduce allocations from pickups & other temporary ItemStacks
@@ -49,6 +54,39 @@ namespace Client
                 Modifiers = packet.Modifiers.ToDict()
             };
         }
+
+        public bool MatchesFilter(InventoryFilter filter)
+        {
+            if (filter.HasFlag(InventoryFilter.Any))
+                return true;
+
+            if(filter.HasFlag(InventoryFilter.Consumable))
+            {
+                return UsageMode == ItemUsageMode.Usable;
+            }
+
+            if(filter.HasFlag(InventoryFilter.Equippable))
+            {
+                return UsageMode >= ItemUsageMode.EQUIP_START && UsageMode <= ItemUsageMode.EQUIP_END;
+            }
+
+            if(filter.HasFlag(InventoryFilter.Other))
+            {
+                return UsageMode == ItemUsageMode.Unusable;
+            }
+
+            return false;
+        }
+    }
+
+    [Flags]
+    public enum InventoryFilter
+    {
+        Unknown = 0,
+        Any = 1 << 0,
+        Consumable = 1 << 1,
+        Equippable = 1 << 2,
+        Other = 1 << 3,
     }
 
     public class InventoryModule
@@ -154,13 +192,16 @@ namespace Client
                 return;
             }
 
-            if(targetInventory.ItemStacks.ContainsKey(type.TypeId))
+            if (targetInventory.ItemStacks.ContainsKey(type.TypeId))
             {
-                targetInventory.ItemStacks[type.TypeId].ItemCount += count;
+                targetInventory.ItemStacks[type.TypeId].ItemCount = count;
+                targetInventory.ItemStackUpdated?.Invoke(targetInventory.ItemStacks[type.TypeId]);
             }
             else
             {
-                targetInventory.ItemStacks.Add(itemTypeId, new() { ItemType = type, ItemCount = count });
+                ItemStack newStack = new() { ItemType = type, ItemCount = count };
+                targetInventory.ItemStacks.Add(itemTypeId, newStack);
+                targetInventory.ItemStackAdded?.Invoke(newStack);
             }
         }
 
@@ -217,6 +258,7 @@ namespace Client
             if(!found)
                 OwlLogger.LogError($"Received ItemStackRemoved for InventoryId {inventoryId} & ItemType {itemTypeId} that's not contained in local copy!", GameComponent.Items);
 
+            targetInventory.ItemStackRemoved?.Invoke(itemTypeId);
         }
 
         public void OnInventoryIdReceived(int inventoryId, int ownerEntityId)
@@ -242,6 +284,8 @@ namespace Client
                         GenericInventories[ownerEntityId] = matchingInventory;                        
                     break;
             }
+
+            // TODO: Init UIs for this inventoryId
         }
 
         private bool IsItemTypeKnown(long itemTypeId)

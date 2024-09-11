@@ -1,1 +1,1 @@
-{"TypeId":1,"BaseTypeId":-1,"CanStack":true,"Weight":1,"SellPrice":10,"RequiredLevel":0,"RequiredJobs":1,"NumTotalCardSlots":0,"UsageMode":0,"OnUseScriptId":0,"NameLocId":{"Id":207},"FlavorLocId":{"Id":208},"Modifiers":{"entries":[]}}
+{"TypeId":1,"BaseTypeId":-1,"CanStack":true,"Weight":1,"SellPrice":10,"RequiredLevel":0,"RequiredJobs":1,"NumTotalCardSlots":0,"UsageMode":0,"OnUseScriptId":0,"NameLocId":{"Id":207},"FlavorLocId":{"Id":208},"VisualId":1,"Modifiers":{"entries":[]}}

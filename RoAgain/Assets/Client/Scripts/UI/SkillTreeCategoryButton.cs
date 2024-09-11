@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace Client
 {
+    // TODO: Rewrite these using generic RadioButton class
     public class SkillTreeCategoryButton : MonoBehaviour
     {
         public SkillCategory Category = SkillCategory.FirstClass;

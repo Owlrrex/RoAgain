@@ -125,7 +125,6 @@ namespace Client
 
         public void OnDrop(PointerEventData eventData)
         {
-            Debug.Log($"Slot ondrop {gameObject.name}");
             SkillIcon droppedSkillIcon = null;
             if(eventData.pointerDrag != null)
                 droppedSkillIcon = eventData.pointerDrag.GetComponent<SkillIcon>();

@@ -1,7 +1,6 @@
 using OwlLogging;
 using Shared;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,6 +29,8 @@ namespace Client
         private ModelTable _modelTable;
         [SerializeField]
         private JobTable _jobTable;
+        [SerializeField]
+        private ItemIconTable _itemIconTable;
 
         [SerializeField]
         private LocalizedStringId _loadingWorldLocId;
@@ -52,6 +53,7 @@ namespace Client
         // TODO: replace this with LocalCharacterEntity.Current or similar
         // TODO: Reduce access to this on hot paths
         public LocalCharacterEntity CurrentCharacterData { get; private set; }
+        public Action CurrentCharacterDataObjectChanged;
         
         // TODO: move to MapModule, since that one manages movers
         private GridEntityMover _characterGridMover;
@@ -87,7 +89,7 @@ namespace Client
             if (Instance != null)
             {
                 OwlLogger.LogError($"Duplicate ClientMain script on GameObject {gameObject.name}", GameComponent.Other);
-                Destroy(this);
+                Destroy(gameObject);
                 return;
             }
             Instance = this;
@@ -149,10 +151,13 @@ namespace Client
             if (!OwlLogger.PrefabNullCheckAndLog(_jobTable, "jobTable", this, GameComponent.Other))
                 _jobTable.Register();
 
+            if(!OwlLogger.PrefabNullCheckAndLog(_itemIconTable, nameof(_itemIconTable), this, GameComponent.Other))
+                _itemIconTable.Register();
+
             if(LocalizedStringTable.IsReady())
             {
                 // String Table already registered from Editor
-                // We re-register so that the Client's operation is as little effected by the Editor as possible
+                // We re-register so that the Client's operation isn't polluted by what was done in Editor
                 LocalizedStringTable.Unregister();
             }
             _stringTable = new();
@@ -330,6 +335,7 @@ namespace Client
             }
 
             CurrentCharacterData = null;
+            CurrentCharacterDataObjectChanged?.Invoke();
             _remoteConfigCache.ClearAllConfig();
             MapModule?.DestroyCurrentMap();
             if(PreGameUI.Instance != null)
@@ -380,6 +386,7 @@ namespace Client
             if(CurrentCharacterData == null)
             {
                 CurrentCharacterData = new(charData);
+                CurrentCharacterDataObjectChanged?.Invoke();
             }
             else
             {
@@ -420,10 +427,17 @@ namespace Client
 
             // Clean up Data in Client
             CurrentCharacterData = null;
+            CurrentCharacterDataObjectChanged?.Invoke();
             _queuedEntities.Clear();
             _remoteConfigCache.ClearCharacterConfig();
 
+            InventoryModule.Shutdown();
+            InventoryModule.Initialize(ConnectionToServer);
+
             MapModule.DestroyCurrentMap();
+
+            if(PlayerUI.Instance != null)
+                PlayerUI.Instance.gameObject.SetActive(false);
 
             if(PreGameUI.Instance != null)
                 PreGameUI.Instance.OnDisconnect();
@@ -766,7 +780,7 @@ namespace Client
         {
             if(CurrentCharacterData == null)
             {
-                OwlLogger.LogError($"StatUpdate received for stat {type}, newvalue {newValue}, before CurrentcharacterData was set!", GameComponent.Other);
+                OwlLogger.LogError($"StatUpdate received for stat {type}, newvalue {newValue.Total}, before CurrentcharacterData was set!", GameComponent.Other);
                 return;
             }
 
@@ -836,7 +850,13 @@ namespace Client
 
         private void OnStatFloatUpdateReceived(EntityPropertyType type, StatFloat newValue)
         {
-            switch(type)
+            if (CurrentCharacterData == null)
+            {
+                OwlLogger.LogError($"StatFloatUpdate received for stat {type}, newvalue {newValue.Total}, before CurrentcharacterData was set!", GameComponent.Other);
+                return;
+            }
+
+            switch (type)
             {
                 case EntityPropertyType.HardDef:
                     CurrentCharacterData.HardDef = newValue;
@@ -993,7 +1013,11 @@ namespace Client
         {
             // TODO: Verifications
 
-            CurrentCharacterData ??= new(new());
+            if(CurrentCharacterData == null)
+            {
+                CurrentCharacterData = new(new());
+                CurrentCharacterDataObjectChanged?.Invoke();
+            }
 
             if (entry.Category == SkillCategory.Temporary)
             {

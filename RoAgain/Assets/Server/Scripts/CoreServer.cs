@@ -406,7 +406,7 @@ namespace Server
                     continue;
 
                 APassiveSkillImpl impl = _mapModule.GetMapInstance(charData.MapId).SkillModule.GetPassiveSkillImpl(kvp.Key);
-                impl.Apply(charData, kvp.Value);
+                impl?.Apply(charData, kvp.Value);
             }
 
             // TODO: Register & Set up Equipment
@@ -756,7 +756,7 @@ namespace Server
             if (skillId.IsPassive() && characterData.HasPermanentSkill(skillId))
             {
                 passiveImpl = _mapModule.GetMapInstance(characterData.MapId).SkillModule.GetPassiveSkillImpl(skillId);
-                passiveImpl.Unapply(characterData, characterData.PermanentSkills[skillId], false);
+                passiveImpl?.Unapply(characterData, characterData.PermanentSkills[skillId], false);
             }
 
             characterData.RemainingSkillPoints -= amount;
@@ -775,7 +775,7 @@ namespace Server
             if (skillId.IsPassive())
             {
                 passiveImpl = _mapModule.GetMapInstance(characterData.MapId).SkillModule.GetPassiveSkillImpl(skillId);
-                passiveImpl.Apply(characterData, characterData.PermanentSkills[skillId], true);
+                passiveImpl?.Apply(characterData, characterData.PermanentSkills[skillId], true);
             }
 
             SkillTreeEntryPacket packet = skillEntry.ToPacket(characterData);

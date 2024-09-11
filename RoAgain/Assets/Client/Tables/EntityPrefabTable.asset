@@ -13,14 +13,19 @@ MonoBehaviour:
   m_Name: EntityPrefabTable
   m_EditorClassIdentifier: 
   _entries:
-  - Type: 1
-    Prefab: {fileID: 1690524198634084755, guid: 9ecb92c84baaebb43983197e4e9a1316,
-      type: 3}
-  - Type: 2
-    Prefab: {fileID: 8529154618100557036, guid: 894c3916ad9264b4db0fca8b66bed555,
-      type: 3}
-  - Type: 3
-    Prefab: {fileID: 8529154618100557036, guid: 894c3916ad9264b4db0fca8b66bed555,
-      type: 3}
-  - Type: 4
-    Prefab: {fileID: 290062880184334849, guid: 86b2a90c064f5794fad14b3585f54003, type: 3}
+  - Id: 1
+    Data:
+      Prefab: {fileID: 1690524198634084755, guid: 9ecb92c84baaebb43983197e4e9a1316,
+        type: 3}
+  - Id: 2
+    Data:
+      Prefab: {fileID: 8529154618100557036, guid: 894c3916ad9264b4db0fca8b66bed555,
+        type: 3}
+  - Id: 3
+    Data:
+      Prefab: {fileID: 8529154618100557036, guid: 894c3916ad9264b4db0fca8b66bed555,
+        type: 3}
+  - Id: 4
+    Data:
+      Prefab: {fileID: 290062880184334849, guid: 86b2a90c064f5794fad14b3585f54003,
+        type: 3}

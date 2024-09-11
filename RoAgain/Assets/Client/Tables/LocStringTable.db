@@ -1533,6 +1533,13 @@
 				"TextEnglish": "Inventory Cleared",
 				"TextGerman": "Inventar gelöscht"
 			}
+		},
+		{
+			"key": 219,
+			"value": {
+				"TextEnglish": "Inventory",
+				"TextGerman": "Inventar"
+			}
 		}
     ]
 }

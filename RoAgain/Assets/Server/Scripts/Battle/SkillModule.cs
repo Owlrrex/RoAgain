@@ -83,6 +83,8 @@ namespace Server
 
         public APassiveSkillImpl GetPassiveSkillImpl(SkillId skillId)
         {
+            if (!_passiveSkillImpls.ContainsKey(skillId))
+                return null;
             return _passiveSkillImpls[skillId];
         }
 
@@ -634,7 +636,7 @@ namespace Server
 
                 if(kvp.Key.IsPassive())
                 {
-                    GetPassiveSkillImpl(kvp.Key).Unapply(character, kvp.Value);
+                    GetPassiveSkillImpl(kvp.Key)?.Unapply(character, kvp.Value);
                 }
 
                 character.RemainingSkillPoints += kvp.Value;

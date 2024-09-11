@@ -1,4 +1,8 @@
-public class TestRadioButtonInstance : RadioButton<int>
+namespace Client
 {
-    
+    public class TestRadioButtonInstance : RadioButton<InventoryFilter>
+    {
+
+    }
 }
+

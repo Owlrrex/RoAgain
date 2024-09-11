@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: CellEffectTable
   m_EditorClassIdentifier: 
   _entries:
-  - Type: 1
-    Prefab: {fileID: 175469360580055655, guid: 67ed4c739351e9046b176b9b475ce9ae, type: 3}
-  _cellEffectTypes: 01000000
-  _prefabs:
-  - {fileID: 175469360580055655, guid: 67ed4c739351e9046b176b9b475ce9ae, type: 3}
+  - Id: 1
+    Data:
+      Prefab: {fileID: 175469360580055655, guid: 67ed4c739351e9046b176b9b475ce9ae,
+        type: 3}

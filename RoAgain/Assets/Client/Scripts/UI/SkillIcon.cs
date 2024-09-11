@@ -53,7 +53,7 @@ namespace Client
             Transform dragParent = GetComponentInParent<Canvas>().transform;
             if (CopyOnDrag)
             {
-                GameObject dragIcon = Instantiate(PlayerUI.Instance.SkillIconPrefab, rtf.position, rtf.rotation, dragParent);
+                GameObject dragIcon = Instantiate(gameObject, rtf.position, rtf.rotation, dragParent);
                 _dragIconTf = dragIcon.GetComponent<RectTransform>();
                 SkillIcon dragIconComp = dragIcon.GetComponent<SkillIcon>();
                 dragIconComp.SetSkillData(SkillId, SkillParam);
@@ -97,11 +97,6 @@ namespace Client
                 // TODO: Skill Tooltip showing
             }
             Clicked?.Invoke(eventData);
-        }
-
-        private void PlanSkillPoints(SkillTreeEntry skillEntry, int planAmount)
-        {
-
         }
     }
 }

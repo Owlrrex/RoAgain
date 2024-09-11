@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1260878221841263927}
   - component: {fileID: 5181354137895109354}
   - component: {fileID: 108018771289121229}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Bg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 775775869753876852}
   - component: {fileID: 8925333957772922953}
   - component: {fileID: 2037657689799626850}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: RemainingSkillPointLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 6644760840650233261}
   - component: {fileID: 8847113829190488569}
   - component: {fileID: 4608252672495609933}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -353,7 +353,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3643272224990814350}
   - component: {fileID: 5434645530644778414}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TabContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -419,7 +419,7 @@ GameObject:
   - component: {fileID: 1019400885776673027}
   - component: {fileID: 8347689464359675033}
   - component: {fileID: 2411360267843538367}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: RemainingSkillPointText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -556,7 +556,7 @@ GameObject:
   - component: {fileID: 2744377803531236796}
   - component: {fileID: 8047819691326833078}
   - component: {fileID: 3754461073377860254}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ApplyButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -795,7 +795,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4813017309950856341}
   - component: {fileID: 8471387204485486120}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SkillGridContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -856,7 +856,7 @@ GameObject:
   - component: {fileID: 8586494696837927935}
   - component: {fileID: 6112670398188854219}
   - component: {fileID: 8996022362093862371}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -991,7 +991,7 @@ GameObject:
   - component: {fileID: 3059196233731093852}
   - component: {fileID: 9062437520586801986}
   - component: {fileID: 8382373613715557472}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ClearButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1110,7 +1110,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7937350558896984374}
   - component: {fileID: 7940956201142637771}
-  m_Layer: 0
+  - component: {fileID: 6463181276925097832}
+  m_Layer: 5
   m_Name: SkillTreeWindow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1164,6 +1165,29 @@ MonoBehaviour:
   _applyButton: {fileID: 3754461073377860254}
   _clearButton: {fileID: 8382373613715557472}
   _closeButton: {fileID: 2460202105349456871}
+--- !u!223 &6463181276925097832
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7322155885325594184}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 1
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!1001 &1061375546431675031
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1254,6 +1278,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: TabButtonLeft
+      objectReference: {fileID: 0}
+    - target: {fileID: 901670893114851062, guid: 26cc3fc443739fe4b940b47a9208581b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3091443082026010210, guid: 26cc3fc443739fe4b940b47a9208581b,
         type: 3}
@@ -1375,6 +1404,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7434268359157753993, guid: 26cc3fc443739fe4b940b47a9208581b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1421,6 +1455,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: TabButtonLeft (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 901670893114851062, guid: 26cc3fc443739fe4b940b47a9208581b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3091443082026010210, guid: 26cc3fc443739fe4b940b47a9208581b,
         type: 3}
@@ -1534,6 +1573,11 @@ PrefabInstance:
 
 '
       objectReference: {fileID: 0}
+    - target: {fileID: 7434268359157753993, guid: 26cc3fc443739fe4b940b47a9208581b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1580,6 +1624,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: TabButtonLeft (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 901670893114851062, guid: 26cc3fc443739fe4b940b47a9208581b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3091443082026010210, guid: 26cc3fc443739fe4b940b47a9208581b,
         type: 3}
@@ -1692,6 +1741,11 @@ PrefabInstance:
       value: 'Etc
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 7434268359157753993, guid: 26cc3fc443739fe4b940b47a9208581b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

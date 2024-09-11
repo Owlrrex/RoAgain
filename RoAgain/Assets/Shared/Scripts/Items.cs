@@ -9,6 +9,7 @@ namespace Shared
         Unusable,
         Usable,
         Equip_Head_Upper,
+        EQUIP_START = Equip_Head_Upper,
         Equip_head_Mid,
         Equip_Head_Lower,
         Equip_Armor,
@@ -19,7 +20,8 @@ namespace Shared
         Equip_Accessory_Right,
         Equip_Mainhand,
         Equip_Offhand,
-        Equip_Twohand
+        Equip_Twohand,
+        EQUIP_END = Equip_Twohand
     }
 
     /// <summary>

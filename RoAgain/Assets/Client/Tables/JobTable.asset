@@ -13,24 +13,31 @@ MonoBehaviour:
   m_Name: JobTable
   m_EditorClassIdentifier: 
   _entries:
-  - JobId: 1
-    ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
-      type: 3}
-  - JobId: 2
-    ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
-      type: 3}
-  - JobId: 3
-    ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
-      type: 3}
-  - JobId: 4
-    ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
-      type: 3}
-  - JobId: 5
-    ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
-      type: 3}
-  - JobId: 6
-    ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
-      type: 3}
-  - JobId: 7
-    ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
-      type: 3}
+  - Id: 1
+    Data:
+      ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
+        type: 3}
+  - Id: 2
+    Data:
+      ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
+        type: 3}
+  - Id: 3
+    Data:
+      ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
+        type: 3}
+  - Id: 4
+    Data:
+      ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
+        type: 3}
+  - Id: 5
+    Data:
+      ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
+        type: 3}
+  - Id: 6
+    Data:
+      ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
+        type: 3}
+  - Id: 7
+    Data:
+      ModelPrefab: {fileID: 4704524125640937412, guid: 3802746ea3ba8ad42abf8b5dc090a80b,
+        type: 3}
