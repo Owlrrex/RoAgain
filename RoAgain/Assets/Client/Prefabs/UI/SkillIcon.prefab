@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7888566078886606692}
   - component: {fileID: -8753447880435814629}
   - component: {fileID: 8198107025281439625}
+  - component: {fileID: 1349957187902359035}
   m_Layer: 5
   m_Name: SkillIcon
   m_TagString: Untagged
@@ -33,7 +34,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -107,3 +107,18 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1349957187902359035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5180894624772917928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a8b8d0e5075044ca576f1311e535a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AllowDrag: 1
+  CopyOnDrag: 0
+  _canvasGroup: {fileID: 8198107025281439625}

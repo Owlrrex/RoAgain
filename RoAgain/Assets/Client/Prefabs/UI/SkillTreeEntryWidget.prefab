@@ -1405,6 +1405,11 @@ PrefabInstance:
       propertyPath: CopyOnDrag
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1349957187902359035, guid: c3623ed0475eecc45ba2f3af3cd3d2ff,
+        type: 3}
+      propertyPath: CopyOnDrag
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5180894624772917928, guid: c3623ed0475eecc45ba2f3af3cd3d2ff,
         type: 3}
       propertyPath: m_Name

@@ -1632,11 +1632,6 @@ PrefabInstance:
       propertyPath: m_RaycastTarget
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 2172745357685779922, guid: b3ea4ec284d6e38409fa30f2929af4ae,
-        type: 3}
-      propertyPath: m_VertexColorAlwaysGammaSpace
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5160606278618328982, guid: b3ea4ec284d6e38409fa30f2929af4ae,
         type: 3}
       propertyPath: m_Pivot.x

@@ -53,9 +53,16 @@ namespace Client
 
         private bool _highlightOverride = false;
 
+        private Draggable _iconDraggable;
+
         void Awake()
         {
-            OwlLogger.PrefabNullCheckAndLog(_skillIcon, "skillIcon", this, GameComponent.UI);
+            if (!OwlLogger.PrefabNullCheckAndLog(_skillIcon, "skillIcon", this, GameComponent.UI))
+            {
+                _iconDraggable = _skillIcon.GetComponent<Draggable>();
+                OwlLogger.PrefabNullCheckAndLog(_iconDraggable, nameof(_iconDraggable), this, GameComponent.UI);
+            }
+
             if(!OwlLogger.PrefabNullCheckAndLog(_decreaseCurrentLevelButton, "decreaseCurrentLevelButton", this, GameComponent.UI))
                 _decreaseCurrentLevelButton.onClick.AddListener(OnDecreaseCurrentLevelClicked);
             if (!OwlLogger.PrefabNullCheckAndLog(_increaseCurrentLevelButton, "increaseCurrentLevelButton", this, GameComponent.UI))
@@ -221,7 +228,7 @@ namespace Client
         {
             _greyOutOverlay.enabled = newGreyedOut;
             _levelSelectAnchor.gameObject.SetActive(!newGreyedOut);
-            _skillIcon.AllowDrag = !newGreyedOut;
+            _iconDraggable.AllowDrag = !newGreyedOut;
         }
 
         private void OnIconClicked(PointerEventData eventData)
