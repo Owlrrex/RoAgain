@@ -270,6 +270,7 @@ namespace Client
         private void OnJobChanged(ACharacterEntity character)
         {
             SetSkilltext($"Job changed to {character.JobId}!", 5);
+            // TODO: Adjust Model
         }
 
         public void OnPointerEnter(PointerEventData eventData)

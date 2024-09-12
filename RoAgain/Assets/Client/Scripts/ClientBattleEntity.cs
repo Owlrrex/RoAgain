@@ -9,11 +9,11 @@ namespace Client
 
         public void SetData(BattleEntityData data)
         {
-            if (Id != 0 && Id != data.UnitId)
+            if (Id != 0 && Id != data.EntityId)
             {
-                OwlLogger.LogWarning($"Unit Id {Id} has its ID changed to {data.UnitId}!", GameComponent.Other);
+                OwlLogger.LogWarning($"Unit Id {Id} has its ID changed to {data.EntityId}!", GameComponent.Other);
             }
-            Id = data.UnitId;
+            Id = data.EntityId;
             NameOverride = data.NameOverride;
             LocalizedNameId = data.LocalizedNameId;
             MapId = data.MapId;

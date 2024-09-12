@@ -722,6 +722,7 @@ namespace Server
             LocalCharacterDataPacket packet = new()
             {
                 EntityId = Id,
+                CharacterId = CharacterId,
                 CharacterName = NameOverride,
                 MapId = MapId,
                 Path = Path,

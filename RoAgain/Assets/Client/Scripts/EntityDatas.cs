@@ -8,7 +8,7 @@ namespace Client
 {
     public class GridEntityData
     {
-        public int UnitId;
+        public int EntityId;
         public string NameOverride = null;
         public LocalizedStringId LocalizedNameId = LocalizedStringId.INVALID;
         public string MapId;
@@ -29,7 +29,7 @@ namespace Client
 
         public void UpdateFromPacket(GridEntityDataPacket packet)
         {
-            UnitId = packet.EntityId;
+            EntityId = packet.EntityId;
             if (!string.IsNullOrEmpty(packet.NameOverride))
                 NameOverride = packet.NameOverride;
             LocalizedNameId = packet.LocalizedNameId;
@@ -62,7 +62,7 @@ namespace Client
         public void UpdateFromPacket(BattleEntityDataPacket packet)
         {
             BaseLvl = packet.BaseLvl;
-            UnitId = packet.EntityId;
+            EntityId = packet.EntityId;
             if(!string.IsNullOrEmpty(packet.NameOverride))
                 NameOverride = packet.NameOverride;
             LocalizedNameId = packet.LocalizedNameId;
@@ -96,7 +96,7 @@ namespace Client
 
         public void UpdateFromPacket(RemoteCharacterDataPacket packet)
         {
-            UnitId = packet.EntityId;
+            EntityId = packet.EntityId;
             NameOverride = packet.CharacterName; // Don't bother setting localized name for characters
             MapId = packet.MapId;
             Path = packet.Path;
@@ -178,7 +178,8 @@ namespace Client
                 return;
             }
 
-            UnitId = packet.EntityId;
+            EntityId = packet.EntityId;
+            CharacterId = packet.CharacterId;
             NameOverride = packet.CharacterName; // Don't bother setting localized name for characters
             MapId = packet.MapId;
             Path = packet.Path;

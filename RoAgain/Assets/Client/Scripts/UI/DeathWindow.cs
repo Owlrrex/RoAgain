@@ -23,16 +23,20 @@ namespace Client
         // Update is called once per frame
         void Update()
         {
-            if (ClientMain.Instance?.CurrentCharacterData?.IsDead() != true)
+            if (ClientMain.Instance != null
+                && ClientMain.Instance.CurrentCharacterData != null
+                && !ClientMain.Instance.CurrentCharacterData.IsDead())
             {
                 gameObject.SetActive(false);
-                return;
             }
         }
 
         private void OnBackToSaveButtonClicked()
         {
-            ClientMain.Instance?.RequestReturnToSave();
+            if(ClientMain.Instance != null)
+            {
+                ClientMain.Instance.RequestReturnToSave();
+            }
         }
     }
 }

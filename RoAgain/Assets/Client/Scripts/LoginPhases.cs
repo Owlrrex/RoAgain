@@ -195,7 +195,6 @@ namespace Client
             }
 
             CharacterData = charData;
-            CharacterData.CharacterId = _charId;
             FinalizeIfFinished();
         }
 

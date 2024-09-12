@@ -375,7 +375,7 @@ namespace Client
 
             // TODO: Validations
 
-            OwlLogger.Log($"Character Login completed, new CurrentChar has ID {charData.UnitId}", GameComponent.Character);
+            OwlLogger.Log($"Character Login completed, new CurrentChar has ID {charData.EntityId}", GameComponent.Character);
 
             // TODO: Proper loading-screen
             DisplayZeroButtonNotification(_loadingWorldLocId);
@@ -462,9 +462,9 @@ namespace Client
         {
             if (CurrentCharacterData != null
                 && CurrentCharacterData.Id != 0
-                && CurrentCharacterData.Id != data.UnitId)
+                && CurrentCharacterData.Id != data.EntityId)
             {
-                OwlLogger.LogError($"LocalCharacterDataPacket received for Id {data.UnitId} that differs from CurrentCharacterData id {CurrentCharacterData.Id}!", GameComponent.Character);
+                OwlLogger.LogError($"LocalCharacterDataPacket received for Id {data.EntityId} that differs from CurrentCharacterData id {CurrentCharacterData.Id}!", GameComponent.Character);
             }
 
             string oldMapId = CurrentCharacterData.MapId;
@@ -522,7 +522,7 @@ namespace Client
             {
                 foreach(GridEntityData entityData in _queuedEntities)
                 {
-                    if(entityData.UnitId == moveInfo.UnitId)
+                    if(entityData.EntityId == moveInfo.UnitId)
                     {
                         entityData.Path = moveInfo.Path;
                         entityData.PathCellIndex = 0;
@@ -542,7 +542,7 @@ namespace Client
             if (!MapModule.IsReady()
                 || data.MapId != CurrentCharacterData.MapId)
             {
-                OwlLogger.Log($"Queueing entity data for id {data.UnitId} for Mapchange.", GameComponent.Other, LogSeverity.Verbose);
+                OwlLogger.Log($"Queueing entity data for id {data.EntityId} for Mapchange.", GameComponent.Other, LogSeverity.Verbose);
                 _queuedEntities.Add(data);
             }
             else

@@ -176,7 +176,6 @@ public class PlayerMain : BattleEntityModelMain
             Vector3 angles = _model.transform.rotation.eulerAngles;
             Vector3 pos = _model.transform.localPosition;
             angles.x = -90;
-            pos.y = 0;
             _model.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(angles));
         }
         else
@@ -184,7 +183,6 @@ public class PlayerMain : BattleEntityModelMain
             Vector3 angles = _model.transform.rotation.eulerAngles;
             Vector3 pos = _model.transform.localPosition;
             angles.x = 0;
-            pos.y = 1;
             _model.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(angles));
         }
     }

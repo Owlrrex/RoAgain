@@ -206,26 +206,26 @@ namespace Client
         {
             if (data.MapId != _currentMapId)
             {
-                OnEntityRemoved(data.UnitId);
+                OnEntityRemoved(data.EntityId);
                 return;
             }
 
-            if (Grid.Data.FindOccupant(data.UnitId) == null)
+            if (Grid.Data.FindOccupant(data.EntityId) == null)
             {
                 GridEntity check = CreateNewEntity(data);
                 if (check == null)
                 {
-                    OwlLogger.LogError($"Creating GridEntity failed for EntityData, EntityId = {data.UnitId}", GameComponent.Other);
+                    OwlLogger.LogError($"Creating GridEntity failed for EntityData, EntityId = {data.EntityId}", GameComponent.Other);
                     return;
                 }
                 else
                 {
-                    OwlLogger.LogF("Created Entity Display for entity {0}", data.UnitId, GameComponent.Other, LogSeverity.Verbose);
+                    OwlLogger.LogF("Created Entity Display for entity {0}", data.EntityId, GameComponent.Other, LogSeverity.Verbose);
                 }
             }
             else
             {
-                OwlLogger.LogF("Updating data for existing entity {0}", data.UnitId, GameComponent.Other, LogSeverity.VeryVerbose);
+                OwlLogger.LogF("Updating data for existing entity {0}", data.EntityId, GameComponent.Other, LogSeverity.VeryVerbose);
             }
 
             UpdateExistingEntityData(data);
@@ -330,24 +330,24 @@ namespace Client
             // Clear "Awaiting Removal" status from entity
             for (int i = _entitiesAwaitingRemoval.Count - 1; i >= 0; i--)
             {
-                if (_entitiesAwaitingRemoval[i].Id == data.UnitId)
+                if (_entitiesAwaitingRemoval[i].Id == data.EntityId)
                     _entitiesAwaitingRemoval.RemoveAt(i);
             }
 
             Vector2Int coords = data.Coordinates;
-            GridEntity entity = Grid.Data.GetOccupantFromCell(coords, data.UnitId);
+            GridEntity entity = Grid.Data.GetOccupantFromCell(coords, data.EntityId);
 
             if (entity == null)
             {
-                entity = Grid.Data.FindOccupant(data.UnitId);
+                entity = Grid.Data.FindOccupant(data.EntityId);
                 if (entity == null)
                 {
-                    OwlLogger.LogError($"Tried to update existing entity data for id {data.UnitId}, entity missing!", GameComponent.Other);
+                    OwlLogger.LogError($"Tried to update existing entity data for id {data.EntityId}, entity missing!", GameComponent.Other);
                     return;
                 }
                 // this case will happen if an Entity leaves update-range & then re-enters it in a different position,
                 // but before the client-side display is destroyed
-                OwlLogger.Log($"Entity Id {data.UnitId} not found on expected cell {coords} - compensating!", GameComponent.Other, LogSeverity.VeryVerbose);
+                OwlLogger.Log($"Entity Id {data.EntityId} not found on expected cell {coords} - compensating!", GameComponent.Other, LogSeverity.VeryVerbose);
             }
 
             // SyncPosition to server data
@@ -390,9 +390,9 @@ namespace Client
                 return null;
             }
 
-            if (entityInfo.UnitId <= 0)
+            if (entityInfo.EntityId <= 0)
             {
-                OwlLogger.LogError($"Can't create entity for invalid Id {entityInfo.UnitId}", GameComponent.Other);
+                OwlLogger.LogError($"Can't create entity for invalid Id {entityInfo.EntityId}", GameComponent.Other);
                 return null;
             }
 
@@ -512,7 +512,7 @@ namespace Client
         {
             GridEntity newEntity = new()
             {
-                Id = entityData.UnitId,
+                Id = entityData.EntityId,
                 NameOverride = entityData.NameOverride,
                 LocalizedNameId = entityData.LocalizedNameId,
                 MapId = entityData.MapId,

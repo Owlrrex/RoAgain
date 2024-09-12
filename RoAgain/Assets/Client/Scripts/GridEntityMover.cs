@@ -96,7 +96,8 @@ namespace Client
             GameObject prefab = GetCharacterModelPrefab(cEntity);
             if (prefab == null)
                 return;
-            _model = Instantiate(prefab, _modelAnchor);
+            if(_model == null)
+                _model = Instantiate(prefab, _modelAnchor);
             if(_model.TryGetComponent(out CursorModifierComponent modifierComponent))
             {
                 // It's possible to freely attack players atm, but this won't stay, so we don't give the attack-cursor
@@ -110,7 +111,8 @@ namespace Client
             GameObject prefab = GetMobModelPrefab(bEntity);
             if (prefab == null)
                 return;
-            _model = Instantiate(prefab, _modelAnchor);
+            if (_model == null)
+                _model = Instantiate(prefab, _modelAnchor);
             if (_model.TryGetComponent(out CursorModifierComponent modifierComponent))
             {
                 // Currently, we assume a non-character battleEntity to be a mob = attackable.
@@ -124,12 +126,13 @@ namespace Client
             GameObject prefab = GetGenericModelPrefab(gEntity);
             if (prefab == null)
                 return;
-            _model = Instantiate(prefab, _modelAnchor);
+            if (_model == null)
+                _model = Instantiate(prefab, _modelAnchor);
             if (_model.TryGetComponent(out CursorModifierComponent modifierComponent))
             {
                 // Currently, we assume a non-battle grid-entity to be an NPC = talkable
                 // This will change eventually
-                modifierComponent.TargetType = CursorChanger.HoverTargetType.Attack;
+                modifierComponent.TargetType = CursorChanger.HoverTargetType.Speak;
             }
         }
 

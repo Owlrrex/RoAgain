@@ -660,6 +660,7 @@ public class LocalCharacterDataPacket : Packet
     public override int PacketType => 32;
 
     public int EntityId;
+    public int CharacterId;
     public string CharacterName;
     public string MapId;
     public GridData.Path Path;
