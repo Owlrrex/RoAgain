@@ -147,7 +147,7 @@ PrefabInstance:
     - target: {fileID: 3876359467302315706, guid: 95228ea05e502de46b479bec3d29e24c,
         type: 3}
       propertyPath: m_Name
-      value: ItemStackWidget Variant
+      value: ItemStackWidget
       objectReference: {fileID: 0}
     - target: {fileID: 4477611290841546388, guid: 95228ea05e502de46b479bec3d29e24c,
         type: 3}
@@ -261,6 +261,14 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 4283678564689101023}
+    - targetCorrespondingSourceObject: {fileID: 3876359467302315706, guid: 95228ea05e502de46b479bec3d29e24c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3662813111123629229}
+    - targetCorrespondingSourceObject: {fileID: 3876359467302315706, guid: 95228ea05e502de46b479bec3d29e24c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5730486242411324575}
   m_SourcePrefab: {fileID: 100100000, guid: 95228ea05e502de46b479bec3d29e24c, type: 3}
 --- !u!224 &2624889464633074561 stripped
 RectTransform:
@@ -289,7 +297,34 @@ MonoBehaviour:
   _typeWidget: {fileID: 3866762744841352504}
   _itemCountText: {fileID: 3554501029991017118}
   _tooltip: {fileID: 4419753520881293613}
+  <DragSource>k__BackingField: 0
+--- !u!114 &-3662813111123629229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3424223170221783983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a8b8d0e5075044ca576f1311e535a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   AllowDrag: 1
+  <CreateNewOnDrag>k__BackingField: 1
+  _newDragPrefab: {fileID: 3424223170221783983}
+--- !u!225 &5730486242411324575
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3424223170221783983}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &3866762744841352504 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3451816200789977133, guid: 95228ea05e502de46b479bec3d29e24c,

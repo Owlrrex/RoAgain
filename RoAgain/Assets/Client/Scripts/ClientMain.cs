@@ -15,6 +15,9 @@ namespace Client
         private OneButtonNotification _oneButtonNotification;
         [SerializeField]
         private ZeroButtonNotification _zeroButtonNotification;
+        [SerializeField]
+        private GeneralNumberInput _generalNumberInput;
+        public GeneralNumberInput GeneralNumberInput => _generalNumberInput;
 
         // Data Tables
         [SerializeField]

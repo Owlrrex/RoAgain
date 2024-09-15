@@ -87,7 +87,7 @@ namespace Client
             }
             _skillIcon.CurrentSlot = this;
             Draggable draggable = iconObj.GetComponent<Draggable>();
-            draggable.CopyOnDrag = CopyOnDrag;
+            draggable.SetCreateNewOnDrag(CopyOnDrag);
         }
 
         public void SetSkillParam(int newParam)

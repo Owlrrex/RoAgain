@@ -480,7 +480,7 @@ namespace Server
             if (amount > 0)
                 result = AServer.Instance.InventoryModule.AddItemsToInventory(target, targetItemTypeId, amount);
             else
-                result = AServer.Instance.InventoryModule.RemoveItemsFromInventory(target, targetItemTypeId, -amount, true);
+                result = AServer.Instance.InventoryModule.RemoveItemsFromCharacterInventory(target, targetItemTypeId, -amount, true);
             
             if(result == -2)
             {
@@ -541,7 +541,7 @@ namespace Server
             int totalResult = 0;
             foreach(var kvp in inventory.ItemStacksByTypeId)
             {
-                int partResult = AServer.Instance.InventoryModule.RemoveItemsFromInventory(target, kvp.Value, true);
+                int partResult = AServer.Instance.InventoryModule.RemoveItemsFromCharacterInventory(target, kvp.Value, true);
                 if(partResult != 0)
                 {
                     OwlLogger.LogError($"Failed to delete itemtype {kvp.Key} from inventory of character {target.NameOverride}", GameComponent.ChatCommands);

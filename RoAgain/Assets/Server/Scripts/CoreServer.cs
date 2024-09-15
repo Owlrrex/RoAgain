@@ -917,6 +917,17 @@ namespace Server
             connection.Send(new ConfigValuePacket() { Key = key, Value = result, Exists = found, IsAccountStorage = isAccountStorage });
         }
 
+        private void ReceiveItemDropRequest(ClientConnection connection, long itemTypeId, int inventoryId, int amount)
+        {
+            if (!TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData character))
+            {
+                OwlLogger.LogError($"Received ItemDropRequest from characterId {connection.CharacterId} that's not logged in!", GameComponent.Items);
+                return;
+            }
+
+            _inventoryModule.HandleItemDropRequest(character, itemTypeId, inventoryId, amount);
+        }
+
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
         {
             if(newConnection == null)
@@ -942,6 +953,7 @@ namespace Server
             newConnection.CharacterLogoutRequestReceived += ReceiveCharacterLogoutRequest;
             newConnection.ConfigStorageRequestReceived += ReceiveConfigStorageRequest;
             newConnection.ConfigReadRequestReceived += ReceiveConfigReadRequest;
+            newConnection.ItemDropRequestReceived += ReceiveItemDropRequest;
             
             return 0;
         }

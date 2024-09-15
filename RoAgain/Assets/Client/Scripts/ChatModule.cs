@@ -76,6 +76,7 @@ namespace Client
                 return -1;
             }
 
+            data.SenderName ??= "";
             if (data.SenderName.Length > ChatMessageRequestPacket.NAME_LENGTH)
             {
                 OwlLogger.LogError($"Can't send chatmessage to targetName of length {data.SenderName.Length}: Too long!", GameComponent.UI);
@@ -84,6 +85,12 @@ namespace Client
             else if (data.SenderName.Length < ChatMessageRequestPacket.NAME_LENGTH)
             {
                 data.SenderName = data.SenderName.PadRight(ChatMessageRequestPacket.NAME_LENGTH, '.');
+            }
+
+            if(string.IsNullOrEmpty(data.Message))
+            {
+                OwlLogger.LogError("Can't send empty chatmessage!", GameComponent.Chat);
+                return -4;
             }
 
             if (data.Message.Length > ChatMessageRequestPacket.MESSAGE_LENGTH)

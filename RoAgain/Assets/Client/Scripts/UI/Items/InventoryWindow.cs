@@ -7,6 +7,8 @@ namespace Client
 {
     public class InventoryWindow : MonoBehaviour
     {
+        public ItemStackDragSource DragSource;
+
         [SerializeField]
         private Transform _itemContainer;
         [SerializeField]
@@ -72,7 +74,7 @@ namespace Client
 
             GameObject createdObj = Instantiate(_itemStackWidgetPrefab, _itemContainer); // TODO: Pooling for ItemStackWidgets
             ItemStackWidget createdWidget = createdObj.GetComponent<ItemStackWidget>();
-            createdWidget.SetData(stack);
+            createdWidget.SetData(stack, DragSource);
             _createdItemWidgets.Add(stack.ItemType.TypeId, createdWidget);
         }
 
@@ -82,7 +84,7 @@ namespace Client
                 return;
 
             ItemStackWidget widget = _createdItemWidgets[stack.ItemType.TypeId];
-            widget.SetData(stack);
+            widget.SetData(stack, DragSource);
         }
 
         public void OnItemStackRemoved(long itemTypeId)

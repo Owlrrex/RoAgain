@@ -5,7 +5,21 @@ using UnityEngine.EventSystems;
 
 namespace Client
 {
-    public class ItemStackWidget : MonoBehaviour, IPointerClickHandler
+    public enum ItemStackDragSource
+    {
+        Unknown,
+        OwnInventory,
+        OwnCart,
+        OwnEquip,
+        OwnStorage,
+        TradeOwnSide,
+        TradeOtherSide,
+        NpcShop,
+        PlayerShop,
+        // Dialog displays?
+    }
+
+    public class ItemStackWidget : MonoBehaviour, IPointerClickHandler, IDraggableSource
     {
         [SerializeField]
         private ItemTypeWidget _typeWidget;
@@ -14,7 +28,10 @@ namespace Client
         [SerializeField]
         private MouseTooltipTriggerString _tooltip;
 
-        public bool AllowDrag = true;
+        public ItemStack CurrentStack { get; private set; }
+
+        [field: SerializeField]
+        public ItemStackDragSource DragSource { get; private set; }
 
         public void Awake()
         {
@@ -23,10 +40,12 @@ namespace Client
             OwlLogger.PrefabNullCheckAndLog(_tooltip, nameof(_tooltip), this, GameComponent.UI);
         }
 
-        public void SetData(ItemStack stack)
+        public void SetData(ItemStack stack, ItemStackDragSource sourceType)
         {
+            CurrentStack = stack;
             _typeWidget.SetData(stack.ItemType);
             _itemCountText.text = stack.ItemCount.ToString();
+            DragSource = sourceType;
             // TODO: Build proper ItemType name from Modifiers
             _tooltip.Message = LocalizedStringTable.GetStringById(stack.ItemType.NameLocId) + " x" + stack.ItemCount.ToString();
         }
@@ -39,6 +58,17 @@ namespace Client
             {
                 // TODO: Item Tooltip
             }
+        }
+
+        public void InitDragCopy(GameObject copy)
+        {
+            ItemStackWidget itemStackComp = copy.GetComponent<ItemStackWidget>();
+            itemStackComp.SetData(CurrentStack, DragSource);
+        }
+
+        public void InitDragSelf()
+        {
+            
         }
     }
 }

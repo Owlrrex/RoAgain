@@ -411,7 +411,7 @@ namespace Server
             return result;
         }
 
-        public int RemoveItemsFromInventory(CharacterRuntimeData character, ItemStack stack, bool allowDeleteStack)
+        public int RemoveItemsFromCharacterInventory(CharacterRuntimeData character, ItemStack stack, bool allowDeleteStack)
         {
             if (stack == null)
             {
@@ -419,10 +419,10 @@ namespace Server
                 return -1;
             }
 
-            return RemoveItemsFromInventory(character, stack.ItemType.TypeId, stack.ItemCount, allowDeleteStack);
+            return RemoveItemsFromCharacterInventory(character, stack.ItemType.TypeId, stack.ItemCount, allowDeleteStack);
         }
 
-        public int RemoveItemsFromInventory(CharacterRuntimeData character, long itemTypeId, int count, bool allowDeleteStack)
+        public int RemoveItemsFromCharacterInventory(CharacterRuntimeData character, long itemTypeId, int count, bool allowDeleteStack)
         {
             if (character == null)
             {
@@ -430,34 +430,10 @@ namespace Server
                 return -1;
             }
 
-            Inventory inventory = GetOrLoadInventory(character.InventoryId);
-
-            int result = RemoveItemsFromInventory(inventory, itemTypeId, count, allowDeleteStack);
+            int result = RemoveItemsFromInventory(character.InventoryId, itemTypeId, count, allowDeleteStack, character);
 
             if (result == 0)
             {
-                Packet packet;
-                int remainingCount = inventory.GetItemCountExact(itemTypeId);
-                if (remainingCount == 0)
-                {
-                    packet = new ItemStackRemovedPacket()
-                    {
-                        InventoryId = character.InventoryId,
-                        ItemTypeId = itemTypeId
-                    };
-                }
-                else
-                {
-                    packet = new ItemStackPacket()
-                    {
-                        InventoryId = character.InventoryId,
-                        ItemTypeId = itemTypeId,
-                        ItemCount = remainingCount
-                    };
-                }
-
-                character.Connection.Send(packet);
-
                 ItemType type = _itemTypeModule.GetOrLoadItemType(itemTypeId);
                 if(type == null)
                 {
@@ -467,6 +443,43 @@ namespace Server
 
                 if(type.Weight > 0)
                    ModifyCharacterWeight(character, -type.Weight * count);
+            }
+
+            return result;
+        }
+
+        public int RemoveItemsFromInventory(int inventoryId, long itemTypeId, int count, bool allowDeleteStack, CharacterRuntimeData characterToNotify = null)
+        {
+            Inventory inventory = GetOrLoadInventory(inventoryId);
+
+            int result = RemoveItemsFromInventory(inventory, itemTypeId, count, allowDeleteStack);
+
+            if (result == 0)
+            {
+                if (characterToNotify != null)
+                {
+                    Packet packet;
+                    int remainingCount = inventory.GetItemCountExact(itemTypeId);
+                    if (remainingCount == 0)
+                    {
+                        packet = new ItemStackRemovedPacket()
+                        {
+                            InventoryId = inventoryId,
+                            ItemTypeId = itemTypeId
+                        };
+                    }
+                    else
+                    {
+                        packet = new ItemStackPacket()
+                        {
+                            InventoryId = inventoryId,
+                            ItemTypeId = itemTypeId,
+                            ItemCount = remainingCount
+                        };
+                    }
+
+                    characterToNotify.Connection.Send(packet);
+                }
             }
 
             return result;
@@ -623,6 +636,46 @@ namespace Server
             {
                 _invDb.Persist(InventoryToPersData(kvp.Value));
             }
+        }
+
+        public void HandleItemDropRequest(CharacterRuntimeData character, long itemTypeId, int inventoryId, int amount)
+        {
+            if(!CanCharacterAccessInventory(character, inventoryId))
+            {
+                OwlLogger.LogError($"Character {character.CharacterId} tried to drop items from inventory {inventoryId} that they can't access!", GameComponent.Items);
+                return;
+            }
+
+            // TODO: Check ItemMoveRestrictions
+
+            int removeResult = -1;
+            ItemStack affectedStack = GetOrLoadInventory(inventoryId).ItemStacksByTypeId[itemTypeId];
+            if (character.InventoryId == inventoryId)
+            {
+                removeResult = RemoveItemsFromCharacterInventory(character, itemTypeId, amount, false);
+            }
+            else
+            {
+                removeResult = RemoveItemsFromInventory(inventoryId, itemTypeId, amount, false, character);
+            }
+            
+            if(removeResult != 0)
+            {
+                OwlLogger.LogError($"Failed to remove Items for ItemDropRequest", GameComponent.Items);
+                return;
+            }
+
+            // TODO: Make PickupModule generate a pickup
+        }
+
+        public bool CanCharacterAccessInventory(CharacterRuntimeData character, int inventoryId)
+        {
+            if (character.InventoryId == inventoryId)
+                return true; // Character inventory
+
+            // TODO: Cart inventory
+            // TODO: A storage that the character has currently opened
+            return false;
         }
     }
 }

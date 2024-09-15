@@ -262,6 +262,9 @@ abstract public class Packet
             case 67:
                 packet = JsonUtility.FromJson<WeightPacket>(json);
                 break;
+            case 68:
+                packet = JsonUtility.FromJson<ItemDropRequestPacket>(json);
+                break;
             default:
                 OwlLogger.LogError($"Invalid Packet type {packetType} received!", GameComponent.Network);
                 return null;
@@ -1004,6 +1007,15 @@ public class WeightPacket : Packet
     public int NewCurrentWeight;
 }
 
+public class ItemDropRequestPacket : Packet
+{
+    public override int PacketType => 68;
+
+    public long ItemTypeId;
+    public int InventoryId;
+    public int Amount;
+}
+
 // Move & adjust this comment when adding new packets, to make dev easier
-// Next PacketType = 68
+// Next PacketType = 69
 // Unused Ids: 8, 34, 35, 36, 38
