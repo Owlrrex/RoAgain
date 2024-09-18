@@ -78,7 +78,7 @@ namespace Server
                 return null;
             }
 
-            if(persData.BaseTypeId <= 0 && persData.BaseTypeId != ItemType.BASETYPEID_NONE)
+            if(persData.BaseTypeId <= 0 && persData.BaseTypeId != ItemConstants.BASETYPEID_NONE)
             {
                 OwlLogger.LogError($"Can't convert ItemPersistenceData {persData.TypeId} into ItemType - invalid BaseTypeId {persData.BaseTypeId}", GameComponent.Items);
                 return null;
@@ -138,7 +138,7 @@ namespace Server
                 return null;
             }
 
-            if (type.BaseTypeId <= 0 && type.BaseTypeId != ItemType.BASETYPEID_NONE)
+            if (type.BaseTypeId <= 0 && type.BaseTypeId != ItemConstants.BASETYPEID_NONE)
             {
                 OwlLogger.LogError($"Can't convert ItemType {type.TypeId} into PersistenceData - invalid BaseTypeId {type.BaseTypeId}", GameComponent.Items);
                 return null;
@@ -185,8 +185,6 @@ namespace Server
         // Note: DynamicItemTypes can be orphaned by operations that don't require items of that type & the type itself to be loaded, like character-deletion.
         // For this reason, an operation should be available that checks all currently persisted inventories and deletes any ItemTypes that are no longer needed (and ideally also flags other issues).
         // This operation would be meant to be run during maintenances, not while the server's running, since it's probably slow & would lock access to Inventories
-
-        public const long ITEM_TYPE_ID_INVALID = -1;
 
         /// <summary>
         /// Maps ids of all ItemTypes currently in the Db to their base-type for faster search
@@ -245,7 +243,7 @@ namespace Server
 
                 ItemTypePersistentData persData = LoadItemTypePersData(value);
 
-                if(persData.BaseTypeId != ItemType.BASETYPEID_NONE)
+                if(persData.BaseTypeId != ItemConstants.BASETYPEID_NONE)
                 {
                     if (!_itemTypeIdsByBaseType.ContainsKey(persData.BaseTypeId))
                         _itemTypeIdsByBaseType[persData.BaseTypeId] = new();
@@ -320,12 +318,13 @@ namespace Server
         public override void Shutdown()
         {
             _itemTypeIdsByBaseType.Clear();
+            _folderPath = null;
         }
 
         public override long GetMatchingItemTypeIdExact(long baseTypeId, Dictionary<ModifierType, int> modifiers)
         {
             if (!_itemTypeIdsByBaseType.ContainsKey(baseTypeId))
-                return ITEM_TYPE_ID_INVALID;
+                return ItemConstants.ITEM_TYPE_ID_INVALID;
 
             List<long> canddiateIds = _itemTypeIdsByBaseType[baseTypeId];
             foreach (long id in canddiateIds)
@@ -334,7 +333,7 @@ namespace Server
                     return id;
             }
 
-            return ITEM_TYPE_ID_INVALID;
+            return ItemConstants.ITEM_TYPE_ID_INVALID;
         }
 
         private bool DoModifiersMatch(long itemTypeId, Dictionary<ModifierType, int> targetModifiers)
@@ -379,7 +378,7 @@ namespace Server
 
         public override ItemType CreateItemType(long baseTypeId, Dictionary<ModifierType, int> modifiers)
         {
-            if(GetMatchingItemTypeIdExact(baseTypeId, modifiers) != ITEM_TYPE_ID_INVALID)
+            if(GetMatchingItemTypeIdExact(baseTypeId, modifiers) != ItemConstants.ITEM_TYPE_ID_INVALID)
             {
                 OwlLogger.LogError($"Can't create itemType for baseItemType {baseTypeId} - type already exists!", GameComponent.Persistence);
                 return null;

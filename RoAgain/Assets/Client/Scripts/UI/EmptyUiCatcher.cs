@@ -9,6 +9,8 @@ namespace Client
 {
     public class EmptyUiCatcher : MonoBehaviour, IDropHandler
     {
+        public static EmptyUiCatcher Instance;
+
         private class ItemDropProcess
         {
             public long ItemTypeId;
@@ -16,6 +18,24 @@ namespace Client
         }
 
         private ItemDropProcess _currentItemDropProcess = new();
+
+        void Awake()
+        {
+            if(Instance != null)
+            {
+                OwlLogger.LogError("Duplicate EmptyUiCatchers!", GameComponent.UI);
+                Destroy(this);
+                return;
+            }
+
+            Instance = this;
+            SetCatcherActive(false);
+        }
+
+        public void SetCatcherActive(bool value)
+        {
+            gameObject.SetActive(value);
+        }
 
         public void OnDrop(PointerEventData eventData)
         {
@@ -34,6 +54,8 @@ namespace Client
                         itemStackWidget.CurrentStack.ItemCount, OnItemDropAmountInputConfirm, null);
                 }
             }
+
+            SetCatcherActive(false);
         }
 
         private void OnItemDropAmountInputConfirm(int amount)

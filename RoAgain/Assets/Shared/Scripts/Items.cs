@@ -51,5 +51,10 @@ namespace Shared
         public const int GUILDSTORAGE = -2;
         public const int PLAYERCART = -3; // This means inspecting other player's carts will not be possible, since we can't associate cart-inventories to entities!
     }
-    
+
+    public static class ItemConstants
+    {
+        public const long ITEM_TYPE_ID_INVALID = -1;
+        public const long BASETYPEID_NONE = ITEM_TYPE_ID_INVALID;
+    }
 }

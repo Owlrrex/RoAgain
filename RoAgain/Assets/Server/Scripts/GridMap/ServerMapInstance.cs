@@ -23,9 +23,7 @@ public class ServerMapInstance
     private HashSet<CellEffectGroup> _oldVisibleEffectBuffer = new();
     private HashSet<CellEffectGroup> _noLongerVisibleEffectBuffer = new();
 
-
-    // This loads the actual map data in the future, I guess?
-    public int Initialize(string mapId, ExperienceModule expModule)
+    public int Initialize(string mapId, ExperienceModule expModule, LootModule lootModule)
     {
         MapId = mapId;
         int loadError = LoadGridFromFile(MapId);
@@ -36,7 +34,7 @@ public class ServerMapInstance
         BattleModule.Initialize(this);
 
         MobManager = new();
-        MobManager.Initialize(this, expModule);
+        MobManager.Initialize(this, expModule, lootModule);
 
         SkillModule = new();
         SkillModule.Initialize(this);

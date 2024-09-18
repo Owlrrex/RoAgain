@@ -28,7 +28,7 @@ namespace Server
         public bool IsValid()
         {
             return TypeId >= 0
-                && (BaseTypeId >= 0 || BaseTypeId == ItemType.BASETYPEID_NONE)
+                && (BaseTypeId >= 0 || BaseTypeId == ItemConstants.BASETYPEID_NONE)
                 && Weight >= 0
                 && SellPrice >= 0;
         }

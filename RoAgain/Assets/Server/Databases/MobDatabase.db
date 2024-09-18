@@ -27,7 +27,8 @@
         "HardDef": 0,
         "HardMDef": 5,
         "Apm": 60,
-		"Movespeed": 2
+		"Movespeed": 2,
+		"LootTableId": 1
       }
     },
     {
@@ -57,7 +58,8 @@
         "HardDef": 0,
         "HardMDef": 10,
         "Apm": 60,
-		"Movespeed": 3
+		"Movespeed": 3,
+		"LootTableId": 0
       }
     },
     {
@@ -87,7 +89,8 @@
         "HardDef": 25,
         "HardMDef": 50,
         "Apm": 60,
-		"Movespeed": 1
+		"Movespeed": 1,
+		"LootTableId": 0
       }
     }
   ]

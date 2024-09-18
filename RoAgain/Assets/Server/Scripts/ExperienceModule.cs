@@ -7,36 +7,19 @@ namespace Server
 {
     public class ExperienceModule
     {
-        ServerMapModule _mapModule;
-
-        public int Initialize(ServerMapModule mapModule)
-        {
-            if(mapModule == null)
-            {
-                OwlLogger.LogError($"Can't initialize ExperienceModule with null ServerMapModule!", GameComponent.Other);
-                return -1;
-            }
-
-            _mapModule = mapModule;
-            
+        public int Initialize()
+        {            
             return 0;
         }
 
-        public void OnMobDeath(BattleEntity victim, BattleEntity killer)
+        public void OnMobDeath(BattleEntity victim)
         {
             if (victim is not Mob mob)
                 return;
 
-            ServerMapInstance map = _mapModule.GetMapInstance(victim.MapId);
-            if(map == null)
-            {
-                OwlLogger.LogError($"Expsystem can't find map {victim.MapId}!", GameComponent.Battle);
-                return;
-            }
-
             foreach (KeyValuePair<int, int> kvp in mob.BattleContributions)
             {
-                if (map.Grid.FindOccupant(kvp.Key) is not CharacterRuntimeData contributor)
+                if (!AServer.Instance.TryGetLoggedInCharacterByEntityId(kvp.Key, out var contributor))
                 {
                     // TODO: distinguish between "entity not found" and "contributions from non-character"?
                     // Non-Characters can currently not gain any exp, despite BaseLvls being supported for BattleEntities

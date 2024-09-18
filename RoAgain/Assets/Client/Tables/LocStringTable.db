@@ -1,1545 +1,1543 @@
-{
-    "entries": [
-        {
-            "key": 0,
-            "value": {
-                "TextEnglish": "-Placeholder-",
-                "TextGerman": "-Platzhalter-"
-            }
-        },
-        {
-            "key": 1,
-            "value": {
-                "TextEnglish": "Welcome to RoAgain!",
-                "TextGerman": "Willkommen bei RoAgain!"
-            }
-        },
-        {
-            "key": 2,
-            "value": {
-                "TextEnglish": "Weak Mob",
-                "TextGerman": "Schwaches Monster"
-            }
-        },
-        {
-            "key": 3,
-            "value": {
-                "TextEnglish": "Medium Mob",
-                "TextGerman": "Mittleres Monster"
-            }
-        },
-        {
-            "key": 4,
-            "value": {
-                "TextEnglish": "Strong Mob",
-                "TextGerman": "Starkes Monster"
-            }
-        },
-		{
-            "key": 5,
-            "value": {
-                "TextEnglish": "Place Warp",
-                "TextGerman": "Teleport-Feld"
-            }
-        },
-		{
-            "key": 6,
-            "value": {
-                "TextEnglish": "Place Warp - Skill Description",
-                "TextGerman": "Teleport-Feld - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 7,
-            "value": {
-                "TextEnglish": "Basic Attack",
-                "TextGerman": "Standard-Angriff"
-            }
-        },
-		{
-            "key": 8,
-            "value": {
-                "TextEnglish": "Basic Attack - Skill Description",
-                "TextGerman": "Standard-Angriff - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 9,
-            "value": {
-                "TextEnglish": "Basic Skills",
-                "TextGerman": "Grundlegende Fähigkeiten"
-            }
-        },
-		{
-            "key": 10,
-            "value": {
-                "TextEnglish": "Basic Skills - Skill Description",
-                "TextGerman": "Grundlegende Fähigkeiten - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 11,
-            "value": {
-                "TextEnglish": "Play Dead",
-                "TextGerman": "Totstellen"
-            }
-        },
-		{
-            "key": 12,
-            "value": {
-                "TextEnglish": "Play Dead - Skill Description",
-                "TextGerman": "Totstellen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 13,
-            "value": {
-                "TextEnglish": "First Aid",
-                "TextGerman": "Erste Hilfe"
-            }
-        },
-		{
-            "key": 14,
-            "value": {
-                "TextEnglish": "First Aid - Skill Description",
-                "TextGerman": "Erste Hilfe - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 15,
-            "value": {
-                "TextEnglish": "Bash",
-                "TextGerman": "Starker Hieb"
-            }
-        },
-		{
-            "key": 16,
-            "value": {
-                "TextEnglish": "Bash - Skill Description",
-                "TextGerman": "Starker Hieb - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 17,
-            "value": {
-                "TextEnglish": "Magnum Break",
-                "TextGerman": "Magnum Break"
-            }
-        },
-		{
-            "key": 18,
-            "value": {
-                "TextEnglish": "Magnum Break - Skill Description",
-                "TextGerman": "Magnum Break - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 19,
-            "value": {
-                "TextEnglish": "One-hand-sword Mastery",
-                "TextGerman": "Einhand-Schwert Spezialisierung"
-            }
-        },
-		{
-            "key": 20,
-            "value": {
-                "TextEnglish": "One-hand-sword Mastery - Skill Description",
-                "TextGerman": "Einhand-Schwert Spezialisierung - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 21,
-            "value": {
-                "TextEnglish": "Two-hand-sword Mastery",
-                "TextGerman": "Zweihand-Schwert Spezialisierung"
-            }
-        },
-		{
-            "key": 22,
-            "value": {
-                "TextEnglish": "Two-hand-sword Mastery - Skill Description",
-                "TextGerman": "Twohand-Schwert Spezialisierung - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 23,
-            "value": {
-                "TextEnglish": "Increased HP Recovery",
-                "TextGerman": "Verbesserte Hp Regeneration"
-            }
-        },
-		{
-            "key": 24,
-            "value": {
-                "TextEnglish": "Increased HP Recovery - Skill Description",
-                "TextGerman": "Verbesserte Hp Regeneration - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 25,
-            "value": {
-                "TextEnglish": "Provoke",
-                "TextGerman": "Provoizieren"
-            }
-        },
-		{
-            "key": 26,
-            "value": {
-                "TextEnglish": "Provoke - Skill Description",
-                "TextGerman": "Provozieren - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 27,
-            "value": {
-                "TextEnglish": "Endure",
-                "TextGerman": "Standhalten"
-            }
-        },
-		{
-            "key": 28,
-            "value": {
-                "TextEnglish": "Endure - Skill Description",
-                "TextGerman": "Standhalten - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 29,
-            "value": {
-                "TextEnglish": "Auto Berserk",
-                "TextGerman": "Auto-Berserk"
-            }
-        },
-		{
-            "key": 30,
-            "value": {
-                "TextEnglish": "Auto Berserk - Skill Description",
-                "TextGerman": "Auto-Berserk - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 31,
-            "value": {
-                "TextEnglish": "HP Recovery while moving",
-                "TextGerman": "Hp Regeneration beim Laufen"
-            }
-        },
-		{
-            "key": 32,
-            "value": {
-                "TextEnglish": "HP Recovery while moving - Skill Description",
-                "TextGerman": "Hp Regeneration beim Laufen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 33,
-            "value": {
-                "TextEnglish": "Fatal Blows",
-                "TextGerman": "Mächtige Hiebe"
-            }
-        },
-		{
-            "key": 34,
-            "value": {
-                "TextEnglish": "Fatal Blows - Skill Description",
-                "TextGerman": "Mächtige Hiebe - Skill Beschreibung"
-            }
-        },
-		
-		{
-            "key": 35,
-            "value": {
-                "TextEnglish": "Fire Bolt",
-                "TextGerman": "Feuerblitz"
-            }
-        },
-		{
-            "key": 36,
-            "value": {
-                "TextEnglish": "Fire Bolt - Skill Description",
-                "TextGerman": "Feuerblitz - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 37,
-            "value": {
-                "TextEnglish": "Fire Ball",
-                "TextGerman": "Feuerball"
-            }
-        },
-		{
-            "key": 38,
-            "value": {
-                "TextEnglish": "Fire Ball - Skill Description",
-                "TextGerman": "Feuerball - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 39,
-            "value": {
-                "TextEnglish": "Sight",
-                "TextGerman": "Magische Sicht"
-            }
-        },
-		{
-            "key": 40,
-            "value": {
-                "TextEnglish": "Sight - Skill Description",
-                "TextGerman": "Magische Sicht - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 41,
-            "value": {
-                "TextEnglish": "Fire Wall",
-                "TextGerman": "Feuerwand"
-            }
-        },
-		{
-            "key": 42,
-            "value": {
-                "TextEnglish": "Fire Wall - Skill Description",
-                "TextGerman": "Feuerwand - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 43,
-            "value": {
-                "TextEnglish": "Lightning Bolt",
-                "TextGerman": "Donnerblitz"
-            }
-        },
-		{
-            "key": 44,
-            "value": {
-                "TextEnglish": "Lightning Bolt - Skill Description",
-                "TextGerman": "Donnerblitz - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 45,
-            "value": {
-                "TextEnglish": "Thunderstorm",
-                "TextGerman": "Donnersturm"
-            }
-        },
-		{
-            "key": 46,
-            "value": {
-                "TextEnglish": "Thunderstorm - Skill Description",
-                "TextGerman": "Donnersturm - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 47,
-            "value": {
-                "TextEnglish": "Cold Bolt",
-                "TextGerman": "Eisblitz"
-            }
-        },
-		{
-            "key": 48,
-            "value": {
-                "TextEnglish": "Cold Bolt - Skill Description",
-                "TextGerman": "Eisblitz - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 49,
-            "value": {
-                "TextEnglish": "Frost Diver",
-                "TextGerman": "Frostkäfig"
-            }
-        },
-		{
-            "key": 50,
-            "value": {
-                "TextEnglish": "Frost Diver - Skill Description",
-                "TextGerman": "Frostkäfig - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 51,
-            "value": {
-                "TextEnglish": "Napalm Beat",
-                "TextGerman": "Napalmschlag"
-            }
-        },
-		{
-            "key": 52,
-            "value": {
-                "TextEnglish": "Napalm Beat - Skill Description",
-                "TextGerman": "Napalmschlag - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 53,
-            "value": {
-                "TextEnglish": "Soul Strike",
-                "TextGerman": "Seelensturm"
-            }
-        },
-		{
-            "key": 54,
-            "value": {
-                "TextEnglish": "Soul Strike - Skill Description",
-                "TextGerman": "Seelensturm - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 55,
-            "value": {
-                "TextEnglish": "Safety Wall",
-                "TextGerman": "Schutzwand"
-            }
-        },
-		{
-            "key": 56,
-            "value": {
-                "TextEnglish": "Safety Wall - Skill Description",
-                "TextGerman": "Schutzwand - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 57,
-            "value": {
-                "TextEnglish": "Stone Curse",
-                "TextGerman": "Vesteinerung"
-            }
-        },
-		{
-            "key": 58,
-            "value": {
-                "TextEnglish": "Stone Curse - Skill Description",
-                "TextGerman": "Versteinerung - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 59,
-            "value": {
-                "TextEnglish": "Increased SP Recovery",
-                "TextGerman": "Verbesserte SP Regeneration"
-            }
-        },
-		{
-            "key": 60,
-            "value": {
-                "TextEnglish": "Increased SP Recovery - Skill Description",
-                "TextGerman": "Verbesserte SP Regeneration - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 61,
-            "value": {
-                "TextEnglish": "Energy Coat",
-                "TextGerman": "Energiemantel"
-            }
-        },
-		{
-            "key": 62,
-            "value": {
-                "TextEnglish": "Energy Coat - Skill Description",
-                "TextGerman": "Energiemantel - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 63,
-            "value": {
-                "TextEnglish": "Owl Eye",
-                "TextGerman": "Eulenauge"
-            }
-        },
-		{
-            "key": 64,
-            "value": {
-                "TextEnglish": "Owl Eye - Skill Description",
-                "TextGerman": "Eulenauge- Skill Beschreibung"
-            }
-        },
-		{
-            "key": 65,
-            "value": {
-                "TextEnglish": "Vulture Eye",
-                "TextGerman": "Adlerauge"
-            }
-        },
-		{
-            "key": 66,
-            "value": {
-                "TextEnglish": "Vulture Eye - Skill Description",
-                "TextGerman": "Adlerauge - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 67,
-            "value": {
-                "TextEnglish": "Improve Concentration",
-                "TextGerman": "Erhöhte Konzentration"
-            }
-        },
-		{
-            "key": 68,
-            "value": {
-                "TextEnglish": "Improve Concentration - Skill Description",
-                "TextGerman": "Erhöhte Konzentration - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 69,
-            "value": {
-                "TextEnglish": "Double Strafe",
-                "TextGerman": "Doppelschuss"
-            }
-        },
-		{
-            "key": 70,
-            "value": {
-                "TextEnglish": "Double Strafe - Skill Description",
-                "TextGerman": "Doppelschuss - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 71,
-            "value": {
-                "TextEnglish": "Arrow Shower",
-                "TextGerman": "Pfeilregen"
-            }
-        },
-		{
-            "key": 72,
-            "value": {
-                "TextEnglish": "Arrow Shower - Skill Description",
-                "TextGerman": "Pfeilregen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 73,
-            "value": {
-                "TextEnglish": "Arrow Crafting",
-                "TextGerman": "Pfeile herstellen"
-            }
-        },
-		{
-            "key": 74,
-            "value": {
-                "TextEnglish": "Arrow Crafting - Skill Description",
-                "TextGerman": "Pfeile herstellen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 75,
-            "value": {
-                "TextEnglish": "Arrow Repel",
-                "TextGerman": "Rückschlag-Pfeil"
-            }
-        },
-		{
-            "key": 76,
-            "value": {
-                "TextEnglish": "Arrow Repel - Skill Description",
-                "TextGerman": "Rückschlag-Pfeil - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 77,
-            "value": {
-                "TextEnglish": "Enlarge Weight Limit",
-                "TextGerman": "Erhöhtes Gewichts-limit"
-            }
-        },
-		{
-            "key": 78,
-            "value": {
-                "TextEnglish": "Enlarge Weight Limit - Skill Description",
-                "TextGerman": "Erhöhtes Gewichts-limit - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 79,
-            "value": {
-                "TextEnglish": "Discount",
-                "TextGerman": "Rabatt"
-            }
-        },
-		{
-            "key": 80,
-            "value": {
-                "TextEnglish": "Discount - Skill Description",
-                "TextGerman": "Rabatt - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 81,
-            "value": {
-                "TextEnglish": "Overcharge",
-                "TextGerman": "Überteuern"
-            }
-        },
-		{
-            "key": 82,
-            "value": {
-                "TextEnglish": "Overcharge - Skill Description",
-                "TextGerman": "Überteuern - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 83,
-            "value": {
-                "TextEnglish": "Pushcart",
-                "TextGerman": "Handwagen"
-            }
-        },
-		{
-            "key": 84,
-            "value": {
-                "TextEnglish": "Pushcart - Skill Description",
-                "TextGerman": "Handwagen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 85,
-            "value": {
-                "TextEnglish": "Vending",
-                "TextGerman": "Handelsladen"
-            }
-        },
-		{
-            "key": 86,
-            "value": {
-                "TextEnglish": "Vending - Skill Description",
-                "TextGerman": "Handelsladen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 87,
-            "value": {
-                "TextEnglish": "Mammonite",
-                "TextGerman": "Kapitalschlag"
-            }
-        },
-		{
-            "key": 88,
-            "value": {
-                "TextEnglish": "Mammonite - Skill Description",
-                "TextGerman": "Kapitalschlag - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 89,
-            "value": {
-                "TextEnglish": "Identify",
-                "TextGerman": "Identifizieren"
-            }
-        },
-		{
-            "key": 90,
-            "value": {
-                "TextEnglish": "Identify - Skill Description",
-                "TextGerman": "Identifizieren - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 91,
-            "value": {
-                "TextEnglish": "Change Cart",
-                "TextGerman": "Wagen ändern"
-            }
-        },
-		{
-            "key": 92,
-            "value": {
-                "TextEnglish": "Change Cart - Skill Description",
-                "TextGerman": "Wagen ändern - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 93,
-            "value": {
-                "TextEnglish": "Cart Revolution",
-                "TextGerman": "Wagenschwung"
-            }
-        },
-		{
-            "key": 94,
-            "value": {
-                "TextEnglish": "Cart Revolution - Skill Description",
-                "TextGerman": "Wagenschwung - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 95,
-            "value": {
-                "TextEnglish": "Crazy Uproar",
-                "TextGerman": "Wilder Kampfschrei"
-            }
-        },
-		{
-            "key": 96,
-            "value": {
-                "TextEnglish": "Crazy Uproar - Skill Description",
-                "TextGerman": "Wilder Kampfschrei - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 97,
-            "value": {
-                "TextEnglish": "Double Attack",
-                "TextGerman": "Doppelhieb"
-            }
-        },
-		{
-            "key": 98,
-            "value": {
-                "TextEnglish": "Double Attack - Skill Description",
-                "TextGerman": "Doppelhieb - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 99,
-            "value": {
-                "TextEnglish": "Improve Dodge",
-                "TextGerman": "Verbessertes Ausweichen"
-            }
-        },
-		{
-            "key": 100,
-            "value": {
-                "TextEnglish": "Improve Dodge - Skill Description",
-                "TextGerman": "Verbessertes Ausweichen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 101,
-            "value": {
-                "TextEnglish": "Steal",
-                "TextGerman": "Stehlen"
-            }
-        },
-		{
-            "key": 102,
-            "value": {
-                "TextEnglish": "Steal - Skill Description",
-                "TextGerman": "Stehlen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 103,
-            "value": {
-                "TextEnglish": "Hiding",
-                "TextGerman": "Tarnung"
-            }
-        },
-		{
-            "key": 104,
-            "value": {
-                "TextEnglish": "Hiding - Skill Description",
-                "TextGerman": "Tarnung - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 105,
-            "value": {
-                "TextEnglish": "Envenom",
-                "TextGerman": "Vergiften"
-            }
-        },
-		{
-            "key": 106,
-            "value": {
-                "TextEnglish": "Envenom - Skill Description",
-                "TextGerman": "Vergiften - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 107,
-            "value": {
-                "TextEnglish": "Detoxify",
-                "TextGerman": "Gegengift"
-            }
-        },
-		{
-            "key": 108,
-            "value": {
-                "TextEnglish": "Detoxify - Skill Description",
-                "TextGerman": "Gegengift - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 109,
-            "value": {
-                "TextEnglish": "Sand Attack",
-                "TextGerman": "Sand werfen"
-            }
-        },
-		{
-            "key": 110,
-            "value": {
-                "TextEnglish": "Sand Attack - Skill Description",
-                "TextGerman": "Sand werfen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 111,
-            "value": {
-                "TextEnglish": "Find Stone",
-                "TextGerman": "Stein suchen"
-            }
-        },
-		{
-            "key": 112,
-            "value": {
-                "TextEnglish": "Find Stone - Skill Description",
-                "TextGerman": "Stein suchen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 113,
-            "value": {
-                "TextEnglish": "Throw Stone",
-                "TextGerman": "Stein werfen"
-            }
-        },
-		{
-            "key": 114,
-            "value": {
-                "TextEnglish": "Throw Stone - Skill Description",
-                "TextGerman": "Stein werfen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 115,
-            "value": {
-                "TextEnglish": "Backslide",
-                "TextGerman": "Zurückweichen"
-            }
-        },
-		{
-            "key": 116,
-            "value": {
-                "TextEnglish": "Backslide - Skill Description",
-                "TextGerman": "Zurückweichen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 117,
-            "value": {
-                "TextEnglish": "Ruwach",
-                "TextGerman": "Ruwach"
-            }
-        },
-		{
-            "key": 118,
-            "value": {
-                "TextEnglish": "Ruwach - Skill Description",
-                "TextGerman": "Ruwach - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 119,
-            "value": {
-                "TextEnglish": "Teleport",
-                "TextGerman": "Teleport"
-            }
-        },
-		{
-            "key": 120,
-            "value": {
-                "TextEnglish": "Teleport - Skill Description",
-                "TextGerman": "Teleport - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 121,
-            "value": {
-                "TextEnglish": "Warp Portal",
-                "TextGerman": "Warp Portal"
-            }
-        },
-		{
-            "key": 122,
-            "value": {
-                "TextEnglish": "Warp Portal - Skill Description",
-                "TextGerman": "Warp Portal - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 123,
-            "value": {
-                "TextEnglish": "Pneuma",
-                "TextGerman": "Pneuma"
-            }
-        },
-		{
-            "key": 124,
-            "value": {
-                "TextEnglish": "Pneuma - Skill Description",
-                "TextGerman": "Pneuma - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 125,
-            "value": {
-                "TextEnglish": "Demon Bane",
-                "TextGerman": "Feind der Dämonen"
-            }
-        },
-		{
-            "key": 126,
-            "value": {
-                "TextEnglish": "Demon Bane - Skill Description",
-                "TextGerman": "Feind der Dämonen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 127,
-            "value": {
-                "TextEnglish": "Divine Protection",
-                "TextGerman": "Göttlicher Schutz"
-            }
-        },
-		{
-            "key": 128,
-            "value": {
-                "TextEnglish": "Divine Protection - Skill Description",
-                "TextGerman": "Göttlicher Schutz - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 129,
-            "value": {
-                "TextEnglish": "Signum Crucis",
-                "TextGerman": "Signum Crucis"
-            }
-        },
-		{
-            "key": 130,
-            "value": {
-                "TextEnglish": "Signum Crucis - Skill Description",
-                "TextGerman": "Signum Crucis - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 131,
-            "value": {
-                "TextEnglish": "Angelus",
-                "TextGerman": "Angelus"
-            }
-        },
-		{
-            "key": 132,
-            "value": {
-                "TextEnglish": "Angelus - Skill Description",
-                "TextGerman": "Angelus - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 133,
-            "value": {
-                "TextEnglish": "Blessing",
-                "TextGerman": "Segen"
-            }
-        },
-		{
-            "key": 134,
-            "value": {
-                "TextEnglish": "Blessing - Skill Description",
-                "TextGerman": "Segen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 135,
-            "value": {
-                "TextEnglish": "Aqua Benedicta",
-                "TextGerman": "Aqua Benedicta"
-            }
-        },
-		{
-            "key": 136,
-            "value": {
-                "TextEnglish": "Aqua Benedicta - Skill Description",
-                "TextGerman": "Aqua Benedicta - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 137,
-            "value": {
-                "TextEnglish": "Heal",
-                "TextGerman": "Heilen"
-            }
-        },
-		{
-            "key": 138,
-            "value": {
-                "TextEnglish": "Heal - Skill Description",
-                "TextGerman": "Heilen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 139,
-            "value": {
-                "TextEnglish": "Cure",
-                "TextGerman": "Beheben"
-            }
-        },
-		{
-            "key": 140,
-            "value": {
-                "TextEnglish": "Cure - Skill Description",
-                "TextGerman": "Beheben - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 141,
-            "value": {
-                "TextEnglish": "Increase Agility",
-                "TextGerman": "Agi erhöhen"
-            }
-        },
-		{
-            "key": 142,
-            "value": {
-                "TextEnglish": "Increase Agility - Skill Description",
-                "TextGerman": "Agi erhöhen - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 143,
-            "value": {
-                "TextEnglish": "Decrease Agi",
-                "TextGerman": "Decrease Agi"
-            }
-        },
-		{
-            "key": 144,
-            "value": {
-                "TextEnglish": "Decrease Agi - Skill Description",
-                "TextGerman": "Decrease Agi - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 145,
-            "value": {
-                "TextEnglish": "Holy Light",
-                "TextGerman": "Heiliges Licht"
-            }
-        },
-		{
-            "key": 146,
-            "value": {
-                "TextEnglish": "Holy Light - Skill Description",
-                "TextGerman": "Heiliges Licht - Skill Beschreibung"
-            }
-        },
-		{
-            "key": 147,
-            "value": {
-                "TextEnglish": "Ok",
-                "TextGerman": "Ok"
-            }
-        },
-		{
-            "key": 148,
-            "value": {
-                "TextEnglish": "Message",
-                "TextGerman": "Nachricht"
-            }
-        },
-		{
-            "key": 149,
-            "value": {
-                "TextEnglish": "Loading world...",
-                "TextGerman": "Welt wird geladen..."
-            }
-        },
-		{
-            "key": 150,
-            "value": {
-                "TextEnglish": "Logging into Account...",
-                "TextGerman": "Account wird geladen..."
-            }
-        },
-		{
-            "key": 151,
-            "value": {
-                "TextEnglish": "Loading Account configuration...",
-                "TextGerman": "Account-Konfiguration wird geladen..."
-            }
-        },
-		{
-            "key": 152,
-            "value": {
-                "TextEnglish": "Login failed!",
-                "TextGerman": "Login fehlgeschlagen!"
-            }
-        },
-		{
-            "key": 153,
-            "value": {
-                "TextEnglish": "Loading Characters...",
-                "TextGerman": "Charaktere werden geladen..."
-            }
-        },
-		{
-            "key": 154,
-            "value": {
-                "TextEnglish": "Creating account...",
-                "TextGerman": "Account wird erstellt..."
-            }
-        },
-		{
-            "key": 155,
-            "value": {
-                "TextEnglish": "Creating character...",
-                "TextGerman": "Charakter wird erstellt..."
-            }
-        },
-		{
-            "key": 156,
-            "value": {
-                "TextEnglish": "Connection to world...",
-                "TextGerman": "Welt wird betreten..."
-            }
-        },
-		{
-            "key": 157,
-            "value": {
-                "TextEnglish": "Connection to world...",
-                "TextGerman": "Welt wird betreten..."
-            }
-        },
-		{
-            "key": 158,
-            "value": {
-                "TextEnglish": "Please enter a username!",
-                "TextGerman": "Bitte gib einen Accountnamen an!"
-            }
-        },
-		{
-            "key": 159,
-            "value": {
-                "TextEnglish": "Please enter a password!",
-                "TextGerman": "Bitte gib ein Passwort an!"
-            }
-        },
-		{
-            "key": 160,
-            "value": {
-                "TextEnglish": "You have to repeat the password correctly!",
-                "TextGerman": "Das Passwort muss exact wiederholt sein!"
-            }
-        },
-		{
-            "key": 161,
-            "value": {
-                "TextEnglish": "Please enter a character name!",
-                "TextGerman": "Bitte gib einen Charakternamen an!"
-            }
-        },
-		{
-            "key": 162,
-            "value": {
-                "TextEnglish": "Please select a gender for your character!",
-                "TextGerman": "Bitte wähle ein Geschlecht für deinen Charakter!"
-            }
-        },
-		{
-            "key": 163,
-            "value": {
-                "TextEnglish": "Please select a character first!",
-                "TextGerman": "Bitte wähle zuerst einen Charakter aus!"
-            }
-        },
-		{
-            "key": 164,
-            "value": {
-                "TextEnglish": "Please enter Username & Password!",
-                "TextGerman": "Bitte gib einen Accountnamen & Passwort ein!"
-            }
-        },
-		{
-            "key": 165,
-            "value": {
-                "TextEnglish": "Login failed: Character is already logged in!",
-                "TextGerman": "Login fehlgeschlagen: Charakter ist schon im Spiel!"
-            }
-        },
-		{
-            "key": 166,
-            "value": {
-                "TextEnglish": "Login failed with unknown error code: {0}",
-                "TextGerman": "Login fehlgeschlagen, unbekannter Fehler: {0}"
-            }
-        },
-		{
-			"key": 167,
-			"value": {
-				"TextEnglish": "Create Character",
-				"TextGerman": "Charakter erstellen"
-			}
-		},
-		{
-			"key": 168,
-			"value": {
-				"TextEnglish": "Create Account",
-				"TextGerman": "Account erstellen"
-			}
-		},
-		{
-			"key": 169,
-			"value": {
-				"TextEnglish": "Back",
-				"TextGerman": "Zurück"
-			}
-		},
-		{
-			"key": 170,
-			"value": {
-				"TextEnglish": "Attack Power",
-				"TextGerman": "Angriffskraft"
-			}
-		},
-		{
-			"key": 171,
-			"value": {
-				"TextEnglish": "Magic Attack",
-				"TextGerman": "Magische Kraft"
-			}
-		},
-		{
-			"key": 172,
-			"value": {
-				"TextEnglish": "Precision",
-				"TextGerman": "Genauigkeit"
-			}
-		},
-		{
-			"key": 173,
-			"value": {
-				"TextEnglish": "Critical Chance",
-				"TextGerman": "Kritische Chance"
-			}
-		},
-		{
-			"key": 174,
-			"value": {
-				"TextEnglish": "Attackspeed",
-				"TextGerman": "Angriffstempo"
-			}
-		},
-		{
-			"key": 175,
-			"value": {
-				"TextEnglish": "Armor",
-				"TextGerman": "Rüstung"
-			}
-		},
-		{
-			"key": 176,
-			"value": {
-				"TextEnglish": "Toughness",
-				"TextGerman": "Robustheit"
-			}
-		},
-		{
-			"key": 177,
-			"value": {
-				"TextEnglish": "Magic Armor",
-				"TextGerman": "Magie-Rüstung"
-			}
-		},
-		{
-			"key": 178,
-			"value": {
-				"TextEnglish": "Magic Toughness",
-				"TextGerman": "Magie-Robustheit"
-			}
-		},
-		{
-			"key": 179,
-			"value": {
-				"TextEnglish": "Evasion",
-				"TextGerman": "Ausweichen"
-			}
-		},
-		{
-			"key": 180,
-			"value": {
-				"TextEnglish": "Lucky Evade",
-				"TextGerman": "Glück-Ausweichen"
-			}
-		},
-		{
-			"key": 181,
-			"value": {
-				"TextEnglish": "Status",
-				"TextGerman": "Status"
-			}
-		},
-		{
-			"key": 182,
-			"value": {
-				"TextEnglish": "Status Points",
-				"TextGerman": "Status-Punkte"
-			}
-		},
-		{
-			"key": 183,
-			"value": {
-				"TextEnglish": "STR",
-				"TextGerman": "STR"
-			}
-		},
-		{
-			"key": 184,
-			"value": {
-				"TextEnglish": "AGI",
-				"TextGerman": "AGI"
-			}
-		},
-		{
-			"key": 185,
-			"value": {
-				"TextEnglish": "VIT",
-				"TextGerman": "VIT"
-			}
-		},
-		{
-			"key": 186,
-			"value": {
-				"TextEnglish": "INT",
-				"TextGerman": "INT"
-			}
-		},
-		{
-			"key": 187,
-			"value": {
-				"TextEnglish": "DEX",
-				"TextGerman": "DEX"
-			}
-		},
-		{
-			"key": 188,
-			"value": {
-				"TextEnglish": "LUK",
-				"TextGerman": "LUK"
-			}
-		},
-		{
-			"key": 189,
-			"value": {
-				"TextEnglish": "Options",
-				"TextGerman": "Optionen"
-			}
-		},
-		{
-			"key": 190,
-			"value": {
-				"TextEnglish": "Apply",
-				"TextGerman": "Anwenden"
-			}
-		},
-		{
-			"key": 191,
-			"value": {
-				"TextEnglish": "Revert",
-				"TextGerman": "Zurücknehmen"
-			}
-		},
-		{
-			"key": 192,
-			"value": {
-				"TextEnglish": "Hotkeys",
-				"TextGerman": "Tastenkürzel"
-			}
-		},
-		{
-			"key": 193,
-			"value": {
-				"TextEnglish": "Misc",
-				"TextGerman": "Anderes"
-			}
-		},
-		{
-			"key": 194,
-			"value": {
-				"TextEnglish": "Local",
-				"TextGerman": "Lokal"
-			}
-		},
-		{
-			"key": 195,
-			"value": {
-				"TextEnglish": "Character",
-				"TextGerman": "Charakter"
-			}
-		},
-		{
-			"key": 196,
-			"value": {
-				"TextEnglish": "Account",
-				"TextGerman": "Account"
-			}
-		},
-		{
-			"key": 197,
-			"value": {
-				"TextEnglish": "First Test Npc",
-				"TextGerman": "Erster Test Npc"
-			}
-		},
-		{
-			"key": 198,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: Not enough SP",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug SP"
-			}
-		},
-		{
-			"key": 199,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: Can't reach the target",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Ziel ist ausser Reichweite"
-			}
-		},
-		{
-			"key": 200,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: You're dead.",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Du bist tot."
-			}
-		},
-		{
-			"key": 201,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: Already casting another skill.",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Du wirkst eine andere Fähigkeit."
-			}
-		},
-		{
-			"key": 202,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: On Cooldown.",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Abklingzeit noch nicht abgelaufen."
-			}
-		},
-		{
-			"key": 203,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: Not enough HP.",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug HP."
-			}
-		},
-		{
-			"key": 204,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: Not enough Ammo.",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug Munition."
-			}
-		},
-		{
-			"key": 205,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: Target is dead.",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Ziel ist tot."
-			}
-		},
-		{
-			"key": 206,
-			"value": {
-				"TextEnglish": "Skill {0} Failed: Can't us this skill on this target.",
-				"TextGerman": "Fähigkeit {0} fehlgeschlagen: Fähigkeit kann nicht auf dieses Ziel verwendet werden."
-			}
-		},
-		{
-			"key": 207,
-			"value": {
-				"TextEnglish": "Light Test Item",
-				"TextGerman": "Leichtes Test-Item"
-			}
-		},
-		{
-			"key": 208,
-			"value": {
-				"TextEnglish": "These lighter-than-air items grow on upside-down apple trees",
-				"TextGerman": "Dieses Objekt ist leichter als Luft, und wächst an kopfüber Apfelbäumen."
-			}
-		},
-		{
-			"key": 209,
-			"value": {
-				"TextEnglish": "Medium Test Item",
-				"TextGerman": "Mittleres Test-Item"
-			}
-		},
-		{
-			"key": 210,
-			"value": {
-				"TextEnglish": "An object of undefined geometry.",
-				"TextGerman": "Ein Gegenstand mit unbekannter Geometrie."
-			}
-		},
-		{
-			"key": 211,
-			"value": {
-				"TextEnglish": "Heavy Test Item",
-				"TextGerman": "Schweres Test-Item"
-			}
-		},
-		{
-			"key": 212,
-			"value": {
-				"TextEnglish": "Unfathomably dense, this item's also known as 'Your mom'.",
-				"TextGerman": "Unglaublich schwer und dicht, diese Item ist auch bekannt als 'Deine Mudda'."
-			}
-		},
-		{
-			"key": 213,
-			"value": {
-				"TextEnglish": "Invalid ItemTypeId",
-				"TextGerman": "Ungültige ItemTypeId"
-			}
-		},
-		{
-			"key": 214,
-			"value": {
-				"TextEnglish": "Invalid Amount",
-				"TextGerman": "Ungültige Menge"
-			}
-		},
-		{
-			"key": 215,
-			"value": {
-				"TextEnglish": "Target Character not found or not online",
-				"TextGerman": "Ziel-Charakter nicht gefunden oder nicht online"
-			}
-		},
-		{
-			"key": 216,
-			"value": {
-				"TextEnglish": "Target Character can't hold that much weight",
-				"TextGerman": "Ziel-Charakter kann nicht genug Gewicht tragen"
-			}
-		},
-		{
-			"key": 217,
-			"value": {
-				"TextEnglish": "Item/s Created",
-				"TextGerman": "Item/s erzeugt"
-			}
-		},
-		{
-			"key": 218,
-			"value": {
-				"TextEnglish": "Inventory Cleared",
-				"TextGerman": "Inventar gelöscht"
-			}
-		},
-		{
-			"key": 219,
-			"value": {
-				"TextEnglish": "Inventory",
-				"TextGerman": "Inventar"
-			}
+{"entries": [
+	{
+		"key": 0,
+		"value": {
+			"TextEnglish": "-Placeholder-",
+			"TextGerman": "-Platzhalter-"
 		}
-    ]
-}
+	},
+	{
+		"key": 1,
+		"value": {
+			"TextEnglish": "Welcome to RoAgain!",
+			"TextGerman": "Willkommen bei RoAgain!"
+		}
+	},
+	{
+		"key": 2,
+		"value": {
+			"TextEnglish": "Weak Mob",
+			"TextGerman": "Schwaches Monster"
+		}
+	},
+	{
+		"key": 3,
+		"value": {
+			"TextEnglish": "Medium Mob",
+			"TextGerman": "Mittleres Monster"
+		}
+	},
+	{
+		"key": 4,
+		"value": {
+			"TextEnglish": "Strong Mob",
+			"TextGerman": "Starkes Monster"
+		}
+	},
+	{
+		"key": 5,
+		"value": {
+			"TextEnglish": "Place Warp",
+			"TextGerman": "Teleport-Feld"
+		}
+	},
+	{
+		"key": 6,
+		"value": {
+			"TextEnglish": "Place Warp - Skill Description",
+			"TextGerman": "Teleport-Feld - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 7,
+		"value": {
+			"TextEnglish": "Basic Attack",
+			"TextGerman": "Standard-Angriff"
+		}
+	},
+	{
+		"key": 8,
+		"value": {
+			"TextEnglish": "Basic Attack - Skill Description",
+			"TextGerman": "Standard-Angriff - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 9,
+		"value": {
+			"TextEnglish": "Basic Skills",
+			"TextGerman": "Grundlegende Fähigkeiten"
+		}
+	},
+	{
+		"key": 10,
+		"value": {
+			"TextEnglish": "Basic Skills - Skill Description",
+			"TextGerman": "Grundlegende Fähigkeiten - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 11,
+		"value": {
+			"TextEnglish": "Play Dead",
+			"TextGerman": "Totstellen"
+		}
+	},
+	{
+		"key": 12,
+		"value": {
+			"TextEnglish": "Play Dead - Skill Description",
+			"TextGerman": "Totstellen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 13,
+		"value": {
+			"TextEnglish": "First Aid",
+			"TextGerman": "Erste Hilfe"
+		}
+	},
+	{
+		"key": 14,
+		"value": {
+			"TextEnglish": "First Aid - Skill Description",
+			"TextGerman": "Erste Hilfe - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 15,
+		"value": {
+			"TextEnglish": "Bash",
+			"TextGerman": "Starker Hieb"
+		}
+	},
+	{
+		"key": 16,
+		"value": {
+			"TextEnglish": "Bash - Skill Description",
+			"TextGerman": "Starker Hieb - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 17,
+		"value": {
+			"TextEnglish": "Magnum Break",
+			"TextGerman": "Magnum Break"
+		}
+	},
+	{
+		"key": 18,
+		"value": {
+			"TextEnglish": "Magnum Break - Skill Description",
+			"TextGerman": "Magnum Break - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 19,
+		"value": {
+			"TextEnglish": "One-hand-sword Mastery",
+			"TextGerman": "Einhand-Schwert Spezialisierung"
+		}
+	},
+	{
+		"key": 20,
+		"value": {
+			"TextEnglish": "One-hand-sword Mastery - Skill Description",
+			"TextGerman": "Einhand-Schwert Spezialisierung - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 21,
+		"value": {
+			"TextEnglish": "Two-hand-sword Mastery",
+			"TextGerman": "Zweihand-Schwert Spezialisierung"
+		}
+	},
+	{
+		"key": 22,
+		"value": {
+			"TextEnglish": "Two-hand-sword Mastery - Skill Description",
+			"TextGerman": "Twohand-Schwert Spezialisierung - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 23,
+		"value": {
+			"TextEnglish": "Increased HP Recovery",
+			"TextGerman": "Verbesserte Hp Regeneration"
+		}
+	},
+	{
+		"key": 24,
+		"value": {
+			"TextEnglish": "Increased HP Recovery - Skill Description",
+			"TextGerman": "Verbesserte Hp Regeneration - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 25,
+		"value": {
+			"TextEnglish": "Provoke",
+			"TextGerman": "Provoizieren"
+		}
+	},
+	{
+		"key": 26,
+		"value": {
+			"TextEnglish": "Provoke - Skill Description",
+			"TextGerman": "Provozieren - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 27,
+		"value": {
+			"TextEnglish": "Endure",
+			"TextGerman": "Standhalten"
+		}
+	},
+	{
+		"key": 28,
+		"value": {
+			"TextEnglish": "Endure - Skill Description",
+			"TextGerman": "Standhalten - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 29,
+		"value": {
+			"TextEnglish": "Auto Berserk",
+			"TextGerman": "Auto-Berserk"
+		}
+	},
+	{
+		"key": 30,
+		"value": {
+			"TextEnglish": "Auto Berserk - Skill Description",
+			"TextGerman": "Auto-Berserk - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 31,
+		"value": {
+			"TextEnglish": "HP Recovery while moving",
+			"TextGerman": "Hp Regeneration beim Laufen"
+		}
+	},
+	{
+		"key": 32,
+		"value": {
+			"TextEnglish": "HP Recovery while moving - Skill Description",
+			"TextGerman": "Hp Regeneration beim Laufen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 33,
+		"value": {
+			"TextEnglish": "Fatal Blows",
+			"TextGerman": "Mächtige Hiebe"
+		}
+	},
+	{
+		"key": 34,
+		"value": {
+			"TextEnglish": "Fatal Blows - Skill Description",
+			"TextGerman": "Mächtige Hiebe - Skill Beschreibung"
+		}
+	},
+	
+	{
+		"key": 35,
+		"value": {
+			"TextEnglish": "Fire Bolt",
+			"TextGerman": "Feuerblitz"
+		}
+	},
+	{
+		"key": 36,
+		"value": {
+			"TextEnglish": "Fire Bolt - Skill Description",
+			"TextGerman": "Feuerblitz - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 37,
+		"value": {
+			"TextEnglish": "Fire Ball",
+			"TextGerman": "Feuerball"
+		}
+	},
+	{
+		"key": 38,
+		"value": {
+			"TextEnglish": "Fire Ball - Skill Description",
+			"TextGerman": "Feuerball - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 39,
+		"value": {
+			"TextEnglish": "Sight",
+			"TextGerman": "Magische Sicht"
+		}
+	},
+	{
+		"key": 40,
+		"value": {
+			"TextEnglish": "Sight - Skill Description",
+			"TextGerman": "Magische Sicht - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 41,
+		"value": {
+			"TextEnglish": "Fire Wall",
+			"TextGerman": "Feuerwand"
+		}
+	},
+	{
+		"key": 42,
+		"value": {
+			"TextEnglish": "Fire Wall - Skill Description",
+			"TextGerman": "Feuerwand - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 43,
+		"value": {
+			"TextEnglish": "Lightning Bolt",
+			"TextGerman": "Donnerblitz"
+		}
+	},
+	{
+		"key": 44,
+		"value": {
+			"TextEnglish": "Lightning Bolt - Skill Description",
+			"TextGerman": "Donnerblitz - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 45,
+		"value": {
+			"TextEnglish": "Thunderstorm",
+			"TextGerman": "Donnersturm"
+		}
+	},
+	{
+		"key": 46,
+		"value": {
+			"TextEnglish": "Thunderstorm - Skill Description",
+			"TextGerman": "Donnersturm - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 47,
+		"value": {
+			"TextEnglish": "Cold Bolt",
+			"TextGerman": "Eisblitz"
+		}
+	},
+	{
+		"key": 48,
+		"value": {
+			"TextEnglish": "Cold Bolt - Skill Description",
+			"TextGerman": "Eisblitz - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 49,
+		"value": {
+			"TextEnglish": "Frost Diver",
+			"TextGerman": "Frostkäfig"
+		}
+	},
+	{
+		"key": 50,
+		"value": {
+			"TextEnglish": "Frost Diver - Skill Description",
+			"TextGerman": "Frostkäfig - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 51,
+		"value": {
+			"TextEnglish": "Napalm Beat",
+			"TextGerman": "Napalmschlag"
+		}
+	},
+	{
+		"key": 52,
+		"value": {
+			"TextEnglish": "Napalm Beat - Skill Description",
+			"TextGerman": "Napalmschlag - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 53,
+		"value": {
+			"TextEnglish": "Soul Strike",
+			"TextGerman": "Seelensturm"
+		}
+	},
+	{
+		"key": 54,
+		"value": {
+			"TextEnglish": "Soul Strike - Skill Description",
+			"TextGerman": "Seelensturm - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 55,
+		"value": {
+			"TextEnglish": "Safety Wall",
+			"TextGerman": "Schutzwand"
+		}
+	},
+	{
+		"key": 56,
+		"value": {
+			"TextEnglish": "Safety Wall - Skill Description",
+			"TextGerman": "Schutzwand - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 57,
+		"value": {
+			"TextEnglish": "Stone Curse",
+			"TextGerman": "Vesteinerung"
+		}
+	},
+	{
+		"key": 58,
+		"value": {
+			"TextEnglish": "Stone Curse - Skill Description",
+			"TextGerman": "Versteinerung - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 59,
+		"value": {
+			"TextEnglish": "Increased SP Recovery",
+			"TextGerman": "Verbesserte SP Regeneration"
+		}
+	},
+	{
+		"key": 60,
+		"value": {
+			"TextEnglish": "Increased SP Recovery - Skill Description",
+			"TextGerman": "Verbesserte SP Regeneration - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 61,
+		"value": {
+			"TextEnglish": "Energy Coat",
+			"TextGerman": "Energiemantel"
+		}
+	},
+	{
+		"key": 62,
+		"value": {
+			"TextEnglish": "Energy Coat - Skill Description",
+			"TextGerman": "Energiemantel - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 63,
+		"value": {
+			"TextEnglish": "Owl Eye",
+			"TextGerman": "Eulenauge"
+		}
+	},
+	{
+		"key": 64,
+		"value": {
+			"TextEnglish": "Owl Eye - Skill Description",
+			"TextGerman": "Eulenauge- Skill Beschreibung"
+		}
+	},
+	{
+		"key": 65,
+		"value": {
+			"TextEnglish": "Vulture Eye",
+			"TextGerman": "Adlerauge"
+		}
+	},
+	{
+		"key": 66,
+		"value": {
+			"TextEnglish": "Vulture Eye - Skill Description",
+			"TextGerman": "Adlerauge - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 67,
+		"value": {
+			"TextEnglish": "Improve Concentration",
+			"TextGerman": "Erhöhte Konzentration"
+		}
+	},
+	{
+		"key": 68,
+		"value": {
+			"TextEnglish": "Improve Concentration - Skill Description",
+			"TextGerman": "Erhöhte Konzentration - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 69,
+		"value": {
+			"TextEnglish": "Double Strafe",
+			"TextGerman": "Doppelschuss"
+		}
+	},
+	{
+		"key": 70,
+		"value": {
+			"TextEnglish": "Double Strafe - Skill Description",
+			"TextGerman": "Doppelschuss - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 71,
+		"value": {
+			"TextEnglish": "Arrow Shower",
+			"TextGerman": "Pfeilregen"
+		}
+	},
+	{
+		"key": 72,
+		"value": {
+			"TextEnglish": "Arrow Shower - Skill Description",
+			"TextGerman": "Pfeilregen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 73,
+		"value": {
+			"TextEnglish": "Arrow Crafting",
+			"TextGerman": "Pfeile herstellen"
+		}
+	},
+	{
+		"key": 74,
+		"value": {
+			"TextEnglish": "Arrow Crafting - Skill Description",
+			"TextGerman": "Pfeile herstellen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 75,
+		"value": {
+			"TextEnglish": "Arrow Repel",
+			"TextGerman": "Rückschlag-Pfeil"
+		}
+	},
+	{
+		"key": 76,
+		"value": {
+			"TextEnglish": "Arrow Repel - Skill Description",
+			"TextGerman": "Rückschlag-Pfeil - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 77,
+		"value": {
+			"TextEnglish": "Enlarge Weight Limit",
+			"TextGerman": "Erhöhtes Gewichts-limit"
+		}
+	},
+	{
+		"key": 78,
+		"value": {
+			"TextEnglish": "Enlarge Weight Limit - Skill Description",
+			"TextGerman": "Erhöhtes Gewichts-limit - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 79,
+		"value": {
+			"TextEnglish": "Discount",
+			"TextGerman": "Rabatt"
+		}
+	},
+	{
+		"key": 80,
+		"value": {
+			"TextEnglish": "Discount - Skill Description",
+			"TextGerman": "Rabatt - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 81,
+		"value": {
+			"TextEnglish": "Overcharge",
+			"TextGerman": "Überteuern"
+		}
+	},
+	{
+		"key": 82,
+		"value": {
+			"TextEnglish": "Overcharge - Skill Description",
+			"TextGerman": "Überteuern - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 83,
+		"value": {
+			"TextEnglish": "Pushcart",
+			"TextGerman": "Handwagen"
+		}
+	},
+	{
+		"key": 84,
+		"value": {
+			"TextEnglish": "Pushcart - Skill Description",
+			"TextGerman": "Handwagen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 85,
+		"value": {
+			"TextEnglish": "Vending",
+			"TextGerman": "Handelsladen"
+		}
+	},
+	{
+		"key": 86,
+		"value": {
+			"TextEnglish": "Vending - Skill Description",
+			"TextGerman": "Handelsladen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 87,
+		"value": {
+			"TextEnglish": "Mammonite",
+			"TextGerman": "Kapitalschlag"
+		}
+	},
+	{
+		"key": 88,
+		"value": {
+			"TextEnglish": "Mammonite - Skill Description",
+			"TextGerman": "Kapitalschlag - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 89,
+		"value": {
+			"TextEnglish": "Identify",
+			"TextGerman": "Identifizieren"
+		}
+	},
+	{
+		"key": 90,
+		"value": {
+			"TextEnglish": "Identify - Skill Description",
+			"TextGerman": "Identifizieren - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 91,
+		"value": {
+			"TextEnglish": "Change Cart",
+			"TextGerman": "Wagen ändern"
+		}
+	},
+	{
+		"key": 92,
+		"value": {
+			"TextEnglish": "Change Cart - Skill Description",
+			"TextGerman": "Wagen ändern - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 93,
+		"value": {
+			"TextEnglish": "Cart Revolution",
+			"TextGerman": "Wagenschwung"
+		}
+	},
+	{
+		"key": 94,
+		"value": {
+			"TextEnglish": "Cart Revolution - Skill Description",
+			"TextGerman": "Wagenschwung - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 95,
+		"value": {
+			"TextEnglish": "Crazy Uproar",
+			"TextGerman": "Wilder Kampfschrei"
+		}
+	},
+	{
+		"key": 96,
+		"value": {
+			"TextEnglish": "Crazy Uproar - Skill Description",
+			"TextGerman": "Wilder Kampfschrei - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 97,
+		"value": {
+			"TextEnglish": "Double Attack",
+			"TextGerman": "Doppelhieb"
+		}
+	},
+	{
+		"key": 98,
+		"value": {
+			"TextEnglish": "Double Attack - Skill Description",
+			"TextGerman": "Doppelhieb - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 99,
+		"value": {
+			"TextEnglish": "Improve Dodge",
+			"TextGerman": "Verbessertes Ausweichen"
+		}
+	},
+	{
+		"key": 100,
+		"value": {
+			"TextEnglish": "Improve Dodge - Skill Description",
+			"TextGerman": "Verbessertes Ausweichen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 101,
+		"value": {
+			"TextEnglish": "Steal",
+			"TextGerman": "Stehlen"
+		}
+	},
+	{
+		"key": 102,
+		"value": {
+			"TextEnglish": "Steal - Skill Description",
+			"TextGerman": "Stehlen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 103,
+		"value": {
+			"TextEnglish": "Hiding",
+			"TextGerman": "Tarnung"
+		}
+	},
+	{
+		"key": 104,
+		"value": {
+			"TextEnglish": "Hiding - Skill Description",
+			"TextGerman": "Tarnung - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 105,
+		"value": {
+			"TextEnglish": "Envenom",
+			"TextGerman": "Vergiften"
+		}
+	},
+	{
+		"key": 106,
+		"value": {
+			"TextEnglish": "Envenom - Skill Description",
+			"TextGerman": "Vergiften - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 107,
+		"value": {
+			"TextEnglish": "Detoxify",
+			"TextGerman": "Gegengift"
+		}
+	},
+	{
+		"key": 108,
+		"value": {
+			"TextEnglish": "Detoxify - Skill Description",
+			"TextGerman": "Gegengift - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 109,
+		"value": {
+			"TextEnglish": "Sand Attack",
+			"TextGerman": "Sand werfen"
+		}
+	},
+	{
+		"key": 110,
+		"value": {
+			"TextEnglish": "Sand Attack - Skill Description",
+			"TextGerman": "Sand werfen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 111,
+		"value": {
+			"TextEnglish": "Find Stone",
+			"TextGerman": "Stein suchen"
+		}
+	},
+	{
+		"key": 112,
+		"value": {
+			"TextEnglish": "Find Stone - Skill Description",
+			"TextGerman": "Stein suchen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 113,
+		"value": {
+			"TextEnglish": "Throw Stone",
+			"TextGerman": "Stein werfen"
+		}
+	},
+	{
+		"key": 114,
+		"value": {
+			"TextEnglish": "Throw Stone - Skill Description",
+			"TextGerman": "Stein werfen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 115,
+		"value": {
+			"TextEnglish": "Backslide",
+			"TextGerman": "Zurückweichen"
+		}
+	},
+	{
+		"key": 116,
+		"value": {
+			"TextEnglish": "Backslide - Skill Description",
+			"TextGerman": "Zurückweichen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 117,
+		"value": {
+			"TextEnglish": "Ruwach",
+			"TextGerman": "Ruwach"
+		}
+	},
+	{
+		"key": 118,
+		"value": {
+			"TextEnglish": "Ruwach - Skill Description",
+			"TextGerman": "Ruwach - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 119,
+		"value": {
+			"TextEnglish": "Teleport",
+			"TextGerman": "Teleport"
+		}
+	},
+	{
+		"key": 120,
+		"value": {
+			"TextEnglish": "Teleport - Skill Description",
+			"TextGerman": "Teleport - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 121,
+		"value": {
+			"TextEnglish": "Warp Portal",
+			"TextGerman": "Warp Portal"
+		}
+	},
+	{
+		"key": 122,
+		"value": {
+			"TextEnglish": "Warp Portal - Skill Description",
+			"TextGerman": "Warp Portal - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 123,
+		"value": {
+			"TextEnglish": "Pneuma",
+			"TextGerman": "Pneuma"
+		}
+	},
+	{
+		"key": 124,
+		"value": {
+			"TextEnglish": "Pneuma - Skill Description",
+			"TextGerman": "Pneuma - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 125,
+		"value": {
+			"TextEnglish": "Demon Bane",
+			"TextGerman": "Feind der Dämonen"
+		}
+	},
+	{
+		"key": 126,
+		"value": {
+			"TextEnglish": "Demon Bane - Skill Description",
+			"TextGerman": "Feind der Dämonen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 127,
+		"value": {
+			"TextEnglish": "Divine Protection",
+			"TextGerman": "Göttlicher Schutz"
+		}
+	},
+	{
+		"key": 128,
+		"value": {
+			"TextEnglish": "Divine Protection - Skill Description",
+			"TextGerman": "Göttlicher Schutz - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 129,
+		"value": {
+			"TextEnglish": "Signum Crucis",
+			"TextGerman": "Signum Crucis"
+		}
+	},
+	{
+		"key": 130,
+		"value": {
+			"TextEnglish": "Signum Crucis - Skill Description",
+			"TextGerman": "Signum Crucis - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 131,
+		"value": {
+			"TextEnglish": "Angelus",
+			"TextGerman": "Angelus"
+		}
+	},
+	{
+		"key": 132,
+		"value": {
+			"TextEnglish": "Angelus - Skill Description",
+			"TextGerman": "Angelus - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 133,
+		"value": {
+			"TextEnglish": "Blessing",
+			"TextGerman": "Segen"
+		}
+	},
+	{
+		"key": 134,
+		"value": {
+			"TextEnglish": "Blessing - Skill Description",
+			"TextGerman": "Segen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 135,
+		"value": {
+			"TextEnglish": "Aqua Benedicta",
+			"TextGerman": "Aqua Benedicta"
+		}
+	},
+	{
+		"key": 136,
+		"value": {
+			"TextEnglish": "Aqua Benedicta - Skill Description",
+			"TextGerman": "Aqua Benedicta - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 137,
+		"value": {
+			"TextEnglish": "Heal",
+			"TextGerman": "Heilen"
+		}
+	},
+	{
+		"key": 138,
+		"value": {
+			"TextEnglish": "Heal - Skill Description",
+			"TextGerman": "Heilen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 139,
+		"value": {
+			"TextEnglish": "Cure",
+			"TextGerman": "Beheben"
+		}
+	},
+	{
+		"key": 140,
+		"value": {
+			"TextEnglish": "Cure - Skill Description",
+			"TextGerman": "Beheben - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 141,
+		"value": {
+			"TextEnglish": "Increase Agility",
+			"TextGerman": "Agi erhöhen"
+		}
+	},
+	{
+		"key": 142,
+		"value": {
+			"TextEnglish": "Increase Agility - Skill Description",
+			"TextGerman": "Agi erhöhen - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 143,
+		"value": {
+			"TextEnglish": "Decrease Agi",
+			"TextGerman": "Decrease Agi"
+		}
+	},
+	{
+		"key": 144,
+		"value": {
+			"TextEnglish": "Decrease Agi - Skill Description",
+			"TextGerman": "Decrease Agi - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 145,
+		"value": {
+			"TextEnglish": "Holy Light",
+			"TextGerman": "Heiliges Licht"
+		}
+	},
+	{
+		"key": 146,
+		"value": {
+			"TextEnglish": "Holy Light - Skill Description",
+			"TextGerman": "Heiliges Licht - Skill Beschreibung"
+		}
+	},
+	{
+		"key": 147,
+		"value": {
+			"TextEnglish": "Ok",
+			"TextGerman": "Ok"
+		}
+	},
+	{
+		"key": 148,
+		"value": {
+			"TextEnglish": "Message",
+			"TextGerman": "Nachricht"
+		}
+	},
+	{
+		"key": 149,
+		"value": {
+			"TextEnglish": "Loading world...",
+			"TextGerman": "Welt wird geladen..."
+		}
+	},
+	{
+		"key": 150,
+		"value": {
+			"TextEnglish": "Logging into Account...",
+			"TextGerman": "Account wird geladen..."
+		}
+	},
+	{
+		"key": 151,
+		"value": {
+			"TextEnglish": "Loading Account configuration...",
+			"TextGerman": "Account-Konfiguration wird geladen..."
+		}
+	},
+	{
+		"key": 152,
+		"value": {
+			"TextEnglish": "Login failed!",
+			"TextGerman": "Login fehlgeschlagen!"
+		}
+	},
+	{
+		"key": 153,
+		"value": {
+			"TextEnglish": "Loading Characters...",
+			"TextGerman": "Charaktere werden geladen..."
+		}
+	},
+	{
+		"key": 154,
+		"value": {
+			"TextEnglish": "Creating account...",
+			"TextGerman": "Account wird erstellt..."
+		}
+	},
+	{
+		"key": 155,
+		"value": {
+			"TextEnglish": "Creating character...",
+			"TextGerman": "Charakter wird erstellt..."
+		}
+	},
+	{
+		"key": 156,
+		"value": {
+			"TextEnglish": "Connection to world...",
+			"TextGerman": "Welt wird betreten..."
+		}
+	},
+	{
+		"key": 157,
+		"value": {
+			"TextEnglish": "Connection to world...",
+			"TextGerman": "Welt wird betreten..."
+		}
+	},
+	{
+		"key": 158,
+		"value": {
+			"TextEnglish": "Please enter a username!",
+			"TextGerman": "Bitte gib einen Accountnamen an!"
+		}
+	},
+	{
+		"key": 159,
+		"value": {
+			"TextEnglish": "Please enter a password!",
+			"TextGerman": "Bitte gib ein Passwort an!"
+		}
+	},
+	{
+		"key": 160,
+		"value": {
+			"TextEnglish": "You have to repeat the password correctly!",
+			"TextGerman": "Das Passwort muss exact wiederholt sein!"
+		}
+	},
+	{
+		"key": 161,
+		"value": {
+			"TextEnglish": "Please enter a character name!",
+			"TextGerman": "Bitte gib einen Charakternamen an!"
+		}
+	},
+	{
+		"key": 162,
+		"value": {
+			"TextEnglish": "Please select a gender for your character!",
+			"TextGerman": "Bitte wähle ein Geschlecht für deinen Charakter!"
+		}
+	},
+	{
+		"key": 163,
+		"value": {
+			"TextEnglish": "Please select a character first!",
+			"TextGerman": "Bitte wähle zuerst einen Charakter aus!"
+		}
+	},
+	{
+		"key": 164,
+		"value": {
+			"TextEnglish": "Please enter Username & Password!",
+			"TextGerman": "Bitte gib einen Accountnamen & Passwort ein!"
+		}
+	},
+	{
+		"key": 165,
+		"value": {
+			"TextEnglish": "Login failed: Character is already logged in!",
+			"TextGerman": "Login fehlgeschlagen: Charakter ist schon im Spiel!"
+		}
+	},
+	{
+		"key": 166,
+		"value": {
+			"TextEnglish": "Login failed with unknown error code: {0}",
+			"TextGerman": "Login fehlgeschlagen, unbekannter Fehler: {0}"
+		}
+	},
+	{
+		"key": 167,
+		"value": {
+			"TextEnglish": "Create Character",
+			"TextGerman": "Charakter erstellen"
+		}
+	},
+	{
+		"key": 168,
+		"value": {
+			"TextEnglish": "Create Account",
+			"TextGerman": "Account erstellen"
+		}
+	},
+	{
+		"key": 169,
+		"value": {
+			"TextEnglish": "Back",
+			"TextGerman": "Zurück"
+		}
+	},
+	{
+		"key": 170,
+		"value": {
+			"TextEnglish": "Attack Power",
+			"TextGerman": "Angriffskraft"
+		}
+	},
+	{
+		"key": 171,
+		"value": {
+			"TextEnglish": "Magic Attack",
+			"TextGerman": "Magische Kraft"
+		}
+	},
+	{
+		"key": 172,
+		"value": {
+			"TextEnglish": "Precision",
+			"TextGerman": "Genauigkeit"
+		}
+	},
+	{
+		"key": 173,
+		"value": {
+			"TextEnglish": "Critical Chance",
+			"TextGerman": "Kritische Chance"
+		}
+	},
+	{
+		"key": 174,
+		"value": {
+			"TextEnglish": "Attackspeed",
+			"TextGerman": "Angriffstempo"
+		}
+	},
+	{
+		"key": 175,
+		"value": {
+			"TextEnglish": "Armor",
+			"TextGerman": "Rüstung"
+		}
+	},
+	{
+		"key": 176,
+		"value": {
+			"TextEnglish": "Toughness",
+			"TextGerman": "Robustheit"
+		}
+	},
+	{
+		"key": 177,
+		"value": {
+			"TextEnglish": "Magic Armor",
+			"TextGerman": "Magie-Rüstung"
+		}
+	},
+	{
+		"key": 178,
+		"value": {
+			"TextEnglish": "Magic Toughness",
+			"TextGerman": "Magie-Robustheit"
+		}
+	},
+	{
+		"key": 179,
+		"value": {
+			"TextEnglish": "Evasion",
+			"TextGerman": "Ausweichen"
+		}
+	},
+	{
+		"key": 180,
+		"value": {
+			"TextEnglish": "Lucky Evade",
+			"TextGerman": "Glück-Ausweichen"
+		}
+	},
+	{
+		"key": 181,
+		"value": {
+			"TextEnglish": "Status",
+			"TextGerman": "Status"
+		}
+	},
+	{
+		"key": 182,
+		"value": {
+			"TextEnglish": "Status Points",
+			"TextGerman": "Status-Punkte"
+		}
+	},
+	{
+		"key": 183,
+		"value": {
+			"TextEnglish": "STR",
+			"TextGerman": "STR"
+		}
+	},
+	{
+		"key": 184,
+		"value": {
+			"TextEnglish": "AGI",
+			"TextGerman": "AGI"
+		}
+	},
+	{
+		"key": 185,
+		"value": {
+			"TextEnglish": "VIT",
+			"TextGerman": "VIT"
+		}
+	},
+	{
+		"key": 186,
+		"value": {
+			"TextEnglish": "INT",
+			"TextGerman": "INT"
+		}
+	},
+	{
+		"key": 187,
+		"value": {
+			"TextEnglish": "DEX",
+			"TextGerman": "DEX"
+		}
+	},
+	{
+		"key": 188,
+		"value": {
+			"TextEnglish": "LUK",
+			"TextGerman": "LUK"
+		}
+	},
+	{
+		"key": 189,
+		"value": {
+			"TextEnglish": "Options",
+			"TextGerman": "Optionen"
+		}
+	},
+	{
+		"key": 190,
+		"value": {
+			"TextEnglish": "Apply",
+			"TextGerman": "Anwenden"
+		}
+	},
+	{
+		"key": 191,
+		"value": {
+			"TextEnglish": "Revert",
+			"TextGerman": "Zurücknehmen"
+		}
+	},
+	{
+		"key": 192,
+		"value": {
+			"TextEnglish": "Hotkeys",
+			"TextGerman": "Tastenkürzel"
+		}
+	},
+	{
+		"key": 193,
+		"value": {
+			"TextEnglish": "Misc",
+			"TextGerman": "Anderes"
+		}
+	},
+	{
+		"key": 194,
+		"value": {
+			"TextEnglish": "Local",
+			"TextGerman": "Lokal"
+		}
+	},
+	{
+		"key": 195,
+		"value": {
+			"TextEnglish": "Character",
+			"TextGerman": "Charakter"
+		}
+	},
+	{
+		"key": 196,
+		"value": {
+			"TextEnglish": "Account",
+			"TextGerman": "Account"
+		}
+	},
+	{
+		"key": 197,
+		"value": {
+			"TextEnglish": "First Test Npc",
+			"TextGerman": "Erster Test Npc"
+		}
+	},
+	{
+		"key": 198,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: Not enough SP",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug SP"
+		}
+	},
+	{
+		"key": 199,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: Can't reach the target",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Ziel ist ausser Reichweite"
+		}
+	},
+	{
+		"key": 200,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: You're dead.",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Du bist tot."
+		}
+	},
+	{
+		"key": 201,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: Already casting another skill.",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Du wirkst eine andere Fähigkeit."
+		}
+	},
+	{
+		"key": 202,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: On Cooldown.",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Abklingzeit noch nicht abgelaufen."
+		}
+	},
+	{
+		"key": 203,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: Not enough HP.",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug HP."
+		}
+	},
+	{
+		"key": 204,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: Not enough Ammo.",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Nicht genug Munition."
+		}
+	},
+	{
+		"key": 205,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: Target is dead.",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Ziel ist tot."
+		}
+	},
+	{
+		"key": 206,
+		"value": {
+			"TextEnglish": "Skill {0} Failed: Can't us this skill on this target.",
+			"TextGerman": "Fähigkeit {0} fehlgeschlagen: Fähigkeit kann nicht auf dieses Ziel verwendet werden."
+		}
+	},
+	{
+		"key": 207,
+		"value": {
+			"TextEnglish": "Light Test Item",
+			"TextGerman": "Leichtes Test-Item"
+		}
+	},
+	{
+		"key": 208,
+		"value": {
+			"TextEnglish": "These lighter-than-air items grow on upside-down apple trees",
+			"TextGerman": "Dieses Objekt ist leichter als Luft, und wächst an kopfüber Apfelbäumen."
+		}
+	},
+	{
+		"key": 209,
+		"value": {
+			"TextEnglish": "Medium Test Item",
+			"TextGerman": "Mittleres Test-Item"
+		}
+	},
+	{
+		"key": 210,
+		"value": {
+			"TextEnglish": "An object of undefined geometry.",
+			"TextGerman": "Ein Gegenstand mit unerklärlicher Geometrie."
+		}
+	},
+	{
+		"key": 211,
+		"value": {
+			"TextEnglish": "Heavy Test Item",
+			"TextGerman": "Schweres Test-Item"
+		}
+	},
+	{
+		"key": 212,
+		"value": {
+			"TextEnglish": "Unfathomably dense, this item's also known as 'Your mom'.",
+			"TextGerman": "Unglaublich schwer und dicht, dieses Item ist auch bekannt als 'Deine Mudda'."
+		}
+	},
+	{
+		"key": 213,
+		"value": {
+			"TextEnglish": "Invalid ItemTypeId",
+			"TextGerman": "Ungültige ItemTypeId"
+		}
+	},
+	{
+		"key": 214,
+		"value": {
+			"TextEnglish": "Invalid Amount",
+			"TextGerman": "Ungültige Menge"
+		}
+	},
+	{
+		"key": 215,
+		"value": {
+			"TextEnglish": "Target Character not found or not online",
+			"TextGerman": "Ziel-Charakter nicht gefunden oder nicht online"
+		}
+	},
+	{
+		"key": 216,
+		"value": {
+			"TextEnglish": "Target Character can't hold that much weight",
+			"TextGerman": "Ziel-Charakter kann nicht genug Gewicht tragen"
+		}
+	},
+	{
+		"key": 217,
+		"value": {
+			"TextEnglish": "Item/s Created",
+			"TextGerman": "Item/s erzeugt"
+		}
+	},
+	{
+		"key": 218,
+		"value": {
+			"TextEnglish": "Inventory Cleared",
+			"TextGerman": "Inventar gelöscht"
+		}
+	},
+	{
+		"key": 219,
+		"value": {
+			"TextEnglish": "Inventory",
+			"TextGerman": "Inventar"
+		}
+	}
+]}

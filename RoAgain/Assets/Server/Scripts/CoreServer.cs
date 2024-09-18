@@ -39,9 +39,7 @@ namespace Server
         public readonly string CHAR_DB_FOLDER = Path.Combine(Application.dataPath, "CharDb");
         public readonly string ITEMTYPE_DB_FOLDER = Path.Combine(Application.dataPath, "ItemTypeDb");
         public readonly string INVENTORY_DB_FOLDER = Path.Combine(Application.dataPath, "InventoryDb");
-
-        private ServerMapModule _mapModule;
-        public override ServerMapModule MapModule => _mapModule;
+        public readonly string LOOTTABLE_DB_FOLDER = Path.Combine(Application.dataPath, "LootTableDb");
 
         private CentralConnection _centralConnection;
 
@@ -50,10 +48,36 @@ namespace Server
 
         public override IReadOnlyCollection<CharacterRuntimeData> LoggedInCharacters => _loggedInCharactersReadOnly;
 
+        private TimingScheduler _timingScheduler;
+
+        private const float AUTOSAVE_INTERVAL = 30.0f;
+        private float _autosaveTimer;
+
+        // Modules
+        private ServerMapModule _mapModule;
+        public override ServerMapModule MapModule => _mapModule;
+
         private ChatModule _chatModule;
 
         private ExperienceModule _expModule;
 
+        private JobModule _jobModule;
+        public override JobModule JobModule => _jobModule;
+
+        public override ExperienceModule ExpModule => _expModule;
+
+        private NpcModule _npcModule;
+
+        private WarpModule _warpModule;
+
+        private ItemTypeModule _itemTypeModule;
+
+        private InventoryModule _inventoryModule;
+        public override InventoryModule InventoryModule => _inventoryModule;
+
+        public LootModule _lootModule;
+
+        // Databases
         private AAccountDatabase _accountDatabase;
 
         private ACharacterDatabase _characterDatabase;
@@ -62,26 +86,11 @@ namespace Server
 
         private JobDatabase _jobDatabase;
 
-        private TimingScheduler _timingScheduler;
+        private AItemTypeDatabase _itemTypeDatabase;
 
-        private JobModule _jobModule;
-        public override JobModule JobModule => _jobModule;
+        private AInventoryDatabase _inventoryDatabase;
 
-        public override ExperienceModule ExpModule => _expModule;
-
-        public override InventoryModule InventoryModule => _inventoryModule;
-
-        private NpcModule _npcModule;
-
-        private WarpModule _warpModule;
-
-        private ItemTypeDatabase _itemTypeDatabase;
-        private InventoryDatabase _inventoryDatabase;
-        private ItemTypeModule  _itemTypeModule;
-        private InventoryModule _inventoryModule;
-
-        private const float AUTOSAVE_INTERVAL = 30.0f;
-        private float _autosaveTimer;
+        private ALootTableDatabase _lootTableDatabase;
 
         public int Initialize()
         {
@@ -97,58 +106,54 @@ namespace Server
 
             //int connectionInitError = InitializeDummyConnection();
             _centralConnection = new CentralConnectionImpl();
+            _centralConnection.ClientDisconnected += OnClientDisconnected;
+
+            _accountDatabase = new AccountDatabase();
+            _characterDatabase = new CharacterDatabase();
+            _jobDatabase = new();
+            _skillStaticDataDatabase = new();
+            _itemTypeDatabase = new ItemTypeDatabase();
+            _inventoryDatabase = new InventoryDatabase();
+            _lootTableDatabase = new LootTableDatabase();
 
             _mapModule = new();
             _chatModule = new();
             _expModule = new();
-            _centralConnection.ClientDisconnected += OnClientDisconnected;
+            _jobModule = new();
+            _npcModule = new();
+            _warpModule = new();
+            _itemTypeModule = new();
+            _inventoryModule = new();
+            _lootModule = new();
+
 
             Configuration config = new();
             int configError = config.LoadConfig();
 
             int connectionInitError = _centralConnection.Initialize(this, "0.0.0.0:13337");
 
-            _npcModule = new();
-            int npcModuleError = _npcModule.Initialize();
-
-            _warpModule = new();
-            int warpModuleError = _warpModule.Initialize();
-
-            int mapModuleError = _mapModule.Initialize(_expModule, _npcModule, _warpModule);
-
-            int chatModuleError = _chatModule.Initialize(_mapModule, this);
-
-            int expModuleError = _expModule.Initialize(_mapModule);
-
-            _accountDatabase = new AccountDatabase();
             int accountDbError = _accountDatabase.Initialize(ACCOUNT_DB_FOLDER);
-
-            _characterDatabase = new CharacterDatabase();
             int charDbError = _characterDatabase.Initialize(CHAR_DB_FOLDER, _accountDatabase);
-
-            _jobDatabase = new();
             int jobDbError = _jobDatabase.Register();
-
-            _jobModule = new();
-            int jobModuleError = _jobModule.Initialize();
-
-            _skillStaticDataDatabase = new();
             _skillStaticDataDatabase.Register();
+            int itemTypeDbError = _itemTypeDatabase.Initialize(ITEMTYPE_DB_FOLDER);
+            int inventoryDbError = _inventoryDatabase.Initialize(INVENTORY_DB_FOLDER);
+            int lootTableDbError = _lootTableDatabase.Initialize(LOOTTABLE_DB_FOLDER);
 
+            int mapModuleError = _mapModule.Initialize(_expModule, _npcModule, _warpModule, _lootModule);
+            int chatModuleError = _chatModule.Initialize(_mapModule, this);
+            int expModuleError = _expModule.Initialize();            
+            int jobModuleError = _jobModule.Initialize();
+            int npcModuleError = _npcModule.Initialize();
+            _npcModule.LoadDefinitions();
+            int warpModuleError = _warpModule.Initialize();
+            _warpModule.LoadDefinitions();
+            int itemTypeModError = _itemTypeModule.Initialize(_itemTypeDatabase);
+            int invModError = _inventoryModule.Initialize(_itemTypeModule, _inventoryDatabase);
+            int lootModuleError = _lootModule.Initialize(_lootTableDatabase, _inventoryModule);
+            
             _timingScheduler = new();
             _timingScheduler.Init();
-
-            _npcModule.LoadDefinitions();
-            _warpModule.LoadDefinitions();
-
-            _itemTypeDatabase = new();
-            int itemTypeDbError = _itemTypeDatabase.Initialize(ITEMTYPE_DB_FOLDER);
-            _inventoryDatabase = new();
-            int inventoryDbError = _inventoryDatabase.Initialize(INVENTORY_DB_FOLDER);
-            _itemTypeModule = new();
-            int itemTypeModError = _itemTypeModule.Initialize(_itemTypeDatabase);
-            _inventoryModule = new();
-            int invModError = _inventoryModule.Initialize(_itemTypeModule, _inventoryDatabase);
 
             int aggregateError = configError
                 + connectionInitError
@@ -164,7 +169,8 @@ namespace Server
                 + itemTypeDbError
                 + inventoryDbError
                 + itemTypeModError
-                + invModError;
+                + invModError
+                + lootTableDbError;
 
             if (aggregateError == 0)
                 Instance = this;
@@ -203,6 +209,7 @@ namespace Server
             _npcModule?.Shutdown();
             _warpModule?.Shutdown();
 
+            _lootTableDatabase?.Shutdown();
             _characterDatabase?.Shutdown();
             _accountDatabase?.Shutdown();
 
@@ -339,7 +346,7 @@ namespace Server
             Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId);
             foreach (var kvp in inventory.ItemStacksByTypeId)
             {
-                _inventoryModule.SendItemStackDataToCharacter(charData, kvp.Value.ItemType.TypeId, kvp.Value.ItemCount);
+                _inventoryModule.SendItemStackDataToCharacter(charData, kvp.Value.ItemType.TypeId);
             }
 
             OwlLogger.LogF("Character login finished for character id {0}", charData.CharacterId, GameComponent.Other);
@@ -409,8 +416,9 @@ namespace Server
                 impl?.Apply(charData, kvp.Value);
             }
 
+            Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId); // Preload inventory because we'll most likely need it
+            _inventoryModule.RegisterCharacterInventory(charData);
             // TODO: Register & Set up Equipment
-            _inventoryModule.GetOrLoadInventory(charData.InventoryId); // Preload inventory because we'll 99% chance need it
 
             // TODO: Apply Buffs/Debuffs from persistent data
 
@@ -973,7 +981,9 @@ namespace Server
                 return;
             }
 
-            // Get Map Instances for character-Id
+            _inventoryModule.UnregisterCharacterInventory(charData);
+
+            // Get Map Instances for character
             ServerMapInstance mapInstance = charData.GetMapInstance();
 
             // Tell MapInstance to remove character from Grid

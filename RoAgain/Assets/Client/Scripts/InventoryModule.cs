@@ -23,8 +23,6 @@ namespace Client
 
     public class ItemType
     {
-        public const long BASETYPEID_NONE = -1; // Make sure to keep this in sync with Server's ItemType constant!
-
         public long TypeId;
         public long BaseTypeId;
         public int Weight;

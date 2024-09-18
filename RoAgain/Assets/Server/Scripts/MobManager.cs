@@ -13,7 +13,7 @@ namespace Server
         public int MobTypeId;
         public int BaseExpReward;
         public int JobExpReward;
-        // TODO: Droptable reference?
+        public int LootTableId;
 
         public void Init()
         {
@@ -74,6 +74,8 @@ namespace Server
             HardMDef.SetBase(staticData.HardMDef / 100f);
             // TODO: Aspd
             Movespeed.Value = staticData.Movespeed;
+
+            LootTableId = staticData.LootTableId;
 
             // TODO: Setup AI
 
@@ -142,21 +144,22 @@ namespace Server
         // TODO later: See how much this breaks when mobs change maps
         private ServerMapInstance _map;
 
+        private LootModule _lootModule;
+        private ExperienceModule _expModule;
+
         private readonly Dictionary<int, SpawnAreaDefinition> _mobDefinitions = new();
         private readonly Dictionary<int, List<Mob>> _mobsByAreaId = new();
         private readonly Dictionary<int, List<TimerFloat>> _timersByAreaId = new();
 
         private readonly List<Mob> _mobsToClear = new();
 
-        private Action<BattleEntity, BattleEntity> _expMobDeathCallback;
-
-        public int Initialize(ServerMapInstance map, ExperienceModule expModule)
+        public int Initialize(ServerMapInstance map, ExperienceModule expModule, LootModule lootModule)
         {
             // TODO: Safety checks
 
             _map = map;
-
-            _expMobDeathCallback = expModule.OnMobDeath;
+            _lootModule = lootModule;
+            _expModule = expModule;
 
             LoadSpawnSetForMap("default");
 
@@ -272,7 +275,6 @@ namespace Server
             mob.InitFromStaticData(mobTypeId, staticData);
 
             mob.Death += OnEntityDeath;
-            mob.Death += _expMobDeathCallback;
             GridData.Direction nextDirection = UnityEngine.Random.Range(1, 5) switch
             {
                 1 => GridData.Direction.North,
@@ -298,6 +300,10 @@ namespace Server
                 // Don't read delay from mob.SpawnArea - the SpawnArea may've changed since the mob was spawned
                 _timersByAreaId[mob.SpawnArea.AreaId].Add(new(_mobDefinitions[mob.SpawnArea.AreaId].Delay));
             }
+
+            _expModule.OnMobDeath(mob);
+
+            _lootModule.HandleLoot(mob);
         }
 
         public int ClearMobsForDefinition(int definitionId)
@@ -314,7 +320,7 @@ namespace Server
                 }
                 else
                 {
-                    // Log
+                    // TODO: Log
                 }
             }
 

@@ -9,14 +9,16 @@ namespace Server
     /// </summary>
     public class InventoryModule
     {
-        private InventoryDatabase _invDb;
+        private AInventoryDatabase _invDb;
         private ItemTypeModule _itemTypeModule;
 
         private Dictionary<int, Inventory> _cachedInventories = new();
 
         private Dictionary<int, HashSet<long>> _knownItemTypesByPlayerEntity = new();
 
-        public int Initialize(ItemTypeModule itemTypeModule, InventoryDatabase invDb)
+        private Dictionary<int, CharacterRuntimeData> _characterInventories = new();
+
+        public int Initialize(ItemTypeModule itemTypeModule, AInventoryDatabase invDb)
         {
             if(itemTypeModule == null)
             {
@@ -166,50 +168,8 @@ namespace Server
             AutoInitResourcePool<ItemStack>.Return(stack);
         }
 
-        public int AddItemsToInventory(Inventory inventory, ItemStack stack)
+        public int AddItemsToInventory(int inventoryId, long itemTypeId, int count)
         {
-            if(inventory == null)
-            {
-                OwlLogger.LogError("Can't add items to null inventory!", GameComponent.Items);
-                return -1;
-            }
-
-            if (stack == null)
-            {
-                OwlLogger.LogError($"Can't add null ItemStack to Inventory {inventory.InventoryId}!", GameComponent.Items);
-                return -1;
-            }
-
-            if(stack.ItemType == null || stack.ItemType.TypeId <= 0)
-            {
-                OwlLogger.LogError($"Can't add item stack with invalid itemTypeId to inventory {inventory.InventoryId}", GameComponent.Items);
-                return -2;
-            }
-
-            if (stack.ItemCount <= 0)
-            {
-                OwlLogger.LogError($"Can't add ItemStack with ItemCount 0 to Inventory {inventory.InventoryId}, ItemType {stack.ItemType}", GameComponent.Items);
-                return -3;
-            }
-
-            if (inventory.HasItemTypeExact(stack.ItemType.TypeId))
-            {
-                inventory.ItemStacksByTypeId[stack.ItemType.TypeId].ItemCount += stack.ItemCount;
-                return 0;
-            }
-
-            inventory.ItemStacksByTypeId.Add(stack.ItemType.TypeId, stack);
-            return 0;
-        }
-
-        public int AddItemsToInventory(Inventory inventory, long itemTypeId, int count)
-        {
-            if (inventory == null)
-            {
-                OwlLogger.LogError("Can't add items to null inventory!", GameComponent.Items);
-                return -1;
-            }
-
             if(itemTypeId <= 0)
             {
                 OwlLogger.LogError("Can't add items with invalid itemTypeId", GameComponent.Items);
@@ -218,51 +178,62 @@ namespace Server
 
             if (count <= 0)
             {
-                OwlLogger.LogError($"Can't add ItemStack with ItemCount <=0 to Inventory {inventory.InventoryId}, ItemType {itemTypeId}", GameComponent.Items);
+                OwlLogger.LogError($"Can't add ItemStack with ItemCount <=0 to Inventory {inventoryId}, ItemType {itemTypeId}", GameComponent.Items);
                 return -3;
             }
 
-            if(inventory.HasItemTypeExact(itemTypeId))
-            {
-                inventory.ItemStacksByTypeId[itemTypeId].ItemCount += count;
-                return 0;
-            }
+            Inventory inventory = GetOrLoadInventory(inventoryId);
 
-            ItemStack stack = CreateItemStack(itemTypeId, count);
-            if (stack == null)
-            {
-                OwlLogger.LogError("Creating ItemStack failed.", GameComponent.Items);
-                return -4;
-            }
-
-            return AddItemsToInventory(inventory, stack);
-        }
-
-        public int RemoveItemsFromInventory(Inventory inventory, ItemStack stack, bool allowDeleteStack)
-        {
-            if(inventory == null)
-            {
-                OwlLogger.LogError("Can't remove items from null inventory!", GameComponent.Items);
-                return -1;
-            }
-
-            if(stack == null)
-            {
-                OwlLogger.LogError($"Can't remove null ItemStack from inventory {inventory.InventoryId}", GameComponent.Items);
-                return -1;
-            }
-
-            return RemoveItemsFromInventory(inventory, stack.ItemType.TypeId, stack.ItemCount, allowDeleteStack);
-        }
-
-        public int RemoveItemsFromInventory(Inventory inventory, long itemTypeId, int count, bool shouldDeleteStack)
-        {
             if (inventory == null)
             {
-                OwlLogger.LogError("Can't remove items from null inventory!", GameComponent.Items);
+                OwlLogger.LogError("Can't add items to null inventory!", GameComponent.Items);
                 return -1;
             }
 
+            if (inventory.HasItemTypeExact(itemTypeId))
+            {
+                inventory.ItemStacksByTypeId[itemTypeId].ItemCount += count;
+            }
+            else
+            {
+                ItemStack stack = CreateItemStack(itemTypeId, count);
+                if (stack == null)
+                {
+                    OwlLogger.LogError("Creating ItemStack failed.", GameComponent.Items);
+                    return -4;
+                }
+
+                inventory.ItemStacksByTypeId.Add(stack.ItemType.TypeId, stack);
+            }
+
+            NotifyInventoryListenerAddStack(itemTypeId, count, inventory);
+
+            return 0;
+        }
+
+        public int AddItemsToCharacterInventory(CharacterRuntimeData character, long itemTypeId, int count)
+        {
+            if (character == null)
+            {
+                OwlLogger.LogError("Can't add items to null character!", GameComponent.Items);
+                return -1;
+            }
+
+            if (!HasPlayerSpaceForItemStack(character, itemTypeId, count))
+            {
+                OwlLogger.LogF("Character {0} can't receive {1}x itemType {2} - not enough weight capacity.", character.CharacterId, count, itemTypeId, GameComponent.Items, LogSeverity.Verbose);
+                return -2;
+            }
+
+            // If implementing ItemStack-limit: Check here
+
+            int result = AddItemsToInventory(character.InventoryId, itemTypeId, count);
+
+            return result;
+        }
+
+        public int RemoveItemsFromInventory(int inventoryId, long itemTypeId, int count, bool shouldDeleteStack)
+        {
             if (itemTypeId <= 0)
             {
                 OwlLogger.LogError("Can't remove items with invalid itemTypeId", GameComponent.Items);
@@ -271,8 +242,15 @@ namespace Server
 
             if (count <= 0)
             {
-                OwlLogger.LogError($"Can't remove ItemStack with ItemCount 0 from Inventory {inventory.InventoryId}, ItemType {itemTypeId}", GameComponent.Items);
+                OwlLogger.LogError($"Can't remove ItemStack with ItemCount 0 from Inventory {inventoryId}, ItemType {itemTypeId}", GameComponent.Items);
                 return -3;
+            }
+
+            Inventory inventory = GetOrLoadInventory(inventoryId);
+            if (inventory == null)
+            {
+                OwlLogger.LogError("Can't remove items from null inventory!", GameComponent.Items);
+                return -1;
             }
 
             if (!inventory.HasItemTypeExact(itemTypeId))
@@ -301,7 +279,20 @@ namespace Server
                 }
             }
 
+            NotifyInventoryListenerRemoveStack(itemTypeId, count, inventory);
+
             return 0;
+        }
+
+        public int RemoveItemsFromCharacterInventory(CharacterRuntimeData character, long itemTypeId, int count, bool allowDeleteStack)
+        {
+            if (character == null)
+            {
+                OwlLogger.LogError("Can't remove items from null character!", GameComponent.Items);
+                return -1;
+            }
+
+            return RemoveItemsFromInventory(character.InventoryId, itemTypeId, count, allowDeleteStack);
         }
 
         private int RemoveItemStackFromInventory(Inventory inventory, long itemTypeId)
@@ -326,7 +317,7 @@ namespace Server
 
             inventory.ItemStacksByTypeId.Remove(itemTypeId);
 
-            // Can't attempt to delete ItemType from ItemTypeModule here - the Stack may be added to another inventory yet
+            // Can't attempt to delete ItemType from ItemTypeModule here - a Stack of this type may be added to another inventory yet
             return 0;
         }
 
@@ -362,139 +353,30 @@ namespace Server
             return character.CurrentWeight + neededWeight <= character.WeightLimit.Total;
         }
 
-        public int AddItemsToInventory(CharacterRuntimeData character, ItemStack stack)
-        {
-            if (stack == null)
-            {
-                OwlLogger.LogError($"Can't add null itemStack to character {(character == null ? "null" : character.Id)}", GameComponent.Items);
-                return -1;
-            }
-                
-            return AddItemsToInventory(character, stack.ItemType.TypeId, stack.ItemCount);
-        }
-
-        public int AddItemsToInventory(CharacterRuntimeData character, long itemTypeId, int count)
-        {
-            if (character == null)
-            {
-                OwlLogger.LogError("Can't add items to null character!", GameComponent.Items);
-                return -1;
-            }
-
-            if(!HasPlayerSpaceForItemStack(character, itemTypeId, count))
-            {
-                OwlLogger.LogF("Character {0} can't receive {1}x itemType {2} - not enough weight capacity.", character.CharacterId, count, itemTypeId, GameComponent.Items, LogSeverity.Verbose);
-                return -2;
-            }
-
-            // If implementing ItemStack-limit: Check here
-
-            Inventory inventory = GetOrLoadInventory(character.InventoryId);
-
-            int result = AddItemsToInventory(inventory, itemTypeId, count);
-
-            if(result == 0)
-            {
-                SendItemStackDataToCharacter(character, itemTypeId, inventory.GetItemCountExact(itemTypeId));
-
-                ItemType type = _itemTypeModule.GetOrLoadItemType(itemTypeId);
-                if (type == null)
-                {
-                    OwlLogger.LogError($"Fetching itemtype {itemTypeId} failed!", GameComponent.Items);
-                    return -3;
-                }
-
-                if (type.Weight > 0)
-                    ModifyCharacterWeight(character, type.Weight * count);
-            }    
-
-            return result;
-        }
-
-        public int RemoveItemsFromCharacterInventory(CharacterRuntimeData character, ItemStack stack, bool allowDeleteStack)
-        {
-            if (stack == null)
-            {
-                OwlLogger.LogError($"Can't remove null itemStack from character {(character == null ? "null" : character.Id)}", GameComponent.Items);
-                return -1;
-            }
-
-            return RemoveItemsFromCharacterInventory(character, stack.ItemType.TypeId, stack.ItemCount, allowDeleteStack);
-        }
-
-        public int RemoveItemsFromCharacterInventory(CharacterRuntimeData character, long itemTypeId, int count, bool allowDeleteStack)
-        {
-            if (character == null)
-            {
-                OwlLogger.LogError("Can't remove items from null character!", GameComponent.Items);
-                return -1;
-            }
-
-            int result = RemoveItemsFromInventory(character.InventoryId, itemTypeId, count, allowDeleteStack, character);
-
-            if (result == 0)
-            {
-                ItemType type = _itemTypeModule.GetOrLoadItemType(itemTypeId);
-                if(type == null)
-                {
-                    OwlLogger.LogError($"Fetching itemtype {itemTypeId} failed!", GameComponent.Items);
-                    return -2;
-                }
-
-                if(type.Weight > 0)
-                   ModifyCharacterWeight(character, -type.Weight * count);
-            }
-
-            return result;
-        }
-
-        public int RemoveItemsFromInventory(int inventoryId, long itemTypeId, int count, bool allowDeleteStack, CharacterRuntimeData characterToNotify = null)
-        {
-            Inventory inventory = GetOrLoadInventory(inventoryId);
-
-            int result = RemoveItemsFromInventory(inventory, itemTypeId, count, allowDeleteStack);
-
-            if (result == 0)
-            {
-                if (characterToNotify != null)
-                {
-                    Packet packet;
-                    int remainingCount = inventory.GetItemCountExact(itemTypeId);
-                    if (remainingCount == 0)
-                    {
-                        packet = new ItemStackRemovedPacket()
-                        {
-                            InventoryId = inventoryId,
-                            ItemTypeId = itemTypeId
-                        };
-                    }
-                    else
-                    {
-                        packet = new ItemStackPacket()
-                        {
-                            InventoryId = inventoryId,
-                            ItemTypeId = itemTypeId,
-                            ItemCount = remainingCount
-                        };
-                    }
-
-                    characterToNotify.Connection.Send(packet);
-                }
-            }
-
-            return result;
-        }
-
-        public int SendItemStackDataToCharacter(CharacterRuntimeData character, long itemTypeId, int count)
+        public int SendItemStackDataToCharacter(CharacterRuntimeData character, long itemTypeId)
         {
             SendItemTypeDataToCharacterIfUnknown(character, itemTypeId);
 
-            ItemStackPacket packet = new()
+            Inventory inventory = GetOrLoadInventory(character.InventoryId);
+            int count = inventory.GetItemCountExact(itemTypeId);
+            Packet packet;
+            if (count == 0)
             {
-                InventoryId = character.InventoryId,
-                ItemTypeId = itemTypeId,
-                ItemCount = count
-            };
+                packet = new ItemStackRemovedPacket()
+                {
+                    InventoryId = inventory.InventoryId,
+                    ItemTypeId = itemTypeId
+                };
+            }
+            else
+            {
+                packet = new ItemStackPacket()
+                {
+                    InventoryId = character.InventoryId,
+                    ItemTypeId = itemTypeId,
+                    ItemCount = count
+                };
+            }    
 
             return character.Connection.Send(packet);
         }
@@ -523,7 +405,7 @@ namespace Server
                 return 0;
 
             int result = 0;
-            if (type.BaseTypeId != ItemType.BASETYPEID_NONE)
+            if (type.BaseTypeId != ItemConstants.BASETYPEID_NONE)
             {
                 result += SendItemTypeDataToCharacterIfUnknown(character, type.BaseTypeId);
             }
@@ -648,18 +530,9 @@ namespace Server
 
             // TODO: Check ItemMoveRestrictions
 
-            int removeResult = -1;
-            ItemStack affectedStack = GetOrLoadInventory(inventoryId).ItemStacksByTypeId[itemTypeId];
-            if (character.InventoryId == inventoryId)
-            {
-                removeResult = RemoveItemsFromCharacterInventory(character, itemTypeId, amount, false);
-            }
-            else
-            {
-                removeResult = RemoveItemsFromInventory(inventoryId, itemTypeId, amount, false, character);
-            }
-            
-            if(removeResult != 0)
+            int removeResult = RemoveItemsFromInventory(inventoryId, itemTypeId, amount, false);
+
+            if (removeResult != 0)
             {
                 OwlLogger.LogError($"Failed to remove Items for ItemDropRequest", GameComponent.Items);
                 return;
@@ -676,6 +549,70 @@ namespace Server
             // TODO: Cart inventory
             // TODO: A storage that the character has currently opened
             return false;
+        }
+
+        public void RegisterCharacterInventory(CharacterRuntimeData character)
+        {
+            if (_characterInventories.ContainsKey(character.InventoryId))
+            {
+                OwlLogger.LogWarning($"Tried to register CharacterInventory for character {character.CharacterId} that was already registered!", GameComponent.Items);
+                return;
+            }
+
+            _characterInventories[character.InventoryId] = character;
+        }
+
+        public void UnregisterCharacterInventory(CharacterRuntimeData character)
+        {
+            if (!_characterInventories.ContainsKey(character.InventoryId))
+            {
+                OwlLogger.LogWarning($"Tried to unregister CharacterInventory for character {character.CharacterId} that wasn't registered!", GameComponent.Items);
+                return;
+            }
+
+            _characterInventories.Remove(character.InventoryId);
+        }
+
+        private void NotifyInventoryListenerAddStack(long addedTypeId, int addedCount, Inventory inventory)
+        {
+            if (!_characterInventories.ContainsKey(inventory.InventoryId))
+                return;
+
+            CharacterRuntimeData character = _characterInventories[inventory.InventoryId];
+            SendItemStackDataToCharacter(character, addedTypeId);
+
+            ItemType type = _itemTypeModule.GetOrLoadItemType(addedTypeId);
+            if (type == null)
+            {
+                OwlLogger.LogError($"Fetching itemtype {addedTypeId} failed!", GameComponent.Items);
+                return;
+            }
+
+            if (type.Weight > 0)
+                ModifyCharacterWeight(character, type.Weight * addedCount);
+
+            // TODO: Check other listening-modes (e.g. cart-owners) via separate lists
+        }
+
+        private void NotifyInventoryListenerRemoveStack(long removedTypeId, int removedCount, Inventory inventory)
+        {
+            if(!_characterInventories.ContainsKey(inventory.InventoryId))
+                return;
+
+            CharacterRuntimeData character = _characterInventories[inventory.InventoryId];
+            SendItemStackDataToCharacter(character, removedTypeId);
+
+            ItemType type = _itemTypeModule.GetOrLoadItemType(removedTypeId);
+            if (type == null)
+            {
+                OwlLogger.LogError($"Fetching itemtype {removedTypeId} failed!", GameComponent.Items);
+                return;
+            }
+
+            if (type.Weight > 0)
+                ModifyCharacterWeight(character, -type.Weight * removedCount);
+
+            // TODO: Check other listening-modes (e.g. cart-owners) via separate lists
         }
     }
 }

@@ -9,10 +9,8 @@ namespace Server
     /// </summary>
     public class ItemType : IAutoInitPoolObject
     {
-        public const long BASETYPEID_NONE = ItemTypeDatabase.ITEM_TYPE_ID_INVALID;
-
         public long TypeId;
-        public long BaseTypeId = BASETYPEID_NONE;
+        public long BaseTypeId = ItemConstants.BASETYPEID_NONE;
         public bool CanStack;
         public int Weight;
         public int SellPrice;
@@ -99,7 +97,7 @@ namespace Server
         public bool IsValid()
         {
             return TypeId >= 0
-                && (BaseTypeId >= 0 || BaseTypeId == BASETYPEID_NONE)
+                && (BaseTypeId >= 0 || BaseTypeId == ItemConstants.BASETYPEID_NONE)
                 && Weight >= 0
                 && SellPrice >= 0;
         }
@@ -125,7 +123,7 @@ namespace Server
         public void Reset()
         {
             TypeId = 0;
-            BaseTypeId = BASETYPEID_NONE;
+            BaseTypeId = ItemConstants.BASETYPEID_NONE;
             CanStack = false;
             Weight = 0;
             SellPrice = 0;
@@ -145,13 +143,13 @@ namespace Server
     /// </summary>
     public class ItemTypeModule
     {
-        private ItemTypeDatabase _itemTypeDb;
+        private AItemTypeDatabase _itemTypeDb;
 
         private Dictionary<long, ItemType> _itemTypeCache = new();
         private Dictionary<long, List<ItemType>> _itemTypesByBaseTypeId = new();
         private Dictionary<long, int> _itemTypeUsageCount = new();
 
-        public int Initialize(ItemTypeDatabase itemTypeDb)
+        public int Initialize(AItemTypeDatabase itemTypeDb)
         {
             if(itemTypeDb == null)
             {
@@ -198,7 +196,7 @@ namespace Server
 
             // Check Db if a matching ItemType can be loaded
             long dbTypeId = _itemTypeDb.GetMatchingItemTypeIdExact(baseTypeId, modifiers);
-            if (dbTypeId != ItemTypeDatabase.ITEM_TYPE_ID_INVALID)
+            if (dbTypeId != ItemConstants.ITEM_TYPE_ID_INVALID)
             {
                 return GetOrLoadItemType(dbTypeId);
             }

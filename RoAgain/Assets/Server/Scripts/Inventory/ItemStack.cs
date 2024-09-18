@@ -18,5 +18,10 @@ namespace Server
             ItemType = null;
             ItemCount = 0;
         }
+
+        public int GetStackWeight()
+        {
+            return ItemType.Weight * ItemCount;
+        }
     }
 }

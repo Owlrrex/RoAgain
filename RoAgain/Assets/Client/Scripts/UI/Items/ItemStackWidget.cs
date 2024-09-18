@@ -64,6 +64,8 @@ namespace Client
         {
             ItemStackWidget itemStackComp = copy.GetComponent<ItemStackWidget>();
             itemStackComp.SetData(CurrentStack, DragSource);
+            if (EmptyUiCatcher.Instance != null)
+                EmptyUiCatcher.Instance.SetCatcherActive(true);
         }
 
         public void InitDragSelf()

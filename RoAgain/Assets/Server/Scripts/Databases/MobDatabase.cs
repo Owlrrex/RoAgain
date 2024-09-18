@@ -39,9 +39,11 @@ namespace Server
         public float Apm;
         public float Movespeed;
 
+        public int LootTableId;
+
         // TODO: Skills?
         // TODO: AI
-        // TODO: Loot
+        
     }
 
     public class MobDatabase
