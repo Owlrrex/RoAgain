@@ -1539,5 +1539,12 @@
 			"TextEnglish": "Inventory",
 			"TextGerman": "Inventar"
 		}
+	},
+	{
+		"key": 220,
+		"value": {
+			"TextEnglish": "This item doesn't belong to you.",
+			"TextGerman": "Dieses Item gehört nicht dir."
+		}
 	}
 ]}

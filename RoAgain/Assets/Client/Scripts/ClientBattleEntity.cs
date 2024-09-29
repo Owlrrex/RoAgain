@@ -7,6 +7,11 @@ namespace Client
     {
         public int BaseLvl; // for Aura
 
+        public ClientBattleEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp, int baseLvl, int id = -1) : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, id)
+        {
+            BaseLvl = baseLvl;
+        }
+
         public void SetData(BattleEntityData data)
         {
             if (Id != 0 && Id != data.EntityId)

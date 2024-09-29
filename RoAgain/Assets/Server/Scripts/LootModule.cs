@@ -11,28 +11,51 @@ namespace Server
 
         private ALootTableDatabase _lootTableDatabase;
 
-        public int Initialize(ALootTableDatabase lootTableDatabase, InventoryModule inventoryModule)
+        private PickupModule _pickupModule;
+
+        private System.Random _rand = new(); // Use creation time seed
+
+        public int Initialize(ALootTableDatabase lootTableDatabase, InventoryModule inventoryModule, PickupModule pickupModule)
         {
-            // TODO check null
+            if(lootTableDatabase == null)
+            {
+                OwlLogger.LogError("Can't initialize LootModule with null LootTableDatabase!", GameComponent.Items);
+                return -1;
+            }
+
+            if (inventoryModule == null)
+            {
+                OwlLogger.LogError("Can't initialize LootModule with null InventoryModule!", GameComponent.Items);
+                return -1;
+            }
+
+            if (pickupModule == null)
+            {
+                OwlLogger.LogError("Can't initialize LootModule with null PickupModule!", GameComponent.Items);
+                return -1;
+            }
 
             _lootTableDatabase = lootTableDatabase;
             _inventoryModule = inventoryModule;
+            _pickupModule = pickupModule;
 
             return 0;
         }
 
         public void Shutdown()
         {
-
+            _lootTableDatabase = null;
+            _inventoryModule = null;
+            _pickupModule = null;
         }
 
-        public void RollAllFromTableAsPickup(int lootTableId)
+        public void RollAllFromTableAsPickup(int lootTableId, Coordinate coordinates, int ownerId = 0)
         {
             List<LootTableEntry> itemsToCreate = RollAllFromTable(lootTableId);
 
             foreach (LootTableEntry entry in itemsToCreate)
             {
-                // TODO: Create Pickup via Pickup-Module
+                _pickupModule.CreatePickup(entry.ItemTypeId, entry.Amount, coordinates, ownerId);
             }
         }
 
@@ -46,11 +69,11 @@ namespace Server
             }
         }
 
-        public void RollFirstFromTableAsPickup(int lootTableId)
+        public void RollFirstFromTableAsPickup(int lootTableId, Coordinate coordinates, int ownerId = 0)
         {
             LootTableEntry entryToCreate = RollFirstFromTable(lootTableId);
 
-            // TODO: Create Pickup via Pickup-Module
+            _pickupModule.CreatePickup(entryToCreate.ItemTypeId, entryToCreate.Amount, coordinates, ownerId);
         }
 
         public void RollFirstFromTableToInventory(int lootTableId, int targetInventoryId)
@@ -70,14 +93,13 @@ namespace Server
             }
 
             List<LootTableEntry> results = new();
-            System.Random r = new(); // Uses clock-based seed
             foreach(LootTableEntry entry in table.Entries)
             {
                 // Not using <= here so that when Chance == 0, NextDouble() can't create a true value by return 0.
                 // <= would cover a potential match at 1.0 correctly, though according to NextDouble() docs, it can never return 1.0
                 // In theory, this might have a chance to "Gen1 miss", and Chances of 0 shouldn't be valid = never reach this point
                 // Monitor drops of 100% items to see if this needs adjusting
-                if (r.NextDouble() < entry.Chance)
+                if (_rand.NextDouble() < entry.Chance)
                 {
                     results.Add(entry);
                 }
@@ -87,6 +109,25 @@ namespace Server
 
         public LootTableEntry RollFirstFromTable(int lootTableId)
         {
+            LootTableData table = _lootTableDatabase.GetOrLoadLootTable(lootTableId);
+            if (table == null)
+            {
+                OwlLogger.LogError($"LootTable {lootTableId} not found when trying to roll loot!", GameComponent.Items);
+                return null;
+            }
+
+            foreach (LootTableEntry entry in table.Entries)
+            {
+                // Not using <= here so that when Chance == 0, NextDouble() can't create a true value by return 0.
+                // <= would cover a potential match at 1.0 correctly, though according to NextDouble() docs, it can never return 1.0
+                // In theory, this might have a chance to "Gen1 miss", and Chances of 0 shouldn't be valid = never reach this point
+                // Monitor drops of 100% items to see if this needs adjusting
+                if (_rand.NextDouble() < entry.Chance)
+                {
+                    return entry;
+                }
+            }
+
             return null;
         }
 
@@ -103,7 +144,7 @@ namespace Server
                 if (!AServer.Instance.TryGetLoggedInCharacterByEntityId(kvp.Key, out CharacterRuntimeData contributor))
                 {
                     // TODO: distinguish between "entity not found" and "contributions from non-character"?
-                    // Non-Characters can currently not gain any exp, despite BaseLvls being supported for BattleEntities
+                    // Non-Characters can currently not gain any loot
                     continue;
                 }
 
@@ -125,24 +166,23 @@ namespace Server
             List<LootTableEntry> items = RollAllFromTable(mob.LootTableId);
 
             // TODO: Different Party-Loot-rules
-            System.Random r = new();
             foreach (LootTableEntry item in items)
             {
-                double roll = r.NextDouble();
+                double roll = _rand.NextDouble();
                 for (int i = 0; i < thresholds.Count; i++)
                 {
                     if (roll < thresholds[i])
                     {
+                        bool giveLootToInventory = _inventoryModule.HasPlayerSpaceForItemStack(characters[i], item.ItemTypeId, item.Amount);
+                        giveLootToInventory = false;
                         // TODO: Handle player's and/or server's autoloot-config
-                        if (_inventoryModule.HasPlayerSpaceForItemStack(characters[i], item.ItemTypeId, item.Amount))
+                        if (giveLootToInventory)
                         {
-                            // TODO: Use Pickups instead of to-inventory by default
-
                             _inventoryModule.AddItemsToCharacterInventory(characters[i], item.ItemTypeId, item.Amount);
                         }
                         else
                         {
-                            // TODO: Generate pickup with ownership
+                            _pickupModule.QueuePickupCreation(item.ItemTypeId, item.Amount, mob.Coordinates.ToCoordinate(), characters[i].Id);
                         }
                         break;
                     }

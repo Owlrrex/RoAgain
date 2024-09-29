@@ -75,8 +75,6 @@ namespace Server
         private InventoryModule _inventoryModule;
         public override InventoryModule InventoryModule => _inventoryModule;
 
-        public LootModule _lootModule;
-
         // Databases
         private AAccountDatabase _accountDatabase;
 
@@ -124,7 +122,6 @@ namespace Server
             _warpModule = new();
             _itemTypeModule = new();
             _inventoryModule = new();
-            _lootModule = new();
 
 
             Configuration config = new();
@@ -140,7 +137,7 @@ namespace Server
             int inventoryDbError = _inventoryDatabase.Initialize(INVENTORY_DB_FOLDER);
             int lootTableDbError = _lootTableDatabase.Initialize(LOOTTABLE_DB_FOLDER);
 
-            int mapModuleError = _mapModule.Initialize(_expModule, _npcModule, _warpModule, _lootModule);
+            int mapModuleError = _mapModule.Initialize(_expModule, _npcModule, _warpModule, _lootTableDatabase, _inventoryModule);
             int chatModuleError = _chatModule.Initialize(_mapModule, this);
             int expModuleError = _expModule.Initialize();            
             int jobModuleError = _jobModule.Initialize();
@@ -150,7 +147,6 @@ namespace Server
             _warpModule.LoadDefinitions();
             int itemTypeModError = _itemTypeModule.Initialize(_itemTypeDatabase);
             int invModError = _inventoryModule.Initialize(_itemTypeModule, _inventoryDatabase);
-            int lootModuleError = _lootModule.Initialize(_lootTableDatabase, _inventoryModule);
             
             _timingScheduler = new();
             _timingScheduler.Init();
@@ -389,7 +385,7 @@ namespace Server
             _loggedInCharacters.Add(charData);
 
             // Place Character on map & wherever else required
-            ServerMapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
+            MapInstance mapInstance = _mapModule.CreateOrGetMap(charData.MapId);
             if (mapInstance == null)
             {
                 OwlLogger.LogError($"Fetching/creating Mapinstance failed for CharacterLogin id {charData.CharacterId}, mapid {charData.MapId}!", GameComponent.Other);
@@ -450,7 +446,7 @@ namespace Server
                 return;
             }
 
-            ServerMapInstance mapInstance = _mapModule.GetMapInstance(characterData.MapId);
+            MapInstance mapInstance = _mapModule.GetMapInstance(characterData.MapId);
 
             // TODO: Path Length limit
             if (mapInstance.Grid.FindAndSetPathTo(characterData, targetCoordinates) == 0)
@@ -475,7 +471,7 @@ namespace Server
                 return;
             }
 
-            ServerMapInstance map = _mapModule.GetMapInstance(user.MapId);
+            MapInstance map = _mapModule.GetMapInstance(user.MapId);
             if(map == null)
             {
                 OwlLogger.LogError($"No map found for mapid {user.MapId} after entity lookups!", GameComponent.Other);
@@ -502,7 +498,7 @@ namespace Server
                 return;
             }
 
-            ServerMapInstance map = _mapModule.GetMapInstance(user.MapId);
+            MapInstance map = _mapModule.GetMapInstance(user.MapId);
             if (map == null)
             {
                 OwlLogger.LogError($"No map found for mapid {user.MapId} after entity lookups!", GameComponent.Other);
@@ -936,6 +932,38 @@ namespace Server
             _inventoryModule.HandleItemDropRequest(character, itemTypeId, inventoryId, amount);
         }
 
+        private void ReceivePickupRequest(ClientConnection connection, int pickupId)
+        {
+            if(!TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData character))
+            {
+                OwlLogger.LogError($"Received PickupRequest from characterId {connection.CharacterId} that's not logged in!", GameComponent.Items);
+                return;
+            }
+
+            MapInstance map = MapModule.GetMapInstance(character.MapId);
+            GridEntity gEntity = map.Grid.FindOccupant(pickupId);
+            if(gEntity == null)
+            {
+                OwlLogger.LogError($"Character {connection.CharacterId} tried to pick up pickupId {pickupId} that's not on Grid!", GameComponent.Items);
+                return;
+            }
+            PickupEntity pickup = gEntity as PickupEntity;
+            if(pickup == null)
+            {
+                OwlLogger.LogError($"Character {connection.CharacterId} tried to pick up pickupId {pickupId} that's not a Pickup!", GameComponent.Items);
+                return;
+            }
+
+            if (character.Coordinates.GridDistanceSquare(gEntity.Coordinates) <= 1) // TODO: Remove magic number "pickup range"
+            {
+                map.PickupModule.CharacterAttemptPickup(character, pickupId);
+                return;
+            }
+
+            // TODO: Set Path and queue up pickup-action
+            // TODO: Generic system for queueing an action/callback for after a path completes/breaks
+        }
+
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
         {
             if(newConnection == null)
@@ -962,6 +990,7 @@ namespace Server
             newConnection.ConfigStorageRequestReceived += ReceiveConfigStorageRequest;
             newConnection.ConfigReadRequestReceived += ReceiveConfigReadRequest;
             newConnection.ItemDropRequestReceived += ReceiveItemDropRequest;
+            newConnection.PickupRequestReceived += ReceivePickupRequest;
             
             return 0;
         }
@@ -984,7 +1013,7 @@ namespace Server
             _inventoryModule.UnregisterCharacterInventory(charData);
 
             // Get Map Instances for character
-            ServerMapInstance mapInstance = charData.GetMapInstance();
+            MapInstance mapInstance = charData.GetMapInstance();
 
             // Tell MapInstance to remove character from Grid
             // This should automatically send the EntityRemoved event (only to people in range?)

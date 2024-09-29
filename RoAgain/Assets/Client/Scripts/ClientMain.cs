@@ -256,6 +256,8 @@ namespace Client
             ConnectionToServer.SkillPointAllocateResponseReceived += OnSkillPointUpdateReceived;
             ConnectionToServer.SkillFailReceived += OnSkillFailReceived;
             ConnectionToServer.WeightChangedReceived += OnWeightChangeReceived;
+            ConnectionToServer.PickupDataReceived += OnPickupDataReceived;
+            ConnectionToServer.PickupRemovedReceived += OnPickupRemovedReceived;
 
             _remoteConfigCache.Initialize(ConnectionToServer);
             InventoryModule.Initialize(ConnectionToServer);
@@ -302,6 +304,8 @@ namespace Client
             ConnectionToServer.SkillPointAllocateResponseReceived -= OnSkillPointUpdateReceived;
             ConnectionToServer.SkillFailReceived -= OnSkillFailReceived;
             ConnectionToServer.WeightChangedReceived -= OnWeightChangeReceived;
+            ConnectionToServer.PickupDataReceived -= OnPickupDataReceived;
+            ConnectionToServer.PickupRemovedReceived -= OnPickupRemovedReceived;
 
             _remoteConfigCache.Shutdown();
             InventoryModule.Shutdown();
@@ -1089,6 +1093,16 @@ namespace Client
             }
 
             CurrentCharacterData.CurrentWeight = newWeight;
+        }
+
+        private void OnPickupDataReceived(PickupData data)
+        {
+            MapModule.OnPickupDataReceived(data);
+        }
+
+        private void OnPickupRemovedReceived(int pickupId, int pickedUpEntityId)
+        {
+            MapModule.OnPickupRemovedReceived(pickupId, pickedUpEntityId);
         }
 
         public void SetOneButtonNotificationTitle(LocalizedStringId title)

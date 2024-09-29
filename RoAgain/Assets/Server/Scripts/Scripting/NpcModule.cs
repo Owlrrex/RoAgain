@@ -104,7 +104,7 @@ namespace Server
                 return new();
             }
 
-            ServerMapInstance map = AServer.Instance.MapModule.GetMapInstance(mapId);
+            MapInstance map = AServer.Instance.MapModule.GetMapInstance(mapId);
             if (map == null)
             {
                 OwlLogger.LogError($"Can't place npcs on map {mapId} - map instance not found!", GameComponent.Scripts);
@@ -125,16 +125,7 @@ namespace Server
 
         private GridEntity CreateNpc(NpcDefinition npcDef)
         {
-            GridEntity entity = new()
-            {
-                Coordinates = npcDef.Location.Coord.ToVector(),
-                Id = GridEntity.NextEntityId,
-                MapId = npcDef.Location.MapId,
-                LocalizedNameId = npcDef.NameLocId,
-                ModelId = npcDef.ModelId
-            };
-            entity.Movespeed.Value = 1;
-            return entity;
+            return new(npcDef.Location.Coord, npcDef.NameLocId, npcDef.ModelId, 1);
         }
 
         public void Shutdown()

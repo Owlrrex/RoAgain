@@ -182,7 +182,7 @@ namespace Server
         private int HandleProximityMessage(ChatMessageRequestData chatMessage)
         {
             const int PROXIMITY_CHAT_RANGE = 20;
-            ServerMapInstance map = _mapModule.GetMapInstance(chatMessage.Sender.MapId);
+            MapInstance map = _mapModule.GetMapInstance(chatMessage.Sender.MapId);
             if (map == null)
             {
                 OwlLogger.LogError($"Map {chatMessage.Sender.MapId} not available for Proximity chat!", GameComponent.Chat);

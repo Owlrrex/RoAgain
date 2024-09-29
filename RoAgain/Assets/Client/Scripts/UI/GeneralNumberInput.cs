@@ -38,6 +38,8 @@ namespace Client
             if (!OwlLogger.PrefabNullCheckAndLog(_input, nameof(_input), this, GameComponent.UI))
             {
                 _input.onValueChanged.AddListener(OnValueChanged);
+                _input.onSelect.AddListener(OnSelect);
+                _input.onDeselect.AddListener(OnDeselect);
             }
 
             if (!OwlLogger.PrefabNullCheckAndLog(_confirmButton, nameof(_confirmButton), this, GameComponent.UI))
@@ -147,6 +149,16 @@ namespace Client
             _input.text = "Hidden";
             _confirmCallback = null;
             _cancelCallback = null;
+        }
+
+        private void OnSelect(string value)
+        {
+            PlayerUI.Instance.TextInputCounter++;
+        }
+
+        private void OnDeselect(string value)
+        {
+            PlayerUI.Instance.TextInputCounter--;
         }
     }
 }

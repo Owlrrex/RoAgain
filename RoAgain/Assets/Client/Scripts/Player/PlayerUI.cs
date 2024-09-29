@@ -37,6 +37,9 @@ public class PlayerUI : MonoBehaviour
     [SerializeField]
     private ConfigWidgetRegistry _configWidgetRegistry;
 
+    public bool IsTextInputActive => TextInputCounter > 0;
+    public int TextInputCounter = 0;
+
     public GraphicRaycaster uiRaycaster;
     private List<RaycastResult> _raycastResults = new();
     private PointerEventData _isHoveringUiEventData;
@@ -169,8 +172,8 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if (ChatSystem.IsChatFocused)
-            return; // don't process hotkeys while chat is open
+        if (ChatSystem.IsChatFocused || IsTextInputActive)
+            return; // don't process hotkeys while chat or other text-inputs are open
 
         foreach (SkillHotbar.SkillHotbarEntry entry in _hotbar.Data)
         {

@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using Client;
 using OwlLogging;
+using Shared;
 using System;
 using System.IO;
 using UnityEditor;

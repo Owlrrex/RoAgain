@@ -27,6 +27,12 @@ namespace Shared
         public Action<BattleEntity, int, bool, bool, int> TookDamage;
         public Action<BattleEntity, BattleEntity> Death;
 
+        public BattleEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp, int id = -1) : base(coordinates, locNameId, modelId, movespeed, id)
+        {
+            MaxHp.SetBase(maxHp);
+            MaxSp.SetBase(maxSp);
+        }
+
         public override bool CanMove()
         {
             return base.CanMove() && !IsAnimationLocked() && !IsCasting() && !IsDead(); // TODO: More advanced conditions: Statuses, FreeCast, etc

@@ -10,12 +10,21 @@ namespace Client
         public JobId JobId;
         public Action<ACharacterEntity> JobChanged;
         public int Gender;
+
+        protected ACharacterEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp,
+            int baseLvl, JobId jobId, int gender, int id = -1) : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, baseLvl, id)
+        {
+            JobId = jobId;
+            Gender = gender;
+        }
         // TODO: Cosmetic info
     }
 
     public class RemoteCharacterEntity : ACharacterEntity
     {
-        public RemoteCharacterEntity(RemoteCharacterData charData)
+        public RemoteCharacterEntity(RemoteCharacterData charData) 
+            : base(charData.Coordinates.ToCoordinate(), charData.LocalizedNameId, charData.ModelId, charData.Movespeed,
+                  charData.MaxHp, charData.MaxSp, charData.BaseLvl, charData.JobId, charData.Gender, charData.EntityId)
         {
             SetData(charData);
         }
@@ -88,6 +97,8 @@ namespace Client
         public int InventoryId;
 
         public LocalCharacterEntity(LocalCharacterData charData)
+            : base(charData.Coordinates.ToCoordinate(), charData.LocalizedNameId, charData.ModelId, charData.Movespeed, charData.MaxHp, charData.MaxSp, charData.BaseLvl
+                  , charData.JobId, charData.Gender)
         {
             SetData(charData);
         }

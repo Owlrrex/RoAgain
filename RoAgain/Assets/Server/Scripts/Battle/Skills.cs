@@ -12,13 +12,13 @@ namespace Server
     {
         private SkillId _skillId;
         public override SkillId SkillId => _skillId;
-        public ServerMapInstance Map;
+        public MapInstance Map;
         public ServerBattleEntity UserTyped => User as ServerBattleEntity;
         public ServerBattleEntity EntityTargetTyped => Target.EntityTarget as ServerBattleEntity;
         public int Var1, Var2, Var3, Var4, Var5;
         public object[] runtimeVar = null;
 
-        public int InitializeFromStatic(SkillId skillId, int skillLvl, ServerBattleEntity user, SkillTarget target, ServerMapInstance map)
+        public int InitializeFromStatic(SkillId skillId, int skillLvl, ServerBattleEntity user, SkillTarget target, MapInstance map)
         {
             if(skillId == SkillId.Unknown)
             {
@@ -340,7 +340,9 @@ namespace Server
                 // Indicates an auto-attack with Sticky-Attacking enabled, and last auto-attack succeeded
                 // Have entity attack again if no other skill has been queued up
                 // Depending on system, queueing up skill this early may not even have been possible for the user - which is fine.
-                if (skillExec.User.QueuedSkill == null)
+                
+                if (skillExec.User.QueuedSkill == null
+                    && !skillExec.EntityTargetTyped.IsDead())
                     skillExec.Map.SkillModule.ReceiveSkillExecutionRequest(skillExec.SkillId, skillExec.SkillLvl, skillExec.UserTyped, skillExec.Target);
                 skillExec.Var1 = 1;
             }
@@ -529,6 +531,7 @@ namespace Server
                 int dynamicHp = (int)(_staticData.GetValueForLevel(_staticData.Var3, entry.SkillLvl) * owner.MaxHp.Total / 100.0f);
                 // TODO: Use a method here that allows (potentially) showing healing-numbers
                 owner.GetMapInstance().BattleModule.ChangeHp(owner, staticHp + dynamicHp, owner);
+                entry.Timer.Reset();
             }
         }
 

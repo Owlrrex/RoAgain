@@ -125,7 +125,7 @@ namespace Server
 
     public class BattleModule
     {
-        private ServerMapInstance _map;
+        private MapInstance _map;
 
         private int _hitFleeEqualChance;
         private bool _multiplicativeModifierStacking;
@@ -135,7 +135,7 @@ namespace Server
         private Stat battleCalcStat2 = new();
         private StatFloat battleCalcStatFloat = new();
 
-        public int Initialize(ServerMapInstance mapInstance)
+        public int Initialize(MapInstance mapInstance)
         {
             if (mapInstance == null)
             {

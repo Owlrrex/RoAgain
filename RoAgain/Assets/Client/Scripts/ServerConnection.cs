@@ -50,6 +50,8 @@ namespace Client
         public Action<ItemType> ItemTypeReceived;
         public Action<int, long> ItemStackRemovedReceived;
         public Action<int, int> WeightChangedReceived;
+        public Action<PickupData> PickupDataReceived;
+        public Action<int, int> PickupRemovedReceived;
 
         public abstract int Initialize(string serverConfigDataHere);
 
@@ -335,6 +337,12 @@ namespace Client
                     break;
                 case WeightPacket weightPacket:
                     WeightChangedReceived?.Invoke(weightPacket.EntityId, weightPacket.NewCurrentWeight);
+                    break;
+                case PickupDataPacket pickupDataPacket:
+                    PickupDataReceived?.Invoke(PickupData.FromPacket(pickupDataPacket));
+                    break;
+                case PickupRemovedPacket pickupRemovedPacket:
+                    PickupRemovedReceived?.Invoke(pickupRemovedPacket.PickupId, pickupRemovedPacket.PickedUpEntityId);
                     break;
                 default:
                     OwlLogger.LogError($"Clientside DummyServerConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);

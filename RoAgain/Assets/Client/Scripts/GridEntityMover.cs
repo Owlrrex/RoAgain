@@ -41,11 +41,7 @@ namespace Client
                 return;
             }
 
-            if (_entityNameText == null)
-            {
-                OwlLogger.LogWarning($"BattleEntityModelMain has no unitNameText!", GameComponent.UI);
-            }
-            else
+            if (_entityNameText != null)
             {
                 _entityNameText.canvas.worldCamera = PlayerMain.Instance.WorldUiCamera;
             }

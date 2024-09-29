@@ -1,3 +1,4 @@
+using Shared;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +10,11 @@ namespace Server
     {
         private int _squareSidelength;
         private GridData.Direction _nextDirection = GridData.Direction.North;
+
+        public SquareWalkerEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp, int id = -1)
+            : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, id)
+        {
+        }
 
         public int Initialize(int squareSidelength, GridData.Direction nextDirection = GridData.Direction.North)
         {

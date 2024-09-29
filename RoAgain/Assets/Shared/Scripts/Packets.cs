@@ -265,6 +265,15 @@ abstract public class Packet
             case 68:
                 packet = JsonUtility.FromJson<ItemDropRequestPacket>(json);
                 break;
+            case 69:
+                packet = JsonUtility.FromJson<PickupDataPacket>(json);
+                break;
+            case 70:
+                packet = JsonUtility.FromJson<PickupRemovedPacket>(json);
+                break;
+            case 71:
+                packet = JsonUtility.FromJson<PickupRequestPacket>(json);
+                break;
             default:
                 OwlLogger.LogError($"Invalid Packet type {packetType} received!", GameComponent.Network);
                 return null;
@@ -1016,6 +1025,37 @@ public class ItemDropRequestPacket : Packet
     public int Amount;
 }
 
+public class PickupDataPacket : Packet
+{
+    public override int PacketType => 69;
+
+    public int PickupId;
+    public long ItemTypeId;
+    public int Amount;
+    public float RemainingTime;
+    public int OwnerCharacterId;
+    public PickupState State;
+    public Coordinate Coordinates;
+}
+
+public class PickupRemovedPacket : Packet
+{
+    public override int PacketType => 70;
+
+    public int PickupId;
+    public int PickedUpEntityId;
+
+    public const int PICKUP_ENTITY_TIMEOUT = -1;
+    public const int PICKUP_ENTITY_VISION = -2; // Not used atm - consistent with GridEntities, we don't send Removed-packets for this scenario atm
+}
+
+public class PickupRequestPacket : Packet
+{
+    public override int PacketType => 71;
+
+    public int PickupId;
+}
+
 // Move & adjust this comment when adding new packets, to make dev easier
-// Next PacketType = 69
+// Next PacketType = 72
 // Unused Ids: 8, 34, 35, 36, 38

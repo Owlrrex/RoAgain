@@ -19,6 +19,8 @@ namespace Client
 
         public void OnDisable()
         {
+            if(MouseAttachedTooltip.Instance != null
+                && MouseAttachedTooltip.Instance.IsMine(this))
             MouseAttachedTooltip.Instance.Hide();
         }
 
@@ -26,7 +28,7 @@ namespace Client
         {
             if(MouseAttachedTooltip.Instance != null)
             {
-                MouseAttachedTooltip.Instance.Show(LocalizedStringId);
+                MouseAttachedTooltip.Instance.Show(LocalizedStringId, this);
             }
         }
 

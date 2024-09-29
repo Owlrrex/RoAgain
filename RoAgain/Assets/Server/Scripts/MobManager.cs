@@ -15,6 +15,11 @@ namespace Server
         public int JobExpReward;
         public int LootTableId;
 
+        public Mob(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp, int id = -1)
+            : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, id)
+        {
+        }
+
         public void Init()
         {
             Dex.ValueChanged += OnDexChanged;
@@ -43,9 +48,6 @@ namespace Server
         {
             MobTypeId = mobTypeId;
 
-            LocalizedNameId = staticData.DefaultDisplayName;
-            ModelId = staticData.ModelId;
-
             BaseExpReward = staticData.BaseExpReward;
             JobExpReward = staticData.JobExpReward;
 
@@ -54,8 +56,6 @@ namespace Server
             Size = staticData.Size;
             Element = staticData.Element;
 
-            MaxHp.SetBase(staticData.MaxHp);
-            MaxSp.SetBase(staticData.MaxSp);
             BaseAttackRange.Value = staticData.BaseAttackRange;
             Str.SetBase(staticData.Str);
             Agi.SetBase(staticData.Agi);
@@ -73,7 +73,6 @@ namespace Server
             HardDef.SetBase(staticData.HardDef / 100f);
             HardMDef.SetBase(staticData.HardMDef / 100f);
             // TODO: Aspd
-            Movespeed.Value = staticData.Movespeed;
 
             LootTableId = staticData.LootTableId;
 
@@ -142,7 +141,7 @@ namespace Server
     public class MapMobManager // One per MapInstance
     {
         // TODO later: See how much this breaks when mobs change maps
-        private ServerMapInstance _map;
+        private MapInstance _map;
 
         private LootModule _lootModule;
         private ExperienceModule _expModule;
@@ -153,7 +152,7 @@ namespace Server
 
         private readonly List<Mob> _mobsToClear = new();
 
-        public int Initialize(ServerMapInstance map, ExperienceModule expModule, LootModule lootModule)
+        public int Initialize(MapInstance map, ExperienceModule expModule, LootModule lootModule)
         {
             // TODO: Safety checks
 
@@ -266,9 +265,9 @@ namespace Server
                 return null; // logged inside GetMobDataForId()
 
             // tmp: Use SquareWalkers, to make the map more lively
-            SquareWalkerEntity mob = new()
+            SquareWalkerEntity mob = new(Coordinate.INVALID, staticData.DefaultDisplayName, staticData.ModelId, staticData.Movespeed, 
+                staticData.MaxHp, staticData.MaxSp)
             {
-                Id = GridEntity.NextEntityId,
                 HpRegenTime = 30,
                 SpRegenTime = 30,
             };

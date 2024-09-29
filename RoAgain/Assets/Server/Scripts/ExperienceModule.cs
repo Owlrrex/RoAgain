@@ -78,7 +78,7 @@ namespace Server
 
         public void LevelUpBase(ServerBattleEntity bEntity, int levelChange)
         {
-            ServerMapInstance map = bEntity.GetMapInstance();
+            MapInstance map = bEntity.GetMapInstance();
             if (map == null)
             {
                 OwlLogger.LogError($"Expsystem can't find map {bEntity.MapId}!", GameComponent.Battle);
@@ -120,7 +120,7 @@ namespace Server
 
         public void LevelUpJob(CharacterRuntimeData character, int levelChange)
         {
-            ServerMapInstance map = character.GetMapInstance();
+            MapInstance map = character.GetMapInstance();
             if (map == null)
             {
                 OwlLogger.LogError($"Expsystem can't find map {character.MapId}!", GameComponent.Battle);

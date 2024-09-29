@@ -18,7 +18,8 @@ namespace Client
         [SerializeField]
         private TMP_Text _text;
 
-        private Vector2 localPos;
+        private Vector2 _localPos;
+        private object _tooltipOwner;
 
         private void Awake()
         {
@@ -45,18 +46,19 @@ namespace Client
 
         private void SetToMousePos()
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasTransform, Input.mousePosition, _referenceCamera, out localPos);
-            transform.localPosition = localPos;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasTransform, Input.mousePosition, _referenceCamera, out _localPos);
+            transform.localPosition = _localPos;
         }
 
-        public void Show(string text)
+        public void Show(string text, object tooltipOwner)
         {
             _text.text = text;
             SetToMousePos();
             gameObject.SetActive(true);
+            _tooltipOwner = tooltipOwner;
         }
 
-        public void Show(LocalizedStringId locId)
+        public void Show(LocalizedStringId locId, object tooltipOwner)
         {
             if (locId == LocalizedStringId.INVALID)
             {
@@ -64,12 +66,18 @@ namespace Client
                 return;
             }
 
-            Show(LocalizedStringTable.GetStringById(locId));
+            Show(LocalizedStringTable.GetStringById(locId), tooltipOwner);
         }
 
         public void Hide()
         {
             gameObject.SetActive(false);
+            _tooltipOwner = null;
+        }
+
+        public bool IsMine(object candidate)
+        {
+            return candidate == _tooltipOwner;
         }
 
         public void OnDestroy()

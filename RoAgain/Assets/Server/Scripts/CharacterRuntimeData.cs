@@ -179,31 +179,22 @@ namespace Server
             }
         }
 
-        public CharacterRuntimeData(ClientConnection connection, int id)
+        public CharacterRuntimeData(ClientConnection connection, CharacterPersistenceData persData, ExperienceModule expModule)
+            : base(persData.Coordinates.ToCoordinate(), LocalizedStringId.INVALID, -1, 6, 0, 0, -1)
         {
-            if(connection == null)
+            if (connection == null)
             {
                 OwlLogger.LogError("Can't create CharacterRuntimeData with null connection!", GameComponent.Character);
             }
 
-            if (id <= 0)
-            {
-                OwlLogger.LogError($"Can't create CharacterRuntimeDAta with id {id}", GameComponent.Character);
-            }
-
             Connection = connection;
-            Id = id;
 
             NetworkQueue = new();
             NetworkQueue.Initialize(Connection);
-        }
 
-        public CharacterRuntimeData(ClientConnection connection, CharacterPersistenceData persData, ExperienceModule expModule) : this(connection, NextEntityId)
-        {
             CharacterId = persData.CharacterId;
             AccountId = persData.AccountId;
             Gender.Value = persData.Gender;
-            Movespeed.Value = 6; // close to default RO movespeed of 0.15 s/tile
 
             BaseLvl.Value = persData.BaseLevel;
             JobId = persData.JobId;
@@ -225,7 +216,6 @@ namespace Server
             // Fields from the persistentData
             NameOverride = persData.Name;
             MapId = persData.MapId;
-            Coordinates = persData.Coordinates;
             RequiredBaseExp = expModule.GetRequiredBaseExpOnLevel(persData.BaseLevel, false);
             CurrentBaseExp = persData.BaseExp;
             RequiredJobExp = expModule.GetRequiredJobExpOnLevel(persData.JobLevel, persData.JobId);
@@ -692,7 +682,7 @@ namespace Server
             return int.MinValue;
         }
 
-        public RemoteCharacterDataPacket ToRemoteDataPacket()
+        public override Packet ToDataPacket()
         {
             return new RemoteCharacterDataPacket()
             {

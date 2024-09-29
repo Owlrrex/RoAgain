@@ -12,13 +12,22 @@ namespace Client
         {
             if (!string.IsNullOrEmpty(Message) && MouseAttachedTooltip.Instance != null)
             {
-                MouseAttachedTooltip.Instance.Show(Message);
+                MouseAttachedTooltip.Instance.Show(Message, this);
             }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             if (MouseAttachedTooltip.Instance != null)
+            {
+                MouseAttachedTooltip.Instance.Hide();
+            }
+        }
+
+        public void OnDisable()
+        {
+            if(MouseAttachedTooltip.Instance != null 
+                && MouseAttachedTooltip.Instance.IsMine(this))
             {
                 MouseAttachedTooltip.Instance.Hide();
             }

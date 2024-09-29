@@ -10,6 +10,7 @@ namespace Client
         GenericBattle,
         RemoteCharacter,
         LocalCharacter,
+        Pickup,
     }
 
     [Serializable]

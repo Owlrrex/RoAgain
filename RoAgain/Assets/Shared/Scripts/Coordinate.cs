@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 // Not sure if using this over a raw Vector is worth it.
+[Serializable]
 public struct Coordinate
 {
     public static readonly Coordinate INVALID = new() { X = -1, Y = -1 };
@@ -58,6 +57,7 @@ public struct Coordinate
     }
 }
 
+[Serializable]
 public struct MapCoordinate
 {
     public static readonly MapCoordinate INVALID = new() { MapId = string.Empty, Coord = Coordinate.INVALID };
@@ -131,5 +131,10 @@ public static class CoordinateExtensions
         coord.MapId = parts[0];
 
         return coord;
+    }
+
+    public static int SquareDistance(this Coordinate one, Coordinate two)
+    {
+        return Math.Max(Math.Abs(one.X - two.X), Math.Abs(one.Y - two.Y));
     }
 }

@@ -1,4 +1,5 @@
 using OwlLogging;
+using Shared;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,14 +10,15 @@ namespace Server
     // Try to keep Battle-Code in its own module, though.
     public class ServerMapModule
     {
-        private Dictionary<string, ServerMapInstance> _mapInstances = new();
+        private Dictionary<string, MapInstance> _mapInstances = new();
 
         private ExperienceModule _expModule;
         private NpcModule _npcModule;
         private WarpModule _warpModule;
-        private LootModule _lootModule;
+        private ALootTableDatabase _lootDb;
+        private InventoryModule _inventoryModule;
 
-        public int Initialize(ExperienceModule expModule, NpcModule npcModule, WarpModule warpModule, LootModule lootModule)
+        public int Initialize(ExperienceModule expModule, NpcModule npcModule, WarpModule warpModule, ALootTableDatabase lootDb, InventoryModule inventoryModule)
         {
             if(expModule == null)
             {
@@ -36,30 +38,37 @@ namespace Server
                 return -1;
             }
 
-            if(lootModule == null)
+            if(lootDb == null)
             {
-                OwlLogger.LogError("Can't initialize ServerMapModule with null LootModule!", GameComponent.Other);
+                OwlLogger.LogError("Can't initialize ServerMapModule with null LootTableDatabase!", GameComponent.Other);
+                return -1;
+            }
+
+            if(inventoryModule == null)
+            {
+                OwlLogger.LogError("Can't initialize ServerMapModule with null InventoryModule!", GameComponent.Other);
                 return -1;
             }
 
             _expModule = expModule;
             _npcModule = npcModule;
             _warpModule = warpModule;
-            _lootModule = lootModule;
+            _lootDb = lootDb;
+            _inventoryModule = inventoryModule;
 
             return 0;
         }
 
         public void Update(float deltaTime)
         {
-            List<ServerMapInstance> maps = new(_mapInstances.Values);
-            foreach(ServerMapInstance instance in maps)
+            List<MapInstance> maps = new(_mapInstances.Values);
+            foreach(MapInstance instance in maps)
             {
                 instance.Update(deltaTime);
             }
         }
 
-        public ServerMapInstance CreateOrGetMap(string mapId)
+        public MapInstance CreateOrGetMap(string mapId)
         {
             if (string.IsNullOrEmpty(mapId))
             {
@@ -67,7 +76,7 @@ namespace Server
                 return null;
             }
 
-            ServerMapInstance instance = GetMapInstance(mapId);
+            MapInstance instance = GetMapInstance(mapId);
             if(instance == null)
             {
                 instance = CreateNewMapInstance(mapId);
@@ -75,7 +84,7 @@ namespace Server
             return instance;
         }
 
-        public ServerMapInstance CreateNewMapInstance(string mapId)
+        public MapInstance CreateNewMapInstance(string mapId)
         {
             if(string.IsNullOrEmpty(mapId))
             {
@@ -89,17 +98,17 @@ namespace Server
                 return null;
             }
 
-            ServerMapInstance newInstance = new();
-            newInstance.Initialize(mapId, _expModule, _lootModule);
+            MapInstance newInstance = new();
+            newInstance.Initialize(mapId, _expModule, _lootDb, _inventoryModule);
             _mapInstances.Add(mapId, newInstance);
             _npcModule.CreateNpcsForMap(mapId);
             _warpModule.CreateWarpsForMap(mapId);
             return newInstance;
         }
 
-        public ServerMapInstance GetMapInstance(string mapId)
+        public MapInstance GetMapInstance(string mapId)
         {
-            ServerMapInstance mapInstance;
+            MapInstance mapInstance;
             if(_mapInstances.TryGetValue(mapId, out mapInstance))
             {
                 return mapInstance;
@@ -124,7 +133,7 @@ namespace Server
         public GridEntity FindEntityOnAllMaps(int entityId)
         {
             GridEntity result = null;
-            foreach(ServerMapInstance map in _mapInstances.Values)
+            foreach(MapInstance map in _mapInstances.Values)
             {
                 result = map.Grid.FindOccupant(entityId);
                 if (result != null)
@@ -147,14 +156,14 @@ namespace Server
                 return -3;
             }
 
-            ServerMapInstance sourceMap = GetMapInstance(sourceMapId); // don't create source map, it has to exist already
+            MapInstance sourceMap = GetMapInstance(sourceMapId); // don't create source map, it has to exist already
             if (sourceMap == null)
             {
                 OwlLogger.LogError($"Map move failed from map {sourceMapId} to {targetMapId} - source map Instance is null!", GameComponent.Other);
                 return -4;
             }
 
-            ServerMapInstance targetMap = CreateOrGetMap(targetMapId);
+            MapInstance targetMap = CreateOrGetMap(targetMapId);
             if (targetMap == null)
             {
                 OwlLogger.LogError($"Map move failed from map {sourceMapId} to {targetMapId} - target map Instance is null!", GameComponent.Other);
@@ -221,7 +230,7 @@ namespace Server
 
         public void Shutdown()
         {
-            foreach(ServerMapInstance mapInstance in _mapInstances.Values)
+            foreach(MapInstance mapInstance in _mapInstances.Values)
             {
                 mapInstance.Shutdown();
             }

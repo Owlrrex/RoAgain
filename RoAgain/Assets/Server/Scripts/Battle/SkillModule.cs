@@ -8,12 +8,12 @@ namespace Server
 {
     public class SkillModule
     {
-        private ServerMapInstance _mapInstance;
+        private MapInstance _mapInstance;
 
         private static ASkillImpl[] _skillLogicListFast;
         private static Dictionary<SkillId, APassiveSkillImpl> _passiveSkillImpls = new(); // This is a dict since Passive skills are rarer = more sparse than actives
 
-        public int Initialize(ServerMapInstance mapInstance)
+        public int Initialize(MapInstance mapInstance)
         {
             if(mapInstance == null)
             {

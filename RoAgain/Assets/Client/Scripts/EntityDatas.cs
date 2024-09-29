@@ -14,7 +14,7 @@ namespace Client
         public string MapId;
         public GridData.Path Path;
         public int PathCellIndex;
-        public float Movespeed;
+        public float Movespeed = 1;
         public float MovementCooldown;
         public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
         public Vector2Int Coordinates; // for units that don't have a path right now

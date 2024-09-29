@@ -43,7 +43,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = target.GetMapInstance();
+            MapInstance targetMap = target.GetMapInstance();
             if(targetMap == null)
             {
                 OwlLogger.LogError($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
@@ -115,7 +115,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = target.GetMapInstance();
+            MapInstance targetMap = target.GetMapInstance();
             if (targetMap == null)
             {
                 OwlLogger.Log($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
@@ -171,7 +171,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = target.GetMapInstance();
+            MapInstance targetMap = target.GetMapInstance();
             if (targetMap == null)
             {
                 OwlLogger.LogError($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);
@@ -216,7 +216,7 @@ namespace Server
             }
 
             // Execute effect
-            ServerMapInstance targetMap = target.GetMapInstance();
+            MapInstance targetMap = target.GetMapInstance();
             if (targetMap == null)
             {
                 OwlLogger.Log($"Couldn't find target map {target.MapId}!", GameComponent.ChatCommands);

@@ -29,6 +29,7 @@ namespace Server
         public Action<ClientConnection, int, int, bool> ConfigStorageRequestReceived;
         public Action<ClientConnection, int, bool> ConfigReadRequestReceived;
         public Action<ClientConnection, long, int, int> ItemDropRequestReceived;
+        public Action<ClientConnection, int> PickupRequestReceived;
 
         public abstract int Initialize(CentralConnection central, int sessionId);
 
@@ -161,6 +162,9 @@ namespace Server
                     break;
                 case ItemDropRequestPacket itemDropPacket:
                     ItemDropRequestReceived?.Invoke(this, itemDropPacket.ItemTypeId, itemDropPacket.InventoryId, itemDropPacket.Amount);
+                    break;
+                case PickupRequestPacket pickupRequestPacket:
+                    PickupRequestReceived?.Invoke(this, pickupRequestPacket.PickupId);
                     break;
                 default:
                     OwlLogger.LogError($"ServerSide ClientConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);

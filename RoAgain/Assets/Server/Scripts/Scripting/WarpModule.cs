@@ -137,7 +137,7 @@ namespace Server
                 return new();
             }
 
-            ServerMapInstance map = AServer.Instance.MapModule.GetMapInstance(mapId);
+            MapInstance map = AServer.Instance.MapModule.GetMapInstance(mapId);
             if (map == null)
             {
                 OwlLogger.LogError($"Can't place warps on map {mapId} - map instance not found!", GameComponent.Scripts);

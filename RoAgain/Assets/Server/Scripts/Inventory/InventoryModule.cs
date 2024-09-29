@@ -538,7 +538,7 @@ namespace Server
                 return;
             }
 
-            // TODO: Make PickupModule generate a pickup
+            character.GetMapInstance().PickupModule.QueuePickupCreation(itemTypeId, amount, character.Coordinates.ToCoordinate(), 0);
         }
 
         public bool CanCharacterAccessInventory(CharacterRuntimeData character, int inventoryId)

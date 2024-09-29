@@ -65,10 +65,16 @@ namespace Server
 
         public Action<ServerBattleEntity, float> Update;
 
+        public ServerBattleEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp,
+            int id = -1) : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, id)
+        {
+            // TODO: More parameters to constructor
+        }
+
         // TODO: Skill List? Only if I want to have a skill List that an AI can dynamically interact with
         // original AI just "uses" skills, without a Mob-held skill list
 
-        public new BattleEntityDataPacket ToDataPacket()
+        public override Packet ToDataPacket()
         {
             return new BattleEntityDataPacket()
             {
@@ -111,7 +117,7 @@ namespace Server
             return EntityElement.Neutral1;
         }
 
-        public ServerMapInstance GetMapInstance()
+        public MapInstance GetMapInstance()
         {
             if (AServer.Instance == null)
                 return null;

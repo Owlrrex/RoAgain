@@ -14,6 +14,7 @@ namespace Client
 
         private readonly Dictionary<int, GridEntityMover> _displayedGridEntities = new(50);
         private readonly List<GridEntity> _entitiesAwaitingRemoval = new();
+        private readonly List<PickupModel> _animatingPickupModels = new();
 
         private readonly Dictionary<int, CellEffectDisplay> _displayedCellEffects = new(20);
         private readonly List<CellEffectData> _queuedCellEffects = new();
@@ -42,9 +43,10 @@ namespace Client
 
                 Grid.Data.UpdateEntityMovment(Time.deltaTime);
 
-                List<GridEntity> newAllVisible = ClientMain.Instance.CurrentCharacterData.RecalculateVisibleEntities(ref _newVisibleBuffer, ref _oldVisibleBuffer, ref _noLongerVisibleBuffer);
+                ClientMain.Instance.CurrentCharacterData.RecalculateVisibleEntities(ref _newVisibleBuffer, ref _oldVisibleBuffer, ref _noLongerVisibleBuffer);
                 ClientMain.Instance.CurrentCharacterData.VisibleEntities.Clear();
-                ClientMain.Instance.CurrentCharacterData.VisibleEntities.AddRange(newAllVisible);
+                ClientMain.Instance.CurrentCharacterData.VisibleEntities.AddRange(_newVisibleBuffer);
+                ClientMain.Instance.CurrentCharacterData.VisibleEntities.AddRange(_oldVisibleBuffer);
 
                 foreach (GridEntity entity in _noLongerVisibleBuffer)
                 {
@@ -121,6 +123,15 @@ namespace Client
                     foreach (SkillId skillId in _skillIdsFinishedReuse)
                     {
                         bEntity.SkillCooldowns.Remove(skillId);
+                    }
+                }
+
+                for(int i = _animatingPickupModels.Count -1; i >= 0; i--)
+                {
+                    if (_animatingPickupModels[i].IsPickupAnimationFinished())
+                    {
+                        RemoveMoverAndEntity(_animatingPickupModels[i].PickupId);
+                        _animatingPickupModels.RemoveAt(i);
                     }
                 }
             }
@@ -420,19 +431,13 @@ namespace Client
             }
 
             // This if is necessary because RemoteChars, BattleEntities & Gridentities all call OnEntityData
-            GridEntity newEntity;
-            if (entityInfo is RemoteCharacterData rCharData)
+            // TODO: Somehow move this branching into a nicely engineered solution
+            GridEntity newEntity = entityInfo switch
             {
-                newEntity = CreateRemoteCharacterEntity(rCharData);
-            }
-            else if (entityInfo is BattleEntityData bData)
-            {
-                newEntity = CreateBattleEntity(bData);
-            }
-            else
-            {
-                newEntity = CreateGridEntity(entityInfo);
-            }
+                RemoteCharacterData rCharData => CreateRemoteCharacterEntity(rCharData),
+                BattleEntityData bData => CreateBattleEntity(bData),
+                _ => CreateGridEntity(entityInfo)
+            };
 
             if (newEntity.Path != null && newEntity.Path.AllCells.Count > 0)
                 Grid.Data.PlaceOccupantFromPath(newEntity);
@@ -458,17 +463,15 @@ namespace Client
 
             _entitiesAwaitingRemoval.Remove(entity);
 
-            // TODO: Move to subfunction/s
-            // TODO: Replace with proper Prefab-Db for Entities
-            EntityType entityType;
-            if (entity is LocalCharacterEntity)
-                entityType = EntityType.LocalCharacter;
-            else if (entity is RemoteCharacterEntity)
-                entityType = EntityType.RemoteCharacter;
-            else if (entity is ClientBattleEntity)
-                entityType = EntityType.GenericBattle;
-            else
-                entityType = EntityType.GenericGrid;
+            // TODO: Make this type-association nicer, together with refactoring various branches on EntityType / EntityData types
+            EntityType entityType = entity switch
+            {
+                LocalCharacterEntity => EntityType.LocalCharacter,
+                RemoteCharacterEntity => EntityType.RemoteCharacter,
+                ClientBattleEntity => EntityType.GenericBattle,
+                PickupEntity => EntityType.Pickup,
+                _ => EntityType.GenericGrid
+            };
 
             GameObject prefab = EntityPrefabTable.GetDataForId(entityType).Prefab;
             GameObject newEntityInstance = Object.Instantiate(prefab, Vector3.zero, Quaternion.identity); // TODO: Proper hierarchy
@@ -493,6 +496,18 @@ namespace Client
 
                 battleModel.Initialize(bEntity);
             }
+            else if (entity is PickupEntity pickup)
+            {
+                PickupModel pickupModel = newEntityInstance.GetComponent<PickupModel>();
+                if(pickupModel == null)
+                {
+                    OwlLogger.LogError($"Can't find PickupModel on Pickup Prefab for Id {pickup.Id}", GameComponent.Items);
+                    return;
+                }
+                pickupModel.Initialize(pickup);
+                if (pickup.State == PickupState.JustDropped)
+                    pickupModel.StartDropAnimation();
+            }
         }
 
         private RemoteCharacterEntity CreateRemoteCharacterEntity(RemoteCharacterData charData)
@@ -503,26 +518,32 @@ namespace Client
 
         private ClientBattleEntity CreateBattleEntity(BattleEntityData entityData)
         {
-            ClientBattleEntity bEntity = new();
+            ClientBattleEntity bEntity = new(entityData.Coordinates.ToCoordinate(), entityData.LocalizedNameId, entityData.ModelId, entityData.Movespeed,
+                entityData.MaxHp, entityData.MaxSp, entityData.BaseLvl, entityData.EntityId);
             bEntity.SetData(entityData);
             return bEntity;
         }
 
+        private PickupEntity CreatePickupEntity(PickupData data)
+        {
+            PickupEntity pickup = new(data.Coordinates, data.ItemTypeId, data.Amount, data.RemainingTime, data.OwnerCharacterId);
+            pickup.Id = data.PickupId;
+            pickup.State = data.State;
+            pickup.ModelId = 5; // Pickup model
+            return pickup;
+        }
+
         private GridEntity CreateGridEntity(GridEntityData entityData)
         {
-            GridEntity newEntity = new()
+            GridEntity newEntity = new(entityData.Coordinates.ToCoordinate(), entityData.LocalizedNameId, entityData.ModelId,
+                entityData.Movespeed, entityData.EntityId)
             {
-                Id = entityData.EntityId,
                 NameOverride = entityData.NameOverride,
-                LocalizedNameId = entityData.LocalizedNameId,
                 MapId = entityData.MapId,
 
                 MovementCooldown = entityData.MovementCooldown,
                 Orientation = entityData.Orientation,
-                Coordinates = entityData.Coordinates,
-                ModelId = entityData.ModelId,
             };
-            newEntity.Movespeed.Value = entityData.Movespeed;
             newEntity.SetPath(entityData.Path, entityData.PathCellIndex);
             return newEntity;
         }
@@ -658,6 +679,80 @@ namespace Client
             Object.Destroy(display.gameObject);
         }
 
+        public void OnPickupDataReceived(PickupData data)
+        {
+            if (data.State == PickupState.PickedUp
+                || data.State == PickupState.AboutToDisappear)
+            {
+                OwlLogger.LogWarning($"Received pickupData in state {data.State}, omitting.", GameComponent.Items);
+                return;
+            }
+
+            GridEntity oldPickup = Grid.Data.FindOccupant(data.PickupId);
+            if (oldPickup == null)
+            {
+                PickupEntity newPickup = CreatePickupEntity(data);
+                Grid.Data.PlaceOccupant(newPickup, newPickup.Coordinates);
+                CreateDisplayForEntity(newPickup);
+            }
+            else
+            {
+                PickupEntity pickupEntity = oldPickup as PickupEntity;
+                if(pickupEntity == null)
+                {
+                    OwlLogger.LogError($"Pickup {data.PickupId} exists on grid, but not as PickupEntity!", GameComponent.Items);
+                    return;
+                }
+                pickupEntity.Coordinates = data.Coordinates.ToVector();
+                pickupEntity.Count = data.Amount;
+                pickupEntity.ItemTypeId = data.ItemTypeId;
+                pickupEntity.LifeTime.Initialize(data.RemainingTime);
+                pickupEntity.State = data.State;
+            }
+
+            // Clear "Awaiting Removal" status from entity
+            for (int i = _entitiesAwaitingRemoval.Count - 1; i >= 0; i--)
+            {
+                if (_entitiesAwaitingRemoval[i].Id == data.PickupId)
+                    _entitiesAwaitingRemoval.RemoveAt(i);
+            }
+        }
+
+        public void OnPickupRemovedReceived(int pickupId, int pickedUpEntityId)
+        {
+            GridEntity pickup = Grid.Data.FindOccupant(pickupId);
+            if (pickup == null)
+            {
+                OwlLogger.LogWarning($"Received pickupRemoved for pickup {pickupId} that's not on Grid!", GameComponent.Items);
+                return;
+            }            
+
+            if (pickedUpEntityId <= 0)
+            {
+                RemoveMoverAndEntity(pickupId);
+                return;
+            }
+
+            PickupModel pickupModel = GetComponentFromEntityDisplay<PickupModel>(pickupId);
+            _animatingPickupModels.Add(pickupModel);
+
+            Transform targetTransform = null;
+            if (pickedUpEntityId == ClientMain.Instance.CurrentCharacterData.Id)
+            {
+                targetTransform = PlayerMain.Instance.transform;
+            }
+            else
+            {
+                GridEntityMover targetMover = null;
+                targetMover = GetComponentFromEntityDisplay<GridEntityMover>(pickedUpEntityId);
+                if (targetMover == null)
+                    return;
+                targetTransform = targetMover.transform;
+            }
+            pickupModel.StartPickupAnimation(targetTransform);
+        }
+
+        // Relies on _displayedGridEntities, which doesn't contain local player
         public T GetComponentFromEntityDisplay<T>(int entityId) where T : Component
         {
             if (!_displayedGridEntities.ContainsKey(entityId))

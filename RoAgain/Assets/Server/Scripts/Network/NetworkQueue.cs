@@ -1,4 +1,5 @@
 using OwlLogging;
+using Shared;
 using System.Collections.Generic;
 
 namespace Server
@@ -9,8 +10,6 @@ namespace Server
 
         private Dictionary<int, GridEntity> _pathUpdates = new();
         private Dictionary<int, GridEntity> _gridEntityUpdates = new();
-        private Dictionary<int, ServerBattleEntity> _battleEntityUpdates = new();
-        private Dictionary<int, CharacterRuntimeData> _remoteCharacterUpdates = new();
         private CharacterRuntimeData _localCharacterUpdate;
         private Dictionary<EntityPropertyType, Stat> _statIntUpdates = new();
         private Dictionary<EntityPropertyType, StatFloat> _statFloatUpdates = new();
@@ -21,6 +20,7 @@ namespace Server
         private CharacterRuntimeData _expUpdate;
         private Dictionary<int, ServerBattleEntity> _baseLevelUps = new();
         private Dictionary<int, CharacterRuntimeData> _jobLevelUps = new();
+        private Dictionary<int, PickupEntity> _pickupsRemoved = new();
 
         public int Initialize(ClientConnection connection)
         {
@@ -53,23 +53,6 @@ namespace Server
                     continue;
 
                 _connection.Send(entity.ToDataPacket());
-            }
-            
-            foreach(ServerBattleEntity bEntity in _battleEntityUpdates.Values)
-            {
-                if (bEntity.Coordinates == GridData.INVALID_COORDS) // entity got removed since it was queued, ignore
-                    continue;
-
-                _connection.Send(bEntity.ToDataPacket());
-                // TODO: Send Cast Progress Update here
-            }
-
-            foreach(CharacterRuntimeData remoteChar in _remoteCharacterUpdates.Values)
-            {
-                if (remoteChar.Coordinates == GridData.INVALID_COORDS) // entity got removed since it was queued, ignore
-                    continue;
-
-                _connection.Send(remoteChar.ToRemoteDataPacket());
             }
 
             if (_localCharacterUpdate != null)
@@ -161,10 +144,23 @@ namespace Server
                 });
             }
 
+            foreach(PickupEntity pickup in _pickupsRemoved.Values)
+            {
+                PickupRemovedPacket packet = new()
+                {
+                    PickupId = pickup.Id
+                };
+                packet.PickedUpEntityId = pickup.State switch
+                {
+                    PickupState.AboutToDisappear => PickupRemovedPacket.PICKUP_ENTITY_TIMEOUT,
+                    PickupState.PickedUp => pickup.OwnerEntityId,
+                    _ => PickupRemovedPacket.PICKUP_ENTITY_VISION
+                };
+                _connection.Send(packet);
+            }
+
             _pathUpdates.Clear();
             _gridEntityUpdates.Clear();
-            _battleEntityUpdates.Clear();
-            _remoteCharacterUpdates.Clear();
             _statIntUpdates.Clear();
             _statFloatUpdates.Clear();
             _hpUpdates.Clear();
@@ -186,8 +182,6 @@ namespace Server
             OwlLogger.Log($"EntityPathUpdatePacket queued for entity {entity.Id}", GameComponent.Network, LogSeverity.VeryVerbose);
 
             if((_localCharacterUpdate != null && entity.Id == _localCharacterUpdate.Id)
-                || _remoteCharacterUpdates.ContainsKey(entity.Id)
-                || _battleEntityUpdates.ContainsKey(entity.Id)
                 || _gridEntityUpdates.ContainsKey(entity.Id))
             {
                 // Could also modify the path in the data packet, if that creates better behaviour
@@ -210,23 +204,11 @@ namespace Server
                     _localCharacterUpdate = charData;
 
                     // Remove Stat packets, since they'll also be contained
-                    // All stat updates are necessarily for the local character (at the moment)
+                    // All stat updates are necessarily for the local character (at the moment), so no need to filter them for Ids
                     _statIntUpdates.Clear();
                     _statFloatUpdates.Clear();
+                    return;
                 }
-                else
-                {
-                    OwlLogger.Log($"RemoteCharacterDataPacket queued for entity {entity.Id}", GameComponent.Network, LogSeverity.VeryVerbose);
-
-                    _remoteCharacterUpdates[charData.Id] = charData;
-                }
-                
-            }
-            else if (entity is ServerBattleEntity bEntity)
-            {
-                OwlLogger.Log($"BattleEntityDataPacket queued for entity {entity.Id}", GameComponent.Network, LogSeverity.VeryVerbose);
-
-                _battleEntityUpdates[bEntity.Id] = bEntity;
             }
             else
             {
@@ -314,8 +296,7 @@ namespace Server
                 return;
             }
 
-            if(_battleEntityUpdates.ContainsKey(entity.Id)
-                || _remoteCharacterUpdates.ContainsKey(entity.Id)
+            if(_gridEntityUpdates.ContainsKey(entity.Id)
                 || (_localCharacterUpdate != null && _localCharacterUpdate.Id == entity.Id))
             {
                 OwlLogger.Log($"Dropping HpUpdate for entity {entity.Id} - data packet already queued.", GameComponent.Network);
@@ -333,8 +314,7 @@ namespace Server
                 return;
             }
 
-            if (_battleEntityUpdates.ContainsKey(entity.Id)
-                || _remoteCharacterUpdates.ContainsKey(entity.Id)
+            if (_gridEntityUpdates.ContainsKey(entity.Id)
                 || (_localCharacterUpdate != null && _localCharacterUpdate.Id == entity.Id))
             {
                 OwlLogger.Log($"Dropping SpUpdate for entity {entity.Id} - data packet already queued.", GameComponent.Network);
@@ -375,6 +355,19 @@ namespace Server
             }
 
             _jobLevelUps[character.Id] = character;
+        }
+
+        public void PickupRemoved(PickupEntity pickup)
+        {
+            if(pickup == null)
+            {
+                OwlLogger.LogError("Can't queue PickupRemoved for null pickup!", GameComponent.Network);
+                return;
+            }
+
+            _pickupsRemoved[pickup.Id] = pickup;
+
+            _gridEntityUpdates.Remove(pickup.Id); // Don't send updates for removed pickups
         }
     }
 }
