@@ -176,7 +176,7 @@ namespace Server
 
         public PickupEntity CreatePickup(long itemTypeId, int count, Coordinate coordinates, int ownerId = 0)
         {
-            float lifeTime = 10f; // TODO: Load lifetime from server-config
+            float lifeTime = 30f; // TODO: Load lifetime from server-config
             PickupEntity pickup = new(coordinates, itemTypeId, count, lifeTime, ownerId);
             return pickup;
         }
