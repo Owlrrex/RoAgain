@@ -42,22 +42,11 @@ namespace Server
 
             public override bool ShouldCalculateNewPath()
             {
-                if(Payload.Target.IsGroundTarget())
-                {
-                    // User has moved - this is fairly aggressive.
-                    // Ideally, we only calculate a new path if our path is no longer the path we calculated for this action initially,
-                    // but that's hard to detect
-                    return Payload.User.HasMovedOnLastUpdate();
-                }
-                else
-                {
-                    bool needsNewPath = Payload.User.HasMovedOnLastUpdate() || Payload.EntityTargetTyped.HasMovedOnLastUpdate();
-                    if(needsNewPath)
-                    {
-                        needsNewPath &= !Payload.User.IsAnimationLocked();
-                    }
-                    return needsNewPath;
-                }
+                // User can move - this is fairly aggressive.
+                // Ideally, we only calculate a new path if our path is no longer the path we calculated for this action initially,
+                // but that's hard to detect
+                // Also, we can't use "hasmovedLastUpdate" because that way, we'll never _start_ moving
+                return Payload.User.CanMove();
             }
 
             public override IPathingAction.ResultCode ShouldContinuePathing()
