@@ -40,10 +40,8 @@ public class PlayerUI : MonoBehaviour
     public bool IsTextInputActive => TextInputCounter > 0;
     public int TextInputCounter = 0;
 
-    public GraphicRaycaster uiRaycaster;
     private List<RaycastResult> _raycastResults = new();
-    private PointerEventData _isHoveringUiEventData;
-    private bool? _isHoveringUi;
+    private PointerEventData _hoveredLayerQueryEventData;
     private int _uiLayer;
 
     // Skill Dragging
@@ -115,30 +113,37 @@ public class PlayerUI : MonoBehaviour
         }
     }
 
-    public bool IsHoveringUI(Vector2 position)
-    {
-        if (_isHoveringUi != null)
-            return _isHoveringUi == true;
+    public LayerMask HoveredLayers;
+    private bool _hasUpdatedHoveredLayers;
 
-        _isHoveringUiEventData ??= new(EventSystem.current);
-        _isHoveringUiEventData.position = position;
+    public void TryUpdateHoveredLayers()
+    {
+        if (_hasUpdatedHoveredLayers)
+            return;
+
+        _hoveredLayerQueryEventData ??= new(EventSystem.current);
+        _hoveredLayerQueryEventData.position = Input.mousePosition;
         _raycastResults.Clear();
-        EventSystem.current.RaycastAll(_isHoveringUiEventData, _raycastResults);
-        _isHoveringUi = false;
+        EventSystem.current.RaycastAll(_hoveredLayerQueryEventData, _raycastResults);
+        HoveredLayers = 0;
         foreach(RaycastResult result in _raycastResults)
         {
-            if(result.gameObject.layer == LayerMask.NameToLayer("UI"))
-            {
-                _isHoveringUi = true;
-                break;
-            }
+            HoveredLayers |= 1 << result.gameObject.layer;
         }
-        return _isHoveringUi == true;
+
+        _hasUpdatedHoveredLayers = true;
+    }
+
+    public bool IsHoveringUI(Vector2 position)
+    {
+        TryUpdateHoveredLayers();
+
+        return HoveredLayers.HasLayer("UI");
     }
 
     private void LateUpdate()
     {
-        _isHoveringUi = null;
+        _hasUpdatedHoveredLayers = false;
     }
 
     private void Update()

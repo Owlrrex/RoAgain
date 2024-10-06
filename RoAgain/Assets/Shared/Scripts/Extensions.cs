@@ -121,4 +121,14 @@ public static class Extensions
         // TODO: which keys should be treated the same? numpad & alpha numbers?
         return self == other;
     }
+
+    public static bool HasLayer(this LayerMask mask, int layerIndex)
+    {
+        return (mask.value & (1 << layerIndex)) > 0;
+    }
+
+    public static bool HasLayer(this LayerMask mask, string layerName)
+    {
+        return (mask.value & (1 << LayerMask.NameToLayer(layerName))) > 0;
+    }
 }

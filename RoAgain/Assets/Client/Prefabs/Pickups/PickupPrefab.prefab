@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1262658534094146252}
   - component: {fileID: 8220498697790691854}
   - component: {fileID: 3209840385793261770}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PickupPrefab
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -111,7 +111,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 892556437479672939}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ModelAnchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

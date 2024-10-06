@@ -27,19 +27,6 @@ namespace Server
                 return Payload.Target.GetTargetCoordinates().ToCoordinate();
             }
 
-            public override bool IsInRange()
-            {
-                SkillModule module = AServer.Instance.MapModule.GetMapInstance(Payload.User.MapId)?.SkillModule;
-                if (module == null)
-                    return false;
-
-                ASkillImpl logic = module.GetActiveSkillImpl(Payload.SkillId);
-                if (logic == null)
-                    return false;
-
-                return logic.CheckTarget(Payload) == SkillFailReason.None;
-            }
-
             public override bool ShouldCalculateNewPath()
             {
                 // User can move - this is fairly aggressive.
@@ -290,7 +277,7 @@ namespace Server
         {
             SkillPathingAction pathingAction = AutoInitResourcePool<SkillPathingAction>.Acquire();
             pathingAction.Init(skillExec, OnSkillPathingFinished);
-            skillExec.User.CurrentPathingAction = pathingAction;
+            skillExec.User.SetPathingAction(pathingAction);
 
             if (skillExec.User is not CharacterRuntimeData playerUser)
                 return;

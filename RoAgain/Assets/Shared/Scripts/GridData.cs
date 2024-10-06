@@ -64,7 +64,6 @@ namespace Shared
         public ResultCode ShouldContinuePathing();
         public bool ShouldCalculateNewPath();
         public Coordinate GetTargetCoordinates();
-        public bool IsInRange();
         public void Finish(ResultCode resultCode);
     }
 
@@ -77,7 +76,6 @@ namespace Shared
         public abstract IPathingAction.ResultCode ShouldContinuePathing();
         public abstract bool ShouldCalculateNewPath();
         public abstract Coordinate GetTargetCoordinates();
-        public abstract bool IsInRange();
 
         public virtual void Finish(IPathingAction.ResultCode resultCode)
         {
@@ -829,25 +827,20 @@ namespace Shared
             if (entity.CurrentPathingAction == null)
                 return;
 
-            //if(entity.CurrentPathingAction.IsInRange())
-            //{
-            //    entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.Success);
-            //    entity.CurrentPathingAction = null;
-            //    return;
-            //}
+            if (!entity.CanMove())
+                return;
+            
 
             IPathingAction.ResultCode continueCode = entity.CurrentPathingAction.ShouldContinuePathing();
             if (continueCode == IPathingAction.ResultCode.Success)
             {
-                entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.Success);
-                entity.CurrentPathingAction = null;
+                entity.SetPathingAction(null, IPathingAction.ResultCode.Success);
                 return;
             }
 
             if (continueCode != IPathingAction.ResultCode.ContinuePathing)
             {
-                entity.CurrentPathingAction.Finish(continueCode);
-                entity.CurrentPathingAction = null;
+                entity.SetPathingAction(null, continueCode);
                 return;
             }
 
@@ -857,16 +850,14 @@ namespace Shared
             Vector2Int targetCoords = entity.CurrentPathingAction.GetTargetCoordinates().ToVector();
             if (targetCoords == INVALID_COORDS)
             {
-                entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.InvalidTarget);
-                entity.CurrentPathingAction = null;
+                entity.SetPathingAction(null, IPathingAction.ResultCode.InvalidTarget);
                 return;
             }
 
             int result = FindAndSetPathTo(entity, targetCoords);
             if(result != 0)
             {
-                entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.NoPathFound);
-                entity.CurrentPathingAction = null;
+                entity.SetPathingAction(null, IPathingAction.ResultCode.NoPathFound);
                 return;
             }
         }

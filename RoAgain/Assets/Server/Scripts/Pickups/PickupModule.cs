@@ -4,6 +4,46 @@ using System.Collections.Generic;
 
 namespace Server
 {
+    public class PickupPathingAction : APathingAction<PickupPathingAction.PickupPathingPayload>
+    {
+        public class PickupPathingPayload
+        {
+            public int InventoryId;
+            public GridEntity PickupEntity;
+            public PickupEntity Pickup;
+            public bool OverrideOwner = false;
+        }
+
+        public override Coordinate GetTargetCoordinates()
+        {
+            return Payload.Pickup.Coordinates.ToCoordinate();
+        }
+
+        public override bool ShouldCalculateNewPath()
+        {
+            // User can move - this is fairly aggressive.
+            // Ideally, we only calculate a new path if our path is no longer the path we calculated for this action initially,
+            // but that's hard to detect
+            // Also, we can't use "hasmovedLastUpdate" because that way, we'll never _start_ moving
+            return Payload.PickupEntity.CanMove();
+        }
+
+        public override IPathingAction.ResultCode ShouldContinuePathing()
+        {
+            if (Payload.PickupEntity.MapId != Payload.Pickup.MapId)
+                return IPathingAction.ResultCode.AbortedSelf;
+
+            if (Payload.PickupEntity.Coordinates == GridData.INVALID_COORDS
+                || Payload.Pickup.Coordinates == GridData.INVALID_COORDS)
+                return IPathingAction.ResultCode.AbortedSelf;
+
+            if (Payload.PickupEntity.Coordinates.GridDistanceSquare(Payload.Pickup.Coordinates) <= 1) // TODO: Remove magic number "pickup range"
+                return IPathingAction.ResultCode.Success;
+
+            return IPathingAction.ResultCode.ContinuePathing;
+        }
+    }
+
     // One per map
     public class PickupModule
     {
@@ -237,7 +277,17 @@ namespace Server
 
             if (character.Coordinates.GridDistanceSquare(pickup.Coordinates) > 1) // TODO: Remove magic number "pickup range"
             {
-                return -2;
+                PickupPathingAction pathingAction = new();
+                pathingAction.Payload = new()
+                {
+                    InventoryId = character.InventoryId,
+                    OverrideOwner = overrideOwner,
+                    Pickup = pickup,
+                    PickupEntity = character
+                };
+                pathingAction.Finished = OnPickupPathingFinished;
+                character.SetPathingAction(pathingAction);
+                return 1;
             }
 
             if (!_invModule.HasPlayerSpaceForItemStack(character, pickup.ItemTypeId, pickup.Count))
@@ -246,6 +296,17 @@ namespace Server
             }
 
             return 10 * PickupPickup(character.InventoryId, character, pickupId, overrideOwner);
+        }
+
+        private void OnPickupPathingFinished(PickupPathingAction.PickupPathingPayload payload, IPathingAction.ResultCode result)
+        {
+            if (result != IPathingAction.ResultCode.Success)
+                return;
+
+            if (payload.PickupEntity is CharacterRuntimeData character)
+                CharacterAttemptPickup(character, payload.Pickup.Id, payload.OverrideOwner);
+            else
+                PickupPickup(payload.InventoryId, payload.PickupEntity, payload.Pickup.Id, payload.OverrideOwner);
         }
 
         public int DestroyPickup(PickupEntity pickup)

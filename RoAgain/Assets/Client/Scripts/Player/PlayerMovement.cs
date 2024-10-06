@@ -41,7 +41,7 @@ namespace Client
 
             if (Input.GetMouseButtonDown(0))
             {
-                if(!PlayerUI.Instance.IsHoveringUI(Input.mousePosition))
+                if(CanClickToMove())
                 {
                     if (NavMeshClick.Instance == null)
                     {
@@ -65,6 +65,12 @@ namespace Client
             {
                 // TODO Hold-To-Move code here
             }
+        }
+
+        public bool CanClickToMove()
+        {
+            return !PlayerUI.Instance.IsHoveringUI(Input.mousePosition)
+                && !PlayerUI.Instance.HoveredLayers.HasLayer("BlocksClickToMove");
         }
     }
 }

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1669717433298601207}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PickupModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 211456480303358727}
   - component: {fileID: 4414940552445831127}
   - component: {fileID: 9142433298335863269}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}

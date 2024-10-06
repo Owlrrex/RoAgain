@@ -454,8 +454,7 @@ namespace Server
                 if (characterData.CurrentPathingAction != null)
                 {
                     OwlLogger.Log($"Cancelling pathingAction for character {characterData.Id} by movement.", GameComponent.Other, LogSeverity.Verbose);
-                    characterData.CurrentPathingAction.Finish(IPathingAction.ResultCode.OtherMovement);
-                    characterData.CurrentPathingAction = null;
+                    characterData.SetPathingAction(null);
                 }
             }
         }
@@ -954,14 +953,7 @@ namespace Server
                 return;
             }
 
-            if (character.Coordinates.GridDistanceSquare(gEntity.Coordinates) <= 1) // TODO: Remove magic number "pickup range"
-            {
-                map.PickupModule.CharacterAttemptPickup(character, pickupId);
-                return;
-            }
-
-            // TODO: Set Path and queue up pickup-action
-            // TODO: Generic system for queueing an action/callback for after a path completes/breaks
+            map.PickupModule.CharacterAttemptPickup(character, pickupId);
         }
 
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
@@ -1025,6 +1017,8 @@ namespace Server
             charData.Connection.EntityId = -1;
 
             _inventoryModule.ClearInventoryFromCache(charData.InventoryId); // We likely won't use this anymore now
+
+            // TODO: Save character state
         }
 
         public override void Update(float deltaTime)

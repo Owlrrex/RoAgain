@@ -236,6 +236,14 @@ namespace Shared
             return Coordinates != LastUpdateCoordinates;
         }
 
+        public void SetPathingAction(IPathingAction newAction, IPathingAction.ResultCode previousCode = IPathingAction.ResultCode.OtherMovement)
+        {
+            if (CurrentPathingAction != null)
+                CurrentPathingAction.Finish(previousCode);
+
+            CurrentPathingAction = newAction;
+        }
+
         public virtual Packet ToDataPacket()
         {
             return new GridEntityDataPacket()

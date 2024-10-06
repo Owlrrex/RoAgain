@@ -682,11 +682,9 @@ namespace Server
             // Pre-death effects here
 
             bEntity.Death?.Invoke(bEntity, source);
-            if (bEntity.CurrentPathingAction != null)
-            {
-                bEntity.CurrentPathingAction.Finish(IPathingAction.ResultCode.EntityDied);
-                bEntity.CurrentPathingAction = null;
-            }   
+
+            bEntity.SetPathingAction(null, IPathingAction.ResultCode.EntityDied);
+
             bEntity.ClearPath();
 
             // TODO: Experience Penalty
