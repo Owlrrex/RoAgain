@@ -8,6 +8,109 @@ namespace Server
 {
     public class SkillModule
     {
+        private class SkillPathingAction : APathingAction<ServerSkillExecution>, IAutoInitPoolObject
+        {
+            public void Init(ServerSkillExecution payload, FinishedCallback finishedCbk)
+            {
+                if(payload == null)
+                {
+                    OwlLogger.LogError("Can't create SkillPathingAction with null payload!", GameComponent.Skill);
+                    return;
+                }
+
+                Payload = payload;
+                Finished = finishedCbk;
+            }
+
+            public override Coordinate GetTargetCoordinates()
+            {
+                return Payload.Target.GetTargetCoordinates().ToCoordinate();
+            }
+
+            public override bool IsInRange()
+            {
+                SkillModule module = AServer.Instance.MapModule.GetMapInstance(Payload.User.MapId)?.SkillModule;
+                if (module == null)
+                    return false;
+
+                ASkillImpl logic = module.GetActiveSkillImpl(Payload.SkillId);
+                if (logic == null)
+                    return false;
+
+                return logic.CheckTarget(Payload) == SkillFailReason.None;
+            }
+
+            public override bool ShouldCalculateNewPath()
+            {
+                if(Payload.Target.IsGroundTarget())
+                {
+                    // User has moved - this is fairly aggressive.
+                    // Ideally, we only calculate a new path if our path is no longer the path we calculated for this action initially,
+                    // but that's hard to detect
+                    return Payload.User.HasMovedOnLastUpdate();
+                }
+                else
+                {
+                    bool needsNewPath = Payload.User.HasMovedOnLastUpdate() || Payload.EntityTargetTyped.HasMovedOnLastUpdate();
+                    if(needsNewPath)
+                    {
+                        needsNewPath &= !Payload.User.IsAnimationLocked();
+                    }
+                    return needsNewPath;
+                }
+            }
+
+            public override IPathingAction.ResultCode ShouldContinuePathing()
+            {
+                SkillModule module = AServer.Instance.MapModule.GetMapInstance(Payload.User.MapId)?.SkillModule;
+                if (module == null)
+                    return IPathingAction.ResultCode.AbortedSelf;
+
+                ASkillImpl logic = module.GetActiveSkillImpl(Payload.SkillId);
+                if (logic == null)
+                    return IPathingAction.ResultCode.AbortedSelf;
+
+                SkillFailReason executeReason = logic.CanBeExecuted(Payload, Payload.User);
+                SkillFailReason targetReason = logic.CheckTarget(Payload);
+
+                if (executeReason == SkillFailReason.None
+                    && targetReason == SkillFailReason.None)
+                    return IPathingAction.ResultCode.Success;
+
+                if (executeReason != SkillFailReason.None
+                    && executeReason != SkillFailReason.AnimationLocked)
+                    return IPathingAction.ResultCode.AbortedSelf;
+
+                if (targetReason != SkillFailReason.None
+                    && targetReason != SkillFailReason.OutOfRange)
+                    return IPathingAction.ResultCode.AbortedSelf;
+
+                return IPathingAction.ResultCode.ContinuePathing;
+            }
+
+            public override void Finish(IPathingAction.ResultCode resultCode)
+            {
+                base.Finish(resultCode);
+
+                if (Payload.User is not CharacterRuntimeData character)
+                    return;
+
+                LocalPlayerEntitySkillQueuedPacket packet = new()
+                {
+                    SkillId = SkillId.Unknown,
+                    TargetId = -1
+                };
+                character.Connection.Send(packet);
+                AutoInitResourcePool<SkillPathingAction>.Return(this);
+            }
+
+            public void Reset()
+            {
+                Payload = null;
+                Finished = null;
+            }
+        }
+
         private MapInstance _mapInstance;
 
         private static ASkillImpl[] _skillLogicListFast;
@@ -196,7 +299,9 @@ namespace Server
 
         private void EnqueueSkill(ServerSkillExecution skillExec)
         {
-            skillExec.User.QueuedSkill = skillExec;
+            SkillPathingAction pathingAction = AutoInitResourcePool<SkillPathingAction>.Acquire();
+            pathingAction.Init(skillExec, OnSkillPathingFinished);
+            skillExec.User.CurrentPathingAction = pathingAction;
 
             if (skillExec.User is not CharacterRuntimeData playerUser)
                 return;
@@ -221,6 +326,21 @@ namespace Server
             }
         }
 
+        private void OnSkillPathingFinished(ServerSkillExecution skillExec, IPathingAction.ResultCode resultCode)
+        {
+            switch(resultCode)
+            {
+                case IPathingAction.ResultCode.Success:
+                    // Skill is good to execute, pathing completed without being interrupted
+                    skillExec.User.CurrentlyResolvingSkills.Add(skillExec);
+                    if (skillExec.HasCastTime())
+                        StartCast(skillExec);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         public void UpdateSkillExecutions(float deltaTime)
         {
             if (_mapInstance == null || _mapInstance.Grid == null)
@@ -232,11 +352,6 @@ namespace Server
                     continue;
 
                 bEntity.UpdateSkills(deltaTime);
-
-                if (bEntity.QueuedSkill != null)
-                {
-                    UpdateQueuedSkill(bEntity.QueuedSkill as ServerSkillExecution);
-                }
 
                 for(int i = bEntity.CurrentlyResolvingSkills.Count -1; i >= 0; i--)
                 {
@@ -256,92 +371,6 @@ namespace Server
                 }
                 bEntity.UpdateAnimationLockedState();
             }
-        }
-
-        private void UpdateQueuedSkill(ServerSkillExecution skillExec)
-        {
-            ASkillImpl logic = GetActiveSkillImpl(skillExec.SkillId);
-
-            SkillFailReason executeReason = logic.CanBeExecuted(skillExec, skillExec.User);
-            SkillFailReason targetReason = logic.CheckTarget(skillExec);
-
-            if (executeReason != SkillFailReason.None
-                && executeReason != SkillFailReason.AnimationLocked)
-            {
-                ClearQueuedSkill(skillExec);
-                return;
-            }
-
-            if (targetReason != SkillFailReason.None
-                && targetReason != SkillFailReason.OutOfRange)
-            {
-                ClearQueuedSkill(skillExec);
-                return;
-            }
-
-            if (executeReason == SkillFailReason.AnimationLocked)
-                return; // Wait for animation-lock to end
-
-            if(targetReason == SkillFailReason.OutOfRange)
-            {
-                bool pathingSuccessful = UpdateQueuedSkillPathing(skillExec);
-                if(!pathingSuccessful)
-                {
-                    ClearQueuedSkill(skillExec);
-                }
-                return;
-            }
-
-            // Skill is good to execute, all error cases have been handled
-            ClearQueuedSkill(skillExec);
-            skillExec.User.CurrentlyResolvingSkills.Add(skillExec);
-            if (skillExec.HasCastTime())
-                StartCast(skillExec);
-        }
-
-        public void ClearQueuedSkill(ServerSkillExecution skillExec)
-        {
-            if(skillExec.User.QueuedSkill != skillExec)
-            {
-                OwlLogger.LogError("Tried to clear queue for skill that's not queued on its user!", GameComponent.Skill);
-                return;
-            }
-
-            skillExec.User.QueuedSkill = null;
-
-            if (skillExec.User is not CharacterRuntimeData character)
-                return;
-
-            LocalPlayerEntitySkillQueuedPacket packet = new()
-            {
-                SkillId = SkillId.Unknown,
-                TargetId = -1
-            };
-            character.Connection.Send(packet);
-        }
-
-        private bool UpdateQueuedSkillPathing(ServerSkillExecution skillExec)
-        {
-            Vector2Int targetCoords = skillExec.Target.GetTargetCoordinates();
-
-            if (targetCoords == GridData.INVALID_COORDS
-                || !_mapInstance.Grid.AreCoordinatesValid(targetCoords))
-            {
-                OwlLogger.LogError($"Invalid Target coordinates for skill {skillExec.SkillId}: {targetCoords}!", GameComponent.Skill);
-                return false;
-            }
-
-            // Trying to reduce path calculations: Check if current path already leads to target
-            if (skillExec.User.Path != null
-                && skillExec.User.Path.Corners.Count > 0
-                && skillExec.User.Path.Corners[^1] == targetCoords)
-            {
-                // No path setting required
-                return true;
-            }
-
-            int pathResult = skillExec.User.ParentGrid.FindAndSetPathTo(skillExec.User, targetCoords);
-            return pathResult == 0;
         }
 
         private void UpdateSkillResolution(ServerSkillExecution skillExec)

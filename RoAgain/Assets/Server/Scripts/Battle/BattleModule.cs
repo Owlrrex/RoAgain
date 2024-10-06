@@ -682,9 +682,13 @@ namespace Server
             // Pre-death effects here
 
             bEntity.Death?.Invoke(bEntity, source);
-            if (bEntity.QueuedSkill != null)
-                _map.SkillModule.ClearQueuedSkill(bEntity.QueuedSkill as ServerSkillExecution);
+            if (bEntity.CurrentPathingAction != null)
+            {
+                bEntity.CurrentPathingAction.Finish(IPathingAction.ResultCode.EntityDied);
+                bEntity.CurrentPathingAction = null;
+            }   
             bEntity.ClearPath();
+
             // TODO: Experience Penalty
         }
 

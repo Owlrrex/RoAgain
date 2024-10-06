@@ -17,8 +17,8 @@ namespace Shared
 
         private bool _isAnimationLocked = false;
 
-        [NonSerialized]
-        public ASkillExecution QueuedSkill = null;
+        //[NonSerialized]
+        //public ASkillExecution QueuedSkill = null;
         [NonSerialized]
         public List<ASkillExecution> CurrentlyResolvingSkills = new();
         [NonSerialized]
@@ -38,10 +38,10 @@ namespace Shared
             return base.CanMove() && !IsAnimationLocked() && !IsCasting() && !IsDead(); // TODO: More advanced conditions: Statuses, FreeCast, etc
         }
 
-        // Don't reference our own CanMove() here since CanMove may include some statuses like Ankle Snare that root, but don't incapacitate
+        // Don't reference CanMove() here since CanMove may include some statuses like Ankle Snare that root, but don't incapacitate
         public virtual bool CanAct()
         {
-            return base.CanMove() && !IsAnimationLocked() && !IsDead();
+            return !IsAnimationLocked() && !IsDead() && !IsCasting(); // Should Casting be considered here?
         }
 
         public void MarkAsDead(bool newValue)
@@ -54,9 +54,9 @@ namespace Shared
             return CurrentHp <= 0;
         }
 
-        public bool IsAnimationLocked()
+        public override bool IsAnimationLocked()
         {
-            return _isAnimationLocked;
+            return base.IsAnimationLocked() || _isAnimationLocked;
         }
 
         public bool IsCasting()

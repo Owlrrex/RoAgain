@@ -47,6 +47,8 @@ namespace Shared
 
         public int ModelId = -1;
 
+        public IPathingAction CurrentPathingAction;
+
         /// <summary>
         /// 
         /// </summary>
@@ -214,14 +216,24 @@ namespace Shared
             return other != null && other.Id == Id;
         }
 
+        public virtual bool IsAnimationLocked()
+        {
+            return MovementCooldown > 0;
+        }
+
         public virtual bool CanMove()
         {
-            return MovementCooldown <= 0;
+            return !IsAnimationLocked();
         }
 
         public bool IsMoving()
         {
             return !HasFinishedPath();
+        }
+
+        public bool HasMovedOnLastUpdate()
+        {
+            return Coordinates != LastUpdateCoordinates;
         }
 
         public virtual Packet ToDataPacket()

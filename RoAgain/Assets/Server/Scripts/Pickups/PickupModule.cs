@@ -196,6 +196,14 @@ namespace Server
                 return -2;
             }
 
+            if (pickupEntity is ServerBattleEntity bEntity)
+            {
+                if(!bEntity.CanAct())
+                {
+                    return 2;
+                }
+            }
+
             if(!overrideOwner)
             {
                 if (pickup.OwnerEntityId != 0 && pickup.OwnerEntityId != pickupEntity.Id)

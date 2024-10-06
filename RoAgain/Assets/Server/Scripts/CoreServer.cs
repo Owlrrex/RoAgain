@@ -451,11 +451,11 @@ namespace Server
             // TODO: Path Length limit
             if (mapInstance.Grid.FindAndSetPathTo(characterData, targetCoordinates) == 0)
             {
-                if (characterData.QueuedSkill != null)
+                if (characterData.CurrentPathingAction != null)
                 {
-                    OwlLogger.Log($"Cancelling queued skill {characterData.QueuedSkill.SkillId} for character {characterData.Id} by movement.", GameComponent.Other, LogSeverity.Verbose);
-                    characterData.QueuedSkill = null;
-                    characterData.Connection.Send(new LocalPlayerEntitySkillQueuedPacket() { SkillId = SkillId.Unknown, TargetId = -1 });
+                    OwlLogger.Log($"Cancelling pathingAction for character {characterData.Id} by movement.", GameComponent.Other, LogSeverity.Verbose);
+                    characterData.CurrentPathingAction.Finish(IPathingAction.ResultCode.OtherMovement);
+                    characterData.CurrentPathingAction = null;
                 }
             }
         }

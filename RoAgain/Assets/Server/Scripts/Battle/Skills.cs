@@ -178,6 +178,7 @@ namespace Server
         // Which skills will go on a cooldown other than AnimationDelay
         public virtual Dictionary<SkillId, float> GetSkillCoolDowns(ServerSkillExecution skillExec) { return null; }
 
+        // This function's overrides should only contain skill-specific logic, like FreeCast, movement-skills being blocked by conditions, etc.
         public virtual SkillFailReason CheckTarget(ServerSkillExecution skillExec)
         {
             if (!skillExec.Target.IsValid())
@@ -211,6 +212,9 @@ namespace Server
             if (user.IsDead())
                 return SkillFailReason.UserDead;
 
+            if (user.IsCasting())
+                return SkillFailReason.AlreadyCasting;
+
             if (!user.CanAct())
                 return SkillFailReason.AnimationLocked;
 
@@ -220,9 +224,6 @@ namespace Server
             else if (user.SkillCooldowns.ContainsKey(skillExec.SkillId)
                 && !user.SkillCooldowns[skillExec.SkillId].IsFinished())
                 return SkillFailReason.OnCooldown;
-
-            if (user.IsCasting())
-                return SkillFailReason.AlreadyCasting;
 
             if (user.CurrentSp < skillExec.SpCost)
                 return SkillFailReason.NotEnoughSp;
@@ -269,8 +270,7 @@ namespace Server
             if (owner is not CharacterRuntimeData charOwner)
                 return;
 
-            ConditionalStat stat;
-            if (!stats.TryGetValue(skillLvl, out stat))
+            if (!stats.TryGetValue(skillLvl, out ConditionalStat stat))
             {
                 SkillStaticDataEntry entry = SkillStaticDataDatabase.GetSkillStaticData(_skillId);
                 int statIncrease = entry.GetValueForLevel(entry.Var1, skillLvl);
@@ -341,7 +341,7 @@ namespace Server
                 // Have entity attack again if no other skill has been queued up
                 // Depending on system, queueing up skill this early may not even have been possible for the user - which is fine.
                 
-                if (skillExec.User.QueuedSkill == null
+                if (skillExec.User.CurrentPathingAction == null
                     && !skillExec.EntityTargetTyped.IsDead())
                     skillExec.Map.SkillModule.ReceiveSkillExecutionRequest(skillExec.SkillId, skillExec.SkillLvl, skillExec.UserTyped, skillExec.Target);
                 skillExec.Var1 = 1;
@@ -561,8 +561,7 @@ namespace Server
             if (owner is not CharacterRuntimeData charOwner)
                 return;
 
-            ConditionalStat stat;
-            if (!stats.TryGetValue(skillLvl, out stat))
+            if (!stats.TryGetValue(skillLvl, out ConditionalStat stat))
             {
                 SkillStaticDataEntry entry = SkillStaticDataDatabase.GetSkillStaticData(SkillId.AutoBerserk);
                 int statIncrease = entry.GetValueForLevel(entry.Var1, skillLvl);

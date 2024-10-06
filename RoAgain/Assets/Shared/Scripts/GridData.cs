@@ -45,8 +45,44 @@ namespace Shared
         {
             throw new NotSupportedException();
         }
+    }
 
+    public interface IPathingAction
+    {
+        public enum ResultCode
+        {
+            Unknown,
+            ContinuePathing,
+            Success,
+            AbortedSelf,
+            NoPathFound,
+            InvalidTarget,
+            EntityDied,
+            OtherMovement
+        }
+
+        public ResultCode ShouldContinuePathing();
+        public bool ShouldCalculateNewPath();
+        public Coordinate GetTargetCoordinates();
+        public bool IsInRange();
+        public void Finish(ResultCode resultCode);
+    }
+
+    public abstract class APathingAction<TPayload> : IPathingAction
+    {
+        public delegate void FinishedCallback(TPayload payload, IPathingAction.ResultCode resultCode);
+        public FinishedCallback Finished;
+        public TPayload Payload;
         
+        public abstract IPathingAction.ResultCode ShouldContinuePathing();
+        public abstract bool ShouldCalculateNewPath();
+        public abstract Coordinate GetTargetCoordinates();
+        public abstract bool IsInRange();
+
+        public virtual void Finish(IPathingAction.ResultCode resultCode)
+        {
+            Finished?.Invoke(Payload, resultCode);
+        }
     }
 
     // This class currently mixes client-only-functions (World Positions, Ray casts, etc) with Shared functionality
@@ -108,36 +144,51 @@ namespace Shared
                 return result;
             }
 
+            public bool IsValid()
+            {
+                return AllCells.Count == 0 && Corners.Count == 0 // empty Path, allowed
+                    || AllCells.Count > 1 && Corners.Count > 1 // Path with start & end, allowed
+                    ;
+            }
+
+            public int Length()
+            {
+                return AllCells.Count;
+            }
+
             public int ReconstructAllCellsFromCorners()
             {
                 throw new NotImplementedException();
             }
 
-            public Path Sanitize()
-            {
-                if (AllCells.Count == 0 && Corners.Count == 0)
-                {
-                    // Empty path - erase
-                    // Can't return valid "stationary" format here - can't retrieve coordinates from entity that we don't know
-                    return null;
-                }
+            
 
-                if (AllCells.Count == 1 && Corners.Count == 1)
-                {
-                    // Unused "indicates stationary position" format
-                    // Could return a valid "stationary path" format here instead
-                    return null;
-                }
+            // Don't really have something useful to do with this function
+            //public Path Sanitize()
+            //{
+            //    if (AllCells.Count == 0 && Corners.Count == 0)
+            //    {
+            //        // Empty path - erase
+            //        // Can't return valid "stationary" format here - can't retrieve coordinates from entity that we don't know
+            //        return null;
+            //    }
 
-                if (AllCells.Count < 2 || Corners.Count < 2)
-                {
-                    // All valid forms of paths with any array shorter than 2 are checked above - this catches all paths where either array is malformed
-                    OwlLogger.LogError($"Malformed Path found in Sanitize(): {this}", GameComponent.Grid);
-                    return null;
-                }
+            //    if (AllCells.Count == 1 && Corners.Count == 1)
+            //    {
+            //        // Unused "indicates stationary position" format
+            //        // Could return a valid "stationary path" format here instead
+            //        return null;
+            //    }
 
-                return this;
-            }
+            //    if (AllCells.Count < 2 || Corners.Count < 2)
+            //    {
+            //        // All valid forms of paths with any array shorter than 2 are checked above - this catches all paths where either array is malformed
+            //        OwlLogger.LogError($"Malformed Path found in Sanitize(): {this}", GameComponent.Grid);
+            //        return null;
+            //    }
+
+            //    return this;
+            //}
         }
 
         public static readonly string MAP_FILE_DIR = System.IO.Path.Combine(Application.dataPath, "MapFiles");
@@ -588,26 +639,25 @@ namespace Shared
 
         public Path FindPath(Vector2Int startCoords, Vector2Int targetCoords)
         {
-            Path path = new();
-
             if (startCoords == targetCoords)
             {
                 OwlLogger.LogWarning($"Tried to find path for identical cell {startCoords}!", GameComponent.Grid);
-                return path;
+                return null;
             }
 
             if (!AreCoordinatesValid(startCoords))
             {
                 OwlLogger.LogError($"Tried to find path for invalid startCoordinates {startCoords}!", GameComponent.Grid);
-                return path;
+                return null;
             }
 
             if (!AreCoordinatesValid(targetCoords))
             {
                 OwlLogger.LogError($"Tried to find path for invalid targetCoordinates {targetCoords}!", GameComponent.Grid);
-                return path;
+                return null;
             }
 
+            Path path = new();
             path.AllCells.Add(startCoords);
             path.Corners.Add(startCoords);
 
@@ -617,6 +667,7 @@ namespace Shared
             {
                 // no path found
                 OwlLogger.Log("No Path found", GameComponent.Grid);
+                return null;
             }
 
             return path;
@@ -745,6 +796,8 @@ namespace Shared
             {
                 GridEntity entity = kvp.Value;
 
+                UpdateEntityPathFromPathingAction(entity);
+
                 entity.UpdateLastPath();
 
                 if (entity.MovementCooldown > 0)
@@ -769,6 +822,53 @@ namespace Shared
                 }
             }
             return movedEntities;
+        }
+
+        private void UpdateEntityPathFromPathingAction(GridEntity entity)
+        {
+            if (entity.CurrentPathingAction == null)
+                return;
+
+            //if(entity.CurrentPathingAction.IsInRange())
+            //{
+            //    entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.Success);
+            //    entity.CurrentPathingAction = null;
+            //    return;
+            //}
+
+            IPathingAction.ResultCode continueCode = entity.CurrentPathingAction.ShouldContinuePathing();
+            if (continueCode == IPathingAction.ResultCode.Success)
+            {
+                entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.Success);
+                entity.CurrentPathingAction = null;
+                return;
+            }
+
+            if (continueCode != IPathingAction.ResultCode.ContinuePathing)
+            {
+                entity.CurrentPathingAction.Finish(continueCode);
+                entity.CurrentPathingAction = null;
+                return;
+            }
+
+            if (!entity.CurrentPathingAction.ShouldCalculateNewPath())
+                return;
+
+            Vector2Int targetCoords = entity.CurrentPathingAction.GetTargetCoordinates().ToVector();
+            if (targetCoords == INVALID_COORDS)
+            {
+                entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.InvalidTarget);
+                entity.CurrentPathingAction = null;
+                return;
+            }
+
+            int result = FindAndSetPathTo(entity, targetCoords);
+            if(result != 0)
+            {
+                entity.CurrentPathingAction.Finish(IPathingAction.ResultCode.NoPathFound);
+                entity.CurrentPathingAction = null;
+                return;
+            }
         }
 
         public void ProceedAlongPath(GridEntity entity)

@@ -6,6 +6,7 @@ namespace Client
     public class ClientBattleEntity : BattleEntity
     {
         public int BaseLvl; // for Aura
+        public ASkillExecution QueuedSkill;
 
         public ClientBattleEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp, int baseLvl, int id = -1) : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, id)
         {
