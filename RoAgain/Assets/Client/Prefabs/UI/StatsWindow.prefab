@@ -6364,6 +6364,7 @@ GameObject:
   - component: {fileID: 8049645407238854359}
   - component: {fileID: 2106493612392883802}
   - component: {fileID: 850083113897423130}
+  - component: {fileID: 3592168068126632022}
   m_Layer: 5
   m_Name: StatsWindow
   m_TagString: Untagged
@@ -6466,6 +6467,23 @@ Canvas:
   m_SortingLayerID: -374137929
   m_SortingOrder: 5
   m_TargetDisplay: 0
+--- !u!114 &3592168068126632022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4092214504296955356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 32
 --- !u!1 &4100759588102449374
 GameObject:
   m_ObjectHideFlags: 0

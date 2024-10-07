@@ -35,6 +35,8 @@ namespace Client
         {
             // TODO: visualize lifetime
 
+            // TODO: Visualize Owner
+
             if(_pickupAnimating)
             {
                 if(_pickupAnimProg < 1.0f)

@@ -575,6 +575,9 @@ namespace Client
 
         public int RemoveMoverOnly(GridEntity entity)
         {
+            if (entity == null)
+                return -2;
+
             if (!_displayedGridEntities.ContainsKey(entity.Id))
             {
                 OwlLogger.Log($"Tried to remove mover entity {entity.Id} that's not displayed!", GameComponent.Other);
@@ -592,11 +595,22 @@ namespace Client
         public int RemoveMoverOnly(int entityId)
         {
             GridEntity entity = Grid.Data.FindOccupant(entityId);
+            if (entity == null)
+            {
+                OwlLogger.LogError($"Tried to remove entity Id {entityId} that's not on Grid!", GameComponent.Grid);
+                return -1;
+            }
+                
             return RemoveMoverOnly(entity);
         }
 
         public int RemoveMoverAndEntity(GridEntity entity)
         {
+            if(entity == null)
+            {
+                return -3;
+            }
+
             if (!_displayedGridEntities.ContainsKey(entity.Id))
             {
                 OwlLogger.LogError($"Tried to remove mover entity {entity.Id} that's not displayed!", GameComponent.Other);
@@ -708,6 +722,7 @@ namespace Client
                 pickupEntity.ItemTypeId = data.ItemTypeId;
                 pickupEntity.LifeTime.Initialize(data.RemainingTime);
                 pickupEntity.State = data.State;
+                pickupEntity.OwnerEntityId = data.OwnerCharacterId;
             }
 
             // Clear "Awaiting Removal" status from entity

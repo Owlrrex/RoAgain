@@ -114,7 +114,7 @@ namespace Server
 
         private List<string> GetWarpFilePaths()
         {
-            string basePath = Path.Combine(Application.dataPath, "Server", Configuration.Instance.GetMainConfig(ConfigurationKey.WarpDefinitionDirectory));
+            string basePath = Path.Combine(Application.dataPath, Configuration.Instance.GetMainConfig(ConfigurationKey.WarpDefinitionDirectory));
 
             if (!Directory.Exists(basePath))
             {

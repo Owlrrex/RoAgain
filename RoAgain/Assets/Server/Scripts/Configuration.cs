@@ -1,7 +1,7 @@
 using OwlLogging;
 using Shared;
 using System.Collections.Generic;
-
+using System.IO;
 using MainConfigPersistent = Shared.DictionarySerializationWrapper<Server.ConfigurationKey, string>;
 
 namespace Server
@@ -63,8 +63,8 @@ namespace Server
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.ChatCommandSymbol, "#");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.HitFleeEqualChance, "80");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.BattleMultiplicativeStacking, "0");
-            anyChange |= _mainConfig.TryAdd(ConfigurationKey.NpcDefinitionDirectory, "NpcDefs");
-            anyChange |= _mainConfig.TryAdd(ConfigurationKey.WarpDefinitionDirectory, "WarpDefs");
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.NpcDefinitionDirectory, Path.Combine("Server", "Databases", "NpcDefs"));
+            anyChange |= _mainConfig.TryAdd(ConfigurationKey.WarpDefinitionDirectory, Path.Combine("Server", "Databases", "WarpDefs"));
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterSpawn, "test_map/5/5");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterSave, "test_map/5/5");
             anyChange |= _mainConfig.TryAdd(ConfigurationKey.NewCharacterStatPoints, "44");

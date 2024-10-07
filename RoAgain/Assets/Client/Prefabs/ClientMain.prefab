@@ -1394,7 +1394,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32
 --- !u!1 &5145740207584834871
 GameObject:
   m_ObjectHideFlags: 0
@@ -5224,6 +5224,11 @@ PrefabInstance:
       propertyPath: m_Size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2433983973381533165, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_Value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2452147624593783231, guid: fd93911793d93ff4db4873020a286564,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -6328,6 +6333,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5241918427691314341, guid: fd93911793d93ff4db4873020a286564,
+        type: 3}
+      propertyPath: m_Size
+      value: 0.99999994
       objectReference: {fileID: 0}
     - target: {fileID: 5241918427691314341, guid: fd93911793d93ff4db4873020a286564,
         type: 3}

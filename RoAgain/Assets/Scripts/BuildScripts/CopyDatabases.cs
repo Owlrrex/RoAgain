@@ -13,24 +13,34 @@ public class CopyDatabases
         string buildFolder = Path.GetDirectoryName(pathToBuiltProject);
 
         CopyAllFilesFromToFolder(
-            Path.Combine(Application.dataPath, "Server", "Databases"),
-            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "Databases"),
-            "*.db");
-
-        CopyAllFilesFromToFolder(
             Path.Combine(Application.dataPath, "Client", "Tables"),
             Path.Combine(buildFolder, Application.productName + "_Data", "Client", "Tables"),
             "*.db");
 
         CopyAllFilesFromToFolder(
-            Path.Combine(Application.dataPath, "Server", "NpcDefs"),
-            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "NpcDefs"),
+            Path.Combine(Application.dataPath, "Server", "Databases"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "Databases"),
+            "*.db");
+
+        CopyAllFilesFromToFolder(
+            Path.Combine(Application.dataPath, "Server", "Databases", "NpcDefs"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "Databases", "NpcDefs"),
             "*.npc");
 
         CopyAllFilesFromToFolder(
-            Path.Combine(Application.dataPath, "Server", "WarpDefs"),
-            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "WarpDefs"),
+            Path.Combine(Application.dataPath, "Server", "Databases", "WarpDefs"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "Databases", "WarpDefs"),
             "*.warp");
+
+        CopyAllFilesFromToFolder(
+            Path.Combine(Application.dataPath, "Server", "Databases", "ItemTypeDb"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "Databases", "ItemTypeDb"),
+            "*.itdb");
+
+        CopyAllFilesFromToFolder(
+            Path.Combine(Application.dataPath, "Server", "Databases", "LootTableDb"),
+            Path.Combine(buildFolder, Application.productName + "_Data", "Server", "Databases", "LootTableDb"),
+            "*.ltbl");
     }
 
     private static void CopyAllFilesFromToFolder(string sourceFolder, string targetFolder, string nameMask)

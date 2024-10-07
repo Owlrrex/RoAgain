@@ -35,11 +35,11 @@ namespace Server
     public class CoreServer : AServer
     {
         // TODO: Config values
-        public readonly string ACCOUNT_DB_FOLDER = Path.Combine(Application.dataPath, "AccountDb");
-        public readonly string CHAR_DB_FOLDER = Path.Combine(Application.dataPath, "CharDb");
-        public readonly string ITEMTYPE_DB_FOLDER = Path.Combine(Application.dataPath, "ItemTypeDb");
-        public readonly string INVENTORY_DB_FOLDER = Path.Combine(Application.dataPath, "InventoryDb");
-        public readonly string LOOTTABLE_DB_FOLDER = Path.Combine(Application.dataPath, "LootTableDb");
+        public readonly string ACCOUNT_DB_FOLDER = Path.Combine(Application.dataPath, "Server", "Databases", "AccountDb"); 
+        public readonly string CHAR_DB_FOLDER = Path.Combine(Application.dataPath, "Server", "Databases", "CharDb");
+        public readonly string ITEMTYPE_DB_FOLDER = Path.Combine(Application.dataPath, "Server", "Databases", "ItemTypeDb");
+        public readonly string INVENTORY_DB_FOLDER = Path.Combine(Application.dataPath, "Server", "Databases", "InventoryDb");
+        public readonly string LOOTTABLE_DB_FOLDER = Path.Combine(Application.dataPath, "Server", "Databases", "LootTableDb");
 
         private CentralConnection _centralConnection;
 

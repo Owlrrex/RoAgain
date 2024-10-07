@@ -210,12 +210,9 @@ namespace Server
                     return;
                 }
             }
-            else
-            {
-                OwlLogger.Log($"GridEntityDataPacket queued for entity {entity.Id}", GameComponent.Network, LogSeverity.VeryVerbose);
 
-                _gridEntityUpdates[entity.Id] = entity;
-            }
+            OwlLogger.Log($"GridEntityDataPacket queued for entity {entity.Id}", GameComponent.Network, LogSeverity.VeryVerbose);
+            _gridEntityUpdates[entity.Id] = entity;
 
             _pathUpdates.Remove(entity.Id);
         }

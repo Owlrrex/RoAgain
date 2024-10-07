@@ -81,7 +81,7 @@ namespace Server
 
         private List<string> GetNpcFilePaths()
         {
-            string basePath = Path.Combine(Application.dataPath, "Server", Configuration.Instance.GetMainConfig(ConfigurationKey.NpcDefinitionDirectory));
+            string basePath = Path.Combine(Application.dataPath, Configuration.Instance.GetMainConfig(ConfigurationKey.NpcDefinitionDirectory));
 
             if(!Directory.Exists(basePath))
             {

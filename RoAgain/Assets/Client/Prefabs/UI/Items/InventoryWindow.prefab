@@ -454,6 +454,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e29d2b8288402b64a9333217acef42c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DragSource: 0
   _itemContainer: {fileID: 3298562662725217387}
   _itemStackWidgetPrefab: {fileID: 3424223170221783983, guid: 0aed5b3d3608a2b44adccb8c3b1efc2b,
     type: 3}
@@ -498,7 +499,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32
 --- !u!1 &6152750527114960967
 GameObject:
   m_ObjectHideFlags: 0
