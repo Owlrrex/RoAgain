@@ -246,7 +246,7 @@ namespace Server
 
             if(!overrideOwner)
             {
-                if (pickup.OwnerEntityId != 0 && pickup.OwnerEntityId != pickupEntity.Id)
+                if (pickup.OwnerEntityId > 0 && pickup.OwnerEntityId != pickupEntity.Id)
                 {
                     if(pickupEntity is CharacterRuntimeData character)
                     {

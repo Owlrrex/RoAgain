@@ -5,37 +5,56 @@ using UnityEngine.EventSystems;
 
 namespace Client
 {
-    public class PickupModel : MonoBehaviour, IPointerClickHandler
+    public abstract class PickupModel : MonoBehaviour, IPointerClickHandler
     {
         public int PickupId => _pickup.Id;
-        private PickupEntity _pickup;
+        protected PickupEntity _pickup;
 
         private Transform _targetTransform;
 
         [SerializeField]
-        private GridEntityMover _mover;
+        protected GridEntityMover _mover;
 
         [SerializeField]
-        private MouseTooltipTriggerString _tooltip;
+        protected MouseTooltipTriggerString _tooltip;
 
         [SerializeField]
-        private float PICKUP_ANIM_LENGTH = 0.5f;
+        protected float PICKUP_ANIM_LENGTH = 0.5f;
         private float _pickupAnimProg = 0;
         private bool _pickupAnimating = false;
 
         [SerializeField]
-        private float DROP_ANIM_LENGTH = 0.1f;
+        protected float DROP_ANIM_LENGTH = 0.1f;
         private float _dropAnimProg = 0;
         private Vector3 _dropAnimTarget;
         private Vector3 _dropAnimStart;
         private bool _dropping = false;
 
-        // Update is called once per frame
-        void Update()
-        {
-            // TODO: visualize lifetime
+        [SerializeField]
+        protected float LIFETIME_HINT_BASE_FREQUENCY = 5.0f;
+        protected float LIFETIME_HINT_REFERENCE_LIFETIME = 30.0f;
+        private float _lifetimeHighlightTimer;
 
-            // TODO: Visualize Owner
+        private bool _lastCanPickup = false;
+
+        // Update is called once per frame
+        protected void Update()
+        {
+            _pickup.LifeTime.Update(Time.deltaTime); // Not the best spot to do it, but it doesn't matter if there's no model anyway
+            _lifetimeHighlightTimer += Time.deltaTime;
+            float lifetimeFrequencyTargetInterval = 0.2f + LIFETIME_HINT_BASE_FREQUENCY * _pickup.LifeTime.RemainingValue / LIFETIME_HINT_REFERENCE_LIFETIME;
+            if(_lifetimeHighlightTimer >= lifetimeFrequencyTargetInterval)
+            {
+                PlayLifetimeHint();
+                _lifetimeHighlightTimer -= lifetimeFrequencyTargetInterval;
+            }
+
+            bool userCanPickup = CanLocalPlayerPickup();
+            if (_lastCanPickup != userCanPickup)
+            {
+                _lastCanPickup = userCanPickup;
+                SetCanPickupHighlight(userCanPickup);
+            }
 
             if(_pickupAnimating)
             {
@@ -76,8 +95,25 @@ namespace Client
             }
             _tooltip.Message = $"{pickup.Count}x {LocalizedStringTable.GetStringById(type.NameLocId)}";
 
-            // TODO: Display Item Icon somewhere on the _mover.Model
+            SetItemTypeDisplay();
+
+            bool userCanPickup = CanLocalPlayerPickup();
+            _lastCanPickup = userCanPickup;
+            SetCanPickupHighlight(userCanPickup);
         }
+
+        private bool CanLocalPlayerPickup()
+        {
+            return _pickup.OwnerEntityId <= 0
+                || (ClientMain.Instance.CurrentCharacterData != null
+                    && _pickup.OwnerEntityId == ClientMain.Instance.CurrentCharacterData.Id);
+        }
+
+        protected abstract void SetItemTypeDisplay();
+
+        protected abstract void PlayLifetimeHint();
+
+        protected abstract void SetCanPickupHighlight(bool canPickup);
 
         public void StartDropAnimation()
         {
