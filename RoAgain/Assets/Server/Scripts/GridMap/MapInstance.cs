@@ -120,7 +120,7 @@ namespace Server
             Grid.EntityRemoved -= OnEntityRemoved;
         }
 
-        private void OnEntityPlaced(GridEntity entity, Vector2Int coords)
+        private void OnEntityPlaced(GridEntity entity, Coordinate coords)
         {
             entity.MapId = MapId;
             if (entity is CharacterRuntimeData data)
@@ -131,7 +131,7 @@ namespace Server
             // No need to send packet here, will be discovered as part of the VisibleEntities-update automatically
         }
 
-        private void OnEntityRemoved(GridEntity entity, Vector2Int coords)
+        private void OnEntityRemoved(GridEntity entity, Coordinate coords)
         {
             if (entity is CharacterRuntimeData data)
             {

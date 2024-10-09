@@ -264,7 +264,7 @@ public class PlayerUI : MonoBehaviour
         //      Handle Item usage code, interpret SkillParam differently, etc
         // }
 
-        Vector2Int mouseCoords = NavMeshClick.Instance.GetMouseGridCoords();
+        Coordinate mouseCoords = NavMeshClick.Instance.GetMouseGridCoords();
         if (mouseCoords == GridData.INVALID_COORDS)
             return;
 

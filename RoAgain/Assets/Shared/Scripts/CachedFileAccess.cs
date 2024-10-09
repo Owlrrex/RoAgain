@@ -2,7 +2,7 @@ using OwlLogging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
+using UnityEngine; // TODO: Use non-Unity Json-Serializer so Shared-assembly is clean
 
 namespace Shared
 {

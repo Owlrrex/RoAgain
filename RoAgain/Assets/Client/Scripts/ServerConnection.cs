@@ -24,11 +24,11 @@ namespace Client
         public Action<CellEffectData> CellEffectGroupPlacedReceived;
         public Action<int> CellEffectGroupRemovedReceived;
         public Action<int, int, bool, bool, int> DamageTakenReceived;
-        public Action<int, SkillId, TimerFloat, int, Vector2Int> CastProgressReceived;
+        public Action<int, SkillId, TimerFloat, int, Coordinate> CastProgressReceived;
         public Action<int, SkillId, int, float> EntitySkillExecutionReceived;
-        public Action<int, SkillId, Vector2Int, float> GroundSkillExecutionReceived;
+        public Action<int, SkillId, Coordinate, float> GroundSkillExecutionReceived;
         public Action<SkillId, int> LocalPlayerEntitySkillQueuedReceived;
-        public Action<SkillId, Vector2Int> LocalPlayerGroundSkillQueuedReceived;
+        public Action<SkillId, Coordinate> LocalPlayerGroundSkillQueuedReceived;
         public Action<ChatMessageData> ChatMessageReceived;
         public Action<int, int> HpChangeReceived;
         public Action<int, int> SpChangeReceived;

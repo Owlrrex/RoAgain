@@ -10,7 +10,7 @@ namespace Client
         public static NavMeshClick Instance;
 
         private bool _hasQueriedThisFrame;
-        private Vector2Int _mouseCoordCache;
+        private Coordinate _mouseCoordCache;
 
         [SerializeField]
         private GameObject _clickIndicator;
@@ -74,7 +74,7 @@ namespace Client
             if (Camera == null)
                 return;
 
-            Vector2Int mouseGridPos = GetMouseGridCoords();
+            Coordinate mouseGridPos = GetMouseGridCoords();
             if (mouseGridPos == GridData.INVALID_COORDS)
             {
                 _indicatorInstance.SetActive(false);
@@ -138,7 +138,7 @@ namespace Client
             
         }
 
-        public Vector2Int GetMouseGridCoords()
+        public Coordinate GetMouseGridCoords()
         {
             if (!_hasQueriedThisFrame)
                 PerformQuery();

@@ -21,7 +21,7 @@ namespace Server
         public string AccountId;
         public string Name;
         public string MapId;
-        public Vector2Int Coordinates;
+        public Coordinate Coordinates;
         public int Gender;
         public int BaseLevel = -1;
         public int BaseExp = -1;
@@ -47,7 +47,7 @@ namespace Server
         public int SkillPoints = -1;
 
         public string SaveMapId;
-        public Vector2Int SaveCoords;
+        public Coordinate SaveCoords;
 
         public DictionarySerializationWrapper<int, int> CharConfig = new();
 
@@ -163,7 +163,7 @@ namespace Server
                 JobId = JobId.Novice,
                 JobLevel = 1,
                 JobExp = 0,
-                Coordinates = spawn.Coord.ToVector(),
+                Coordinates = spawn.Coord,
                 Str = 1,
                 Agi = 1,
                 Vit = 1,
@@ -176,7 +176,7 @@ namespace Server
                 CurrentSP = 9999,
                 MapId = spawn.MapId,
                 SaveMapId = save.MapId,
-                SaveCoords = save.Coord.ToVector(),
+                SaveCoords = save.Coord,
                 InventoryId = newInventoryId
             };
 

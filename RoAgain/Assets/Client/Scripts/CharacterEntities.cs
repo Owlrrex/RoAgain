@@ -23,7 +23,7 @@ namespace Client
     public class RemoteCharacterEntity : ACharacterEntity
     {
         public RemoteCharacterEntity(RemoteCharacterData charData) 
-            : base(charData.Coordinates.ToCoordinate(), charData.LocalizedNameId, charData.ModelId, charData.Movespeed,
+            : base(charData.Coordinates, charData.LocalizedNameId, charData.ModelId, charData.Movespeed,
                   charData.MaxHp, charData.MaxSp, charData.BaseLvl, charData.JobId, charData.Gender, charData.EntityId)
         {
             SetData(charData);
@@ -97,7 +97,7 @@ namespace Client
         public int InventoryId;
 
         public LocalCharacterEntity(LocalCharacterData charData)
-            : base(charData.Coordinates.ToCoordinate(), charData.LocalizedNameId, charData.ModelId, charData.Movespeed, charData.MaxHp, charData.MaxSp, charData.BaseLvl
+            : base(charData.Coordinates, charData.LocalizedNameId, charData.ModelId, charData.Movespeed, charData.MaxHp, charData.MaxSp, charData.BaseLvl
                   , charData.JobId, charData.Gender)
         {
             SetData(charData);

@@ -17,7 +17,7 @@ namespace Client
         public float Movespeed = 1;
         public float MovementCooldown;
         public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
-        public Vector2Int Coordinates; // for units that don't have a path right now
+        public Coordinate Coordinates; // for units that don't have a path right now
         public int ModelId;
 
         public static GridEntityData FromPacket(GridEntityDataPacket packet)

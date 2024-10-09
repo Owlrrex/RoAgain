@@ -16,7 +16,7 @@ namespace Server
 
         public override Coordinate GetTargetCoordinates()
         {
-            return Payload.Pickup.Coordinates.ToCoordinate();
+            return Payload.Pickup.Coordinates;
         }
 
         public override bool ShouldCalculateNewPath()

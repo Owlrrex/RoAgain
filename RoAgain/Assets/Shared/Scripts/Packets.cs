@@ -2,7 +2,7 @@ using OwlLogging;
 using Shared;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine; // TODO: Use non-Unity Serializer & replace other Unity-classes
 
 abstract public class Packet
 {
@@ -372,7 +372,7 @@ public class MovementRequestPacket : Packet
 {
     public override int PacketType => 10;
 
-    public Vector2Int TargetCoordinates;
+    public Coordinate TargetCoordinates;
 }
 
 public class EntityPathUpdatePacket : Packet
@@ -438,7 +438,7 @@ public class SkillUseGroundRequestPacket : Packet
 
     public SkillId SkillId;
     public int SkillLvl;
-    public Vector2Int TargetCoords;
+    public Coordinate TargetCoords;
     //public int[] Params; // Not sure if there's enough cases where the Client sets parameters
 }
 
@@ -449,7 +449,7 @@ public class CastProgressPacket : Packet
     public int CasterId;
     public SkillId SkillId;
     public int TargetId;
-    public Vector2Int TargetCoords;
+    public Coordinate TargetCoords;
     public float CastTimeTotal;
     public float CastTimeRemaining;
 
@@ -488,7 +488,7 @@ public class GroundSkillExecutePacket : Packet
     public SkillId SkillId;
     // SkillLevel needed?
     public int UserId;
-    public Vector2Int TargetCoords;
+    public Coordinate TargetCoords;
     public float AnimCd;
     // Untyped Params?
     public bool Speak;
@@ -614,7 +614,7 @@ public class GridEntityDataPacket : Packet
     public float Movespeed;
     public float MovementCooldown;
     public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
-    public Vector2Int Coordinates; // for units that don't have a path right now
+    public Coordinate Coordinates; // for units that don't have a path right now
     public int ModelId;
 }
 
@@ -631,7 +631,7 @@ public class BattleEntityDataPacket : Packet
     public float Movespeed;
     public float MovementCooldown;
     public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
-    public Vector2Int Coordinates; // for units that don't have a path right now
+    public Coordinate Coordinates; // for units that don't have a path right now
     public int ModelId;
 
     public int BaseLvl;
@@ -653,7 +653,7 @@ public class RemoteCharacterDataPacket : Packet
     public float Movespeed;
     public float MovementCooldown;
     public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
-    public Vector2Int Coordinates; // for units that don't have a path right now
+    public Coordinate Coordinates; // for units that don't have a path right now
 
     public int BaseLvl;
     public int MaxHp;
@@ -680,7 +680,7 @@ public class LocalCharacterDataPacket : Packet
     public float Movespeed;
     public float MovementCooldown;
     public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
-    public Vector2Int Coordinates; // for units that don't have a path right now
+    public Coordinate Coordinates; // for units that don't have a path right now
 
     public int MaxHp;
     public int Hp;
@@ -867,7 +867,7 @@ public class LocalPlayerGroundSkillQueuedPacket : Packet
     public override int PacketType => 53;
 
     public SkillId SkillId;
-    public Vector2Int Target;
+    public Coordinate Target;
 }
 
 public enum SkillCategory

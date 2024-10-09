@@ -1,11 +1,9 @@
 using System;
-using UnityEngine;
 
-// Not sure if using this over a raw Vector is worth it.
 [Serializable]
 public struct Coordinate
 {
-    public static readonly Coordinate INVALID = new(-1, -1);
+    public static readonly Coordinate INVALID = new(int.MinValue, int.MinValue);
 
     public int X;
     public int Y;
@@ -20,15 +18,16 @@ public struct Coordinate
         return (float)Math.Sqrt(hori * hori + vert * vert);
     }
 
-    // distance along grid
-    public float GridDistanceTo(Coordinate other)
+    // distance along vertical & horizontal steps
+    public int GridDistanceTo(Coordinate other)
     {
         return Math.Abs(other.X - X) + Math.Abs(other.Y - Y);
     }
 
-    public readonly Vector2Int ToVector()
+    // Max of X-diff & Y-diff - distance where each square-ring is distance 1 further away
+    public int GridDistanceSquare(Coordinate other)
     {
-        return new Vector2Int(X, Y);
+        return Math.Max(Math.Abs(other.X - X), Math.Abs(other.Y - Y));
     }
 
     public static bool operator==(Coordinate self, Coordinate other)
@@ -113,11 +112,6 @@ public static class CoordinateExtensions
         return coord;
     }
 
-    public static Coordinate ToCoordinate(this Vector2Int v)
-    {
-        return new() { X = v.x, Y = v.y };
-    }
-
     public static MapCoordinate ToMapCoordinate(this string s)
     {
         string[] parts = s.Split("/");
@@ -133,10 +127,5 @@ public static class CoordinateExtensions
         coord.MapId = parts[0];
 
         return coord;
-    }
-
-    public static int SquareDistance(this Coordinate one, Coordinate two)
-    {
-        return Math.Max(Math.Abs(one.X - two.X), Math.Abs(one.Y - two.Y));
     }
 }

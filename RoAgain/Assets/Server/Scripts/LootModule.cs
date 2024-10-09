@@ -182,7 +182,7 @@ namespace Server
                         }
                         else
                         {
-                            _pickupModule.QueuePickupCreation(item.ItemTypeId, item.Amount, mob.Coordinates.ToCoordinate(), characters[i].Id);
+                            _pickupModule.QueuePickupCreation(item.ItemTypeId, item.Amount, mob.Coordinates, characters[i].Id);
                         }
                         break;
                     }

@@ -55,7 +55,7 @@ namespace Server
         public bool IsTranscendent;
 
         public string SaveMapId = string.Empty;
-        public Vector2Int SaveCoords = GridData.INVALID_COORDS;
+        public Coordinate SaveCoords = GridData.INVALID_COORDS;
 
         public Dictionary<EntityPropertyType, List<ConditionalStat>> ConditionalStats;
 
@@ -180,7 +180,7 @@ namespace Server
         }
 
         public CharacterRuntimeData(ClientConnection connection, CharacterPersistenceData persData, ExperienceModule expModule)
-            : base(persData.Coordinates.ToCoordinate(), LocalizedStringId.INVALID, -1, 6, 0, 0, -1)
+            : base(persData.Coordinates, LocalizedStringId.INVALID, -1, 6, 0, 0, -1)
         {
             if (connection == null)
             {

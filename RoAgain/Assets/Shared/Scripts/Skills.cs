@@ -1,7 +1,4 @@
 using OwlLogging;
-using System.Collections.Generic;
-using UnityEngine;
-
 
 namespace Shared
 {
@@ -68,10 +65,10 @@ namespace Shared
 
     public struct SkillTarget
     {
-        public Vector2Int GroundTarget { get; private set; }
+        public Coordinate GroundTarget { get; private set; }
         public BattleEntity EntityTarget { get; private set; }
 
-        public SkillTarget(Vector2Int groundTarget)
+        public SkillTarget(Coordinate groundTarget)
         {
             GroundTarget = groundTarget;
             EntityTarget = null;
@@ -83,7 +80,7 @@ namespace Shared
             EntityTarget = entityTarget;
         }
 
-        public void SetGroundTarget(Vector2Int groundTarget)
+        public void SetGroundTarget(Coordinate groundTarget)
         {
             if(EntityTarget != null)
             {
@@ -121,7 +118,7 @@ namespace Shared
             return EntityTarget != null;
         }
 
-        public readonly Vector2Int GetTargetCoordinates()
+        public readonly Coordinate GetTargetCoordinates()
         {
             if (IsEntityTarget())
                 return EntityTarget.Coordinates;

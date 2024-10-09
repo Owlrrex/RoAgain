@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
+// TODO: Move to another assembly so Shared is Clean
 public class CoroutineRunner : MonoBehaviour
 {
     private static CoroutineRunner _instance;

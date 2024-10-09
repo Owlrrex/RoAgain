@@ -142,7 +142,7 @@ namespace Server
             return result;
         }
 
-        public int MoveEntityBetweenMaps(int entityId, string sourceMapId, string targetMapId, Vector2Int targetCoordinates)
+        public int MoveEntityBetweenMaps(int entityId, string sourceMapId, string targetMapId, Coordinate targetCoordinates, GridData.Direction newOrientation = GridData.Direction.Unknown)
         {
             if (entityId <= 0)
             {
@@ -182,9 +182,10 @@ namespace Server
                 return -5;
             }
 
-
             if (targetMap == sourceMap)
             {
+                if (newOrientation != GridData.Direction.Unknown)
+                    occupant.Orientation = newOrientation;
                 sourceMap.Grid.MoveOccupant(occupant, occupant.Coordinates, targetCoordinates);
             }
             else
@@ -194,6 +195,9 @@ namespace Server
                     OwlLogger.LogError($"Map move failed - Remove failed!", GameComponent.Other);
                     return -6;
                 }
+
+                if (newOrientation != GridData.Direction.Unknown)
+                    occupant.Orientation = newOrientation;
 
                 if (!targetMap.Grid.PlaceOccupant(occupant, targetCoordinates))
                 {

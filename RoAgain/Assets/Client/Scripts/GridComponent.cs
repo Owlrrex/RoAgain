@@ -21,13 +21,13 @@ namespace Client
 #if UNITY_EDITOR
         public List<Vector3> GizmoDots { get; private set; } = new();
 
-        public Vector2Int EditorBounds;
+        public Coordinate EditorBounds;
         public float GridVisualizationHeight = 0.0f;
 
         public static float CellWalkableCheckRadius = 0.1f;
 
         private Vector3[] _gridLineSegments;
-        private Vector2Int _lastEditorBounds;
+        private Coordinate _lastEditorBounds;
         private float _lastVisHeight;
         private float _lastCellSize;
         private Vector3 _lastWorldPos;
@@ -58,13 +58,13 @@ namespace Client
             _lastVisHeight = GridVisualizationHeight;
             _lastCellSize = CellSize;
 
-            Vector3 horiLineEndOffset = new(EditorBounds.x * CellSize, 0, 0);
-            Vector3 vertLineEndOffset = new(0, 0, EditorBounds.y * CellSize);
+            Vector3 horiLineEndOffset = new(EditorBounds.X * CellSize, 0, 0);
+            Vector3 vertLineEndOffset = new(0, 0, EditorBounds.Y * CellSize);
             int gridLineSegmentIndex = 0;
-            _gridLineSegments = new Vector3[(EditorBounds.x + EditorBounds.y + 2) * 2];
+            _gridLineSegments = new Vector3[(EditorBounds.X + EditorBounds.Y + 2) * 2];
 
             // Build points in local space
-            for (int x = 0; x < EditorBounds.x; x++)
+            for (int x = 0; x < EditorBounds.X; x++)
             {
                 Vector3 start = new(x * CellSize, GridVisualizationHeight, 0);
                 Vector3 end = start + vertLineEndOffset;
@@ -72,7 +72,7 @@ namespace Client
                 _gridLineSegments[gridLineSegmentIndex++] = end;
             }
 
-            for (int y = 0; y < EditorBounds.y; y++)
+            for (int y = 0; y < EditorBounds.Y; y++)
             {
                 Vector3 start = new(0, GridVisualizationHeight, y * CellSize);
                 Vector3 end = start + horiLineEndOffset;
@@ -81,13 +81,13 @@ namespace Client
             }
 
             // Boundary Line: last hori
-            Vector3 horiStart = new(0, GridVisualizationHeight, EditorBounds.y * CellSize);
+            Vector3 horiStart = new(0, GridVisualizationHeight, EditorBounds.Y * CellSize);
             Vector3 horiEnd = horiStart + horiLineEndOffset;
             _gridLineSegments[gridLineSegmentIndex++] = horiStart;
             _gridLineSegments[gridLineSegmentIndex++] = horiEnd;
 
             // Boundary Line: last vert
-            Vector3 vertStart = new(EditorBounds.x * CellSize, GridVisualizationHeight, 0);
+            Vector3 vertStart = new(EditorBounds.X * CellSize, GridVisualizationHeight, 0);
             Vector3 vertEnd = vertStart + vertLineEndOffset;
             _gridLineSegments[gridLineSegmentIndex++] = vertStart;
             _gridLineSegments[gridLineSegmentIndex++] = vertEnd;
@@ -184,7 +184,7 @@ namespace Client
             if(!pScene.Raycast(ray.origin, ray.direction, out hit, float.PositiveInfinity, LayerMask.GetMask(new string[] { "ClickableTerrain" })))
                 return;
 
-            Vector2Int coordinates = gridComponent.FreePosToGridCoords(hit.point);
+            Coordinate coordinates = gridComponent.FreePosToGridCoords(hit.point);
             if (coordinates == GridData.INVALID_COORDS)
             {
                 Debug.LogWarning("Hovered coordinates: Not in Map");
@@ -242,12 +242,13 @@ namespace Client
             return Data != null;
         }
 
-        public Vector2Int FreePosToGridCoords(Vector3 freePos)
+        public Coordinate FreePosToGridCoords(Vector3 freePos)
         {
             Vector3 localFreePos = transform.worldToLocalMatrix.MultiplyPoint(freePos);
-            Vector2Int candidateCoords = Vector2Int.zero;
-            candidateCoords.x = Mathf.CeilToInt(localFreePos.x / CellSize);
-            candidateCoords.y = Mathf.CeilToInt(localFreePos.z / CellSize);
+            Coordinate candidateCoords = new(
+                Mathf.CeilToInt(localFreePos.x / CellSize),
+                Mathf.CeilToInt(localFreePos.z / CellSize)
+            );
 
             if (!Data.AreCoordinatesValid(candidateCoords))
             {
@@ -262,7 +263,7 @@ namespace Client
             return candidateCoords;
         }
 
-        public Vector3 CoordsToWorldPosition(Vector2Int coords)
+        public Vector3 CoordsToWorldPosition(Coordinate coords)
         {
             if (!Data.AreCoordinatesValid(coords))
                 return Vector3.negativeInfinity;
@@ -270,8 +271,8 @@ namespace Client
             float halfCell = CellSize / 2.0f;
 
             Vector3 position = Vector3.zero;
-            position.x = CellSize * (coords.x - 1) + halfCell;
-            position.z = CellSize * (coords.y - 1) + halfCell;
+            position.x = CellSize * (coords.X - 1) + halfCell;
+            position.z = CellSize * (coords.Y - 1) + halfCell;
             position.y = Data.GetDataAtCoords(coords).CellHeight;
 
             return transform.localToWorldMatrix.MultiplyPoint(position);
@@ -279,7 +280,7 @@ namespace Client
 
         public Vector3 SnapPositionToGrid(Vector3 freePos)
         {
-            Vector2Int coords = FreePosToGridCoords(freePos);
+            Coordinate coords = FreePosToGridCoords(freePos);
             if (coords == GridData.INVALID_COORDS)
             {
                 return Vector3.negativeInfinity;

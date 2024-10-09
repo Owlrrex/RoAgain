@@ -115,7 +115,7 @@ namespace Server
             foreach (NpcDefinition npcDef in _npcDefsByMapId[mapId])
             {
                 GridEntity npc = CreateNpc(npcDef);
-                map.Grid.PlaceOccupant(npc, npcDef.Location.Coord.ToVector());
+                map.Grid.PlaceOccupant(npc, npcDef.Location.Coord);
                 placedNpcs.Add(npc);
             }
             

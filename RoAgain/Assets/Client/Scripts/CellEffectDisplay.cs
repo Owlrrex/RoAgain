@@ -43,8 +43,8 @@ namespace Client
                 return -1;
             }
 
-            List<Vector2Int> coordinates = data.Shape.GatherCoordinates(grid.Data);
-            foreach (Vector2Int coord in coordinates)
+            List<Coordinate> coordinates = data.Shape.GatherCoordinates(grid.Data);
+            foreach (Coordinate coord in coordinates)
             {
                 Vector3 cellPos = grid.CoordsToWorldPosition(coord);
                 Vector3 localPos = transform.InverseTransformPoint(cellPos);

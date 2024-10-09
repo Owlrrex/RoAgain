@@ -105,12 +105,12 @@ namespace Shared
         [Serializable]
         public class Path
         {
-            public List<Vector2Int> Corners = new();
-            public List<Vector2Int> AllCells = new();
+            public List<Coordinate> Corners = new();
+            public List<Coordinate> AllCells = new();
 
-            public Vector2Int[] GetPathBounds()
+            public Coordinate[] GetPathBounds()
             {
-                Vector2Int[] result = new Vector2Int[2];
+                Coordinate[] result = new Coordinate[2];
                 result[0] = INVALID_COORDS;
                 result[1] = INVALID_COORDS;
                 if (Corners.Count == 0)
@@ -128,16 +128,16 @@ namespace Shared
                     return result;
                 }
 
-                foreach (Vector2Int c in Corners)
+                foreach (Coordinate c in Corners)
                 {
-                    if (c.x > result[1].x)
-                        result[1].x = c.x;
-                    if (c.x < result[0].x)
-                        result[0].x = c.x;
-                    if (c.y > result[1].y)
-                        result[1].y = c.y;
-                    if (c.y < result[0].y)
-                        result[0].y = c.y;
+                    if (c.X > result[1].X)
+                        result[1].X = c.X;
+                    if (c.X < result[0].X)
+                        result[0].X = c.X;
+                    if (c.Y > result[1].Y)
+                        result[1].Y = c.Y;
+                    if (c.Y < result[0].Y)
+                        result[0].Y = c.Y;
                 }
                 return result;
             }
@@ -189,31 +189,31 @@ namespace Shared
             //}
         }
 
-        public static readonly string MAP_FILE_DIR = System.IO.Path.Combine(Application.dataPath, "MapFiles");
+        public static readonly string MAP_FILE_DIR = System.IO.Path.Combine(Application.dataPath, "MapFiles"); // TODO: Inject this so we don't have to use Unity anymore
 
-        public static readonly Vector2Int INVALID_COORDS = new(-1, -1);
+        public static readonly Coordinate INVALID_COORDS = new(-1, -1);
 
         private GridCellData[] _cellDatas;
-        public Vector2Int Bounds { get; private set; }
+        public Coordinate Bounds { get; private set; }
 
         private Dictionary<int, GridEntity> _entitiesById = new();
 
-        public Action<GridEntity, Vector2Int, Vector2Int> EntityMoved;
-        public Action<GridEntity, Vector2Int> EntityPlaced;
-        public Action<GridEntity, Vector2Int> EntityRemoved;
+        public Action<GridEntity, Coordinate, Coordinate> EntityMoved;
+        public Action<GridEntity, Coordinate> EntityPlaced;
+        public Action<GridEntity, Coordinate> EntityRemoved;
 
         private List<CellEffectGroup> _cellEffects = new(10);
 
-        public bool Initialize(Vector2Int bounds)
+        public bool Initialize(Coordinate bounds)
         {
             Bounds = bounds;
-            _cellDatas = new GridCellData[bounds.x * bounds.y];
+            _cellDatas = new GridCellData[bounds.X * bounds.Y];
             Array.Fill(_cellDatas, new GridCellData());
 
             return true;
         }
 
-        public bool Initialize(GridCellData[] cellDatas, Vector2Int bounds)
+        public bool Initialize(GridCellData[] cellDatas, Coordinate bounds)
         {
             if (cellDatas == null || cellDatas.Length == 0)
             {
@@ -221,7 +221,7 @@ namespace Shared
                 return false;
             }
 
-            if (cellDatas.Length != bounds.x * bounds.y)
+            if (cellDatas.Length != bounds.X * bounds.Y)
             {
                 OwlLogger.LogError($"Can't initialize GridData when cellData Length {cellDatas.Length} mismatches bounds {bounds}", GameComponent.Grid);
                 return false;
@@ -277,7 +277,7 @@ namespace Shared
                 return PlaceOccupant(occupant, occupant.Path.AllCells[occupant.PathCellIndex]);
         }
 
-        public bool PlaceOccupant(GridEntity occupant, Vector2Int coords)
+        public bool PlaceOccupant(GridEntity occupant, Coordinate coords)
         {
             if (_entitiesById.ContainsKey(occupant.Id))
             {
@@ -304,7 +304,7 @@ namespace Shared
             return RemoveOccupant(occupant, occupant.Coordinates);
         }
 
-        public bool RemoveOccupant(GridEntity occupant, Vector2Int coords)
+        public bool RemoveOccupant(GridEntity occupant, Coordinate coords)
         {
             // Could check current occupant parentGrid here?
             if (!_entitiesById.ContainsKey(occupant.Id))
@@ -331,7 +331,7 @@ namespace Shared
             return removeResult;
         }
 
-        public bool MoveOccupant(GridEntity occupant, Vector2Int from, Vector2Int to, bool wantsToStand = false)
+        public bool MoveOccupant(GridEntity occupant, Coordinate from, Coordinate to, bool wantsToStand = false)
         {
             if (from == to)
                 return true;
@@ -371,7 +371,7 @@ namespace Shared
             return placeResult;
         }
 
-        public List<GridEntity> GetOccupantsOfCell(Vector2Int coords)
+        public List<GridEntity> GetOccupantsOfCell(Coordinate coords)
         {
             int index = CoordsToIndex(coords);
             GridCellData data = _cellDatas[index];
@@ -383,7 +383,7 @@ namespace Shared
             return _entitiesById.Values;
         }
 
-        public GridEntity GetOccupantFromCell(Vector2Int coords, int entityId)
+        public GridEntity GetOccupantFromCell(Coordinate coords, int entityId)
         {
             List<GridEntity> occupants = GetOccupantsOfCell(coords);
             if (occupants == null || occupants.Count == 0)
@@ -398,7 +398,7 @@ namespace Shared
             return null;
         }
 
-        public List<GridCellData> GetCellsInRange(Vector2Int min, Vector2Int max, bool includeVoid = true)
+        public List<GridCellData> GetCellsInRange(Coordinate min, Coordinate max, bool includeVoid = true)
         {
             if (!AreCoordinatesValid(min))
                 throw new ArgumentOutOfRangeException("bottomleft");
@@ -406,21 +406,21 @@ namespace Shared
             if (!AreCoordinatesValid(max))
                 throw new ArgumentOutOfRangeException("topright");
 
-            if (min.x > max.x
-                || min.y > max.y)
+            if (min.X > max.X
+                || min.Y > max.Y)
             {
                 throw new ArgumentException("bottomleft and topright don't span a proper rectangle!");
             }
 
-            int heightspan = max.y - min.y + 1;
-            int widthspan = max.x - min.x + 1;
+            int heightspan = max.Y - min.Y + 1;
+            int widthspan = max.X - min.X + 1;
 
             List<GridCellData> gridCellDatas = new(heightspan * widthspan);
-            for (int i = min.y; i <= max.y; ++i)
+            for (int i = min.Y; i <= max.Y; ++i)
             {
-                for (int j = min.x; j <= max.x; ++j)
+                for (int j = min.X; j <= max.X; ++j)
                 {
-                    Vector2Int coords = new() { x = j, y = i };
+                    Coordinate coords = new(j, i);
                     GridCellData data = GetDataAtCoords(coords);
                     if (includeVoid || !data.IsVoidCell())
                         gridCellDatas.Add(data);
@@ -430,7 +430,7 @@ namespace Shared
             return gridCellDatas;
         }
 
-        public List<Vector2Int> GetCoordinatesInRange(Vector2Int min, Vector2Int max, bool includeVoid = true)
+        public List<Coordinate> GetCoordinatesInRange(Coordinate min, Coordinate max, bool includeVoid = true)
         {
             if (!AreCoordinatesValid(min))
                 throw new ArgumentOutOfRangeException("bottomleft");
@@ -438,16 +438,16 @@ namespace Shared
             if (!AreCoordinatesValid(max))
                 throw new ArgumentOutOfRangeException("topright");
 
-            int heightspan = max.y - min.y + 1;
-            int widthspan = max.x - min.x + 1;
+            int heightspan = max.Y - min.Y + 1;
+            int widthspan = max.X - min.X + 1;
 
-            List<Vector2Int> gridCoords = new(heightspan * widthspan);
+            List<Coordinate> gridCoords = new(heightspan * widthspan);
 
-            for (int i = min.y; i <= max.y; ++i)
+            for (int i = min.Y; i <= max.Y; ++i)
             {
-                for (int j = min.x; j <= max.x; ++j)
+                for (int j = min.X; j <= max.X; ++j)
                 {
-                    Vector2Int coords = new() { x = j, y = i };
+                    Coordinate coords = new(j, i);
 
                     if (!includeVoid)
                     {
@@ -461,7 +461,7 @@ namespace Shared
             return gridCoords;
         }
 
-        public List<T> GetOccupantsInRangeSquare<T>(Vector2Int min, Vector2Int max) where T : GridEntity
+        public List<T> GetOccupantsInRangeSquare<T>(Coordinate min, Coordinate max) where T : GridEntity
         {
             List<T> typedOccupants = new();
             // this function could iterate over _entities and do distance-checks
@@ -496,7 +496,7 @@ namespace Shared
 
         private Dictionary<Type, System.Collections.IList> _buffers = new();
 
-        public List<T> GetOccupantsInRangeSquareLowAlloc<T>(Vector2Int min, Vector2Int max) where T : GridEntity
+        public List<T> GetOccupantsInRangeSquareLowAlloc<T>(Coordinate min, Coordinate max) where T : GridEntity
         {
             if (!_buffers.ContainsKey(typeof(T)))
             {
@@ -518,7 +518,7 @@ namespace Shared
 
         // Radius refers to the number of cells the square area extends away from the Unit: 
         // 1 = 3x3 area, 3 = 7x7 area, etc.
-        public List<T> GetOccupantsInRangeSquare<T>(Vector2Int center, int radius) where T : GridEntity
+        public List<T> GetOccupantsInRangeSquare<T>(Coordinate center, int radius) where T : GridEntity
         {
             if (radius < 0)
             {
@@ -526,7 +526,7 @@ namespace Shared
                 return null;
             }
 
-            if (!MakeBounds(center, radius, out Vector2Int min, out Vector2Int max))
+            if (!MakeBounds(center, radius, out Coordinate min, out Coordinate max))
             {
                 return null;
             }
@@ -536,7 +536,7 @@ namespace Shared
 
         // Radius refers to the number of cells the square area extends away from the Unit: 
         // 1 = 3x3 area, 3 = 7x7 area, etc.
-        public List<T> GetOccupantsInRangeSquareLowAlloc<T>(Vector2Int center, int radius) where T : GridEntity
+        public List<T> GetOccupantsInRangeSquareLowAlloc<T>(Coordinate center, int radius) where T : GridEntity
         {
             if (radius < 0)
             {
@@ -544,7 +544,7 @@ namespace Shared
                 return null;
             }
 
-            if (!MakeBounds(center, radius, out Vector2Int min, out Vector2Int max))
+            if (!MakeBounds(center, radius, out Coordinate min, out Coordinate max))
             {
                 return null;
             }
@@ -553,7 +553,7 @@ namespace Shared
         }
 
         // TODO: Make sure that visionRange is used correctly in callsites, I removed a check against GridEntity.VisionRange and didn't replace it yet
-        public List<T> GetObserversSquare<T>(Vector2Int origin, int visionRange = MAX_VISION_RANGE) where T : GridEntity
+        public List<T> GetObserversSquare<T>(Coordinate origin, int visionRange = MAX_VISION_RANGE) where T : GridEntity
         {
             List<T> observers = new();
             foreach (GridEntity entity in GetOccupantsInRangeSquareLowAlloc<T>(origin, visionRange))
@@ -565,7 +565,7 @@ namespace Shared
         }
 
         // TODO: Make sure that visionRange is used correctly in callsites, I removed a check against GridEntity.VisionRange and didn't replace it yet
-        public List<T> GetObserversSquare<T>(Vector2Int origin, List<GridEntity> exclusionList, int visionRange = MAX_VISION_RANGE) where T : GridEntity
+        public List<T> GetObserversSquare<T>(Coordinate origin, List<GridEntity> exclusionList, int visionRange = MAX_VISION_RANGE) where T : GridEntity
         {
             List<T> observers = new();
             foreach (GridEntity entity in GetOccupantsInRangeSquareLowAlloc<T>(origin, visionRange))
@@ -577,7 +577,7 @@ namespace Shared
             return observers;
         }
 
-        public HashSet<T> GetGroupsInRangeSquare<T>(Vector2Int center, int radius) where T : CellEffectGroup
+        public HashSet<T> GetGroupsInRangeSquare<T>(Coordinate center, int radius) where T : CellEffectGroup
         {
             if (radius < 0)
             {
@@ -585,7 +585,7 @@ namespace Shared
                 return null;
             }
 
-            if (!MakeBounds(center, radius, out Vector2Int min, out Vector2Int max))
+            if (!MakeBounds(center, radius, out Coordinate min, out Coordinate max))
             {
                 return null;
             }
@@ -593,7 +593,7 @@ namespace Shared
             return GetGroupsInRangeSquare<T>(min, max);
         }
 
-        public HashSet<T> GetGroupsInRangeSquare<T>(Vector2Int min, Vector2Int max) where T : CellEffectGroup
+        public HashSet<T> GetGroupsInRangeSquare<T>(Coordinate min, Coordinate max) where T : CellEffectGroup
         {
             HashSet<T> groups = new();
             // with how few CellGroups are usually on a map, I'm sure distance-checks are usually better than iterating all cells
@@ -608,22 +608,22 @@ namespace Shared
             return groups;
         }
 
-        public bool AreCoordinatesValid(Vector2Int coords)
+        public bool AreCoordinatesValid(Coordinate coords)
         {
-            return coords.x > 0 && coords.x <= Bounds.x && coords.y > 0 && coords.y <= Bounds.y;
+            return coords.X > 0 && coords.X <= Bounds.X && coords.Y > 0 && coords.Y <= Bounds.Y;
         }
 
-        public GridCellData GetDataAtCoords(Vector2Int coords)
+        public GridCellData GetDataAtCoords(Coordinate coords)
         {
             return _cellDatas[CoordsToIndex(coords)];
         }
 
-        public int CoordsToIndex(Vector2Int coords)
+        public int CoordsToIndex(Coordinate coords)
         {
             if (!AreCoordinatesValid(coords))
                 throw new ArgumentOutOfRangeException("coords", $"coords out of bounds for index-conversion: {coords}");
 
-            return (coords.y - 1) * Bounds.x + (coords.x - 1); // Grid coordinates are 1-based
+            return (coords.Y - 1) * Bounds.X + (coords.X - 1); // Grid coordinates are 1-based
         }
 
         #region PathfindingRhombus
@@ -635,7 +635,7 @@ namespace Shared
             Vertical
         }
 
-        public Path FindPath(Vector2Int startCoords, Vector2Int targetCoords)
+        public Path FindPath(Coordinate startCoords, Coordinate targetCoords)
         {
             if (startCoords == targetCoords)
             {
@@ -671,11 +671,11 @@ namespace Shared
             return path;
         }
 
-        private bool FindPathStep(ref Path path, Vector2Int targetCoords, LastDirection lastDirection)
+        private bool FindPathStep(ref Path path, Coordinate targetCoords, LastDirection lastDirection)
         {
-            Vector2Int lastCoord = path.AllCells[^1];
-            int diffX = targetCoords.x - lastCoord.x;
-            int diffY = targetCoords.y - lastCoord.y;
+            Coordinate lastCoord = path.AllCells[^1];
+            int diffX = targetCoords.X - lastCoord.X;
+            int diffY = targetCoords.Y - lastCoord.Y;
             if (lastCoord == targetCoords)
             {
                 // finalize path: Walk back any cells that aren't valid end-cells
@@ -685,7 +685,7 @@ namespace Shared
                 {
                     if (path.AllCells.Count == 1)
                         break; // don't remove the start-cell
-                    Vector2Int coordsToRemove = path.AllCells[^1];
+                    Coordinate coordsToRemove = path.AllCells[^1];
                     path.AllCells.RemoveAt(path.AllCells.Count - 1);
                     path.Corners.Remove(coordsToRemove);
                     cellData = GetDataAtCoords(path.AllCells[^1]);
@@ -727,23 +727,23 @@ namespace Shared
             return false;
         }
 
-        private bool FindPathCheckOneDirection(ref Path path, Vector2Int targetCoords, LastDirection lastDirection, LastDirection nextDirection)
+        private bool FindPathCheckOneDirection(ref Path path, Coordinate targetCoords, LastDirection lastDirection, LastDirection nextDirection)
         {
-            Vector2Int lastCoord = path.AllCells[^1];
-            int diffX = targetCoords.x - lastCoord.x;
-            int diffY = targetCoords.y - lastCoord.y;
+            Coordinate lastCoord = path.AllCells[^1];
+            int diffX = targetCoords.X - lastCoord.X;
+            int diffY = targetCoords.Y - lastCoord.Y;
 
-            Vector2Int nextStep;
+            Coordinate nextStep;
             switch (nextDirection)
             {
                 case LastDirection.Diagonal:
-                    nextStep = new Vector2Int(lastCoord.x + Math.Sign(diffX), lastCoord.y + Math.Sign(diffY));
+                    nextStep = new Coordinate(lastCoord.X + Math.Sign(diffX), lastCoord.Y + Math.Sign(diffY));
                     break;
                 case LastDirection.Horizontal:
-                    nextStep = new Vector2Int(lastCoord.x + Math.Sign(diffX), lastCoord.y);
+                    nextStep = new Coordinate(lastCoord.X + Math.Sign(diffX), lastCoord.Y);
                     break;
                 case LastDirection.Vertical:
-                    nextStep = new Vector2Int(lastCoord.x, lastCoord.y + Math.Sign(diffY));
+                    nextStep = new Coordinate(lastCoord.X, lastCoord.Y + Math.Sign(diffY));
                     break;
                 default:
                     return false;
@@ -773,7 +773,7 @@ namespace Shared
         }
         #endregion
 
-        public int FindAndSetPathTo(GridEntity entity, Vector2Int targetCoords)
+        public int FindAndSetPathTo(GridEntity entity, Coordinate targetCoords)
         {
             Path path = FindPath(entity.Coordinates, targetCoords);
             if (path == null || path.AllCells.Count == 0 || path.AllCells.Count == 1) // 0 & null are error cases, 1 is "no path found"
@@ -847,7 +847,7 @@ namespace Shared
             if (!entity.CurrentPathingAction.ShouldCalculateNewPath())
                 return;
 
-            Vector2Int targetCoords = entity.CurrentPathingAction.GetTargetCoordinates().ToVector();
+            Coordinate targetCoords = entity.CurrentPathingAction.GetTargetCoordinates();
             if (targetCoords == INVALID_COORDS)
             {
                 entity.SetPathingAction(null, IPathingAction.ResultCode.InvalidTarget);
@@ -890,7 +890,7 @@ namespace Shared
                 return;
             }
 
-            //Vector2Int expectedCoords = entity.Path.AllCells[entity.PathCellIndex];
+            //Coordinate expectedCoords = entity.Path.AllCells[entity.PathCellIndex];
             //if (entity.Coordinates != expectedCoords)
             //{
             //    // tmp attempt: Correct coordinates mismatches instead of reporting them
@@ -916,8 +916,8 @@ namespace Shared
                 return;
             }
 
-            Vector2Int oldCoords = entity.Coordinates;
-            Vector2Int newCoords = entity.Path.AllCells[++entity.PathCellIndex];
+            Coordinate oldCoords = entity.Coordinates;
+            Coordinate newCoords = entity.Path.AllCells[++entity.PathCellIndex];
             bool wantsToStand = entity.PathCellIndex == entity.Path.AllCells.Count - 1;
             bool moveSuccessful = MoveOccupant(entity, oldCoords, newCoords, wantsToStand);
 
@@ -929,7 +929,7 @@ namespace Shared
             }
 
             float speedFactor = 1.0f;
-            if (oldCoords.x != newCoords.x && oldCoords.y != newCoords.y)
+            if (oldCoords.X != newCoords.X && oldCoords.Y != newCoords.Y)
                 speedFactor = 1.414f; // Account for diagonal movement distance
 
             entity.MovementCooldown += 1 / entity.Movespeed.Value * speedFactor;
@@ -975,12 +975,12 @@ namespace Shared
             }
         }
 
-        public bool MakeBounds(Vector2Int center, int radius, out Vector2Int min, out Vector2Int max)
+        public bool MakeBounds(Coordinate center, int radius, out Coordinate min, out Coordinate max)
         {
-            min = new(center.x - radius, center.y - radius);
-            max = new(center.x + radius, center.y + radius);
+            min = new(center.X - radius, center.Y - radius);
+            max = new(center.X + radius, center.Y + radius);
 
-            if (min.x > max.x || min.y > max.y)
+            if (min.X > max.X || min.Y > max.Y)
             {
                 OwlLogger.LogError($"GetEntitiesInRangeSquare produced invalid search bounds: {min} to {max}", GameComponent.Grid);
                 return false;
@@ -991,13 +991,13 @@ namespace Shared
             return true;
         }
 
-        public void ClampBounds(Vector2Int inMin, Vector2Int inMax, out Vector2Int outMin, out Vector2Int outMax)
+        public void ClampBounds(Coordinate inMin, Coordinate inMax, out Coordinate outMin, out Coordinate outMax)
         {
-            outMin = new(Math.Clamp(inMin.x, 1, Bounds.x), Math.Clamp(inMin.y, 1, Bounds.y));
-            outMax = new(Math.Clamp(inMax.x, 1, Bounds.x), Mathf.Clamp(inMax.y, 1, Bounds.y));
+            outMin = new(Math.Clamp(inMin.X, 1, Bounds.X), Math.Clamp(inMin.Y, 1, Bounds.Y));
+            outMax = new(Math.Clamp(inMax.X, 1, Bounds.X), Math.Clamp(inMax.Y, 1, Bounds.Y));
         }
 
-        public Vector2Int FindRandomPosition(Vector2Int boundsMin, Vector2Int boundsMax, bool allowVoid)
+        public Coordinate FindRandomPosition(Coordinate boundsMin, Coordinate boundsMax, bool allowVoid)
         {
             if (boundsMin == INVALID_COORDS && boundsMax == INVALID_COORDS)
             {
@@ -1010,12 +1010,13 @@ namespace Shared
                 return INVALID_COORDS;
             }
 
-            int maxAttempts = (boundsMax.x - boundsMin.x) * (boundsMax.y - boundsMin.y); // Max attempts = number of cells in the area
+            System.Random r = new();
+            int maxAttempts = (boundsMax.X - boundsMin.X) * (boundsMax.Y - boundsMin.Y); // Max attempts = number of cells in the area
             for (int attempts = 0; attempts < maxAttempts; attempts++)
             {
-                Vector2Int result = new();
-                result.x = UnityEngine.Random.Range(boundsMin.x, boundsMax.x + 1);
-                result.y = UnityEngine.Random.Range(boundsMin.y, boundsMax.y + 1);
+                Coordinate result = new();
+                result.X = r.Next(boundsMin.X, boundsMax.X + 1);
+                result.Y = r.Next(boundsMin.Y, boundsMax.Y + 1);
 
                 // Other conditions for cells to find (like player visibility) go here
 
@@ -1033,7 +1034,7 @@ namespace Shared
             return INVALID_COORDS;
         }
 
-        public Vector2Int FindRandomPosition(bool allowVoid)
+        public Coordinate FindRandomPosition(bool allowVoid)
         {
             return FindRandomPosition(new(1, 1), Bounds, allowVoid);
         }
@@ -1046,8 +1047,8 @@ namespace Shared
             {
                 using (BinaryWriter writer = new(memoryStream))
                 {
-                    writer.Write(Bounds.x);
-                    writer.Write(Bounds.y);
+                    writer.Write(Bounds.X);
+                    writer.Write(Bounds.Y);
                     foreach (GridCellData data in _cellDatas)
                     {
                         if (!data.WriteToBinary(writer))
@@ -1066,9 +1067,9 @@ namespace Shared
         {
             using MemoryStream memStream = new(rawData);
             using BinaryReader reader = new(memStream);
-            Vector2Int newBounds = new(reader.ReadInt32(), reader.ReadInt32());
+            Coordinate newBounds = new(reader.ReadInt32(), reader.ReadInt32());
             Bounds = newBounds;
-            int mapsize = Bounds.x * Bounds.y;
+            int mapsize = Bounds.X * Bounds.Y;
             _cellDatas = new GridCellData[mapsize];
             for (int i = 0; i < mapsize; i++)
             {
@@ -1085,10 +1086,10 @@ namespace Shared
 
         // This function can, in theory, check the overlapping area for void-cells and thus create more detailed checks
         // since it has access to the grid topology
-        public bool Overlaps(Vector2Int min1, Vector2Int max1, Vector2Int min2, Vector2Int max2)
+        public bool Overlaps(Coordinate min1, Coordinate max1, Coordinate min2, Coordinate max2)
         {
-            return min1.x <= max2.x && max1.x >= min2.x
-                && min1.y <= max2.y && max1.y >= min2.y;
+            return min1.X <= max2.X && max1.X >= min2.X
+                && min1.Y <= max2.Y && max1.Y >= min2.Y;
         }
 
         public OccupantEnumerator<T> GetOccupantEnumerator<T>() where T : GridEntity

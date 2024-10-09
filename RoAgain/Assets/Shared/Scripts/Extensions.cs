@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using UnityEngine;
+using UnityEngine; // TODO: split into client-extensions (that can use UnityEngine) and others that aren't allowed to use it
 
 public static class Extensions
 {
@@ -40,27 +40,6 @@ public static class Extensions
         fullString.Append(")}");
 
         return fullString.ToString();
-    }
-
-    public static int GridDistanceSquare(this Vector2Int self, Vector2Int other)
-    {
-        return Mathf.Max(Mathf.Abs(other.x - self.x), Mathf.Abs(other.y - self.y));
-    }
-
-    public static Vector2Int ToVector(this GridData.Direction direction)
-    {
-        return direction switch
-        {
-            GridData.Direction.North => new Vector2Int(0, 1),
-            GridData.Direction.NorthEast => new Vector2Int(1, 1),
-            GridData.Direction.East => new Vector2Int(1, 0),
-            GridData.Direction.SouthEast => new Vector2Int(1, -1),
-            GridData.Direction.South => new Vector2Int(0, -1),
-            GridData.Direction.SouthWest => new Vector2Int(-1, -1),
-            GridData.Direction.West => new Vector2Int(-1, 0),
-            GridData.Direction.NorthWest => new Vector2Int(-1, 1),
-            _ => Vector2Int.zero,
-        };
     }
 
     public static Coordinate ToCoordinateOffset(this GridData.Direction direction)

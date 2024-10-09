@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace OwlLogging
 {
-    [System.Flags]
+    [Flags]
     public enum GameComponent
     {
         Other           = 1 << 0,
@@ -37,7 +37,7 @@ namespace OwlLogging
         Error
     }
 
-    [System.Flags]
+    [Flags]
     public enum LogDetail
     {
         CallerNames = 1,

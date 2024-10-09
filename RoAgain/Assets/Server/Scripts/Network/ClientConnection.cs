@@ -14,8 +14,8 @@ namespace Server
         public Action<ClientConnection, string, string> LoginRequestRecieved;
         public Action<ClientConnection> CharacterSelectionRequestReceived;
         public Action<ClientConnection, int> CharacterLoginReceived;
-        public Action<ClientConnection, Vector2Int> MovementRequestReceived;
-        public Action<ClientConnection, SkillId, int, Vector2Int> GroundSkillRequestReceived;
+        public Action<ClientConnection, Coordinate> MovementRequestReceived;
+        public Action<ClientConnection, SkillId, int, Coordinate> GroundSkillRequestReceived;
         public Action<ClientConnection, SkillId, int, int> EntitySkillRequestReceived;
         public Action<ClientConnection, ChatModule.ChatMessageRequestData> ChatMessageRequestReceived;
         public Action<ClientConnection, EntityPropertyType> StatIncreaseRequestReceived;

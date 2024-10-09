@@ -148,8 +148,8 @@ namespace Server
             foreach (WarpDefinition warpDef in _defsByMapId[mapId])
             {
                 WarpCellEffectGroup warp = CreateWarp(warpDef);
-                RectangleBoundsGridShape shape = new() { IncludeVoid = false, SourceBoundsMin = warpDef.BoundsMin.ToVector(), SourceBoundsMax = warpDef.BoundsMax.ToVector() };
-                warp.Create(map.Grid, shape, warpDef.TargetMapCoord.MapId, warpDef.TargetMapCoord.Coord.ToVector());
+                RectangleBoundsGridShape shape = new() { IncludeVoid = false, SourceBoundsMin = warpDef.BoundsMin, SourceBoundsMax = warpDef.BoundsMax };
+                warp.Create(map.Grid, shape, warpDef.TargetMapCoord.MapId, warpDef.TargetMapCoord.Coord);
                 placedWarps.Add(warp);
             }
 

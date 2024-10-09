@@ -20,14 +20,14 @@ MonoBehaviour:
       - AreaId: 1
         MobCount: 30
         MobSpeciesId: 1
-        BoundsMin: {x: -1, y: -1}
-        BoundsMax: {x: -1, y: -1}
+        BoundsMin: {X: -1, Y: -1}
+        BoundsMax: {X: -1, Y: -1}
         Delay: 0
       - AreaId: 2
         MobCount: 5
         MobSpeciesId: 3
-        BoundsMin: {x: -1, y: -1}
-        BoundsMax: {x: -1, y: -1}
+        BoundsMin: {X: -1, Y: -1}
+        BoundsMax: {X: -1, Y: -1}
         Delay: 30
   - MapId: test_map2
     Sets:
@@ -36,6 +36,6 @@ MonoBehaviour:
       - AreaId: 1
         MobCount: 5
         MobSpeciesId: 2
-        BoundsMin: {x: 10, y: 10}
-        BoundsMax: {x: 20, y: 20}
+        BoundsMin: {X: 10, Y: 10}
+        BoundsMax: {X: 20, Y: 20}
         Delay: 3

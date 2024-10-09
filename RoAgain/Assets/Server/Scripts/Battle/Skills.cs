@@ -186,7 +186,7 @@ namespace Server
 
             if (skillExec.Target.IsGroundTarget())
             {
-                if (Extensions.GridDistanceSquare(skillExec.User.Coordinates, skillExec.Target.GroundTarget) > skillExec.Range)
+                if (skillExec.User.Coordinates.GridDistanceSquare(skillExec.Target.GroundTarget) > skillExec.Range)
                     return SkillFailReason.OutOfRange;
             }
             else
@@ -197,7 +197,7 @@ namespace Server
                 if (skillExec.Target.EntityTarget.MapId != skillExec.User.MapId)
                     return SkillFailReason.WrongMap;
 
-                int distance = Extensions.GridDistanceSquare(skillExec.User.Coordinates, skillExec.Target.EntityTarget.Coordinates);
+                int distance = skillExec.User.Coordinates.GridDistanceSquare(skillExec.Target.EntityTarget.Coordinates);
                 // TODO: Divide this into "OutOfRange_Near" & "OutOfRange_Far" for purposes of allowing out-of-range cast finishes
                 if (distance > skillExec.Range)
                     return SkillFailReason.OutOfRange;

@@ -2,8 +2,6 @@ using OwlLogging;
 using Shared;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UIElements;
 
 [Serializable]
 public abstract class GridShape
@@ -12,28 +10,28 @@ public abstract class GridShape
 
     public abstract List<GridCellData> GatherCellDatas(GridData grid);
 
-    public abstract List<Vector2Int> GatherCoordinates(GridData grid);
+    public abstract List<Coordinate> GatherCoordinates(GridData grid);
 
-    public abstract void GetBounds(GridData grid, out Vector2Int min, out Vector2Int max);
+    public abstract void GetBounds(GridData grid, out Coordinate min, out Coordinate max);
 }
 
 [Serializable]
 public class RectangleBoundsGridShape : GridShape
 {
-    public Vector2Int SourceBoundsMin;
-    public Vector2Int SourceBoundsMax;
+    public Coordinate SourceBoundsMin;
+    public Coordinate SourceBoundsMax;
 
     public override List<GridCellData> GatherCellDatas(GridData grid)
     {
         return grid.GetCellsInRange(SourceBoundsMin, SourceBoundsMax, IncludeVoid);
     }
 
-    public override List<Vector2Int> GatherCoordinates(GridData grid)
+    public override List<Coordinate> GatherCoordinates(GridData grid)
     {
         return grid.GetCoordinatesInRange(SourceBoundsMin, SourceBoundsMax, IncludeVoid);
     }
 
-    public override void GetBounds(GridData grid, out Vector2Int min, out Vector2Int max)
+    public override void GetBounds(GridData grid, out Coordinate min, out Coordinate max)
     {
         grid.ClampBounds(SourceBoundsMin, SourceBoundsMax, out min, out max);
     }
@@ -42,26 +40,26 @@ public class RectangleBoundsGridShape : GridShape
 [Serializable]
 public class SquareCenterGridShape : GridShape
 {
-    public Vector2Int Center;
+    public Coordinate Center;
     public int Radius;
 
     public override List<GridCellData> GatherCellDatas(GridData grid)
     {
-        Vector2Int boundsMin = new(Center.x - Radius, Center.y - Radius);
-        Vector2Int boundsMax = new(Center.x + Radius, Center.y + Radius);
+        Coordinate boundsMin = new(Center.X - Radius, Center.Y - Radius);
+        Coordinate boundsMax = new(Center.X + Radius, Center.Y + Radius);
         grid.ClampBounds(boundsMin, boundsMax, out boundsMin, out boundsMax);
         return grid.GetCellsInRange(boundsMin, boundsMax, IncludeVoid);
     }
 
-    public override List<Vector2Int> GatherCoordinates(GridData grid)
+    public override List<Coordinate> GatherCoordinates(GridData grid)
     {
-        Vector2Int boundsMin = new(Center.x - Radius, Center.y - Radius);
-        Vector2Int boundsMax = new(Center.x + Radius, Center.y + Radius);
+        Coordinate boundsMin = new(Center.X - Radius, Center.Y - Radius);
+        Coordinate boundsMax = new(Center.X + Radius, Center.Y + Radius);
         grid.ClampBounds(boundsMin, boundsMax, out boundsMin, out boundsMax);
         return grid.GetCoordinatesInRange(boundsMin, boundsMax, IncludeVoid);
     }
 
-    public override void GetBounds(GridData grid, out Vector2Int min, out Vector2Int max)
+    public override void GetBounds(GridData grid, out Coordinate min, out Coordinate max)
     {
         grid.MakeBounds(Center, Radius, out min, out max);
     }
@@ -79,10 +77,10 @@ public abstract class CellEffectGroup // maybe instead of having CellEffectCells
     public abstract CellEffectType Type { get; }
     public int Id;
 
-    public Vector2Int BoundsMin => _boundsMin;
-    private Vector2Int _boundsMin;
-    public Vector2Int BoundsMax => _boundsMax;
-    private Vector2Int _boundsMax;
+    public Coordinate BoundsMin => _boundsMin;
+    private Coordinate _boundsMin;
+    public Coordinate BoundsMax => _boundsMax;
+    private Coordinate _boundsMax;
 
     public GridShape Shape { get; private set; }
 

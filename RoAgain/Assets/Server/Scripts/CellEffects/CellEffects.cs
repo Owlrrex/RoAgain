@@ -12,11 +12,11 @@ public class WarpCellEffectGroup : CellEffectGroup
     public override CellEffectType Type => CellEffectType.Warp;
 
     private string _targetMap;
-    private Vector2Int _targetCoords;
+    private Coordinate _targetCoords;
     private TimerFloat _duration = new();
     private GridData _grid;
 
-    public int Create(GridData grid, GridShape shape, string targetMap, Vector2Int targetCoords, float duration = -1)
+    public int Create(GridData grid, GridShape shape, string targetMap, Coordinate targetCoords, float duration = -1)
     {
         if(string.IsNullOrEmpty(targetMap))
         {

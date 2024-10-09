@@ -290,7 +290,7 @@ namespace Client
                 OwlLogger.LogWarning($"Client received a path of 1 cell length - these shouldn't be sent!", GameComponent.Other);
             }
 
-            Vector2Int coordinatesAlongPath = moveInfo.Path.AllCells[0];
+            Coordinate coordinatesAlongPath = moveInfo.Path.AllCells[0];
             Grid.Data.MoveOccupant(movedEntity, movedEntity.Coordinates, coordinatesAlongPath);
             movedEntity.SetPath(moveInfo.Path, 0, true);
         }
@@ -345,7 +345,7 @@ namespace Client
                     _entitiesAwaitingRemoval.RemoveAt(i);
             }
 
-            Vector2Int coords = data.Coordinates;
+            Coordinate coords = data.Coordinates;
             GridEntity entity = Grid.Data.GetOccupantFromCell(coords, data.EntityId);
 
             if (entity == null)
@@ -518,7 +518,7 @@ namespace Client
 
         private ClientBattleEntity CreateBattleEntity(BattleEntityData entityData)
         {
-            ClientBattleEntity bEntity = new(entityData.Coordinates.ToCoordinate(), entityData.LocalizedNameId, entityData.ModelId, entityData.Movespeed,
+            ClientBattleEntity bEntity = new(entityData.Coordinates, entityData.LocalizedNameId, entityData.ModelId, entityData.Movespeed,
                 entityData.MaxHp, entityData.MaxSp, entityData.BaseLvl, entityData.EntityId);
             bEntity.SetData(entityData);
             return bEntity;
@@ -535,7 +535,7 @@ namespace Client
 
         private GridEntity CreateGridEntity(GridEntityData entityData)
         {
-            GridEntity newEntity = new(entityData.Coordinates.ToCoordinate(), entityData.LocalizedNameId, entityData.ModelId,
+            GridEntity newEntity = new(entityData.Coordinates, entityData.LocalizedNameId, entityData.ModelId,
                 entityData.Movespeed, entityData.EntityId)
             {
                 NameOverride = entityData.NameOverride,
@@ -548,7 +548,7 @@ namespace Client
             return newEntity;
         }
 
-        public void ForceUnitToCoords(GridEntity entity, Vector2Int targetCoords)
+        public void ForceUnitToCoords(GridEntity entity, Coordinate targetCoords)
         {
             if (Grid == null)
             {
@@ -717,7 +717,7 @@ namespace Client
                     OwlLogger.LogError($"Pickup {data.PickupId} exists on grid, but not as PickupEntity!", GameComponent.Items);
                     return;
                 }
-                pickupEntity.Coordinates = data.Coordinates.ToVector();
+                pickupEntity.Coordinates = data.Coordinates;
                 pickupEntity.Count = data.Amount;
                 pickupEntity.ItemTypeId = data.ItemTypeId;
                 pickupEntity.LifeTime.Initialize(data.RemainingTime);

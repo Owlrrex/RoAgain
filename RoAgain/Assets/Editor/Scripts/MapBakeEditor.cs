@@ -55,8 +55,8 @@ public class GridComponentEditor : Editor
     private void BuildMapFilesForGrid(GridComponent grid)
     {
         if (string.IsNullOrWhiteSpace(grid.EditorMapId)
-        || grid.EditorBounds.x <= 0
-        || grid.EditorBounds.y <= 0)
+        || grid.EditorBounds.X <= 0
+        || grid.EditorBounds.Y <= 0)
         {
             OwlLogger.LogError("Invalid inputs!", GameComponent.Editor);
             return;
@@ -92,11 +92,11 @@ public class GridComponentEditor : Editor
         GridData coordConverter = new();
         coordConverter.Initialize(grid.EditorBounds); // this allocates another array, but it's hidden so we can't use it.
 
-        GridCellData[]  gridCells = new GridCellData[grid.EditorBounds.x * grid.EditorBounds.y];
+        GridCellData[]  gridCells = new GridCellData[grid.EditorBounds.X * grid.EditorBounds.Y];
 
-        for (int x = 0; x < grid.EditorBounds.x; x++)
+        for (int x = 0; x < grid.EditorBounds.X; x++)
         {
-            for (int y = 0; y < grid.EditorBounds.y; y++)
+            for (int y = 0; y < grid.EditorBounds.Y; y++)
             {
                 GridCellData data = new();
                 float validateResult = ValidateCell(x, y, grid);

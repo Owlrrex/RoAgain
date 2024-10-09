@@ -28,12 +28,17 @@ namespace Shared
             State = PickupState.JustDropped;
         }
 
+        public override bool BlocksStanding()
+        {
+            return false;
+        }
+
         public override Packet ToDataPacket()
         {
             return new PickupDataPacket()
             {
                 Amount = Count,
-                Coordinates = Coordinates.ToCoordinate(),
+                Coordinates = Coordinates,
                 ItemTypeId = ItemTypeId,
                 OwnerCharacterId = OwnerEntityId,
                 PickupId = Id,

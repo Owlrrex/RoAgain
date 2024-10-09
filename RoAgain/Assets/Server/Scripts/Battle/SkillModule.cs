@@ -24,7 +24,7 @@ namespace Server
 
             public override Coordinate GetTargetCoordinates()
             {
-                return Payload.Target.GetTargetCoordinates().ToCoordinate();
+                return Payload.Target.GetTargetCoordinates();
             }
 
             public override bool ShouldCalculateNewPath()
@@ -464,7 +464,7 @@ namespace Server
                     sent.Add(observer);
                 }
 
-                Vector2Int targetCoords = skillExec.Target.GetTargetCoordinates();
+                Coordinate targetCoords = skillExec.Target.GetTargetCoordinates();
                 observers = _mapInstance.Grid.GetObserversSquare<CharacterRuntimeData>(targetCoords, sent);
                 foreach (CharacterRuntimeData observer in observers)
                 {

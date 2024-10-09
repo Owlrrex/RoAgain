@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using UnityEngine; // TODO: Remove Unity-dependencies
 
 [Serializable]
 public class Stat

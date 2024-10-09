@@ -62,7 +62,15 @@ namespace Shared
         // This implies being Walkable.
         public bool IsStandable()
         {
-            return IsWalkable() && _occupants.Count == 0;
+            if (!IsWalkable())
+                return false;
+            
+            foreach(GridEntity occupant in _occupants)
+            {
+                if (occupant.BlocksStanding())
+                    return false;
+            }
+            return true;
         }
 
         public List<CellEffectGroup> GetCellEffects()

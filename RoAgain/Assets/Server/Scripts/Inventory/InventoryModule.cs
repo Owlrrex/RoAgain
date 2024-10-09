@@ -538,7 +538,7 @@ namespace Server
                 return;
             }
 
-            character.GetMapInstance().PickupModule.QueuePickupCreation(itemTypeId, amount, character.Coordinates.ToCoordinate(), 0);
+            character.GetMapInstance().PickupModule.QueuePickupCreation(itemTypeId, amount, character.Coordinates, 0);
         }
 
         public bool CanCharacterAccessInventory(CharacterRuntimeData character, int inventoryId)

@@ -36,8 +36,8 @@ namespace Server
             if (IsDead())
                 return;
 
-            Vector2Int nextSquareLeg = _nextDirection.ToVector();
-            if (nextSquareLeg == Vector2Int.zero)
+            Coordinate nextSquareLeg = _nextDirection.ToCoordinateOffset();
+            if (nextSquareLeg == Coordinate.INVALID)
             {
                 _nextDirection = GridData.Direction.North;
                 return;
@@ -52,9 +52,10 @@ namespace Server
             else if(_nextDirection == GridData.Direction.East)
                 _nextDirection = GridData.Direction.North;
 
-            nextSquareLeg *= _squareSidelength;
+            nextSquareLeg.X *= _squareSidelength;
+            nextSquareLeg.Y *= _squareSidelength;
 
-            Vector2Int nextCoords = Coordinates + nextSquareLeg;
+            Coordinate nextCoords = new(Coordinates.X + nextSquareLeg.X, Coordinates.Y + nextSquareLeg.Y);
             if(ParentGrid.AreCoordinatesValid(nextCoords))
                 ParentGrid.FindAndSetPathTo(this, nextCoords);
         }

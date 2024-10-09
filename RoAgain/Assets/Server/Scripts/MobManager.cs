@@ -133,8 +133,8 @@ namespace Server
         public int AreaId;
         public int MobCount;
         public int MobSpeciesId;
-        public Vector2Int BoundsMin;
-        public Vector2Int BoundsMax;
+        public Coordinate BoundsMin;
+        public Coordinate BoundsMax;
         public int Delay;
     }
 
@@ -244,7 +244,7 @@ namespace Server
                 return -2; // Logged inside CreateNewMob()
             mob.SpawnArea = spawnArea;
 
-            Vector2Int spawnPos = _map.Grid.FindRandomPosition(spawnArea.BoundsMin, spawnArea.BoundsMax, false);
+            Coordinate spawnPos = _map.Grid.FindRandomPosition(spawnArea.BoundsMin, spawnArea.BoundsMax, false);
             if(spawnPos == GridData.INVALID_COORDS)
             {
                 // This _can_ happen by sheer randomness if there's at least one void-cell in the area.

@@ -427,7 +427,7 @@ namespace Server
             return charData;
         }
 
-        public void ReceiveMovementRequest(ClientConnection connection, Vector2Int targetCoordinates)
+        public void ReceiveMovementRequest(ClientConnection connection, Coordinate targetCoordinates)
         {
             if (!TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData characterData))
             {
@@ -486,7 +486,7 @@ namespace Server
             map.SkillModule.ReceiveSkillExecutionRequest(skillId, skillLvl, user, new(target));
         }
 
-        private void ReceiveGroundSkillRequest(ClientConnection connection, SkillId skillId, int skillLvl, Vector2Int target)
+        private void ReceiveGroundSkillRequest(ClientConnection connection, SkillId skillId, int skillLvl, Coordinate target)
         {
             // needing an entity-lookup for each skill isn't super efficient, but it may be ok for now.
             // create lookup-tables entityId -> mapInstance if profiling shows it's needed

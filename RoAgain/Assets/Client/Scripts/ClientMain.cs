@@ -583,7 +583,7 @@ namespace Client
             MapModule.OnEntityRemoved(entityId);
         }
 
-        private void OnMapChangeReceived(string newMapId, Vector2Int newMapCoords)
+        private void OnMapChangeReceived(string newMapId, Coordinate newMapCoords)
         {
             // TODO: Handling for async destruction & loading of map prefabs - loading screen?
             LoadingMessage = "Entering map...";
@@ -645,7 +645,7 @@ namespace Client
             entity.TookDamage?.Invoke(entity, damage, isSpDamage, isCrit, chainCount);
         }
 
-        private void OnCastProgressReceived(int casterId, SkillId skillId, TimerFloat castTime, int targetId, Vector2Int targetCoords)
+        private void OnCastProgressReceived(int casterId, SkillId skillId, TimerFloat castTime, int targetId, Coordinate targetCoords)
         {
             if (MapModule.Grid.Data.FindOccupant(casterId) is not ClientBattleEntity entity)
             {
@@ -731,7 +731,7 @@ namespace Client
             entity.CurrentlyResolvingSkills.Add(skill);
         }
 
-        private void OnGroundSkillReceived(int userId, SkillId skillId, Vector2Int targetCoords, float animCd)
+        private void OnGroundSkillReceived(int userId, SkillId skillId, Coordinate targetCoords, float animCd)
         {
             if (MapModule.Grid.Data.FindOccupant(userId) is not ClientBattleEntity entity)
             {
@@ -955,7 +955,7 @@ namespace Client
             CurrentCharacterData.QueuedSkill = skill;
         }
 
-        private void OnLocalPlayerGroundSkillQueuedReceived(SkillId skillId, Vector2Int target)
+        private void OnLocalPlayerGroundSkillQueuedReceived(SkillId skillId, Coordinate target)
         {
             if (CurrentCharacterData == null)
             {

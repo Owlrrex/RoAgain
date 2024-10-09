@@ -211,7 +211,7 @@ namespace Client
             }
         }
 
-        public void SnapToCoordinates(Vector2Int newCoords)
+        public void SnapToCoordinates(Coordinate newCoords)
         {
             Vector3 target = _grid.CoordsToWorldPosition(_entity.Coordinates);
             //gameObject.transform.position = target;
@@ -261,7 +261,7 @@ namespace Client
             int nextCornerIndex = 0;
             for (int i = 0; i <= _entity.PathCellIndex; i++)
             {
-                Vector2Int cell = _entity.Path.AllCells[i];
+                Coordinate cell = _entity.Path.AllCells[i];
                 if (cell == _entity.Path.Corners[nextCornerIndex])
                 {
                     nextCornerIndex++;

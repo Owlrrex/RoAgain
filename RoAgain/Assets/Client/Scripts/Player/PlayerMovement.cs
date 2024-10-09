@@ -49,7 +49,7 @@ namespace Client
                     }
                     else
                     {
-                        Vector2Int mouseCoords = NavMeshClick.Instance.GetMouseGridCoords();
+                        Coordinate mouseCoords = NavMeshClick.Instance.GetMouseGridCoords();
                         if (mouseCoords == GridData.INVALID_COORDS)
                             return;
 

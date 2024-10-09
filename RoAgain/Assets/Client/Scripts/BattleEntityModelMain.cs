@@ -36,6 +36,8 @@ namespace Client
 
         protected GameObject _model;
 
+        private bool _hovered = false;
+
         public int Initialize(ClientBattleEntity entity)
         {
             if (entity == null)
@@ -108,6 +110,8 @@ namespace Client
 
                 _hpSlider.value = _entity.CurrentHp;
 
+                _hpSlider.gameObject.SetActive((_hovered && _showOnHover) || ShouldShowHpSlider());
+                _spSlider.gameObject.SetActive((_hovered && _showOnHover) || ShouldShowSpSlider());
             }
 
             if (_spSlider != null)
@@ -273,22 +277,27 @@ namespace Client
             // TODO: Adjust Model
         }
 
+        private bool ShouldShowHpSlider()
+        {
+            // TODO: Have config a config value for the player to set
+            return _entity is ACharacterEntity
+                || (_entity.CurrentHp < _entity.MaxHp.Total && _entity.CurrentHp > 0);
+        }
+
+        private bool ShouldShowSpSlider()
+        {
+            // TODO: Have config a config value for the player to set
+            return _entity is ACharacterEntity;
+        }
+
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!_showOnHover)
-                return;
-
-            _hpSlider.gameObject.SetActive(true);
-            _spSlider.gameObject.SetActive(true);
+            _hovered = true;
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!_showOnHover)
-                return;
-
-            _hpSlider.gameObject.SetActive(false);
-            _spSlider.gameObject.SetActive(false);
+            _hovered = false;
         }
     }
 }

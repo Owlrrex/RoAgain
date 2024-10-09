@@ -2,7 +2,6 @@ using OwlLogging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 namespace Shared
 {
@@ -23,8 +22,8 @@ namespace Shared
         public LocalizedStringId LocalizedNameId = LocalizedStringId.INVALID;
         public string NameOverride;
         public string MapId; // Map-class?
-        public Vector2Int Coordinates;
-        public Vector2Int LastUpdateCoordinates;
+        public Coordinate Coordinates;
+        public Coordinate LastUpdateCoordinates;
         public GridData.Direction Orientation;
         // Seconds per Cell
         public WatchableProperty<float, EntityPropertyType> Movespeed = new(EntityPropertyType.Movespeed);
@@ -59,7 +58,7 @@ namespace Shared
                 id = _nextGridEntityId++;
 
             Id = id;
-            Coordinates = coordinates.ToVector();
+            Coordinates = coordinates;
             LocalizedNameId = locNameId;
             ModelId = modelId;
 
@@ -125,7 +124,7 @@ namespace Shared
                 return;
             }
 
-            Vector2Int oldCoordinates = Coordinates;
+            Coordinate oldCoordinates = Coordinates;
             if (HasFinishedPath())
             {
                 if (Path.AllCells.Count > 0)
@@ -234,6 +233,11 @@ namespace Shared
         public bool HasMovedOnLastUpdate()
         {
             return Coordinates != LastUpdateCoordinates;
+        }
+
+        public virtual bool BlocksStanding()
+        {
+            return true;
         }
 
         public void SetPathingAction(IPathingAction newAction, IPathingAction.ResultCode previousCode = IPathingAction.ResultCode.OtherMovement)
