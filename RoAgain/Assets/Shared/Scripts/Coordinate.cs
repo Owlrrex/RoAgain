@@ -5,10 +5,12 @@ using UnityEngine;
 [Serializable]
 public struct Coordinate
 {
-    public static readonly Coordinate INVALID = new() { X = -1, Y = -1 };
+    public static readonly Coordinate INVALID = new(-1, -1);
 
     public int X;
     public int Y;
+
+    public Coordinate(int x, int y) { X = x; Y = y; }
 
     // geometric distance
     public float DistanceTo(Coordinate other)
