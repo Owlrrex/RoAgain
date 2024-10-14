@@ -34,7 +34,6 @@ namespace Client
         private Quaternion _lastWorldRot;
         private Vector3 _lastWorldSize;
 
-        //tmp
         private static Vector3 _queriedCellCenter;
         private static Vector3 _cellQueryMarkerSize;
 
@@ -293,6 +292,27 @@ namespace Client
             }
 
             return snappedPos;
+        }
+
+        public Quaternion GridDirectionToWorldRotation(GridData.Direction direction)
+        {
+            if (direction == GridData.Direction.Unknown)
+                return Quaternion.identity;
+
+            Vector3 horiLookDirection = direction switch
+            {
+                GridData.Direction.North => transform.forward,
+                GridData.Direction.NorthEast => transform.forward + transform.right,
+                GridData.Direction.East => transform.right,
+                GridData.Direction.SouthEast => -transform.forward + transform.right,
+                GridData.Direction.South => -transform.forward,
+                GridData.Direction.SouthWest => -transform.forward - transform.right,
+                GridData.Direction.West => -transform.right,
+                GridData.Direction.NorthWest => transform.forward + -transform.right,
+                _ => Vector3.zero
+            };
+
+            return Quaternion.LookRotation(horiLookDirection, transform.up);
         }
     }
 }

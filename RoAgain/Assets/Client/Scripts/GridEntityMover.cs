@@ -27,6 +27,8 @@ namespace Client
 
         private LocalizedStringText _entityNameLocText;
 
+        private GridData.Direction _lastOrientation = GridData.Direction.Unknown;
+
         public void Initialize(GridEntity entity, GridComponent grid)
         {
             if (entity == null)
@@ -174,6 +176,13 @@ namespace Client
                 {
                     _entityNameLocText.SetLocalizedString(_entity.LocalizedNameId);
                 }
+            }
+
+            if(_entity.Orientation != GridData.Direction.Unknown
+                && _entity.Orientation != _lastOrientation)
+            {
+                _model.transform.rotation = _grid.GridDirectionToWorldRotation(_entity.Orientation);
+                _lastOrientation = _entity.Orientation;
             }
         }
 

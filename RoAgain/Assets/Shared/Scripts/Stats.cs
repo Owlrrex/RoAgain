@@ -232,7 +232,7 @@ public enum EntityPropertyType
     Movespeed,
     WeightLimit,
     CastTime_Mod_Mult,
-    Damage_Mod_Mult,
+    Damage_Mod_Mult, // Should be used as little as possible in favour of Atk- & Matk-mods
     DamageReduction_Mod_Add,
     Crit_Mod_Add,
     SpCost_Mult, // TODO: Implement

@@ -699,7 +699,7 @@ namespace Client
 
         private void OnEntitySkillReceived(int userId, SkillId skillId, int targetId, float animCd)
         {
-            if (MapModule.Grid.Data.FindOccupant(userId) is not ClientBattleEntity entity)
+            if (MapModule.Grid.Data.FindOccupant(userId) is not ClientBattleEntity userEntity)
             {
                 // This can actually happen if the skill-user Entity is out of sight for the client, but the target is visible!
                 // TODO: Handle
@@ -716,11 +716,13 @@ namespace Client
                 return;
             }
 
-            GridEntity target = MapModule.Grid.Data.FindOccupant(targetId);
-            ClientBattleEntity bTarget = target as ClientBattleEntity;
             ClientSkillExecution skill = new();
-            skill.Initialize(skillId, 1, entity, 0, 1, 0, animCd, new(bTarget));
+            skill.Initialize(skillId, 1, userEntity, 0, 1, 0, animCd, new(targetEntity));
             skill.HasExecutionStarted = true;
+
+            // Client-based orientation for animation
+            // TODO: Sever-based approach?
+            userEntity.Orientation = userEntity.Coordinates.GetDirectionTo(targetEntity.Coordinates);
 
             // TODO: fill out other values as best we can
 
@@ -728,7 +730,7 @@ namespace Client
             // Execution-animation should be handled by EntityDisplay component/sytsem
 
             // this skill-object only needs to have its anim-Cd related values filled out
-            entity.CurrentlyResolvingSkills.Add(skill);
+            userEntity.CurrentlyResolvingSkills.Add(skill);
         }
 
         private void OnGroundSkillReceived(int userId, SkillId skillId, Coordinate targetCoords, float animCd)

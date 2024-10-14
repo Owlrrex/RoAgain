@@ -331,7 +331,7 @@ namespace Shared
             return removeResult;
         }
 
-        public bool MoveOccupant(GridEntity occupant, Coordinate from, Coordinate to, bool wantsToStand = false)
+        public bool MoveOccupant(GridEntity occupant, Coordinate from, Coordinate to, bool wantsToStand = false, bool updateOrientation = true)
         {
             if (from == to)
                 return true;
@@ -364,6 +364,12 @@ namespace Shared
             if (placeResult)
             {
                 occupant.Coordinates = to;
+            }
+
+            if(updateOrientation)
+            {
+                Direction newOrientation = from.GetDirectionTo(to);
+                occupant.Orientation = newOrientation;
             }
 
             EntityMoved?.Invoke(occupant, from, to);

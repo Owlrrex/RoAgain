@@ -58,60 +58,6 @@ public static class Extensions
         };
     }
 
-    public static GridData.Direction GetDirectionTo(this Coordinate from, Coordinate to)
-    {
-        (int X, int Y) diffs = (to.X - from.X, to.Y - from.Y);
-
-        // Fast-Track coordinate offsets that are commonly used while updating directions during movement
-        return diffs switch
-        {
-            (0, 0) => GridData.Direction.Unknown,
-            (0, 1) => GridData.Direction.East,
-            (0, -1) => GridData.Direction.West,
-            (1, 0) => GridData.Direction.North,
-            (-1, 0) => GridData.Direction.South,
-            (1, 1) => GridData.Direction.NorthEast,
-            (1, -1) => GridData.Direction.SouthEast,
-            (-1, 1) => GridData.Direction.NorthWest,
-            (-1, -1) => GridData.Direction.SouthWest,
-            _ => CalculateDirection(diffs)
-        };
-    }
-
-    // Doesn't divide the circle absolutely equally, since the sine-values for those angles are a mess
-    // Instead, divides along the lines of y = 2x and y = x/2 etc.
-    private static GridData.Direction CalculateDirection((int X, int Y) diffs)
-    {
-        float ratio = Math.Abs(diffs.X) / Math.Abs(diffs.Y);
-
-        // Closest to horizontal = 1, Closest to diagonal = 2, Clostest to vertical = 3
-        int sector = 2;
-        if (ratio < 0.5f)
-            sector = 1;
-        else if (ratio > 2)
-            sector = 3;
-
-        // Topright = 1, Topleft = 2, Bottomleft = 3, Bottomright = 4
-        int quadrant = diffs.X > 0 ? (diffs.Y > 0 ? 1 : 4) : (diffs.Y > 0 ? 2 : 3);
-
-        return (quadrant, sector) switch
-        {
-            (1, 1) => GridData.Direction.East,
-            (1, 2) => GridData.Direction.NorthEast,
-            (1, 3) => GridData.Direction.North,
-            (2, 1) => GridData.Direction.West,
-            (2, 2) => GridData.Direction.NorthWest,
-            (2, 3) => GridData.Direction.North,
-            (3, 1) => GridData.Direction.West,
-            (3, 2) => GridData.Direction.SouthWest,
-            (3, 3) => GridData.Direction.South,
-            (4, 1) => GridData.Direction.East,
-            (4, 2) => GridData.Direction.SouthEast,
-            (4, 3) => GridData.Direction.South,
-            _ => GridData.Direction.Unknown
-        };
-    }
-
     public static void DiffArrays<T, U>(T oldList, T newList, ref HashSet<U> newElements, ref HashSet<U> stayedElements, ref HashSet<U> removedElements) where T : IEnumerable<U>
     {
         if(newElements != null)

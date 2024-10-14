@@ -362,7 +362,7 @@ namespace Client
             }
 
             // SyncPosition to server data
-            Grid.Data.MoveOccupant(entity, entity.Coordinates, data.Coordinates);
+            Grid.Data.MoveOccupant(entity, entity.Coordinates, data.Coordinates, true, false);
 
             // Update local data that doesn't need special action taken from it
             if (entity is LocalCharacterEntity localChar && data is LocalCharacterData lData)
@@ -562,15 +562,19 @@ namespace Client
                 return;
             }
 
+            // TODO upate orientation
+
             if (targetCoords != entity.Coordinates)
             {
                 OwlLogger.Log($"Entity {entity.Id} is being forced from {entity.Coordinates} to {targetCoords}", GameComponent.Other);
-                Grid.Data.MoveOccupant(entity, entity.Coordinates, targetCoords);
+                Grid.Data.MoveOccupant(entity, entity.Coordinates, targetCoords, false, false);
                 if (_displayedGridEntities.ContainsKey(entity.Id))
                 {
                     _displayedGridEntities[entity.Id].SnapToCoordinates(targetCoords);
                 }
             }
+
+            
         }
 
         public int RemoveMoverOnly(GridEntity entity)
