@@ -1,8 +1,6 @@
 using OwlLogging;
 using Shared;
 using System;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace Server
 {
@@ -133,7 +131,7 @@ namespace Server
         // These make the BattleModule not thread-safe!
         private Stat battleCalcStat1 = new();
         private Stat battleCalcStat2 = new();
-        private StatFloat battleCalcStatFloat = new();
+        private Stat battleCalcStatFloat = new();
 
         public int Initialize(MapInstance mapInstance)
         {
@@ -302,7 +300,7 @@ namespace Server
             if (parameters.CanCrit)
             {
                 parameters.Source.Crit.CopyTo(battleCalcStatFloat);
-                charSource?.ApplyModToStatFloatAdd(EntityPropertyType.Crit_Mod_Add, ref battleCalcStatFloat, parameters);
+                charSource?.ApplyModToStatAdd(EntityPropertyType.Crit_Mod_Add, ref battleCalcStatFloat, parameters);
 
                 float critChance = battleCalcStatFloat.Total - target.CritShield.Total;
 
@@ -315,8 +313,8 @@ namespace Server
             bool canMiss = parameters.CanMiss;
             bool ignoreDefense = parameters.IgnoreDefense;
 
-            int maxAttack;
-            int minAttack;
+            float maxAttack;
+            float minAttack;
             if (isPhysical)
             {
                 parameters.Source.CurrentAtkMax.CopyTo(battleCalcStat1);
@@ -396,7 +394,7 @@ namespace Server
 
             float damage;
             float hardDefense;
-            int softDefense;
+            float softDefense;
             if (isPhysical)
             {
                 hardDefense = target.HardDef.Total;
@@ -558,11 +556,11 @@ namespace Server
                 return -2;
             }
 
-            int oldValue = target.CurrentHp;
+            float oldValue = target.CurrentHp;
             target.CurrentHp = Math.Clamp(target.CurrentHp - damage, 0, target.MaxHp.Total);
             target.TookDamage?.Invoke(target, damage, false, isCrit, chainCount);
 
-            int contribution = Math.Min(oldValue, damage); // this may not always work?
+            float contribution = Math.Min(oldValue, damage); // this may not always work?
             if (!target.BattleContributions.ContainsKey(source.Id))
             {
                 target.BattleContributions[source.Id] = contribution;
@@ -628,7 +626,7 @@ namespace Server
             return 0;
         }
 
-        public int ChangeHp(ServerBattleEntity target, int change, ServerBattleEntity source)
+        public int ChangeHp(ServerBattleEntity target, float change, ServerBattleEntity source)
         {
             if (target == null)
             {
@@ -636,11 +634,11 @@ namespace Server
                 return -1;
             }
 
-            int newValue = Mathf.Clamp(target.CurrentHp + change, 0, target.MaxHp.Total);
+            float newValue = Math.Clamp(target.CurrentHp + change, 0.0f, target.MaxHp.Total);
             if (newValue == target.CurrentHp)
                 return 0;
 
-            int oldValue = target.CurrentHp;
+            float oldValue = target.CurrentHp;
             target.CurrentHp = newValue;
 
             if (target.CurrentHp == 0 && oldValue > 0)
@@ -656,7 +654,7 @@ namespace Server
             return 0;
         }
 
-        public int ChangeSp(ServerBattleEntity target, int change)
+        public int ChangeSp(ServerBattleEntity target, float change)
         {
             if (target == null)
             {
@@ -664,7 +662,7 @@ namespace Server
                 return -1;
             }
 
-            int newValue = Mathf.Clamp(target.CurrentSp + change, 0, target.MaxSp.Total);
+            float newValue = Math.Clamp(target.CurrentSp + change, 0.0f, target.MaxSp.Total);
             if (newValue == target.CurrentSp)
                 return 0;
 

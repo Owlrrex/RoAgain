@@ -9,9 +9,9 @@ namespace Shared
         static List<SkillId> _skillCooldownsToRemove_Reuse = new();
 
         public Stat MaxHp = new();
-        public int CurrentHp; // Watchable? Not for packet sending, since we need distinction between HpUpdate and DamageTaken!
+        public float CurrentHp; // Watchable? Not for packet sending, since we need distinction between HpUpdate and DamageTaken!
         public Stat MaxSp = new();
-        public int CurrentSp; // Watchable? Not for packet sending, since we need distinction between HpUpdate and DamageTaken!
+        public float CurrentSp; // Watchable? Not for packet sending, since we need distinction between HpUpdate and DamageTaken!
         //public Status Status;
         // Some form of reference to Skill-List
 
@@ -27,7 +27,7 @@ namespace Shared
         public Action<BattleEntity, int, bool, bool, int> TookDamage;
         public Action<BattleEntity, BattleEntity> Death;
 
-        public BattleEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp, int id = -1) : base(coordinates, locNameId, modelId, movespeed, id)
+        public BattleEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, float maxHp, float maxSp, int id = -1) : base(coordinates, locNameId, modelId, movespeed, id)
         {
             MaxHp.SetBase(maxHp);
             MaxSp.SetBase(maxSp);

@@ -7,21 +7,8 @@ namespace Shared
     public enum ItemUsageMode
     {
         Unusable,
-        Usable,
-        Equip_Head_Upper,
-        EQUIP_START = Equip_Head_Upper,
-        Equip_head_Mid,
-        Equip_Head_Lower,
-        Equip_Armor,
-        Equip_Garment,
-        Equip_Shoes,
-        Equip_Accessory_Any,
-        Equip_Accessory_Left,
-        Equip_Accessory_Right,
-        Equip_Mainhand,
-        Equip_Offhand,
-        Equip_Twohand,
-        EQUIP_END = Equip_Twohand
+        Consumable,
+        Equip,
     }
 
     /// <summary>

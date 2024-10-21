@@ -761,7 +761,7 @@ namespace Client
             ChatModule.OnChatMessageReceived(data);
         }
 
-        private void OnHpChangeReceived(int entityId, int newHp)
+        private void OnHpChangeReceived(int entityId, float newHp)
         {
             // This being handled in ClientMain directly feels wrong. Maybe move to different class later
             if (MapModule.Grid.Data.FindOccupant(entityId) is not ClientBattleEntity entity)
@@ -773,7 +773,7 @@ namespace Client
             entity.CurrentHp = newHp;
         }
 
-        private void OnSpChangeReceived(int entityId, int newSp)
+        private void OnSpChangeReceived(int entityId, float newSp)
         {
             // This being handled in ClientMain directly feels wrong. Maybe move to different class later
             if (MapModule.Grid.Data.FindOccupant(entityId) is not ClientBattleEntity entity)
@@ -857,7 +857,7 @@ namespace Client
             // TODO: Broadcast events/set dirty once UI is no longer Update-based
         }
 
-        private void OnStatFloatUpdateReceived(EntityPropertyType type, StatFloat newValue)
+        private void OnStatFloatUpdateReceived(EntityPropertyType type, Stat newValue)
         {
             if (CurrentCharacterData == null)
             {

@@ -11,8 +11,7 @@ namespace Server
         private Dictionary<int, GridEntity> _pathUpdates = new();
         private Dictionary<int, GridEntity> _gridEntityUpdates = new();
         private CharacterRuntimeData _localCharacterUpdate;
-        private Dictionary<EntityPropertyType, Stat> _statIntUpdates = new();
-        private Dictionary<EntityPropertyType, StatFloat> _statFloatUpdates = new();
+        private Dictionary<EntityPropertyType, Stat> _statUpdates = new();
         private Dictionary<EntityPropertyType, int> _statCostUpdates = new();
         private int _newRemainingStatPoints = -1;
         private Dictionary<int, ServerBattleEntity> _hpUpdates = new();
@@ -60,18 +59,9 @@ namespace Server
                 _connection.Send(_localCharacterUpdate.ToLocalDataPacket());
             }
 
-            foreach(KeyValuePair<EntityPropertyType, Stat> kvp in _statIntUpdates)
+            foreach(KeyValuePair<EntityPropertyType, Stat> kvp in _statUpdates)
             {
                 _connection.Send(new StatUpdatePacket()
-                {
-                    Type = kvp.Key,
-                    NewValue = kvp.Value,
-                });
-            }
-
-            foreach(KeyValuePair<EntityPropertyType, StatFloat> kvp in _statFloatUpdates)
-            {
-                _connection.Send(new StatFloatUpdatePacket()
                 {
                     Type = kvp.Key,
                     NewValue = kvp.Value,
@@ -161,8 +151,7 @@ namespace Server
 
             _pathUpdates.Clear();
             _gridEntityUpdates.Clear();
-            _statIntUpdates.Clear();
-            _statFloatUpdates.Clear();
+            _statUpdates.Clear();
             _hpUpdates.Clear();
             _spUpdates.Clear();
             _localCharacterUpdate = null;
@@ -205,8 +194,7 @@ namespace Server
 
                     // Remove Stat packets, since they'll also be contained
                     // All stat updates are necessarily for the local character (at the moment), so no need to filter them for Ids
-                    _statIntUpdates.Clear();
-                    _statFloatUpdates.Clear();
+                    _statUpdates.Clear();
                     return;
                 }
             }
@@ -237,30 +225,7 @@ namespace Server
                 return;
             }
 
-            _statIntUpdates[type] = newValue;
-        }
-
-        public void StatUpdate(EntityPropertyType type, StatFloat newValue)
-        {
-            if (type == EntityPropertyType.Unknown)
-            {
-                OwlLogger.LogError($"Can't queue unknown statType, characterId {_connection.CharacterId}", GameComponent.Network);
-                return;
-            }
-
-            if (newValue == null)
-            {
-                OwlLogger.LogError($"Can't queue null stat for type {type}, characterId {_connection.CharacterId}", GameComponent.Network);
-                return;
-            }
-
-            if (_localCharacterUpdate != null)
-            {
-                OwlLogger.Log($"Dropping StatUpdate for player {_connection.CharacterId} - localCharData packet already queued!", GameComponent.Network);
-                return;
-            }
-
-            _statFloatUpdates[type] = newValue;
+            _statUpdates[type] = newValue;
         }
 
         public void StatCostUpdate(EntityPropertyType type, int newCost)

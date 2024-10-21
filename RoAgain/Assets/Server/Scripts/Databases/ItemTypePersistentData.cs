@@ -25,7 +25,7 @@ namespace Server
         public int VisualId;
         public DictionarySerializationWrapper<ModifierType, int> Modifiers;
 
-        public bool IsValid()
+        public virtual bool IsValid()
         {
             return TypeId >= 0
                 && (BaseTypeId >= 0 || BaseTypeId == ItemConstants.BASETYPEID_NONE)
@@ -72,6 +72,6 @@ namespace Server
     /// </summary>
     public class UsableTypePersistentData : ItemTypePersistentData
     {
-
+        public int UseScriptId;
     }
 }

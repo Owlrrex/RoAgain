@@ -138,7 +138,7 @@ namespace Server
             List<float> thresholds = new();
             List<CharacterRuntimeData> characters = new();
             float lastThreshold = 0f;
-            foreach (KeyValuePair<int, int> kvp in mob.BattleContributions)
+            foreach (KeyValuePair<int, float> kvp in mob.BattleContributions)
             {
                 if (!AServer.Instance.TryGetLoggedInCharacterByEntityId(kvp.Key, out CharacterRuntimeData contributor))
                 {

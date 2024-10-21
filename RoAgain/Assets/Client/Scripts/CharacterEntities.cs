@@ -11,7 +11,7 @@ namespace Client
         public Action<ACharacterEntity> JobChanged;
         public int Gender;
 
-        protected ACharacterEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp,
+        protected ACharacterEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, float maxHp, float maxSp,
             int baseLvl, JobId jobId, int gender, int id = -1) : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, baseLvl, id)
         {
             JobId = jobId;
@@ -60,15 +60,15 @@ namespace Client
         public Stat AtkMax;
         public Stat MatkMin;
         public Stat MatkMax;
-        public StatFloat HardDef;
+        public Stat HardDef;
         public Stat SoftDef;
-        public StatFloat HardMdef;
+        public Stat HardMdef;
         public Stat SoftMdef;
         public Stat Hit;
-        public StatFloat PerfectHit;
+        public Stat PerfectHit;
         public Stat Flee;
-        public StatFloat PerfectFlee;
-        public StatFloat Crit;
+        public Stat PerfectFlee;
+        public Stat Crit;
         public float AttackSpeed; // What's the format for this gonna be? Attacks/Second? Should I use a Stat for this?
         public int RemainingStatPoints;
         public int RemainingSkillPoints;

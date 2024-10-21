@@ -39,29 +39,29 @@ namespace Server
         public readonly Stat MatkMin = new();
         public readonly Stat MatkMax = new();
         public readonly Stat AnimationSpeed = new();
-        public readonly StatFloat HardDef = new();
+        public readonly Stat HardDef = new();
         public readonly Stat SoftDef = new();
-        public readonly StatFloat HardMDef = new();
+        public readonly Stat HardMDef = new();
         public readonly Stat SoftMDef = new();
-        public readonly StatFloat Crit = new();
-        public readonly StatFloat CritShield = new();
-        public readonly StatFloat PerfectFlee = new();
+        public readonly Stat Crit = new();
+        public readonly Stat CritShield = new();
+        public readonly Stat PerfectFlee = new();
         public readonly Stat Flee = new();
         public readonly Stat Hit = new();
 
-        public readonly StatFloat ResistanceBleed = new();
-        public readonly StatFloat ResistanceBlind = new();
-        public readonly StatFloat ResistanceCurse = new();
-        public readonly StatFloat ResistanceFrozen = new();
-        public readonly StatFloat ResistancePoison = new();
-        public readonly StatFloat ResistanceSilence = new();
-        public readonly StatFloat ResistanceSleep = new();
-        public readonly StatFloat ResistanceStone = new();
-        public readonly StatFloat ResistanceStun = new();
+        public readonly Stat ResistanceBleed = new();
+        public readonly Stat ResistanceBlind = new();
+        public readonly Stat ResistanceCurse = new();
+        public readonly Stat ResistanceFrozen = new();
+        public readonly Stat ResistancePoison = new();
+        public readonly Stat ResistanceSilence = new();
+        public readonly Stat ResistanceSleep = new();
+        public readonly Stat ResistanceStone = new();
+        public readonly Stat ResistanceStun = new();
 
         public WatchableProperty<float, EntityPropertyType> FlinchSpeed = new(EntityPropertyType.FlinchSpeed);
 
-        public Dictionary<int, int> BattleContributions = new();
+        public Dictionary<int, float> BattleContributions = new();
 
         public Action<ServerBattleEntity, float> Update;
 

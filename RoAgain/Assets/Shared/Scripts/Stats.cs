@@ -1,100 +1,100 @@
 using System;
 using UnityEngine; // TODO: Remove Unity-dependencies
 
+//[Serializable]
+//public class Stat
+//{
+//    [SerializeField]
+//    private int _base;
+//    public int Base => _base;
+
+//    [SerializeField]
+//    private int _total;
+//    public int Total => _total;
+
+//    [SerializeField]
+//    private int _modAdd;
+//    public int ModifiersAdd => _modAdd;
+
+//    [SerializeField]
+//    private float _modMult;
+//    public float ModifiersMult => _modMult;
+
+//    public Action<Stat> ValueChanged;
+
+//    public void CopyTo(Stat other)
+//    {
+//        if (other == null)
+//            return;
+
+//        int oldTotal = _total;
+
+//        other._base = _base;
+//        other._modAdd = _modAdd;
+//        other._modMult = _modMult;
+//        other._total = _total;
+
+//        if(oldTotal != _total)
+//            ValueChanged?.Invoke(this);
+//    }
+
+//    public void Recalculate()
+//    {
+//        int oldTotal = _total;
+//        _total = (int)((_base + _modAdd) * (1 + _modMult));
+//        if (oldTotal != _total)
+//            ValueChanged?.Invoke(this);
+//    }
+
+//    public void SetBase(int value, bool recalculate = true)
+//    {
+//        if (value == _base)
+//            return;
+
+//        _base = value;
+//        if (recalculate)
+//            Recalculate();
+//    }
+
+//    public void ModifyBase(int change, bool recalculate = true)
+//    {
+//        if (change == 0)
+//            return;
+
+//        _base += change;
+//        if (recalculate)
+//            Recalculate();
+//    }
+
+//    public void ModifyAdd(int change, bool recalculate = true)
+//    {
+//        if (change == 0)
+//            return;
+
+//        _modAdd += change;
+//        if(recalculate)
+//            Recalculate();
+//    }
+
+//    public void ModifyMult(float change, bool recalculate = true)
+//    {
+//        if (change == 0)
+//            return;
+
+//        _modMult += change;
+//        if (recalculate)
+//            Recalculate();
+//    }
+//}
+
 [Serializable]
 public class Stat
-{
-    [SerializeField]
-    private int _base;
-    public int Base => _base;
-
-    [SerializeField]
-    private int _total;
-    public int Total => _total;
-
-    [SerializeField]
-    private int _modAdd;
-    public int ModifiersAdd => _modAdd;
-
-    [SerializeField]
-    private float _modMult;
-    public float ModifiersMult => _modMult;
-
-    public Action<Stat> ValueChanged;
-
-    public void CopyTo(Stat other)
-    {
-        if (other == null)
-            return;
-
-        int oldTotal = _total;
-
-        other._base = _base;
-        other._modAdd = _modAdd;
-        other._modMult = _modMult;
-        other._total = _total;
-
-        if(oldTotal != _total)
-            ValueChanged?.Invoke(this);
-    }
-
-    public void Recalculate()
-    {
-        int oldTotal = _total;
-        _total = (int)((_base + _modAdd) * (1 + _modMult));
-        if (oldTotal != _total)
-            ValueChanged?.Invoke(this);
-    }
-
-    public void SetBase(int value, bool recalculate = true)
-    {
-        if (value == _base)
-            return;
-
-        _base = value;
-        if (recalculate)
-            Recalculate();
-    }
-
-    public void ModifyBase(int change, bool recalculate = true)
-    {
-        if (change == 0)
-            return;
-
-        _base += change;
-        if (recalculate)
-            Recalculate();
-    }
-
-    public void ModifyAdd(int change, bool recalculate = true)
-    {
-        if (change == 0)
-            return;
-
-        _modAdd += change;
-        if(recalculate)
-            Recalculate();
-    }
-
-    public void ModifyMult(float change, bool recalculate = true)
-    {
-        if (change == 0)
-            return;
-
-        _modMult += change;
-        if (recalculate)
-            Recalculate();
-    }
-}
-
-[Serializable]
-public class StatFloat
 {
     [SerializeField]
     private float _base;
     public float Base => _base;
 
-    [SerializeField]
+    [NonSerialized]
     private float _total;
     public float Total => _total;
 
@@ -107,22 +107,17 @@ public class StatFloat
     public float ModifiersMult => _modMult;
 
     [NonSerialized]
-    public Action<StatFloat> ValueChanged;
+    public Action<Stat> ValueChanged;
 
-    public void CopyTo(StatFloat other)
+    public void CopyTo(Stat other)
     {
         if (other == null)
             return;
 
-        float oldTotal = _total;
-
         other._base = _base;
         other._modAdd = _modAdd;
         other._modMult = _modMult;
-        other._total = _total;
-
-        if (oldTotal != _total)
-            ValueChanged?.Invoke(this);
+        Recalculate();
     }
 
     public void Recalculate()
@@ -174,7 +169,6 @@ public class StatFloat
     }
 }
 
-// This could be useful for NetworkQueue or serialization
 public enum EntityPropertyType
 {
     Unknown,
@@ -232,7 +226,7 @@ public enum EntityPropertyType
     Movespeed,
     WeightLimit,
     CastTime_Mod_Mult,
-    Damage_Mod_Mult, // Should be used as little as possible in favour of Atk- & Matk-mods
+    Damage_Mod_Mult, // Should be used as little as possible in favour of multiplicative Atk- & Matk-mods
     DamageReduction_Mod_Add,
     Crit_Mod_Add,
     SpCost_Mult, // TODO: Implement

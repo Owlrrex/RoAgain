@@ -60,12 +60,12 @@ namespace Client
 
             if(filter.HasFlag(InventoryFilter.Consumable))
             {
-                return UsageMode == ItemUsageMode.Usable;
+                return UsageMode == ItemUsageMode.Consumable;
             }
 
             if(filter.HasFlag(InventoryFilter.Equippable))
             {
-                return UsageMode >= ItemUsageMode.EQUIP_START && UsageMode <= ItemUsageMode.EQUIP_END;
+                return UsageMode == ItemUsageMode.Equip;
             }
 
             if(filter.HasFlag(InventoryFilter.Other))

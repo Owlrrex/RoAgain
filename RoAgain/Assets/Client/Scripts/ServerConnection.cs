@@ -30,11 +30,11 @@ namespace Client
         public Action<SkillId, int> LocalPlayerEntitySkillQueuedReceived;
         public Action<SkillId, Coordinate> LocalPlayerGroundSkillQueuedReceived;
         public Action<ChatMessageData> ChatMessageReceived;
-        public Action<int, int> HpChangeReceived;
-        public Action<int, int> SpChangeReceived;
+        public Action<int, float> HpChangeReceived;
+        public Action<int, float> SpChangeReceived;
         public Action<int, SkillId, SkillFailReason> SkillFailReceived;
         public Action<EntityPropertyType, Stat> StatUpdateReceived;
-        public Action<EntityPropertyType, StatFloat> StatFloatUpdateReceived;
+        public Action<EntityPropertyType, Stat> StatFloatUpdateReceived;
         public Action<EntityPropertyType, int> StatCostUpdateReceived;
         public Action<int> StatPointUpdateReceived;
         public Action<int, int> ExpUpdateReceived;
@@ -282,9 +282,6 @@ namespace Client
                     break;
                 case StatUpdatePacket statUpdatePacket:
                     ReceiveStatUpdatePacket(statUpdatePacket);
-                    break;
-                case StatFloatUpdatePacket statFloatUpdatePacket:
-                    ReceiveStatFloatUpdatePacket(statFloatUpdatePacket);
                     break;
                 case StatCostUpdatePacket statCostUpdatePacket:
                     ReceiveStatCostUpdatePacket(statCostUpdatePacket);
@@ -582,11 +579,6 @@ namespace Client
         private void ReceiveStatUpdatePacket(StatUpdatePacket packet)
         {
             StatUpdateReceived?.Invoke(packet.Type, packet.NewValue);
-        }
-
-        private void ReceiveStatFloatUpdatePacket(StatFloatUpdatePacket packet)
-        {
-            StatFloatUpdateReceived?.Invoke(packet.Type, packet.NewValue);
         }
 
         private void ReceiveStatCostUpdatePacket(StatCostUpdatePacket packet)

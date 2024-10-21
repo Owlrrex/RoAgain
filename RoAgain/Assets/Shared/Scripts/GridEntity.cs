@@ -242,8 +242,7 @@ namespace Shared
 
         public void SetPathingAction(IPathingAction newAction, IPathingAction.ResultCode previousCode = IPathingAction.ResultCode.OtherMovement)
         {
-            if (CurrentPathingAction != null)
-                CurrentPathingAction.Finish(previousCode);
+            CurrentPathingAction?.Finish(previousCode);
 
             CurrentPathingAction = newAction;
         }

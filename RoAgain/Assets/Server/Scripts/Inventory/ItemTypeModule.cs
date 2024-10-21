@@ -102,7 +102,7 @@ namespace Server
                 && SellPrice >= 0;
         }
 
-        public ItemTypePacket ToPacket()
+        public virtual ItemTypePacket ToPacket()
         {
             return new()
             {
@@ -120,7 +120,7 @@ namespace Server
             };
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             TypeId = 0;
             BaseTypeId = ItemConstants.BASETYPEID_NONE;
@@ -135,7 +135,7 @@ namespace Server
             VisualId = 0;
             NameLocId = LocalizedStringId.INVALID;
             FlavorLocId = LocalizedStringId.INVALID;
-    }
+        }
     }
 
     /// <summary>

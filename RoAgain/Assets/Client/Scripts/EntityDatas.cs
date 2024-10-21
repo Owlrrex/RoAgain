@@ -47,10 +47,10 @@ namespace Client
     public class BattleEntityData : GridEntityData
     {
         public int BaseLvl;
-        public int MaxHp;
-        public int Hp;
-        public int MaxSp;
-        public int Sp;
+        public float MaxHp;
+        public float Hp;
+        public float MaxSp;
+        public float Sp;
 
         public static BattleEntityData FromPacket(BattleEntityDataPacket packet)
         {
@@ -133,15 +133,15 @@ namespace Client
         public Stat AtkMax;
         public Stat MatkMin;
         public Stat MatkMax;
-        public StatFloat HardDef;
+        public Stat HardDef;
         public Stat SoftDef;
-        public StatFloat HardMdef;
+        public Stat HardMdef;
         public Stat SoftMdef;
         public Stat Hit;
-        public StatFloat PerfectHit;
+        public Stat PerfectHit;
         public Stat Flee;
-        public StatFloat PerfectFlee;
-        public StatFloat Crit;
+        public Stat PerfectFlee;
+        public Stat Crit;
         public float AttackSpeed; // What's the format for this gonna be? Attacks/Second? Should I use a Stat for this?
         public int RemainingStatPoints;
         public int RemainingSkillPoints;

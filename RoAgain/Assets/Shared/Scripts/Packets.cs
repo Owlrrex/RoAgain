@@ -178,9 +178,6 @@ abstract public class Packet
             case 39:
                 packet = JsonUtility.FromJson<StatIncreaseRequestPacket>(json);
                 break;
-            case 40:
-                packet = JsonUtility.FromJson<StatFloatUpdatePacket>(json);
-                break;
             case 41:
                 packet = JsonUtility.FromJson<StatCostUpdatePacket>(json);
                 break;
@@ -341,14 +338,14 @@ public class CharacterSelectionData
     public JobId JobId;
     public int JobLevel;
     public int BaseExp;
-    public int Hp;
-    public int Sp;
-    public int Str;
-    public int Agi;
-    public int Vit;
-    public int Int;
-    public int Dex;
-    public int Luk;
+    public float Hp;
+    public float Sp;
+    public float Str;
+    public float Agi;
+    public float Vit;
+    public float Int;
+    public float Dex;
+    public float Luk;
     // TODO: Add stats that are shown on char selection
     public object VisualsOrGear; // TODO
 }
@@ -580,7 +577,7 @@ public class HpUpdatePacket : Packet
     public override int PacketType => 25;
 
     public int EntityId;
-    public int NewHp;
+    public float NewHp;
 }
 
 public class SpUpdatePacket : Packet
@@ -588,7 +585,7 @@ public class SpUpdatePacket : Packet
     public override int PacketType => 26;
 
     public int EntityId;
-    public int NewSp;
+    public float NewSp;
 }
 
 public class SkillFailPacket : Packet
@@ -635,10 +632,10 @@ public class BattleEntityDataPacket : Packet
     public int ModelId;
 
     public int BaseLvl;
-    public int MaxHp;
-    public int Hp;
-    public int MaxSp;
-    public int Sp;
+    public float MaxHp;
+    public float Hp;
+    public float MaxSp;
+    public float Sp;
 }
 
 public class RemoteCharacterDataPacket : Packet
@@ -656,10 +653,10 @@ public class RemoteCharacterDataPacket : Packet
     public Coordinate Coordinates; // for units that don't have a path right now
 
     public int BaseLvl;
-    public int MaxHp;
-    public int Hp;
-    public int MaxSp;
-    public int Sp;
+    public float MaxHp;
+    public float Hp;
+    public float MaxSp;
+    public float Sp;
 
     public JobId JobId;
     public int Gender;
@@ -682,10 +679,10 @@ public class LocalCharacterDataPacket : Packet
     public GridData.Direction Orientation; // can mostly be inferred from movement, but units who haven't moved may need it
     public Coordinate Coordinates; // for units that don't have a path right now
 
-    public int MaxHp;
-    public int Hp;
-    public int MaxSp;
-    public int Sp;
+    public float MaxHp;
+    public float Hp;
+    public float MaxSp;
+    public float Sp;
 
     public int BaseLvl;
     public JobId JobId;
@@ -705,15 +702,15 @@ public class LocalCharacterDataPacket : Packet
     public Stat AtkMax;
     public Stat MatkMin;
     public Stat MatkMax;
-    public StatFloat HardDef;
+    public Stat HardDef;
     public Stat SoftDef;
-    public StatFloat HardMdef;
+    public Stat HardMdef;
     public Stat SoftMdef;
     public Stat Hit;
-    public StatFloat PerfectHit;
+    public Stat PerfectHit;
     public Stat Flee;
-    public StatFloat PerfectFlee;
-    public StatFloat Crit;
+    public Stat PerfectFlee;
+    public Stat Crit;
     public float AttackSpeed; // What's the format for this gonna be? Attacks/Second? Should I use a Stat for this?
     public Stat Weightlimit;
     public int CurrentWeight;
@@ -744,14 +741,6 @@ public class StatUpdatePacket : Packet
 
     public EntityPropertyType Type;
     public Stat NewValue;
-}
-
-public class StatFloatUpdatePacket : Packet
-{
-    public override int PacketType => 40;
-
-    public EntityPropertyType Type;
-    public StatFloat NewValue;
 }
 
 public class StatCostUpdatePacket : Packet
@@ -1000,6 +989,11 @@ public class ItemTypePacket : Packet
     // TODO: include various fields used by only some itemTypes, like Stats on equipment? Or have a seperate packet for that?
 }
 
+public class EquippableItemTypePacket : ItemTypePacket
+{
+    public DictionarySerializationWrapper<EquipmentSlot, string> SlotCriteriums;
+}
+
 public class ItemStackRemovedPacket : Packet
 {
     public override int PacketType => 66;
@@ -1058,4 +1052,4 @@ public class PickupRequestPacket : Packet
 
 // Move & adjust this comment when adding new packets, to make dev easier
 // Next PacketType = 72
-// Unused Ids: 8, 34, 35, 36, 38
+// Unused Ids: 8, 34, 35, 36, 38, 40

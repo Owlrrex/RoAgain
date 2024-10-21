@@ -34,7 +34,7 @@ namespace Server
         // Should this be a direct memory reference? Is there a point to a character being loaded without their inventory?
         // TODO: Persistence & adding to packet
         public int InventoryId;
-        // Equip reference
+        public EquipmentSetRuntime EquipSet;
         // Cosmetic references (if not contained in Equipment)
         
         public int RemainingSkillPoints;
@@ -47,7 +47,7 @@ namespace Server
         public int DexIncreaseCost;
         public int LukIncreaseCost;
 
-        public readonly StatFloat CastTime = new();
+        public readonly Stat CastTime = new();
         public readonly Stat CritDamage = new();
         public readonly Stat WeightLimit = new();
         public int CurrentWeight;
@@ -155,30 +155,6 @@ namespace Server
             }
         }
 
-        public void ApplyModToStatFloatAdd(EntityPropertyType type, ref StatFloat stat, AttackParams attackParams)
-        {
-            if (ConditionalStats?.TryGetValue(type, out var statList) == true)
-            {
-                foreach (ConditionalStat cStat in statList)
-                {
-                    if (cStat.Condition.Evaluate(attackParams))
-                        stat.ModifyAdd(cStat.Value);
-                }
-            }
-        }
-
-        public void ApplyModToStatFloatMult(EntityPropertyType type, ref StatFloat stat, AttackParams attackParams)
-        {
-            if (ConditionalStats?.TryGetValue(type, out var statList) == true)
-            {
-                foreach (ConditionalStat cStat in statList)
-                {
-                    if (cStat.Condition.Evaluate(attackParams))
-                        stat.ModifyMult(cStat.Value);
-                }
-            }
-        }
-
         public CharacterRuntimeData(ClientConnection connection, CharacterPersistenceData persData, ExperienceModule expModule)
             : base(persData.Coordinates, LocalizedStringId.INVALID, -1, 6, 0, 0, -1)
         {
@@ -267,7 +243,7 @@ namespace Server
             WeightLimit.ValueChanged += OnWeightLimitChanged;
         }
 
-        private int GetStatIncreaseCost(int input)
+        private int GetStatIncreaseCost(float input)
         {
             return Mathf.FloorToInt((input - 1) / 10.0f) + 2;
         }
@@ -420,7 +396,7 @@ namespace Server
         //
         //}
 
-        private void OnHardDefChanged(StatFloat hardDef)
+        private void OnHardDefChanged(Stat hardDef)
         {
             NetworkQueue.StatUpdate(EntityPropertyType.HardDef, hardDef);
         }
@@ -430,7 +406,7 @@ namespace Server
             NetworkQueue.StatUpdate(EntityPropertyType.SoftDef, def);
         }
 
-        private void OnHardMdefChanged(StatFloat hardMdef)
+        private void OnHardMdefChanged(Stat hardMdef)
         {
             NetworkQueue.StatUpdate(EntityPropertyType.HardMDef, hardMdef);
         }
@@ -440,7 +416,7 @@ namespace Server
             NetworkQueue.StatUpdate(EntityPropertyType.SoftMDef, mdef);
         }
 
-        private void OnCritChanged(StatFloat crit)
+        private void OnCritChanged(Stat crit)
         {
             NetworkQueue.StatUpdate(EntityPropertyType.Crit, crit);
         }
@@ -450,7 +426,7 @@ namespace Server
             NetworkQueue.StatUpdate(EntityPropertyType.Flee, flee);
         }
 
-        private void OnPerfectFleeChanged(StatFloat pFlee)
+        private void OnPerfectFleeChanged(Stat pFlee)
         {
             NetworkQueue.StatUpdate(EntityPropertyType.PerfectFlee, pFlee);
         }

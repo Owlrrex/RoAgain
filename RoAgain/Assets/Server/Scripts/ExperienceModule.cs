@@ -17,7 +17,7 @@ namespace Server
             if (victim is not Mob mob)
                 return;
 
-            foreach (KeyValuePair<int, int> kvp in mob.BattleContributions)
+            foreach (KeyValuePair<int, float> kvp in mob.BattleContributions)
             {
                 if (!AServer.Instance.TryGetLoggedInCharacterByEntityId(kvp.Key, out var contributor))
                 {
@@ -26,7 +26,7 @@ namespace Server
                     continue;
                 }
 
-                float ratio = kvp.Value / (float)mob.MaxHp.Total;
+                float ratio = kvp.Value / mob.MaxHp.Total;
                 bool anyExpChanged = false;
 
                 if (contributor.BaseLvl.Value < GetMaxBaseLevel())

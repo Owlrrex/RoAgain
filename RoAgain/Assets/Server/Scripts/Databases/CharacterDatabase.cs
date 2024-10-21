@@ -29,14 +29,14 @@ namespace Server
         public int JobLevel = -1;
         public int JobExp = -1;
         public int StatPoints = -1;
-        public int Str = -1;
-        public int Agi = -1;
-        public int Vit = -1;
-        public int Int = -1;
-        public int Dex = -1;
-        public int Luk = -1;
-        public int CurrentHP = -1;
-        public int CurrentSP = -1;
+        public float Str = -1;
+        public float Agi = -1;
+        public float Vit = -1;
+        public float Int = -1;
+        public float Dex = -1;
+        public float Luk = -1;
+        public float CurrentHP = -1;
+        public float CurrentSP = -1;
         public int InventoryId;
 
         // TODO: Equip
