@@ -215,7 +215,9 @@ public class StatWindow : MonoBehaviour
         StrBaseText.text = _character.Str.Base.ToString();
         StrModText.text = (_character.Str.Total - _character.Str.Base).ToString();
         StrCostText.text = _character.StrIncreaseCost.ToString();
-        StrIncreaseButton.gameObject.SetActive(_character.RemainingStatPoints >= _character.StrIncreaseCost);
+        bool canIncrease = _character.RemainingStatPoints >= _character.StrIncreaseCost;
+        StrIncreaseButton.targetGraphic.enabled = canIncrease;
+        StrIncreaseButton.enabled = canIncrease;
     }
 
     public void UpdateAgiDisplay()
@@ -223,7 +225,9 @@ public class StatWindow : MonoBehaviour
         AgiBaseText.text = _character.Agi.Base.ToString();
         AgiModText.text = (_character.Agi.Total - _character.Agi.Base).ToString();
         AgiCostText.text = _character.AgiIncreaseCost.ToString();
-        AgiIncreaseButton.gameObject.SetActive(_character.RemainingStatPoints >= _character.AgiIncreaseCost);
+        bool canIncrease = _character.RemainingStatPoints >= _character.AgiIncreaseCost;
+        AgiIncreaseButton.targetGraphic.enabled = canIncrease;
+        AgiIncreaseButton.enabled = canIncrease;
     }
 
     public void UpdateVitDisplay()
@@ -231,7 +235,9 @@ public class StatWindow : MonoBehaviour
         VitBaseText.text = _character.Vit.Base.ToString();
         VitModText.text = (_character.Vit.Total - _character.Vit.Base).ToString();
         VitCostText.text = _character.VitIncreaseCost.ToString();
-        VitIncreaseButton.gameObject.SetActive(_character.RemainingStatPoints >= _character.VitIncreaseCost);
+        bool canIncrease = _character.RemainingStatPoints >= _character.VitIncreaseCost;
+        VitIncreaseButton.targetGraphic.enabled = canIncrease;
+        VitIncreaseButton.enabled = canIncrease;
     }
 
     public void UpdateIntDisplay()
@@ -239,7 +245,9 @@ public class StatWindow : MonoBehaviour
         IntBaseText.text = _character.Int.Base.ToString();
         IntModText.text = (_character.Int.Total - _character.Int.Base).ToString();
         IntCostText.text = _character.IntIncreaseCost.ToString();
-        IntIncreaseButton.gameObject.SetActive(_character.RemainingStatPoints >= _character.IntIncreaseCost);
+        bool canIncrease = _character.RemainingStatPoints >= _character.IntIncreaseCost;
+        IntIncreaseButton.targetGraphic.enabled = canIncrease;
+        IntIncreaseButton.enabled = canIncrease;
     }
 
     public void UpdateDexDisplay()
@@ -247,7 +255,9 @@ public class StatWindow : MonoBehaviour
         DexBaseText.text = _character.Dex.Base.ToString();
         DexModText.text = (_character.Dex.Total - _character.Dex.Base).ToString();
         DexCostText.text = _character.DexIncreaseCost.ToString();
-        DexIncreaseButton.gameObject.SetActive(_character.RemainingStatPoints >= _character.DexIncreaseCost);
+        bool canIncrease = _character.RemainingStatPoints >= _character.DexIncreaseCost;
+        DexIncreaseButton.targetGraphic.enabled = canIncrease;
+        DexIncreaseButton.enabled = canIncrease;
     }
 
     public void UpdateLukDisplay()
@@ -255,7 +265,9 @@ public class StatWindow : MonoBehaviour
         LukBaseText.text = _character.Luk.Base.ToString();
         LukModText.text = (_character.Luk.Total - _character.Luk.Base).ToString();
         LukCostText.text = _character.LukIncreaseCost.ToString();
-        LukIncreaseButton.gameObject.SetActive(_character.RemainingStatPoints >= _character.LukIncreaseCost);
+        bool canIncrease = _character.RemainingStatPoints >= _character.LukIncreaseCost;
+        LukIncreaseButton.targetGraphic.enabled = canIncrease;
+        LukIncreaseButton.enabled = canIncrease;
     }
 
     public void UpdateAtkDisplay()
