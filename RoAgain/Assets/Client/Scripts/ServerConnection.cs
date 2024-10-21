@@ -34,7 +34,6 @@ namespace Client
         public Action<int, float> SpChangeReceived;
         public Action<int, SkillId, SkillFailReason> SkillFailReceived;
         public Action<EntityPropertyType, Stat> StatUpdateReceived;
-        public Action<EntityPropertyType, Stat> StatFloatUpdateReceived;
         public Action<EntityPropertyType, int> StatCostUpdateReceived;
         public Action<int> StatPointUpdateReceived;
         public Action<int, int> ExpUpdateReceived;

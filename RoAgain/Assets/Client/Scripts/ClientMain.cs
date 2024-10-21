@@ -244,7 +244,6 @@ namespace Client
             ConnectionToServer.HpChangeReceived += OnHpChangeReceived;
             ConnectionToServer.SpChangeReceived += OnSpChangeReceived;
             ConnectionToServer.StatUpdateReceived += OnStatUpdateReceived;
-            ConnectionToServer.StatFloatUpdateReceived += OnStatFloatUpdateReceived;
             ConnectionToServer.StatCostUpdateReceived += OnStatCostUpdateReceived;
             ConnectionToServer.StatPointUpdateReceived += OnStatPointUpdateReceived;
             ConnectionToServer.ExpUpdateReceived += OnExpUpdateReceived;
@@ -292,7 +291,6 @@ namespace Client
             ConnectionToServer.HpChangeReceived -= OnHpChangeReceived;
             ConnectionToServer.SpChangeReceived -= OnSpChangeReceived;
             ConnectionToServer.StatUpdateReceived -= OnStatUpdateReceived;
-            ConnectionToServer.StatFloatUpdateReceived -= OnStatFloatUpdateReceived;
             ConnectionToServer.StatCostUpdateReceived -= OnStatCostUpdateReceived;
             ConnectionToServer.StatPointUpdateReceived -= OnStatPointUpdateReceived;
             ConnectionToServer.ExpUpdateReceived -= OnExpUpdateReceived;
@@ -793,96 +791,41 @@ namespace Client
                 return;
             }
 
-            switch (type)
+            Stat statToUpdate = type switch
             {
-                case EntityPropertyType.Str:
-                    CurrentCharacterData.Str = newValue;
-                    break;
-                case EntityPropertyType.Agi:
-                    CurrentCharacterData.Agi = newValue;
-                    break;
-                case EntityPropertyType.Vit:
-                    CurrentCharacterData.Vit = newValue;
-                    break;
-                case EntityPropertyType.Int:
-                    CurrentCharacterData.Int = newValue;
-                    break;
-                case EntityPropertyType.Dex:
-                    CurrentCharacterData.Dex = newValue;
-                    break;
-                case EntityPropertyType.Luk:
-                    CurrentCharacterData.Luk = newValue;
-                    break;
-                case EntityPropertyType.MaxHp:
-                    CurrentCharacterData.MaxHp = newValue;
-                    break;
-                case EntityPropertyType.MaxSp:
-                    CurrentCharacterData.MaxSp = newValue;
-                    break;
-                case EntityPropertyType.CurrentAtkMin:
-                    CurrentCharacterData.AtkMin = newValue;
-                    break;
-                case EntityPropertyType.CurrentAtkMax:
-                    CurrentCharacterData.AtkMax = newValue;
-                    break;
-                case EntityPropertyType.MatkMin:
-                    CurrentCharacterData.MatkMin = newValue;
-                    break;
-                case EntityPropertyType.MatkMax:
-                    CurrentCharacterData.MatkMax = newValue;
-                    break;
-                case EntityPropertyType.AnimationSpeed:
-                    // Set animation speed, somehow
-                    break;
-                case EntityPropertyType.SoftDef:
-                    CurrentCharacterData.SoftDef = newValue;
-                    break;
-                case EntityPropertyType.SoftMDef:
-                    CurrentCharacterData.SoftMdef = newValue;
-                    break;
-                case EntityPropertyType.Flee:
-                    CurrentCharacterData.Flee = newValue;
-                    break;
-                case EntityPropertyType.Hit:
-                    CurrentCharacterData.Hit = newValue;
-                    break;
-                case EntityPropertyType.WeightLimit:
-                    CurrentCharacterData.Weightlimit = newValue;
-                    break;
-                default:
-                    OwlLogger.LogError($"Client received StatUpdate for stat type {type} that can't be handled!", GameComponent.Character);
-                    break;
-            }
+                EntityPropertyType.Str => CurrentCharacterData.Str,
+                EntityPropertyType.Agi => CurrentCharacterData.Agi,
+                EntityPropertyType.Vit => CurrentCharacterData.Vit,
+                EntityPropertyType.Int => CurrentCharacterData.Int,
+                EntityPropertyType.Dex => CurrentCharacterData.Dex,
+                EntityPropertyType.Luk => CurrentCharacterData.Luk,
+                EntityPropertyType.MaxHp => CurrentCharacterData.MaxHp,
+                EntityPropertyType.MaxSp => CurrentCharacterData.MaxSp,
+                EntityPropertyType.CurrentAtkMin => CurrentCharacterData.AtkMin,
+                EntityPropertyType.CurrentAtkMax => CurrentCharacterData.AtkMax,
+                EntityPropertyType.MatkMin => CurrentCharacterData.MatkMin,
+                EntityPropertyType.MatkMax => CurrentCharacterData.MatkMax,
+                //EntityPropertyType.AnimationSpeed => CurrentCharacterData., // Still gotta figure this one out
+                EntityPropertyType.HardDef => CurrentCharacterData.HardDef,
+                EntityPropertyType.SoftDef => CurrentCharacterData.SoftDef,
+                EntityPropertyType.HardMDef => CurrentCharacterData.HardMdef,
+                EntityPropertyType.SoftMDef => CurrentCharacterData.SoftMdef,
+                EntityPropertyType.Crit => CurrentCharacterData.Crit,
+                EntityPropertyType.Flee => CurrentCharacterData.Flee,
+                EntityPropertyType.PerfectFlee => CurrentCharacterData.PerfectFlee,
+                EntityPropertyType.Hit => CurrentCharacterData.Hit,
+                //EntityPropertyType.FlinchSpeed => CurrentCharacterData.FlinchSpeed, // Not yet implemented
+                EntityPropertyType.WeightLimit => CurrentCharacterData.Weightlimit,
+                _ => null
+            };
 
-            // TODO: Broadcast events/set dirty once UI is no longer Update-based
-        }
-
-        private void OnStatFloatUpdateReceived(EntityPropertyType type, Stat newValue)
-        {
-            if (CurrentCharacterData == null)
+            if(statToUpdate == null)
             {
-                OwlLogger.LogError($"StatFloatUpdate received for stat {type}, newvalue {newValue.Total}, before CurrentcharacterData was set!", GameComponent.Other);
+                OwlLogger.LogError($"Client received StatUpdate for stat type {type} that can't be handled!", GameComponent.Character);
                 return;
             }
 
-            switch (type)
-            {
-                case EntityPropertyType.HardDef:
-                    CurrentCharacterData.HardDef = newValue;
-                    break;
-                case EntityPropertyType.HardMDef:
-                    CurrentCharacterData.HardMdef = newValue;
-                    break;
-                case EntityPropertyType.Crit:
-                    CurrentCharacterData.Crit = newValue;
-                    break;
-                case EntityPropertyType.PerfectFlee:
-                    CurrentCharacterData.PerfectFlee = newValue;
-                    break;
-                default:
-                    OwlLogger.LogError($"Client received StatFloatUpdate for stat type {type} that can't be handled!", GameComponent.Character);
-                    break;
-            }
+            newValue.CopyTo(statToUpdate);
 
             // TODO: Broadcast events/set dirty once UI is no longer Update-based
         }

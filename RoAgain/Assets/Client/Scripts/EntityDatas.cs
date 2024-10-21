@@ -122,30 +122,30 @@ namespace Client
         public int CharacterId;
         public int JobLvl;
 
-        public Stat Str;
-        public Stat Agi;
-        public Stat Vit;
-        public Stat Int;
-        public Stat Dex;
-        public Stat Luk;
+        public Stat Str = new();
+        public Stat Agi = new();
+        public Stat Vit = new();
+        public Stat Int = new();
+        public Stat Dex = new();
+        public Stat Luk = new();
 
-        public Stat AtkMin;
-        public Stat AtkMax;
-        public Stat MatkMin;
-        public Stat MatkMax;
-        public Stat HardDef;
-        public Stat SoftDef;
-        public Stat HardMdef;
-        public Stat SoftMdef;
-        public Stat Hit;
-        public Stat PerfectHit;
-        public Stat Flee;
-        public Stat PerfectFlee;
-        public Stat Crit;
+        public Stat AtkMin = new();
+        public Stat AtkMax = new();
+        public Stat MatkMin = new();
+        public Stat MatkMax = new();
+        public Stat HardDef = new();
+        public Stat SoftDef = new();
+        public Stat HardMdef = new();
+        public Stat SoftMdef = new();
+        public Stat Hit = new();
+        public Stat PerfectHit = new();
+        public Stat Flee = new();
+        public Stat PerfectFlee = new();
+        public Stat Crit = new();
         public float AttackSpeed; // What's the format for this gonna be? Attacks/Second? Should I use a Stat for this?
         public int RemainingStatPoints;
         public int RemainingSkillPoints;
-        public Stat Weightlimit;
+        public Stat Weightlimit = new();
         public int CurrentWeight;
 
         public int CurrentBaseExp;
@@ -199,32 +199,31 @@ namespace Client
             JobLvl = packet.JobLvl;
             Gender = packet.Gender;
 
-            Str = packet.Str;
-            Agi = packet.Agi;
-            Vit = packet.Vit;
-            Int = packet.Int;
-            Dex = packet.Dex;
-            Luk = packet.Luk;
+            packet.Str.CopyTo(Str);
+            packet.Agi.CopyTo(Agi);
+            packet.Vit.CopyTo(Vit);
+            packet.Int.CopyTo(Int);
+            packet.Dex.CopyTo(Dex);
+            packet.Luk.CopyTo(Luk);
 
-            MatkMin = packet.MatkMin;
-            MatkMax = packet.MatkMax;
-            HardDef = packet.HardDef;
-            SoftDef = packet.SoftDef;
-            HardMdef = packet.HardMdef;
-            SoftMdef = packet.SoftMdef;
-            Hit = packet.Hit;
-            PerfectHit = packet.PerfectHit;
-            Flee = packet.Flee;
-            PerfectFlee = packet.PerfectFlee;
-            Crit = packet.Crit;
+            packet.AtkMin.CopyTo(AtkMin);
+            packet.AtkMax.CopyTo(AtkMax);
+            packet.MatkMin.CopyTo(MatkMin);
+            packet.MatkMax.CopyTo(MatkMax);
+            packet.HardDef.CopyTo(HardDef);
+            packet.SoftDef.CopyTo(SoftDef);
+            packet.HardMdef.CopyTo(HardMdef);
+            packet.SoftMdef.CopyTo(SoftMdef);
+            packet.Hit.CopyTo(Hit);
+            packet.PerfectHit.CopyTo(PerfectHit);
+            packet.Flee.CopyTo(Flee);
+            packet.PerfectFlee.CopyTo(PerfectFlee);
+            packet.Crit.CopyTo(Crit);
             //AttackSpeed = GetDefaultAnimationCooldown(); // TODO: format for this value, overriding of AnimationSpeed, etc.
             RemainingStatPoints = packet.RemainingStatPoints;
             RemainingSkillPoints = packet.RemainingSkillPoints;
-            Weightlimit = packet.Weightlimit;
+            packet.Weightlimit.CopyTo(Weightlimit);
             CurrentWeight = packet.CurrentWeight;
-
-            AtkMin = packet.AtkMin;
-            AtkMax = packet.AtkMax;
 
             CurrentBaseExp = packet.CurrentBaseExp;
             RequiredBaseExp = packet.RequiredBaseExp;

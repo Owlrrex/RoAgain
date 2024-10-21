@@ -1,3 +1,4 @@
+using OwlLogging;
 using System;
 using UnityEngine; // TODO: Remove Unity-dependencies
 
@@ -112,12 +113,15 @@ public class Stat
     public void CopyTo(Stat other)
     {
         if (other == null)
+        {
+            OwlLogger.LogError("Can't copy to null Stat!", GameComponent.Other);
             return;
+        }
 
         other._base = _base;
         other._modAdd = _modAdd;
         other._modMult = _modMult;
-        Recalculate();
+        other.Recalculate();
     }
 
     public void Recalculate()
