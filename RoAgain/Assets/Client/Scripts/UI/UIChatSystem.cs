@@ -43,7 +43,10 @@ namespace Client
             if(!OwlLogger.PrefabNullCheckAndLog(ChatInput, "ChatInput", this, GameComponent.UI))
                 ChatInput.onSubmit.AddListener(OnChatSubmit);
             if (!OwlLogger.PrefabNullCheckAndLog(ChatTargetInput, "ChatTargetInput", this, GameComponent.UI))
+            {
                 ChatTargetInput.onSubmit.AddListener(OnChatSubmit);
+                ChatTargetInput.characterLimit = ChatMessageRequestPacket.MESSAGE_LENGTH;
+            }   
             if(!OwlLogger.PrefabNullCheckAndLog(ChatSendButton, "ChatSendButton", this, GameComponent.UI))
                 ChatSendButton.onClick.AddListener(OnChatSendClicked);
             OwlLogger.PrefabNullCheckAndLog(ChatMessagePrefab, "ChatMessagePrefab", this, GameComponent.UI);
