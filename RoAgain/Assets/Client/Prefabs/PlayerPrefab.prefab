@@ -820,7 +820,7 @@ PrefabInstance:
     - target: {fileID: 8119298664129722291, guid: 894c3916ad9264b4db0fca8b66bed555,
         type: 3}
       propertyPath: _showOnHover
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8223111438453708172, guid: 894c3916ad9264b4db0fca8b66bed555,
         type: 3}
