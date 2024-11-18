@@ -23,6 +23,8 @@ namespace Server
 
         public abstract InventoryModule InventoryModule { get; }
 
+        public abstract EquipmentModule EquipmentModule { get; }
+
         public abstract void Update(float deltaTime);
 
         public abstract bool TryGetLoggedInCharacterByCharacterId(int characterId, out CharacterRuntimeData charData);
@@ -75,6 +77,9 @@ namespace Server
         private InventoryModule _inventoryModule;
         public override InventoryModule InventoryModule => _inventoryModule;
 
+        public EquipmentModule _equipModule;
+        public override EquipmentModule EquipmentModule => _equipModule;
+
         // Databases
         private AAccountDatabase _accountDatabase;
 
@@ -89,6 +94,8 @@ namespace Server
         private AInventoryDatabase _inventoryDatabase;
 
         private ALootTableDatabase _lootTableDatabase;
+
+        private ASizeDatabase _sizeDatabase;
 
         public int Initialize()
         {
@@ -113,6 +120,7 @@ namespace Server
             _itemTypeDatabase = new ItemTypeDatabase();
             _inventoryDatabase = new InventoryDatabase();
             _lootTableDatabase = new LootTableDatabase();
+            _sizeDatabase = new SizeDatabase();
 
             _mapModule = new();
             _chatModule = new();
@@ -122,7 +130,7 @@ namespace Server
             _warpModule = new();
             _itemTypeModule = new();
             _inventoryModule = new();
-
+            _equipModule = new();
 
             Configuration config = new();
             int configError = config.LoadConfig();
@@ -136,8 +144,9 @@ namespace Server
             int itemTypeDbError = _itemTypeDatabase.Initialize(ITEMTYPE_DB_FOLDER);
             int inventoryDbError = _inventoryDatabase.Initialize(INVENTORY_DB_FOLDER);
             int lootTableDbError = _lootTableDatabase.Initialize(LOOTTABLE_DB_FOLDER);
+            _sizeDatabase.Register();
 
-            int mapModuleError = _mapModule.Initialize(_expModule, _npcModule, _warpModule, _lootTableDatabase, _inventoryModule);
+            int mapModuleError = _mapModule.Initialize(_expModule, _npcModule, _warpModule, _lootTableDatabase, _inventoryModule, _itemTypeModule);
             int chatModuleError = _chatModule.Initialize(_mapModule, this);
             int expModuleError = _expModule.Initialize();            
             int jobModuleError = _jobModule.Initialize();
@@ -147,26 +156,30 @@ namespace Server
             _warpModule.LoadDefinitions();
             int itemTypeModError = _itemTypeModule.Initialize(_itemTypeDatabase);
             int invModError = _inventoryModule.Initialize(_itemTypeModule, _inventoryDatabase);
+            int equipModError = _equipModule.Initialize(_inventoryModule, _itemTypeModule);
             
             _timingScheduler = new();
             _timingScheduler.Init();
 
             int aggregateError = configError
                 + connectionInitError
-                + mapModuleError
-                + npcModuleError
-                + warpModuleError
-                + chatModuleError
-                + expModuleError
+
                 + accountDbError
                 + charDbError
                 + jobDbError
-                + jobModuleError
                 + itemTypeDbError
                 + inventoryDbError
+                + lootTableDbError
+
+                + mapModuleError
+                + chatModuleError
+                + expModuleError
+                + jobModuleError
+                + npcModuleError
+                + warpModuleError
                 + itemTypeModError
                 + invModError
-                + lootTableDbError;
+                + equipModError;
 
             if (aggregateError == 0)
                 Instance = this;
@@ -318,6 +331,14 @@ namespace Server
             }
 
             // TODO: Send Equipment
+            for(EquipmentSlot slot = EquipmentSlot.HeadUpper; slot < EquipmentSlot.MAX; slot++)
+            {
+                if(charData.EquipSet.HasItemEquippedInSlot(slot))
+                {
+                    _itemTypeModule.SendItemTypeDataToCharacterIfUnknown(charData, charData.EquipSet.GetItemType(slot));
+                    charData.NetworkQueue.EquipmentChanged(slot, charData);
+                }
+            }
 
             // TODO: Send buffs & debuffs
 
@@ -414,7 +435,9 @@ namespace Server
 
             Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId); // Preload inventory because we'll most likely need it
             _inventoryModule.RegisterCharacterInventory(charData);
-            // TODO: Register & Set up Equipment
+            
+            EquipmentSetRuntime equipSet = _equipModule.LoadEquipSet(persData.EquipSet);
+            charData.EquipSet = equipSet;
 
             // TODO: Apply Buffs/Debuffs from persistent data
 
@@ -956,6 +979,24 @@ namespace Server
             map.PickupModule.CharacterAttemptPickup(character, pickupId);
         }
 
+        private void ReceiveEquipRequest(ClientConnection connection, int ownerEntityId, EquipmentSlot slot, long itemTypeId)
+        {
+            if(!TryGetLoggedInCharacterByCharacterId(connection.CharacterId, out CharacterRuntimeData sender))
+            {
+                OwlLogger.LogError($"Received EquipRequest from characterId {connection.CharacterId} that's not logged in!", GameComponent.Items);
+                return;
+            }
+
+            GridEntity owner = MapModule.FindEntityOnAllMaps(ownerEntityId);
+            if(owner == null)
+            {
+                OwlLogger.LogError($"Received EquipRequest from characterId {connection.CharacterId} to owner {ownerEntityId} that's not found!", GameComponent.Items);
+                return;
+            }
+
+            _equipModule.ReceiveCharacterEquipRequest(sender, owner, slot, itemTypeId);
+        }
+
         public override int SetupWithNewClientConnection(ClientConnection newConnection)
         {
             if(newConnection == null)
@@ -983,6 +1024,7 @@ namespace Server
             newConnection.ConfigReadRequestReceived += ReceiveConfigReadRequest;
             newConnection.ItemDropRequestReceived += ReceiveItemDropRequest;
             newConnection.PickupRequestReceived += ReceivePickupRequest;
+            newConnection.EquipmentRequestReceived += ReceiveEquipRequest;
             
             return 0;
         }
@@ -1004,11 +1046,9 @@ namespace Server
 
             _inventoryModule.UnregisterCharacterInventory(charData);
 
-            // Get Map Instances for character
             MapInstance mapInstance = charData.GetMapInstance();
-
             // Tell MapInstance to remove character from Grid
-            // This should automatically send the EntityRemoved event (only to people in range?)
+            // This should automatically send the EntityRemoved event (only to people in range)
             mapInstance.Grid.RemoveOccupant(charData);
 
             _loggedInCharacters.Remove(charData);
@@ -1018,7 +1058,7 @@ namespace Server
 
             _inventoryModule.ClearInventoryFromCache(charData.InventoryId); // We likely won't use this anymore now
 
-            // TODO: Save character state
+            _characterDatabase.Persist(CharacterPersistenceData.FromRuntimeData(charData));
         }
 
         public override void Update(float deltaTime)

@@ -2,6 +2,7 @@ using OwlLogging;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Shared;
 
 namespace Client
 {

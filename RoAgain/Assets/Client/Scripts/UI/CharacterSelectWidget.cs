@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using OwlLogging;
 using System;
 using UnityEngine.EventSystems;
+using Shared;
 
 namespace Client
 {

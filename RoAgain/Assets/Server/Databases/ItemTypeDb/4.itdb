@@ -1,0 +1,34 @@
+{
+    "TypeId": 4,
+    "BaseTypeId": -1,
+    "CanStack": true,
+    "Weight": 20,
+    "SellPrice": 1,
+    "NumTotalCardSlots": 1,
+    "UsageMode": 2,
+    "NameLocId": {
+        "Id": 242
+    },
+    "FlavorLocId": {
+        "Id": 243
+    },
+    "VisualId": 4,
+    "Modifiers": {
+        "entries": []
+    },
+    "SlotCriteriumStringLists": {
+        "entries": [
+            {
+                "key": 128,
+                "value": "()"
+            }
+        ]
+    },
+    "EquipScriptId": 0,
+    "UnquipScriptId": 0,
+    "SimpleStatStrings": [
+        "(21,{\"_base\":0.0,\"_modAdd\":15.0,\"_modMult\":0.0})"
+    ],
+    "ConditionalStatStrings": [],
+    "EquipmentType": 32
+}

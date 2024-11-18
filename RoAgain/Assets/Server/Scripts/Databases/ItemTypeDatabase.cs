@@ -96,17 +96,50 @@ namespace Server
                 return null;
             }
 
-            ItemType type = AutoInitResourcePool<ItemType>.Acquire();
+            ItemType type;
+            if (persData is EquippableTypePersistentData equipPersData)
+            {
+                EquippableItemType equipType = AutoInitResourcePool<EquippableItemType>.Acquire();
+                equipType.EquipScript = equipPersData.EquipScriptId;
+                equipType.UnequipScript = equipPersData.UnquipScriptId;
+                equipType.EquipmentType = equipPersData.EquipmentType;
+                foreach (var entry in equipPersData.SlotCriteriumStringLists.entries)
+                {
+                    equipType.SlotCriteriums.Add(entry.key, BECHelper.ParseCriteriumList(entry.value));
+                }
+
+                foreach(string str in equipPersData.SimpleStatStrings)
+                {
+                    equipType.SimpleStatEntries.Add(SimpleStatEntry.FromString(str));
+                }
+
+                foreach(string str in equipPersData.ConditionalStatStrings)
+                {
+                    equipType.ConditionalStatEntries.Add(ConditionalStatEntry.FromString(str, ConditionalStatHelpers.ConditionIdResolver));
+                }
+
+                type = equipType;
+            }
+            else if (persData is ConsumableTypePersistentData usablePersData)
+            {
+                ConsumableItemType consumeType = AutoInitResourcePool<ConsumableItemType>.Acquire(); // tmp while UsableItemType class doesn't exist yet
+                consumeType.UseScriptId = usablePersData.UseScriptId;
+                consumeType.UsageCriteriums = BECHelper.ParseCriteriumList(usablePersData.UseCriteriumStringList);
+                type = consumeType;
+            }
+            else
+            {
+                type = AutoInitResourcePool<ItemType>.Acquire();
+            }
+
             type.TypeId = persData.TypeId;
             type.BaseTypeId = persData.BaseTypeId;
             type.CanStack = persData.CanStack;
             type.Weight = persData.Weight;
             type.SellPrice = persData.SellPrice;
-            type.RequiredLevel = persData.RequiredLevel;
-            type.RequiredJobs = persData.RequiredJobs;
             type.NumTotalCardSlots = persData.NumTotalCardSlots;
             type.UsageMode = persData.UsageMode;
-            type.OnUseScript = persData.OnUseScriptId;
+            
             type.NameLocId = persData.NameLocId;
             type.FlavorLocId = persData.FlavorLocId;
             type.VisualId = persData.VisualId;
@@ -122,58 +155,6 @@ namespace Server
             }
 
             return type;
-        }
-
-        protected ItemTypePersistentData ItemTypeToPersData(ItemType type)
-        {
-            if (type == null)
-            {
-                OwlLogger.LogError("Can't convert null ItemType into PersistenceData", GameComponent.Items);
-                return null;
-            }
-
-            if (type.TypeId <= 0)
-            {
-                OwlLogger.LogError($"Can't convert ItemType into PersistenceData - invalid TypeId {type.TypeId}", GameComponent.Items);
-                return null;
-            }
-
-            if (type.BaseTypeId <= 0 && type.BaseTypeId != ItemConstants.BASETYPEID_NONE)
-            {
-                OwlLogger.LogError($"Can't convert ItemType {type.TypeId} into PersistenceData - invalid BaseTypeId {type.BaseTypeId}", GameComponent.Items);
-                return null;
-            }
-
-            if (type.Weight < 0)
-            {
-                OwlLogger.LogError($"Can't convert ItemType {type.TypeId} to PersistenceData - invalid Weight {type.Weight}", GameComponent.Items);
-                return null;
-            }
-
-            if (type.SellPrice < 0)
-            {
-                OwlLogger.LogError($"Can't convert ItemType {type.TypeId} to PersistenceData - invalid SellPrice {type.SellPrice}", GameComponent.Items);
-                return null;
-            }
-
-            ItemTypePersistentData persData = new();
-            persData.TypeId = type.TypeId;
-            persData.BaseTypeId = type.BaseTypeId;
-            persData.CanStack = type.CanStack;
-            persData.Weight = type.Weight;
-            persData.SellPrice = type.SellPrice;
-            persData.RequiredLevel = type.RequiredLevel;
-            persData.RequiredJobs = type.RequiredJobs;
-            persData.NumTotalCardSlots = type.NumTotalCardSlots;
-            persData.UsageMode = type.UsageMode;
-            persData.OnUseScriptId = type.OnUseScript;
-            persData.NameLocId = type.NameLocId;
-            persData.FlavorLocId = type.FlavorLocId;
-            persData.VisualId = type.VisualId;
-            persData.Modifiers = new();
-            persData.Modifiers.FromDict(type.ReadOnlyModifiers);
-
-            return persData;
         }
     }
 
@@ -218,6 +199,128 @@ namespace Server
 
             _folderPath = config;
 
+            /*
+            // tmp: Create some ItemTypes
+            List<ItemTypePersistentData> creationList = new();
+            creationList.Add(new()
+            {
+                BaseTypeId = ItemConstants.BASETYPEID_NONE,
+                CanStack = true,
+                FlavorLocId = new() { Id = 208 },
+                Modifiers = null,
+                NameLocId = new() { Id = 207 },
+                NumTotalCardSlots = 0,
+                SellPrice = 10,
+                TypeId = 1,
+                UsageMode = ItemUsageMode.Unusable,
+                Weight = 1,
+                VisualId = 1
+            });
+            creationList.Add(new()
+            {
+                BaseTypeId = ItemConstants.BASETYPEID_NONE,
+                CanStack = true,
+                FlavorLocId = new() { Id = 210 },
+                Modifiers = null,
+                NameLocId = new() { Id = 209 },
+                NumTotalCardSlots = 0,
+                SellPrice = 10000,
+                TypeId = 2,
+                UsageMode = ItemUsageMode.Unusable,
+                Weight = 100,
+                VisualId = 2
+            });
+            creationList.Add(new ConsumableTypePersistentData()
+            {
+                BaseTypeId = ItemConstants.BASETYPEID_NONE,
+                CanStack = true,
+                FlavorLocId = new() { Id = 212 },
+                Modifiers = null,
+                NameLocId = new() { Id = 211 },
+                NumTotalCardSlots = 1,
+                UseScriptId = 0,
+                SellPrice = 1,
+                TypeId = 3,
+                UsageMode = ItemUsageMode.Consumable,
+                Weight = 1000,
+                VisualId = 3
+            });
+            EquippableTypePersistentData equip1 = new EquippableTypePersistentData()
+            {
+                BaseTypeId = ItemConstants.BASETYPEID_NONE,
+                CanStack = true,
+                FlavorLocId = new() { Id = 226 },
+                Modifiers = null,
+                NameLocId = new() { Id = 225 },
+                NumTotalCardSlots = 1,
+                SellPrice = 1,
+                TypeId = 4,
+                UsageMode = ItemUsageMode.Equip,
+                Weight = 20,
+                EquipScriptId = 0,
+                UnquipScriptId = 0,
+                SimpleStatStrings = new(),
+                ConditionalStatStrings = new(),
+                SlotCriteriumStringLists = new(),
+                VisualId = 4,
+                EquipmentType = EquipmentType.Mace
+            };
+            Stat equip1Stat1 = new();
+            equip1Stat1.ModifyAdd(15);
+            equip1.SimpleStatStrings.Add($"({(int)EntityPropertyType.CurrentAtkBoth},{JsonUtility.ToJson(equip1Stat1, false)})");
+            equip1.SlotCriteriumStringLists.entries.Add(new()
+            {
+                key = EquipmentSlot.Mainhand,
+                value = "()"
+            });
+            creationList.Add(equip1);
+
+            EquippableTypePersistentData equip2 = new EquippableTypePersistentData()
+            {
+                BaseTypeId = ItemConstants.BASETYPEID_NONE,
+                CanStack = true,
+                FlavorLocId = new() { Id = 228 },
+                Modifiers = null,
+                NameLocId = new() { Id = 227 },
+                NumTotalCardSlots = 1,
+                SellPrice = 100,
+                TypeId = 5,
+                UsageMode = ItemUsageMode.Equip,
+                Weight = 50,
+                EquipScriptId = 0,
+                UnquipScriptId = 0,
+                SimpleStatStrings = new(),
+                ConditionalStatStrings = new(),
+                SlotCriteriumStringLists = new(),
+                VisualId = 5,
+                EquipmentType = EquipmentType.Sword,
+            };
+            Stat equip2Stat1 = new();
+            equip2Stat1.ModifyAdd(50);
+            equip2.SimpleStatStrings.Add($"({(int)EntityPropertyType.CurrentAtkBoth},{JsonUtility.ToJson(equip2Stat1, false)})");
+            Stat equip2Stat2 = new();
+            equip2Stat2.ModifyAdd(10);
+            equip2.SimpleStatStrings.Add($"({(int)EntityPropertyType.HardDef},{JsonUtility.ToJson(equip2Stat2, false)})");
+            ConditionalStatEntry equip2Entry1 = new();
+            equip2Entry1.Type = EntityPropertyType.MatkBoth;
+            equip2Entry1.ConditionalChange = new() { Condition = new BelowHpThresholdPercentCondition() { Percentage = 0.25f } };
+            equip2Entry1.ConditionalChange.Value.ModifyMult(0.5f); // 50% more matk when under 25% life
+            equip2.ConditionalStatStrings.Add(equip2Entry1.Serialize());
+            equip2.SlotCriteriumStringLists.entries.Add(new()
+            {
+                key = EquipmentSlot.TwoHand,
+                value = "(1,20)" // require baselevel 20
+            });
+            creationList.Add(equip2);
+
+            foreach (ItemTypePersistentData type in creationList)
+            {
+                string path = MakeFilePathForType(type.TypeId);
+                string json = JsonUtility.ToJson(type, true);
+                File.WriteAllText(path, json);
+            }
+            // end tmp
+
             OwlLogger.Log("Scanning ItemTypeDatabase...", GameComponent.Persistence);
             string[] typeFiles;
             int typeCount = 0;
@@ -239,7 +342,7 @@ namespace Server
                     OwlLogger.LogError($"ItemType file {file} doesn't have parseable filename!", GameComponent.Persistence);
                     continue;
                 }
-                _nextItemTypeId = Math.Max(_nextItemTypeId, value);
+                _nextItemTypeId = Math.Max(_nextItemTypeId, value+1);
 
                 ItemTypePersistentData persData = LoadItemTypePersData(value);
 
@@ -254,63 +357,12 @@ namespace Server
             }
             OwlLogger.LogF("Scanned {0} ItemTypes, next itemTypeId is {1}", typeCount, _nextItemTypeId, GameComponent.Persistence);
 
-            //// tmp: Create some ItemTypes
-            //List<ItemTypePersistentData> creationList = new();
-            //creationList.Add(new()
-            //{
-            //    BaseTypeId = ItemType.BASETYPEID_NONE,
-            //    CanStack = true,
-            //    FlavorLocId = new() { Id = 2001 },
-            //    Modifiers = null,
-            //    NameLocId = new() { Id = 2000 },
-            //    NumTotalCardSlots = 0,
-            //    OnUseScriptId = 0,
-            //    RequiredJobs = JobFilter.Any,
-            //    RequiredLevel = 0,
-            //    SellPrice = 10,
-            //    TypeId = 1,
-            //    UsageMode = ItemUsageMode.Unusable,
-            //    Weight = 1
-            //});
-            //creationList.Add(new()
-            //{
-            //    BaseTypeId = ItemType.BASETYPEID_NONE,
-            //    CanStack = true,
-            //    FlavorLocId = new() { Id = 2003 },
-            //    Modifiers = null,
-            //    NameLocId = new() { Id = 2002 },
-            //    NumTotalCardSlots = 0,
-            //    OnUseScriptId = 0,
-            //    RequiredJobs = JobFilter.Any,
-            //    RequiredLevel = 0,
-            //    SellPrice = 10000,
-            //    TypeId = 2,
-            //    UsageMode = ItemUsageMode.Unusable,
-            //    Weight = 100
-            //});
-            //creationList.Add(new()
-            //{
-            //    BaseTypeId = ItemType.BASETYPEID_NONE,
-            //    CanStack = true,
-            //    FlavorLocId = new() { Id = 2005 },
-            //    Modifiers = null,
-            //    NameLocId = new() { Id = 2004 },
-            //    NumTotalCardSlots = 1,
-            //    OnUseScriptId = 0,
-            //    RequiredJobs = JobFilter.Any,
-            //    RequiredLevel = 20,
-            //    SellPrice = 1,
-            //    TypeId = 3,
-            //    UsageMode = ItemUsageMode.Usable,
-            //    Weight = 1000
-            //});
-
-            //foreach (ItemTypePersistentData type in creationList)
-            //{
-            //    string path = MakeFilePathForType(type.TypeId);
-            //    string json = JsonUtility.ToJson(type);
-            //    File.WriteAllText(path, json);
-            //}
+            // tmp: See if loading works.
+            ItemType tmpType = LoadItemType(5);
+            Packet packet = tmpType.ToPacket();
+            string test = System.Text.Encoding.UTF8.GetString(packet.SerializeJson());
+            // end tmp
+            */
 
             return 0;
         }
@@ -321,6 +373,13 @@ namespace Server
             _folderPath = null;
         }
 
+        /// <summary>
+        /// Finds an ItemType that matches the given BaseType & modifiers
+        /// This operation may be very slow, even with the metadata that the Database gathers on startup.
+        /// </summary>
+        /// <param name="baseTypeId">Desired base-ItemTypeId</param>
+        /// <param name="modifiers">Desired modifiers & values</param>
+        /// <returns>The ItemTypeId of the matching type, or ItemConstants.ITEM_TYPE_ID_INVALID if none was found</returns>
         public override long GetMatchingItemTypeIdExact(long baseTypeId, Dictionary<ModifierType, int> modifiers)
         {
             if (!_itemTypeIdsByBaseType.ContainsKey(baseTypeId))
@@ -366,7 +425,21 @@ namespace Server
                 return null;
             }
 
-            ItemTypePersistentData persData = JsonUtility.FromJson<ItemTypePersistentData>(rawData);
+            ItemTypePersistentData persData;
+            // TODO: Use "UsageMode" here to distinguish between Equippable, Consumable, Unusable?
+            if (rawData.Contains("EquipScript")) // Provisional criterium to detect equippable types
+            {
+                persData = JsonUtility.FromJson<EquippableTypePersistentData>(rawData);
+            }
+            else if(rawData.Contains("UseScript")) // provisional criterium to detect usable types
+            {
+                persData = JsonUtility.FromJson<ConsumableTypePersistentData>(rawData);
+            }
+            else
+            {
+                persData = JsonUtility.FromJson<ItemTypePersistentData>(rawData);
+            }
+            
             if(!persData.IsValid())
             {
                 OwlLogger.LogError($"ItemType {persData.TypeId} is invalid after JsonParse.", GameComponent.Persistence);
@@ -378,6 +451,7 @@ namespace Server
 
         public override ItemType CreateItemType(long baseTypeId, Dictionary<ModifierType, int> modifiers)
         {
+            // Is this alright to check? It may be slow.
             if(GetMatchingItemTypeIdExact(baseTypeId, modifiers) != ItemConstants.ITEM_TYPE_ID_INVALID)
             {
                 OwlLogger.LogError($"Can't create itemType for baseItemType {baseTypeId} - type already exists!", GameComponent.Persistence);
@@ -393,37 +467,27 @@ namespace Server
             ItemTypePersistentData baseData = LoadItemTypePersData(baseTypeId);
 
             // TODO: Allow customizing this type in some ways, with different values from its base
-            ItemTypePersistentData persdata = new();
-            persdata.BaseTypeId = baseTypeId;
-            persdata.CanStack = baseData.CanStack;
-            persdata.Modifiers = new();
-            persdata.Modifiers.FromDict(modifiers);
-            persdata.NumTotalCardSlots = baseData.NumTotalCardSlots;
-            persdata.OnUseScriptId = baseData.OnUseScriptId;
-            persdata.RequiredJobs = baseData.RequiredJobs;
-            persdata.RequiredLevel = baseData.RequiredLevel;
-            persdata.SellPrice = baseData.SellPrice;
-            persdata.TypeId = _nextItemTypeId++;
-            persdata.UsageMode = baseData.UsageMode;
-            persdata.Weight = baseData.Weight;
+            baseData.BaseTypeId = baseTypeId;
+            baseData.Modifiers.FromDict(modifiers);
+            baseData.TypeId = _nextItemTypeId++;
 
-            string filePath = MakeFilePathForType(persdata.TypeId);
+            string filePath = MakeFilePathForType(baseData.TypeId);
             try
             {
-                string json = JsonUtility.ToJson(persdata);
+                string json = JsonUtility.ToJson(baseData);
                 File.WriteAllText(filePath, json);
             }
             catch (Exception e)
             {
-                OwlLogger.LogError($"Exception while creating file for new ItemType {persdata.TypeId}: {e.Message}", GameComponent.Persistence);
+                OwlLogger.LogError($"Exception while creating file for new ItemType {baseData.TypeId}: {e.Message}", GameComponent.Persistence);
                 return null;
             }
 
             if (!_itemTypeIdsByBaseType.ContainsKey(baseTypeId))
                 _itemTypeIdsByBaseType[baseTypeId] = new();
-            _itemTypeIdsByBaseType[baseTypeId].Add(persdata.TypeId);
+            _itemTypeIdsByBaseType[baseTypeId].Add(baseData.TypeId);
 
-            return PersDataToItemType(persdata);
+            return PersDataToItemType(baseData);
         }
 
         public override int DeleteItemType(long itemTypeId)

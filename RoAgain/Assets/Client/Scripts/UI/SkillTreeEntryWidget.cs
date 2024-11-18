@@ -75,6 +75,8 @@ namespace Client
             OwlLogger.PrefabNullCheckAndLog(_contentContainer, "contentContainer", this, GameComponent.UI);
 
             _skillIcon.Clicked += OnIconClicked;
+
+            LocalizedStringTable.LanguageChanged += OnLanguageChanged;
         }
 
         public void SetCurrentLevel(int newCurrentLevel)
@@ -158,7 +160,12 @@ namespace Client
 
             SkillId = id;
             _skillIcon.SetSkillData(id, _skillIcon.SkillParam);
-            SkillClientData data = SkillClientDataTable.GetDataForId(id);
+            SetSkillNameText();
+        }
+
+        private void SetSkillNameText()
+        {
+            SkillClientData data = SkillClientDataTable.GetDataForId(SkillId);
             if (data == null)
             {
                 _skillNameText.text = "Unknown";
@@ -250,6 +257,16 @@ namespace Client
             {
                 _highlightOverlay.enabled = highlighted;
             }
+        }
+
+        private void OnLanguageChanged()
+        {
+            SetSkillNameText();
+        }
+
+        private void OnDestroy()
+        {
+            LocalizedStringTable.LanguageChanged -= OnLanguageChanged;
         }
     }
 }

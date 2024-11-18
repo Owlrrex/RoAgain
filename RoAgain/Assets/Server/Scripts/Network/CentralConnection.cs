@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Open.Nat;
 using System.Threading;
-using System.Net;
+using Shared;
 
 namespace Server
 {
@@ -39,7 +39,9 @@ namespace Server
 
         private SimpleTcpServer _server;
         private byte[] _remainingData = new byte[0];
-        private System.Collections.Concurrent.ConcurrentBag<Packet> _readyPackets = new();
+        private System.Collections.Concurrent.ConcurrentQueue<string> _readyPacketStrings = new();
+        private List<byte> _dataBuffer = new();
+        private object _dataLock = new();
 
         // This function handles the actual network-connection logic
         public override int Send(Packet packet)
@@ -182,14 +184,6 @@ namespace Server
             return 0;
         }
 
-        //private void OnDeviceFound(object sender, DeviceEventArgs e)
-        //{
-        //    if (e.Device.GetSpecificMapping(Protocol.Tcp, 13337).PublicPort == -1)
-        //    {
-        //        e.Device.CreatePortMap(new(Protocol.Tcp, 13337, 13337));
-        //    }
-        //}
-
         private void OnClientConnected(object sender, ConnectionEventArgs args)
         {
             OwlLogger.Log($"Server CentralConnection received Connection from {args.IpPort} ({args.Reason})", GameComponent.Network, LogSeverity.Verbose);
@@ -285,13 +279,18 @@ namespace Server
         {
             OwlLogger.Log($"Server CentralConnection received Data from {args.IpPort}: {System.Text.Encoding.UTF8.GetString(args.Data.Array, 0, args.Data.Count)}", GameComponent.Network, LogSeverity.VeryVerbose);
 
-            List<byte> allData = new(_remainingData);
-            allData.AddRange(args.Data);
-            string[] completedPackets = Packet.SplitIntoPackets(allData.ToArray(), out _remainingData);
+            string[] completedPackets;
+            lock (_dataLock)
+            {
+                _dataBuffer.AddRange(_remainingData);
+                _dataBuffer.AddRange(args.Data);
+                completedPackets = Packet.SplitIntoPackets(_dataBuffer.ToArray(), out _remainingData);
+                _dataBuffer.Clear();
+            }
+            
             foreach(string completedPacketStr in completedPackets)
             {
-                Packet packet = Packet.DeserializeJson(completedPacketStr);
-                _readyPackets.Add(packet);
+                _readyPacketStrings.Enqueue(completedPacketStr);
             }
         }
 
@@ -302,13 +301,10 @@ namespace Server
 
         public override void Update()
         {
-            bool canTake = _readyPackets.TryTake(out Packet packet);
-            while (canTake)
+            while (_readyPacketStrings.TryDequeue(out string packetString))
             {
+                Packet packet = Packet.DeserializeJson(packetString);
                 Receive(packet, 0); // TODO: Is this still needed? Sender-Id only needed for Dummy-Server login handling
-                if (_readyPackets.Count == 0)
-                    break;
-                canTake = _readyPackets.TryTake(out packet);
             }
         }
 
@@ -337,7 +333,8 @@ namespace Server
             }
 
             _parentServer = null;
-            _readyPackets.Clear();
+            _readyPacketStrings.Clear();
+            _dataBuffer.Clear();
             _remainingData = new byte[0];
             
             return 0;

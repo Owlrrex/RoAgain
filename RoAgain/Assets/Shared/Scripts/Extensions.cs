@@ -126,4 +126,11 @@ public static class Extensions
     {
         return (mask.value & (1 << LayerMask.NameToLayer(layerName))) > 0;
     }
+
+    // Check for "Is Power of 2"
+    // https://stackoverflow.com/questions/600293/how-to-check-if-a-number-is-a-power-of-2
+    public static bool IsPowerOfTwo(this int n)
+    {
+        return n != 0 && ((n & (n - 1)) == 0);
+    }
 }

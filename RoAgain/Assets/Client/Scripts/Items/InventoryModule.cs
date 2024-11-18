@@ -26,8 +26,6 @@ namespace Client
         public long TypeId;
         public long BaseTypeId;
         public int Weight;
-        public int RequiredLevel;
-        public JobFilter RequiredJobs;
         public int NumTotalCardSlots;
         public ItemUsageMode UsageMode;
         public int VisualId;
@@ -42,8 +40,6 @@ namespace Client
                 TypeId = packet.TypeId,
                 BaseTypeId = packet.BaseTypeId,
                 Weight = packet.Weight,
-                RequiredLevel = packet.RequiredLevel,
-                RequiredJobs = packet.RequiredJobs,
                 NumTotalCardSlots = packet.NumTotalCardSlots,
                 UsageMode = packet.UsageMode,
                 VisualId = packet.VisualId,
@@ -77,6 +73,74 @@ namespace Client
         }
     }
 
+    public class EquippableItemType : ItemType
+    {
+        public Dictionary<EquipmentSlot, List<IBattleEntityCriterium>> SlotCriteriums = new();
+
+        public List<SimpleStatEntry> SimpleStats = new();
+        public List<ConditionalStatEntry> ConditionalStats = new();
+
+        public EquipmentType EquipmentType;
+
+        public static EquippableItemType FromPacket(EquippableItemTypePacket packet)
+        {
+            EquippableItemType type = new()
+            {
+                TypeId = packet.TypeId,
+                BaseTypeId = packet.BaseTypeId,
+                Weight = packet.Weight,
+                NumTotalCardSlots = packet.NumTotalCardSlots,
+                UsageMode = packet.UsageMode,
+                VisualId = packet.VisualId,
+                NameLocId = packet.NameLocId,
+                FlavorLocId = packet.FlavorLocId,
+                Modifiers = packet.Modifiers.ToDict(),
+                EquipmentType = packet.EquipmentType
+            };
+            foreach(var entry in packet.SlotCriteriums.entries)
+            {
+                type.SlotCriteriums.Add(entry.key, BecHelper.ParseCriteriumList(entry.value));
+            }
+            foreach(string statStr in packet.SimpleStatStrings)
+            {
+                type.SimpleStats.Add(SimpleStatEntry.FromString(statStr));
+            }
+            foreach(string statStr in packet.ConditionalStatStrings)
+            {
+                type.ConditionalStats.Add(ConditionalStatEntry.FromString(statStr, BecHelper.ConditionIdResolver));
+            }
+            return type;
+        }
+    }
+
+    public class ConsumableItemType : ItemType
+    {
+        public List<IBattleEntityCriterium> UsageCriteriums = new();
+
+        public static ConsumableItemType FromPacket(ConsumableItemTypePacket packet)
+        {
+            ConsumableItemType type = new()
+            {
+                TypeId = packet.TypeId,
+                BaseTypeId = packet.BaseTypeId,
+                Weight = packet.Weight,
+                NumTotalCardSlots = packet.NumTotalCardSlots,
+                UsageMode = packet.UsageMode,
+                VisualId = packet.VisualId,
+                NameLocId = packet.NameLocId,
+                FlavorLocId = packet.FlavorLocId,
+                Modifiers = packet.Modifiers.ToDict(),
+                UsageCriteriums = BecHelper.ParseCriteriumList(packet.UsageCriteriumsList)
+            };
+            return type;
+        }
+    }
+
+    public class EquipmentSet : EquipmentSet<EquippableItemType>
+    {
+        
+    }
+
     [Flags]
     public enum InventoryFilter
     {
@@ -98,13 +162,23 @@ namespace Client
         private ServerConnection _connection;
         private Dictionary<long, ItemType> _knownItemTypes = new();
 
+        private Dictionary<int, EquipmentSet> _equipSets = new();
+
+        private readonly LocalizedStringId _equipMsgLocId = new(223);
+        private readonly LocalizedStringId _unequipMsgLocId = new(224);
+
         private class PendingItemStackEntry
         {
             public int InventoryId;
-            public long ItemTypeId;
             public int Count;
         }
+        private class PendingEquipmentSlotEntry
+        {
+            public int OwnerEntityId;
+            public EquipmentSlot Slot;
+        }
         private Dictionary<long, List<PendingItemStackEntry>> _pendingItemStacks = new();
+        private Dictionary<long, List<PendingEquipmentSlotEntry>> _pendingEquipSlots = new();
 
         public int Initialize(ServerConnection connection)
         {
@@ -119,6 +193,9 @@ namespace Client
             _connection.ItemStackReceived += OnItemStackReceived;
             _connection.ItemStackRemovedReceived += OnItemStackRemovedReceived;
             _connection.ItemTypeReceived += OnItemTypeReceived;
+            _connection.EquippableItemTypeReceived += OnItemTypeReceived; // Currently no special logic for Equippable types
+            _connection.ConsumableItemTypeReceived -= OnItemTypeReceived; // Currently no special logic for Consumable types
+            _connection.EquipmentSlotReceived += OnEquipmentSlotReceived;
 
             return 0;
         }
@@ -131,6 +208,9 @@ namespace Client
                 _connection.ItemStackReceived -= OnItemStackReceived;
                 _connection.ItemStackRemovedReceived -= OnItemStackRemovedReceived;
                 _connection.ItemTypeReceived -= OnItemTypeReceived;
+                _connection.EquippableItemTypeReceived -= OnItemTypeReceived;
+                _connection.ConsumableItemTypeReceived -= OnItemTypeReceived;
+                _connection.EquipmentSlotReceived -= OnEquipmentSlotReceived;
             }
             _connection = null;
             PlayerMainInventory = null;
@@ -154,11 +234,19 @@ namespace Client
 
             if (_pendingItemStacks.ContainsKey(newType.TypeId))
             {
-                foreach(PendingItemStackEntry entry in  _pendingItemStacks[newType.TypeId])
+                foreach(PendingItemStackEntry entry in _pendingItemStacks[newType.TypeId])
                 {
-                    OnItemStackReceived(entry.InventoryId, entry.ItemTypeId, entry.Count);
+                    OnItemStackReceived(entry.InventoryId, newType.TypeId, entry.Count);
                 }
                 _pendingItemStacks.Remove(newType.TypeId);
+            }
+            if (_pendingEquipSlots.ContainsKey(newType.TypeId))
+            {
+                foreach(PendingEquipmentSlotEntry entry in _pendingEquipSlots[newType.TypeId])
+                {
+                    OnEquipmentSlotReceived(entry.OwnerEntityId, entry.Slot, newType.TypeId);
+                }
+                _pendingEquipSlots.Remove(newType.TypeId);
             }
         }
 
@@ -172,7 +260,7 @@ namespace Client
                 // Generate a mock-ownerId to hold this (hopefuly temporary) inventory
                 for(int i = int.MinValue; i < 0; i++)
                 {
-                    if (GenericInventories.ContainsKey(i) == true)
+                    if (GenericInventories.ContainsKey(i))
                         continue;
 
                     OnInventoryIdReceived(inventoryId, i);
@@ -219,7 +307,7 @@ namespace Client
                 }
             }
 
-            _pendingItemStacks[itemTypeId].Add(new() { InventoryId = inventoryId, ItemTypeId = itemTypeId, Count = count });
+            _pendingItemStacks[itemTypeId].Add(new() { InventoryId = inventoryId, Count = count });
         }
 
         private void OnItemStackRemovedReceived(int inventoryId, long itemTypeId)
@@ -282,8 +370,6 @@ namespace Client
                         GenericInventories[ownerEntityId] = matchingInventory;                        
                     break;
             }
-
-            // TODO: Init UIs for this inventoryId
         }
 
         private bool IsItemTypeKnown(long itemTypeId)
@@ -321,6 +407,80 @@ namespace Client
                 }
             }
             return targetInventory;
+        }
+
+        private void OnEquipmentSlotReceived(int ownerEntityId, EquipmentSlot slot, long itemTypeId)
+        {
+            EquippableItemType type = null;
+            if(itemTypeId != ItemConstants.ITEM_TYPE_ID_INVALID)
+            {
+                type = GetKnownItemType(itemTypeId) as EquippableItemType;
+                if (type == null)
+                {
+                    RegisterPendingEquipmentSlot(ownerEntityId, slot, itemTypeId);
+                    OwlLogger.LogWarning($"Received Equipmentslot containing itemtype {itemTypeId} that's not known yet, or not Equippable!", GameComponent.Items);
+                    return;
+                }
+            }
+
+            if(!_equipSets.ContainsKey(ownerEntityId))
+            {
+                if(itemTypeId == ItemConstants.ITEM_TYPE_ID_INVALID)
+                {
+                    OwlLogger.LogWarning($"Received EquipmentSlot update unequipping item for owner {ownerEntityId} that's not registered on client!", GameComponent.Items);
+                }
+
+                _equipSets.Add(ownerEntityId, new());
+            }
+            EquipmentSet modifiedSet = _equipSets[ownerEntityId];
+
+            // Unequip current items, if any, in occupied slots
+            // Don't use SetItemTypeOnGroup here, so we can send messages for each individual unequipped item
+            foreach(EquipmentSlot singleTargetSlot in new EquipmentSlotIterator(slot))
+            {
+                if (!modifiedSet.HasItemEquippedInSlot(singleTargetSlot))
+                    continue;
+
+                EquippableItemType singleTargetType = modifiedSet.GetItemType(singleTargetSlot);
+                EquipmentSlot groupedSlots = modifiedSet.GetGroupedSlots(singleTargetSlot);
+                string format = LocalizedStringTable.GetStringById(_unequipMsgLocId);
+                string fullTypeName = LocalizedStringTable.GetStringById(singleTargetType.NameLocId); // TODO: Get name with all modifiers
+                string slotName = groupedSlots.ToHumanReadableString();
+                string msg = string.Format(format, fullTypeName, slotName);
+                ChatMessageData data = new()
+                {
+                    ChannelTag = DefaultChannelTags.EQUIPMENT,
+                    Message = msg,
+                };
+                ClientMain.Instance.ChatModule.OnChatMessageReceived(data);
+
+                modifiedSet.SetItemTypeOnGroup(singleTargetSlot, null);
+            }
+
+            // Equip new itemtype, if any is given & available
+            if(type != null)
+            {
+                modifiedSet.SetItemType(slot, type);
+                string format = LocalizedStringTable.GetStringById(_equipMsgLocId);
+                string fullTypeName = LocalizedStringTable.GetStringById(type.NameLocId); // TODO: Get name with all modifiers
+                string slotName = slot.ToHumanReadableString();
+                string msg = string.Format(format, fullTypeName, slotName);
+                ChatMessageData data = new()
+                {
+                    ChannelTag = DefaultChannelTags.EQUIPMENT,
+                    Message = msg,
+                };
+                ClientMain.Instance.ChatModule.OnChatMessageReceived(data);
+            }
+        }
+
+        private void RegisterPendingEquipmentSlot(int ownerEntityId, EquipmentSlot slot, long itemTypeId)
+        {
+            PendingEquipmentSlotEntry newEntry = new() { OwnerEntityId = ownerEntityId, Slot = slot };
+            if (!_pendingEquipSlots.ContainsKey(itemTypeId))
+                _pendingEquipSlots.Add(itemTypeId, new());
+
+            _pendingEquipSlots[itemTypeId].Add(newEntry);
         }
     }
 }

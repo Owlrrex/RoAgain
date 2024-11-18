@@ -47,10 +47,13 @@ namespace Client
         public Action<int, int> InventoryReceived;
         public Action<int, long, int> ItemStackReceived;
         public Action<ItemType> ItemTypeReceived;
+        public Action<EquippableItemType> EquippableItemTypeReceived;
+        public Action<ConsumableItemType> ConsumableItemTypeReceived;
         public Action<int, long> ItemStackRemovedReceived;
         public Action<int, int> WeightChangedReceived;
         public Action<PickupData> PickupDataReceived;
         public Action<int, int> PickupRemovedReceived;
+        public Action<int, EquipmentSlot, long> EquipmentSlotReceived;
 
         public abstract int Initialize(string serverConfigDataHere);
 
@@ -78,7 +81,9 @@ namespace Client
 
         SimpleTcpClient _client;
         private byte[] _remainingData = new byte[0];
-        private System.Collections.Concurrent.ConcurrentBag<Packet> _readyPackets = new();
+        private System.Collections.Concurrent.ConcurrentQueue<string> _readyPacketStrings = new();
+        private List<byte> _dataBuffer = new();
+        private object _dataLock = new();
 
         public override int Initialize(string serverConfigDataHere)
         {
@@ -89,7 +94,7 @@ namespace Client
             try
             {
                 _client = new(_serverNetworkId);
-                _client.Settings.StreamBufferSize = 8192;
+                _client.Settings.StreamBufferSize = Packet.DATA_BUFFER_SIZE;
 
                 _client.Events.Connected += OnConnected;
                 _client.Events.Disconnected += OnDisconnected;
@@ -129,13 +134,18 @@ namespace Client
                 OwlLogger.LogF("Client received Data from {0}: {1}", args.IpPort, System.Text.Encoding.UTF8.GetString(args.Data.Array, 0, args.Data.Count), GameComponent.Network, LogSeverity.VeryVerbose);
             }
 
-            List<byte> allData = new(_remainingData);
-            allData.AddRange(args.Data);
-            string[] completedPackets = Packet.SplitIntoPackets(allData.ToArray(), out _remainingData);
-            foreach (string completedPacketStr in completedPackets)
+            string[] completedPacketStrings;
+            lock(_dataLock)
             {
-                Packet packet = Packet.DeserializeJson(completedPacketStr);
-                _readyPackets.Add(packet);
+                _dataBuffer.AddRange(_remainingData);
+                _dataBuffer.AddRange(args.Data);
+                completedPacketStrings = Packet.SplitIntoPackets(_dataBuffer.ToArray(), out _remainingData);
+                _dataBuffer.Clear();
+            }
+
+            foreach (string completedPacketStr in completedPacketStrings)
+            {
+                _readyPacketStrings.Enqueue(completedPacketStr);
             }
         }
 
@@ -146,13 +156,10 @@ namespace Client
 
         public override void Update()
         {
-            bool canTake = _readyPackets.TryTake(out Packet packet);
-            while (canTake)
+            while (_readyPacketStrings.TryDequeue(out string packetString))
             {
+                Packet packet = Packet.DeserializeJson(packetString);
                 Receive(packet);
-                if (_readyPackets.Count == 0)
-                    break;
-                canTake = _readyPackets.TryTake(out packet);
             }
         }
 
@@ -170,7 +177,8 @@ namespace Client
             _characterSelectionBuffer = null;
             _sessionId = -1;
             _remainingData = new byte[0];
-            _readyPackets.Clear();
+            _readyPacketStrings.Clear();
+            _dataBuffer.Clear();
             return 0;
         }
 
@@ -325,9 +333,15 @@ namespace Client
                 case ItemStackPacket itemStackPacket:
                     ItemStackReceived?.Invoke(itemStackPacket.InventoryId, itemStackPacket.ItemTypeId, itemStackPacket.ItemCount);
                     break;
+                case EquippableItemTypePacket equipItemTypePacket:
+                    EquippableItemTypeReceived?.Invoke(EquippableItemType.FromPacket(equipItemTypePacket));
+                    break;
+                case ConsumableItemTypePacket consumableItemTypePacket:
+                    ConsumableItemTypeReceived?.Invoke(ConsumableItemType.FromPacket(consumableItemTypePacket));
+                    break;
                 case ItemTypePacket itemTypePacket:
                     ItemTypeReceived?.Invoke(ItemType.FromPacket(itemTypePacket));
-                    break;
+                    break;                
                 case ItemStackRemovedPacket itemStackRemovedPacket:
                     ItemStackRemovedReceived?.Invoke(itemStackRemovedPacket.InventoryId, itemStackRemovedPacket.ItemTypeId);
                     break;
@@ -339,6 +353,9 @@ namespace Client
                     break;
                 case PickupRemovedPacket pickupRemovedPacket:
                     PickupRemovedReceived?.Invoke(pickupRemovedPacket.PickupId, pickupRemovedPacket.PickedUpEntityId);
+                    break;
+                case EquipmentSlotPacket equipSlotPacket:
+                    EquipmentSlotReceived?.Invoke(equipSlotPacket.OwnerEntityId, equipSlotPacket.Slot, equipSlotPacket.ItemTypeId);
                     break;
                 default:
                     OwlLogger.LogError($"Clientside DummyServerConnection received unsupported packet: {packet.SerializeReflection()}", GameComponent.Network);

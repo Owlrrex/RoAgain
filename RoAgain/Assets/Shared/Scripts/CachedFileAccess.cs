@@ -119,7 +119,7 @@ namespace Shared
                 return -1;
             }
 
-            string json = JsonUtility.ToJson(newData);
+            string json = JsonUtility.ToJson(newData, true);
             try
             {
                 File.WriteAllText(path, json);

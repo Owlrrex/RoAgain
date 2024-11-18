@@ -70,6 +70,7 @@ namespace Server
             _chatCommands.Add("joblvl", new JobLevelChatCommand());
             _chatCommands.Add("createitem", new CreateItemExactCommant());
             _chatCommands.Add("clearinventory", new ClearInventoryCommand());
+            _chatCommands.Add("equipitem", new EquipmentRequestChatCommand());
         }
 
         public int HandleChatMessage(ChatMessageRequestData chatMessage)

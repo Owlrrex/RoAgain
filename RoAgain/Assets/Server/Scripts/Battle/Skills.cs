@@ -90,28 +90,28 @@ namespace Server
 
             float castTimeMod = 1.0f;
 
-            // We always apply conditional mods, since they're tailored to the skill's properties (including IsCastTimeFixed)
             if (user is CharacterRuntimeData charUser)
             {
-                // If conditional absolute Casttime-Mods are ever added, they go exactly here
-
-                if(charUser.ConditionalStats?.TryGetValue(EntityPropertyType.CastTime_Mod_Mult, out var multList) == true)
+                if(charUser.ConditionalStats?.TryGetValue(EntityPropertyType.CastTime, out var multList) == true)
                 {
                     foreach (ConditionalStat stat in multList)
                     {
-                        if (stat.Condition.Evaluate(this)) // lots of properties of "this" aren't set yet, because Initialize() hasn't been called. Keep an eye on that!
-                            castTimeMod *= stat.Value;
+                        // If conditional absolute Casttime-Mods are ever added, they'll be stored in stat.ModifiersAdd
+
+                        if (((ICondition)stat.Condition).Evaluate(this)) // lots of properties of "this" aren't set yet, because Initialize() hasn't been called. Keep an eye on that!
+                            castTimeMod *= stat.Value.ModifiersMult;
                     }
                 }
             }
-            
-            if(!entry.GetValueForLevel(entry.IsCastTimeFixed, skillLvl))
+
+            if (!entry.GetValueForLevel(entry.IsCastTimeFixed, skillLvl))
             {
-                if(user is CharacterRuntimeData character)
+                if (user is CharacterRuntimeData character)
                 {
-                    castTimeMod = character.CastTime.Total;
+                    castTimeMod *= character.CastTime.Total;
                 }
             }
+
             logic.UpdateCastTimeMod(rawCastTime, ref castTimeMod);
             float actualCastTime = rawCastTime * castTimeMod;
 
@@ -259,7 +259,7 @@ namespace Server
 
     public abstract class APassiveConditionalSingleStatBoostImpl : APassiveSkillImpl
     {
-        protected abstract Condition _condition { get; }
+        protected abstract ACondition _condition { get; }
         protected abstract SkillId _skillId { get; }
         protected abstract EntityPropertyType _propertyType { get; }
 
@@ -277,8 +277,8 @@ namespace Server
                 stat = new ConditionalStat()
                 {
                     Condition = _condition,
-                    Value = statIncrease,
                 };
+                stat.Value.ModifyAdd(statIncrease);
                 stats.Add(skillLvl, stat);
             }
 
@@ -322,6 +322,7 @@ namespace Server
         {
             if (!skillExec.HasExecutionStarted)
             {
+                // TODO: Second Attack when Dual-Wielding!
                 // Don't use StandardPhysicalAttack here - Auto-attacks can crit!
                 AttackParams parameters = AutoInitResourcePool<AttackParams>.Acquire();
                 parameters.InitForPhysicalSkill(skillExec);
@@ -438,7 +439,7 @@ namespace Server
             AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
             param.InitForPhysicalSkill(skillExec);
 
-            param.OverrideElement = EntityElement.Fire1;
+            param.AttackElement = EntityElement.Fire1;
             param.PostAttackCallback = PostAttackCallback;
             param.PreAttackCallback = PreAttackCallback;
 
@@ -466,23 +467,23 @@ namespace Server
     public class OneHandSwordMasterySkillImpl : APassiveConditionalSingleStatBoostImpl
     {
         // Var 1: Atk increase
-        private Condition _conditionPriv = new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.OneHandSword };
-        protected override Condition _condition => _conditionPriv;
+        private ACondition _conditionPriv = new AttackWeaponTypeCondition() { WeaponType = EquipmentType.Sword, IsTwoHanded = false };
+        protected override ACondition _condition => _conditionPriv;
 
         protected override SkillId _skillId => SkillId.OneHandSwordMastery;
 
-        protected override EntityPropertyType _propertyType => EntityPropertyType.MeleeAtk_Mod_Add;
+        protected override EntityPropertyType _propertyType => EntityPropertyType.CurrentAtkBoth;
     }
 
     public class TwoHandSwordMasterySkillImpl : APassiveConditionalSingleStatBoostImpl
     {
         // Var 1: Atk increase
-        private Condition _conditionPriv = new UserWeaponTypeCondition() { WeaponType = AttackWeaponType.TwoHandSword };
-        protected override Condition _condition => _conditionPriv;
+        private ACondition _conditionPriv = new AttackWeaponTypeCondition() { WeaponType = EquipmentType.Sword, IsTwoHanded = true };
+        protected override ACondition _condition => _conditionPriv;
 
         protected override SkillId _skillId => SkillId.TwoHandSwordMastery;
 
-        protected override EntityPropertyType _propertyType => EntityPropertyType.MeleeAtk_Mod_Add;
+        protected override EntityPropertyType _propertyType => EntityPropertyType.CurrentAtkBoth;
     }
 
     public class IncHpRecoverySkillImpl : APassiveSkillImpl
@@ -503,7 +504,7 @@ namespace Server
 
         public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
         {
-            Entry newEntry = new Entry()
+            Entry newEntry = new()
             {
                 Timer = new TimerFloat(_staticData.GetValueForLevel(_staticData.Var1, skillLvl)),
                 SkillLvl = skillLvl,
@@ -554,7 +555,7 @@ namespace Server
     {
         protected readonly Dictionary<int, ConditionalStat> stats = new();
 
-        private readonly Condition _condition = new BelowHpThresholdPercentCondition() { Percentage = 0.25f };
+        private readonly ACondition _condition = new BelowHpThresholdPercentCondition() { Percentage = 0.25f };
 
         public override void Apply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
         {
@@ -568,13 +569,12 @@ namespace Server
                 stat = new ConditionalStat()
                 {
                     Condition = _condition,
-                    Value = statIncrease,
                 };
+                stat.Value.ModifyMult(statIncrease);
                 stats.Add(skillLvl, stat);
             }
 
-            charOwner.AddConditionalStat(EntityPropertyType.MeleeAtk_Mod_Mult, stat);
-            charOwner.AddConditionalStat(EntityPropertyType.RangedAtk_Mod_Mult, stat);
+            charOwner.AddConditionalStat(EntityPropertyType.CurrentAtkBoth, stat);
         }
 
         public override void Unapply(ServerBattleEntity owner, int skillLvl, bool recalculate = true)
@@ -583,8 +583,7 @@ namespace Server
             {
                 // It's ok to exception here if stats[skillLvl] isn't set - that would indicate that
                 // This passive skill wasn't applied before, which shouldn't be possible
-                charOwner.RemoveConditionalStat(EntityPropertyType.MeleeAtk_Mod_Mult, stats[skillLvl]);
-                charOwner.RemoveConditionalStat(EntityPropertyType.RangedAtk_Mod_Mult, stats[skillLvl]);
+                charOwner.RemoveConditionalStat(EntityPropertyType.CurrentAtkBoth, stats[skillLvl]);
             }
         }
     }
@@ -635,7 +634,7 @@ namespace Server
             AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
             param.InitForMagicalSkill(skillExec);
 
-            param.OverrideElement = EntityElement.Fire1;
+            param.AttackElement = EntityElement.Fire1;
 
             foreach (ServerBattleEntity target in skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.Target.EntityTarget.Coordinates, skillExec.Var2))
             {
@@ -707,7 +706,7 @@ namespace Server
             AttackParams param = AutoInitResourcePool<AttackParams>.Acquire();
             param.InitForMagicalSkill(skillExec);
 
-            param.OverrideElement = EntityElement.Wind1;
+            param.AttackElement = EntityElement.Wind1;
             param.ChainCount = skillExec.Var2;
 
             foreach (ServerBattleEntity target in skillExec.Map.Grid.GetOccupantsInRangeSquare<ServerBattleEntity>(skillExec.Target.GroundTarget, skillExec.Var3))
@@ -775,7 +774,7 @@ namespace Server
             param.InitForMagicalSkill(skillExec);
 
             param.SkillFactor /= targetList.Count;
-            param.OverrideElement = EntityElement.Ghost1;
+            param.AttackElement = EntityElement.Ghost1;
 
             foreach (ServerBattleEntity target in targetList)
             {

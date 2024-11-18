@@ -76,7 +76,7 @@ namespace Server
                 {
                     if(stat.Condition.IsMergeable(otherStat.Condition))
                     {
-                        otherStat.Value += stat.Value;
+                        otherStat.Value.ModifyBoth(stat.Value);
                         found = true;
                         break;
                     }
@@ -106,7 +106,7 @@ namespace Server
             {
                 if(otherStat.Condition.IsMergeable(stat.Condition))
                 {
-                    otherStat.Value -= stat.Value;
+                    otherStat.Value.ModifyBothNeg(stat.Value);
                     foundStat = otherStat;
                     break;
                 }
@@ -118,7 +118,7 @@ namespace Server
                 return;
             }
 
-            if(foundStat.Value == 0.0f)
+            if(foundStat.Value.Total == 0.0f)
             {
                 sameTypeStats.Remove(foundStat);
             }
@@ -131,26 +131,16 @@ namespace Server
             // Maybe broadcast "Conditional Stats changed" event here
         }
 
-        public void ApplyModToStatAdd(EntityPropertyType type, ref Stat stat, AttackParams attackParams)
+        public void ApplyConditionalStats(EntityPropertyType type, ref Stat outStat, AttackParams attackParams)
         {
-            if(ConditionalStats?.TryGetValue(type, out var statList) == true)
-            {
-                foreach(ConditionalStat cStat in statList)
-                {
-                    if (cStat.Condition.Evaluate(attackParams))
-                        stat.ModifyAdd((int)cStat.Value);
-                }
-            }
-        }
+            if (ConditionalStats?.TryGetValue(type, out var cStatList) != true)
+                return;
 
-        public void ApplyModToStatMult(EntityPropertyType type, ref Stat stat, AttackParams attackParams)
-        {
-            if (ConditionalStats?.TryGetValue(type, out var statList) == true)
+            foreach (ConditionalStat cStat in cStatList)
             {
-                foreach (ConditionalStat cStat in statList)
+                if (((ICondition)cStat.Condition).Evaluate(attackParams))
                 {
-                    if (cStat.Condition.Evaluate(attackParams))
-                        stat.ModifyMult(cStat.Value);
+                    outStat.ModifyBoth(cStat.Value);
                 }
             }
         }
@@ -348,12 +338,28 @@ namespace Server
         {
             CalculateHpReg();
             NetworkQueue.StatUpdate(EntityPropertyType.MaxHp, MaxHp);
+
+            if (GetMapInstance()?.Grid != null)
+            {
+                foreach (CharacterRuntimeData charObserver in GetMapInstance().Grid.GetObserversSquare<CharacterRuntimeData>(Coordinates))
+                {
+                    charObserver.NetworkQueue.GridEntityDataUpdate(this);
+                }
+            }
         }
 
         private void OnMaxSpChanged(Stat maxSp)
         {
             CalculateSpReg();
             NetworkQueue.StatUpdate(EntityPropertyType.MaxSp, MaxSp);
+
+            if (GetMapInstance()?.Grid != null)
+            {
+                foreach (CharacterRuntimeData charObserver in GetMapInstance().Grid.GetObserversSquare<CharacterRuntimeData>(Coordinates))
+                {
+                    charObserver.NetworkQueue.GridEntityDataUpdate(this);
+                }
+            }
         }
 
         private void OnMeleeAtkMinChanged(Stat atk)
@@ -470,6 +476,8 @@ namespace Server
 
         public void CalculateHp()
         {
+            float oldTotal = MaxHp.Total;
+
             // TODO: Create Job-Db with these values
             float jobValueA = 0.7f;
             float jobValueB = 5.0f;
@@ -487,11 +495,11 @@ namespace Server
                 baseHp *= 1.25f;
             MaxHp.SetBase((int)baseHp);
 
+            if (MaxHp.Total == oldTotal)
+                return;
             
             if (CurrentHp > MaxHp.Total)
                 CurrentHp = MaxHp.Total;
-
-            NetworkQueue.StatUpdate(EntityPropertyType.MaxHp, MaxHp);
         }
 
         public void CalculateHpReg()
@@ -503,6 +511,8 @@ namespace Server
 
         public void CalculateSp()
         {
+            float oldTotal = MaxSp.Total;
+
             // TODO: Create Job-Db with these values
             float jobValue = 2.0f;
 
@@ -510,10 +520,11 @@ namespace Server
             float raw = 10 + (BaseLvl.Value * jobValue);
             MaxSp.SetBase((int)(raw * (1 + Int.Total / 100.0f)));
 
+            if (MaxSp.Total == oldTotal)
+                return;
+
             if (CurrentSp > MaxSp.Total)
                 CurrentSp = MaxSp.Total;
-
-            NetworkQueue.StatUpdate(EntityPropertyType.MaxSp, MaxSp);
         }
 
         public void CalculateSpReg()
@@ -656,6 +667,58 @@ namespace Server
                 return TemporarySkills[id];
 
             return int.MinValue;
+        }
+
+        public override bool AddStat(EntityPropertyType type, Stat change)
+        {
+            bool handled = base.AddStat(type, change);
+            if (handled)
+                return true;
+
+            switch(type)
+            {
+                case EntityPropertyType.CastTime:
+                    CastTime.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Cooldown:
+                    // TODO
+                    break;
+                case EntityPropertyType.CritDamage:
+                    CritDamage.ModifyBoth(change);
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+
+        public override bool RemoveStat(EntityPropertyType type, Stat change)
+        {
+            bool handled = base.RemoveStat(type, change);
+            if (handled)
+                return true;
+
+            switch(type)
+            {
+                case EntityPropertyType.CastTime:
+                    CastTime.ModifyBothNeg(change);
+                    break;
+                case EntityPropertyType.Cooldown:
+                    // TODO
+                    break;
+                case EntityPropertyType.CritDamage:
+                    CritDamage.ModifyBothNeg(change);
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override EquipmentType GetDefaultWeaponType(out EquipmentSlot usedSlot, out bool isTwoHanded)
+        {
+            return EquipSet.GetDefaultWeaponType(out usedSlot, out isTwoHanded);
         }
 
         public override Packet ToDataPacket()

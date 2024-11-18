@@ -1,5 +1,6 @@
 using OwlLogging;
 using System.Collections.Generic;
+using Shared;
 
 namespace Client
 {

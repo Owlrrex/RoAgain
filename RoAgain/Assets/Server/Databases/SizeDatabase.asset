@@ -21,87 +21,87 @@ MonoBehaviour:
     Small: 0.5
     Medium: 0.75
     Large: 1
-  - WeaponType: 3
-    Small: 0.75
-    Medium: 1
-    Large: 0.75
   - WeaponType: 4
     Small: 0.75
-    Medium: 0.75
-    Large: 1
-  - WeaponType: 5
-    Small: 0.75
-    Medium: 0.75
-    Large: 1
-  - WeaponType: 6
-    Small: 0.75
-    Medium: 0.75
-    Large: 1
-  - WeaponType: 7
-    Small: 0.5
-    Medium: 0.75
-    Large: 1
+    Medium: 1
+    Large: 0.75
   - WeaponType: 8
+    Small: 0.75
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 16
+    Small: 0.75
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 32
+    Small: 0.75
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 64
     Small: 0.5
     Medium: 0.75
     Large: 1
-  - WeaponType: 9
+  - WeaponType: 128
+    Small: 0.5
+    Medium: 0.75
+    Large: 1
+  - WeaponType: 256
     Small: 0.75
     Medium: 1
     Large: 1
-  - WeaponType: 10
+  - WeaponType: 512
     Small: 1
     Medium: 1
     Large: 1
-  - WeaponType: 11
+  - WeaponType: 1024
     Small: 1
     Medium: 1
     Large: 1
-  - WeaponType: 12
+  - WeaponType: 2048
     Small: 1
     Medium: 1
     Large: 0.75
-  - WeaponType: 13
+  - WeaponType: 4096
     Small: 1
     Medium: 0.75
     Large: 0.5
-  - WeaponType: 14
+  - WeaponType: 8192
     Small: 0.75
     Medium: 1
     Large: 0.75
-  - WeaponType: 15
+  - WeaponType: 16384
     Small: 0.75
     Medium: 1
     Large: 0.5
-  - WeaponType: 16
+  - WeaponType: 32768
     Small: 1
     Medium: 1
     Large: 0.5
-  - WeaponType: 17
+  - WeaponType: 65536
     Small: 0.75
     Medium: 1
     Large: 0.75
-  - WeaponType: 18
+  - WeaponType: 131072
     Small: 1
     Medium: 1
     Large: 1
-  - WeaponType: 19
+  - WeaponType: 262144
     Small: 1
     Medium: 1
     Large: 1
-  - WeaponType: 20
+  - WeaponType: 524288
     Small: 1
     Medium: 1
     Large: 1
-  - WeaponType: 21
+  - WeaponType: 1048576
     Small: 1
     Medium: 1
     Large: 1
-  - WeaponType: 22
+  - WeaponType: 2097152
     Small: 1
     Medium: 1
     Large: 1
-  - WeaponType: 23
+  - WeaponType: 4194304
     Small: 1
     Medium: 1
     Large: 1

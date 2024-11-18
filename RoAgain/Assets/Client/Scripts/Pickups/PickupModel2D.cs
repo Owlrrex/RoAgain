@@ -26,7 +26,10 @@ namespace Client
             base.Update();
             _lifetimeHintTimer.Update(Time.deltaTime);
             if(_lifetimeHintTimer.IsFinished())
-                _image.color = _baseColor;
+            {
+                if(_image != null)
+                    _image.color = _baseColor;
+            }
         }
 
         protected override void PlayLifetimeHint()

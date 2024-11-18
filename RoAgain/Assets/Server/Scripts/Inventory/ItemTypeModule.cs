@@ -14,11 +14,8 @@ namespace Server
         public bool CanStack;
         public int Weight;
         public int SellPrice;
-        public int RequiredLevel;
-        public JobFilter RequiredJobs;
         public int NumTotalCardSlots;
         public ItemUsageMode UsageMode;
-        public int OnUseScript;
         public int VisualId;
         public LocalizedStringId NameLocId = LocalizedStringId.INVALID;
         public LocalizedStringId FlavorLocId = LocalizedStringId.INVALID;
@@ -109,8 +106,6 @@ namespace Server
                 TypeId = TypeId,
                 BaseTypeId = BaseTypeId,
                 Weight = Weight,
-                RequiredLevel = RequiredLevel,
-                RequiredJobs = RequiredJobs,
                 NumTotalCardSlots = NumTotalCardSlots,
                 UsageMode = UsageMode,
                 VisualId = VisualId,
@@ -127,14 +122,151 @@ namespace Server
             CanStack = false;
             Weight = 0;
             SellPrice = 0;
-            RequiredLevel = 0;
-            RequiredJobs = JobFilter.Unknown;
             NumTotalCardSlots = 0;
             UsageMode = ItemUsageMode.Unusable;
-            OnUseScript = 0;
             VisualId = 0;
             NameLocId = LocalizedStringId.INVALID;
             FlavorLocId = LocalizedStringId.INVALID;
+        }
+    }
+
+    public class EquippableItemType : ItemType, IAutoInitPoolObject
+    {
+        public Dictionary<EquipmentSlot, List<IBattleEntityCriterium>> SlotCriteriums = new();
+
+        public List<SimpleStatEntry> SimpleStatEntries = new();
+        public List<ConditionalStatEntry> ConditionalStatEntries = new();
+
+        public int EquipScript;
+        public int UnequipScript;
+        public EquipmentType EquipmentType;
+
+        public bool CanEquip(ServerBattleEntity bEntity)
+        {
+            foreach (var slotKvp in SlotCriteriums)
+            {
+                bool slotValid = true;
+                foreach (IBattleEntityCriterium criterium in slotKvp.Value)
+                {
+                    if (!criterium.Evaluate(bEntity))
+                    {
+                        slotValid = false;
+                        break;
+                    }
+                }
+                if (slotValid)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public HashSet<EquipmentSlot> GetEquippableSlots(ServerBattleEntity bEntity)
+        {
+            HashSet<EquipmentSlot> slots = new();
+            foreach (var slotKvp in SlotCriteriums)
+            {
+                bool slotValid = true;
+                foreach (IBattleEntityCriterium criterium in slotKvp.Value)
+                {
+                    if (!criterium.Evaluate(bEntity))
+                    {
+                        slotValid = false;
+                        break;
+                    }
+                }
+                if (slotValid)
+                    slots.Add(slotKvp.Key);
+            }
+
+            return slots;
+        }
+
+        public override ItemTypePacket ToPacket()
+        {
+            EquippableItemTypePacket packet = new()
+            {
+                TypeId = TypeId,
+                BaseTypeId = BaseTypeId,
+                Weight = Weight,
+                NumTotalCardSlots = NumTotalCardSlots,
+                UsageMode = UsageMode,
+                VisualId = VisualId,
+                NameLocId = NameLocId,
+                FlavorLocId = FlavorLocId,
+                Modifiers = new(ReadOnlyModifiers),
+                SlotCriteriums = new(),
+                EquipmentType = EquipmentType
+            };
+
+            Dictionary<EquipmentSlot, string> data = new();
+            foreach (var kvp in SlotCriteriums)
+            {
+                string criteriumList = "";
+                foreach (IBattleEntityCriterium criterium in kvp.Value)
+                {
+                    criteriumList += criterium.Serialize();
+                }
+                data.Add(kvp.Key, criteriumList);
+            }
+            packet.SlotCriteriums.FromDict(data);
+            foreach(SimpleStatEntry entry in SimpleStatEntries)
+            {
+                packet.SimpleStatStrings.Add(entry.Serialize());
+            }
+            foreach(ConditionalStatEntry entry in ConditionalStatEntries)
+            {
+                packet.ConditionalStatStrings.Add(entry.Serialize());
+            }
+
+            return packet;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            SlotCriteriums.Clear();
+            SimpleStatEntries.Clear();
+            ConditionalStatEntries.Clear();
+            EquipScript = 0;
+            UnequipScript = 0;
+        }
+    }
+
+    public class ConsumableItemType : ItemType, IAutoInitPoolObject
+    {
+        public int UseScriptId;
+        public List<IBattleEntityCriterium> UsageCriteriums = new();
+
+        public override ItemTypePacket ToPacket()
+        {
+            ConsumableItemTypePacket packet = new()
+            {
+                TypeId = TypeId,
+                BaseTypeId = BaseTypeId,
+                Weight = Weight,
+                NumTotalCardSlots = NumTotalCardSlots,
+                UsageMode = UsageMode,
+                VisualId = VisualId,
+                NameLocId = NameLocId,
+                FlavorLocId = FlavorLocId,
+                Modifiers = new(ReadOnlyModifiers),
+            };
+
+            packet.UsageCriteriumsList = "";
+            foreach (IBattleEntityCriterium criterium in UsageCriteriums)
+            {
+                packet.UsageCriteriumsList += criterium.Serialize();
+            }
+
+            return packet;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            UseScriptId = 0;
+            UsageCriteriums.Clear();
         }
     }
 
@@ -148,6 +280,8 @@ namespace Server
         private Dictionary<long, ItemType> _itemTypeCache = new();
         private Dictionary<long, List<ItemType>> _itemTypesByBaseTypeId = new();
         private Dictionary<long, int> _itemTypeUsageCount = new();
+
+        private Dictionary<int, HashSet<long>> _knownItemTypesByPlayerEntity = new();
 
         public int Initialize(AItemTypeDatabase itemTypeDb)
         {
@@ -261,33 +395,39 @@ namespace Server
                 _itemTypesByBaseTypeId[type.BaseTypeId].Remove(type);
             }
             _itemTypeUsageCount.Remove(type.TypeId);
-            AutoInitResourcePool<ItemType>.Return(type);
+
+            if (type is EquippableItemType equipType)
+                AutoInitResourcePool<EquippableItemType>.Return(equipType);
+            //else if (type is UsableItemType)
+            //    AutoInitResourcePool<UsableItemType>.Return(type);
+            else
+                AutoInitResourcePool<ItemType>.Return(type);
         }
 
-        public void NotifyItemStackCreated(ItemStack stack)
+        public void NotifyItemTypeUsed(long itemTypeId)
         {
-            if (!_itemTypeUsageCount.ContainsKey(stack.ItemType.TypeId))
+            if (!_itemTypeUsageCount.ContainsKey(itemTypeId))
             {
-                _itemTypeUsageCount[stack.ItemType.TypeId] = 1;
+                _itemTypeUsageCount[itemTypeId] = 1;
                 return;
             }
 
-            _itemTypeUsageCount[stack.ItemType.TypeId]++;
+            _itemTypeUsageCount[itemTypeId]++;
         }
 
-        public void NotifyItemStackDestroyed(ItemStack stack)
+        public void NotifyItemTypeUseEnded(long itemTypeId)
         {
-            if (!_itemTypeUsageCount.ContainsKey(stack.ItemType.TypeId)
-                || _itemTypeUsageCount[stack.ItemType.TypeId] <= 0)
+            if (!_itemTypeUsageCount.ContainsKey(itemTypeId)
+                || _itemTypeUsageCount[itemTypeId] <= 0)
             {
-                OwlLogger.LogError($"UsageCount for ItemType {stack.ItemType.TypeId} is invalid!", GameComponent.Items);
+                OwlLogger.LogError($"UsageCount for ItemType {itemTypeId} is invalid!", GameComponent.Items);
                 return;
             }
 
-            _itemTypeUsageCount[stack.ItemType.TypeId]--;
-            if(_itemTypeUsageCount[stack.ItemType.TypeId] <= 0)
+            _itemTypeUsageCount[itemTypeId]--;
+            if(_itemTypeUsageCount[itemTypeId] <= 0)
             {
-                RemoveItemTypeFromCaches(stack.ItemType);
+                RemoveItemTypeFromCaches(_itemTypeCache[itemTypeId]);
             }
         }
 
@@ -296,6 +436,86 @@ namespace Server
         public List<ItemType> FindAllItemTypesForBase(long baseTypeId)
         {
             return null;
+        }
+
+        private bool IsItemTypeKnownToCharacter(CharacterRuntimeData character, long itemTypeId)
+        {
+            return _knownItemTypesByPlayerEntity.ContainsKey(character.Id)
+                && _knownItemTypesByPlayerEntity[character.Id].Contains(itemTypeId);
+        }
+
+        public int SendItemTypeDataToCharacterIfUnknown(CharacterRuntimeData character, long itemTypeId)
+        {
+            if (IsItemTypeKnownToCharacter(character, itemTypeId))
+                return 0;
+
+            ItemType type = GetOrLoadItemType(itemTypeId);
+            if (type == null)
+                return -1;
+
+            return SendItemTypeDataToCharacterIfUnknown(character, type);
+        }
+
+        public int SendItemTypeDataToCharacterIfUnknown(CharacterRuntimeData character, ItemType type)
+        {
+            if (IsItemTypeKnownToCharacter(character, type.TypeId))
+                return 0;
+
+            int result = 0;
+            if (type.BaseTypeId != ItemConstants.BASETYPEID_NONE)
+            {
+                result += SendItemTypeDataToCharacterIfUnknown(character, type.BaseTypeId);
+            }
+
+            if (type.HasAnyModifiers())
+            {
+                if (type.HasModifier(ModifierType.CardSlot_1))
+                {
+                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_1));
+                }
+
+                if (type.HasModifier(ModifierType.CardSlot_2))
+                {
+                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_2));
+                }
+
+                if (type.HasModifier(ModifierType.CardSlot_3))
+                {
+                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_3));
+                }
+
+                if (type.HasModifier(ModifierType.CardSlot_4))
+                {
+                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_4));
+                }
+
+                if (type.HasModifier(ModifierType.CraftingAdditive_1))
+                {
+                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CraftingAdditive_1));
+                }
+
+                if (type.HasModifier(ModifierType.CraftingAdditive_2))
+                {
+                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CraftingAdditive_2));
+                }
+
+                if (type.HasModifier(ModifierType.CraftingAdditive_3))
+                {
+                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CraftingAdditive_3));
+                }
+
+                // Other modifiers that refer to itemtypes here
+            }
+
+            Packet packet = type.ToPacket();
+            result += character.Connection.Send(packet);
+            if (result == 0)
+            {
+                if (!_knownItemTypesByPlayerEntity.ContainsKey(character.Id))
+                    _knownItemTypesByPlayerEntity[character.Id] = new();
+                _knownItemTypesByPlayerEntity[character.Id].Add(type.TypeId);
+            }
+            return result;
         }
     }
 }

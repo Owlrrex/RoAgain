@@ -20,6 +20,13 @@ namespace Server
         private Dictionary<int, ServerBattleEntity> _baseLevelUps = new();
         private Dictionary<int, CharacterRuntimeData> _jobLevelUps = new();
         private Dictionary<int, PickupEntity> _pickupsRemoved = new();
+        private Dictionary<int, EquipmentSlotQueueEntry> _equipmentSlots = new();
+
+        private class EquipmentSlotQueueEntry
+        {
+            public CharacterRuntimeData Owner;
+            public EquipmentSlot Slots = new();
+        }
 
         public int Initialize(ClientConnection connection)
         {
@@ -149,6 +156,26 @@ namespace Server
                 _connection.Send(packet);
             }
 
+            foreach(EquipmentSlotQueueEntry entry in _equipmentSlots.Values)
+            {
+                EquipmentSlot sentSlots = 0;
+                foreach (EquipmentSlot slot in new EquipmentSlotIterator(entry.Slots))
+                {
+                    if (sentSlots.HasFlag(slot))
+                        continue;
+
+                    EquipmentSlot occupiedSlots = entry.Owner.EquipSet.GetGroupedSlots(slot);
+                    EquipmentSlotPacket packet = new()
+                    {
+                        OwnerEntityId = entry.Owner.Id,
+                        Slot = occupiedSlots,
+                        ItemTypeId = entry.Owner.EquipSet.GetItemType(slot)?.TypeId ?? ItemConstants.ITEM_TYPE_ID_INVALID
+                    };
+                    _connection.Send(packet);
+                    sentSlots |= occupiedSlots;
+                }
+            }
+
             _pathUpdates.Clear();
             _gridEntityUpdates.Clear();
             _statUpdates.Clear();
@@ -159,6 +186,8 @@ namespace Server
             _expUpdate = null;
             _baseLevelUps.Clear();
             _jobLevelUps.Clear();
+            _pickupsRemoved.Clear();
+            _equipmentSlots.Clear();
         }
 
         private void TryMergeData()
@@ -330,6 +359,14 @@ namespace Server
             _pickupsRemoved[pickup.Id] = pickup;
 
             _gridEntityUpdates.Remove(pickup.Id); // Don't send updates for removed pickups
+        }
+
+        public void EquipmentChanged(EquipmentSlot slots, CharacterRuntimeData owner)
+        {
+            if (!_equipmentSlots.ContainsKey(owner.Id))
+                _equipmentSlots[owner.Id] = new() { Owner = owner };
+
+            _equipmentSlots[owner.Id].Slots |= slots;
         }
     }
 }

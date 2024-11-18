@@ -66,7 +66,7 @@ namespace Server
 
         private HashSet<CharacterRuntimeData> _charactersOnMap = new();
 
-        public int Initialize(string mapId, ExperienceModule expModule, ALootTableDatabase lootDb, InventoryModule inventoryModule)
+        public int Initialize(string mapId, ExperienceModule expModule, ALootTableDatabase lootDb, InventoryModule inventoryModule, ItemTypeModule itemTypeModule)
         {
             MapId = mapId;
             int loadError = LoadGridFromFile(MapId);
@@ -78,7 +78,7 @@ namespace Server
             BattleModule.Initialize(this);
 
             PickupModule = new();
-            PickupModule.Initialize(this, inventoryModule);
+            PickupModule.Initialize(this, inventoryModule, itemTypeModule);
 
             LootModule = new();
             LootModule.Initialize(lootDb, inventoryModule, PickupModule);

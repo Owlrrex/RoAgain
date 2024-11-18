@@ -1,0 +1,234 @@
+{
+    "OneHndData": [
+        {
+            "WeaponType": 1,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 2,
+            "Small": 0.5,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 4,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 0.75
+        },
+        {
+            "WeaponType": 8,
+            "Small": 0.75,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 16,
+            "Small": 0.75,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 32,
+            "Small": 0.75,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 64,
+            "Small": 0.5,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 128,
+            "Small": 0.5,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 256,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 512,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 1024,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 2048,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 0.75
+        },
+        {
+            "WeaponType": 4096,
+            "Small": 1,
+            "Medium": 0.75,
+            "Large": 0.5
+        },
+        {
+            "WeaponType": 8192,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 0.75
+        },
+        {
+            "WeaponType": 16384,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 0.5
+        },
+        {
+            "WeaponType": 32768,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 0.5
+        },
+        {
+            "WeaponType": 65536,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 0.75
+        },
+        {
+            "WeaponType": 131072,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 262144,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        }
+    ],
+	"TwoHndData": [
+        {
+            "WeaponType": 1,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 2,
+            "Small": 0.5,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 4,
+            "Small": 0.75,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 8,
+            "Small": 0.75,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 16,
+            "Small": 0.75,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 32,
+            "Small": 0.75,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 64,
+            "Small": 0.5,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 128,
+            "Small": 0.5,
+            "Medium": 0.75,
+            "Large": 1
+        },
+        {
+            "WeaponType": 256,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 512,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 1024,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 2048,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 0.75
+        },
+        {
+            "WeaponType": 4096,
+            "Small": 1,
+            "Medium": 0.75,
+            "Large": 0.5
+        },
+        {
+            "WeaponType": 8192,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 0.75
+        },
+        {
+            "WeaponType": 16384,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 0.5
+        },
+        {
+            "WeaponType": 32768,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 0.5
+        },
+        {
+            "WeaponType": 65536,
+            "Small": 0.75,
+            "Medium": 1,
+            "Large": 0.75
+        },
+        {
+            "WeaponType": 131072,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        },
+        {
+            "WeaponType": 262144,
+            "Small": 1,
+            "Medium": 1,
+            "Large": 1
+        }
+    ]
+}

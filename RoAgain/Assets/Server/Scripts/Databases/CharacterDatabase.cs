@@ -40,7 +40,7 @@ namespace Server
         public int InventoryId;
 
         // TODO: Equip
-        
+        public EquipmentSetPersistent EquipSet = new();
 
         public List<PersistentSkillListEntry> PermanentSkillList = new();
 

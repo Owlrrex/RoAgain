@@ -2,92 +2,6 @@ using OwlLogging;
 using System;
 using UnityEngine; // TODO: Remove Unity-dependencies
 
-//[Serializable]
-//public class Stat
-//{
-//    [SerializeField]
-//    private int _base;
-//    public int Base => _base;
-
-//    [SerializeField]
-//    private int _total;
-//    public int Total => _total;
-
-//    [SerializeField]
-//    private int _modAdd;
-//    public int ModifiersAdd => _modAdd;
-
-//    [SerializeField]
-//    private float _modMult;
-//    public float ModifiersMult => _modMult;
-
-//    public Action<Stat> ValueChanged;
-
-//    public void CopyTo(Stat other)
-//    {
-//        if (other == null)
-//            return;
-
-//        int oldTotal = _total;
-
-//        other._base = _base;
-//        other._modAdd = _modAdd;
-//        other._modMult = _modMult;
-//        other._total = _total;
-
-//        if(oldTotal != _total)
-//            ValueChanged?.Invoke(this);
-//    }
-
-//    public void Recalculate()
-//    {
-//        int oldTotal = _total;
-//        _total = (int)((_base + _modAdd) * (1 + _modMult));
-//        if (oldTotal != _total)
-//            ValueChanged?.Invoke(this);
-//    }
-
-//    public void SetBase(int value, bool recalculate = true)
-//    {
-//        if (value == _base)
-//            return;
-
-//        _base = value;
-//        if (recalculate)
-//            Recalculate();
-//    }
-
-//    public void ModifyBase(int change, bool recalculate = true)
-//    {
-//        if (change == 0)
-//            return;
-
-//        _base += change;
-//        if (recalculate)
-//            Recalculate();
-//    }
-
-//    public void ModifyAdd(int change, bool recalculate = true)
-//    {
-//        if (change == 0)
-//            return;
-
-//        _modAdd += change;
-//        if(recalculate)
-//            Recalculate();
-//    }
-
-//    public void ModifyMult(float change, bool recalculate = true)
-//    {
-//        if (change == 0)
-//            return;
-
-//        _modMult += change;
-//        if (recalculate)
-//            Recalculate();
-//    }
-//}
-
 [Serializable]
 public class Stat
 {
@@ -171,6 +85,30 @@ public class Stat
         if (recalculate)
             Recalculate();
     }
+
+    public void ModifyBoth(Stat change, bool recalculate = true)
+    {
+        if (change.ModifiersAdd == 0 && change.ModifiersMult == 0)
+            return;
+
+        _modAdd += change.ModifiersAdd;
+        _modMult += change.ModifiersMult;
+
+        if(recalculate)
+            Recalculate();
+    }
+
+    public void ModifyBothNeg(Stat change, bool recalculate = true)
+    {
+        if (change.ModifiersAdd == 0 && change.ModifiersMult == 0)
+            return;
+
+        _modAdd -= change.ModifiersAdd;
+        _modMult -= change.ModifiersMult;
+
+        if (recalculate)
+            Recalculate();
+    }
 }
 
 public enum EntityPropertyType
@@ -190,18 +128,16 @@ public enum EntityPropertyType
     SpRegenTime,
     MeleeAtkMin,
     MeleeAtkMax,
-    MeleeAtk_Mod_Add,
-    MeleeAtk_Mod_Mult,
+    MeleeAtkBoth,
     RangedAtkMin,
     RangedAtkMax,
-    RangedAtk_Mod_Add,
-    RangedAtk_Mod_Mult,
+    RangedAtkBoth,
     CurrentAtkMin,
     CurrentAtkMax,
+    CurrentAtkBoth,
     MatkMin,
     MatkMax,
-    Matk_Mod_Add,
-    Matk_Mod_Mult,
+    MatkBoth,
     AnimationSpeed,
     HardDef,
     SoftDef,
@@ -209,6 +145,7 @@ public enum EntityPropertyType
     SoftMDef,
     Crit,
     CritShield,
+    CritDamage,
     Flee,
     PerfectFlee,
     Hit,
@@ -229,11 +166,11 @@ public enum EntityPropertyType
     Range,
     Movespeed,
     WeightLimit,
-    CastTime_Mod_Mult,
-    Damage_Mod_Mult, // Should be used as little as possible in favour of multiplicative Atk- & Matk-mods
-    DamageReduction_Mod_Add,
-    Crit_Mod_Add,
-    SpCost_Mult, // TODO: Implement
+    CastTime,
+    Cooldown,
+    DamageDealt, // Should be used as little as possible in favour of multiplicative Atk- & Matk-mods. Also, additive part of this is not used
+    DamageReceived, // Additive part of this is not used
+    SpCost, // TODO: Implement
 }
 
 public enum EntityRace

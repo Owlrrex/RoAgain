@@ -17,8 +17,9 @@ namespace Server
         private WarpModule _warpModule;
         private ALootTableDatabase _lootDb;
         private InventoryModule _inventoryModule;
+        private ItemTypeModule _itemTypeModule;
 
-        public int Initialize(ExperienceModule expModule, NpcModule npcModule, WarpModule warpModule, ALootTableDatabase lootDb, InventoryModule inventoryModule)
+        public int Initialize(ExperienceModule expModule, NpcModule npcModule, WarpModule warpModule, ALootTableDatabase lootDb, InventoryModule inventoryModule, ItemTypeModule itemTypeModule)
         {
             if(expModule == null)
             {
@@ -50,11 +51,18 @@ namespace Server
                 return -1;
             }
 
+            if (itemTypeModule == null)
+            {
+                OwlLogger.LogError("Can't initialize ServerMapModule with null ItemTypeModule!", GameComponent.Other);
+                return -1;
+            }
+
             _expModule = expModule;
             _npcModule = npcModule;
             _warpModule = warpModule;
             _lootDb = lootDb;
             _inventoryModule = inventoryModule;
+            _itemTypeModule = itemTypeModule;
 
             return 0;
         }
@@ -99,7 +107,7 @@ namespace Server
             }
 
             MapInstance newInstance = new();
-            newInstance.Initialize(mapId, _expModule, _lootDb, _inventoryModule);
+            newInstance.Initialize(mapId, _expModule, _lootDb, _inventoryModule, _itemTypeModule);
             _mapInstances.Add(mapId, newInstance);
             _npcModule.CreateNpcsForMap(mapId);
             _warpModule.CreateWarpsForMap(mapId);

@@ -4,34 +4,6 @@ using System;
 
 namespace Server
 {
-    public enum AttackWeaponType
-    {
-        Unknown,
-        Unarmed,
-        Dagger,
-        OneHandSword,
-        TwoHandSword,
-        OneHandSpear,
-        TwoHandSpear,
-        OneHandAxe,
-        TwoHandAxe,
-        Mace,
-        OneHandStaff,
-        TwoHandStaff,
-        Bow,
-        Knuckle,
-        Instrument,
-        Whip,
-        Book,
-        Katar,
-        Revolver,
-        Rifle,
-        Shotgun,
-        Gatling,
-        Grenade,
-        FuumaShuriken
-    }
-
     public enum AttackType
     {
         Unknown,
@@ -60,7 +32,9 @@ namespace Server
         // SkillFactor is per hit!
         public float SkillFactor = 1.0f;
         public AttackType AttackType;
-        public EntityElement OverrideElement = EntityElement.Unknown;
+        public EntityElement AttackElement = EntityElement.Unknown;
+        public EquipmentType AttackWeaponType = EquipmentType.Unknown;
+        public bool IsTwoHanded;
         public bool CanCrit = false;
         public bool CanMiss = true;
         public bool IgnoreDefense = false;
@@ -74,7 +48,7 @@ namespace Server
                 && SourceSkillExec != null
                 && SkillFactor >= 0.0f
                 && AttackType != AttackType.Unknown
-                && Array.IndexOf(validElements, OverrideElement) != -1
+                && Array.IndexOf(validElements, AttackElement) != -1
                 // All CanCrit values are valid
                 // All CanMiss values are valid
                 // All IgnoreDefense values are valid
@@ -87,7 +61,7 @@ namespace Server
             SourceSkillExec = null;
             SkillFactor = 1.0f;
             AttackType = AttackType.Unknown;
-            OverrideElement = EntityElement.Unknown;
+            AttackElement = EntityElement.Unknown;
             CanCrit = false;
             CanMiss = true;
             IgnoreDefense = false;
@@ -131,7 +105,6 @@ namespace Server
         // These make the BattleModule not thread-safe!
         private Stat battleCalcStat1 = new();
         private Stat battleCalcStat2 = new();
-        private Stat battleCalcStatFloat = new();
 
         public int Initialize(MapInstance mapInstance)
         {
@@ -232,7 +205,7 @@ namespace Server
             parameters.InitForPhysicalSkill(skillExec);
 
             parameters.SkillFactor = skillRatioPercent / 100.0f;
-            parameters.OverrideElement = overrideElement;
+            parameters.AttackElement = overrideElement;
             parameters.ChainCount = hitCount;
 
             int result = PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
@@ -249,7 +222,7 @@ namespace Server
             parameters.InitForMagicalSkill(skillExec);
 
             parameters.SkillFactor = skillRatioPercent / 100.0f;
-            parameters.OverrideElement = overrideElement;
+            parameters.AttackElement = overrideElement;
             parameters.ChainCount = hitCount;
 
             int result = PerformAttack(skillExec.Target.EntityTarget as ServerBattleEntity, parameters);
@@ -271,9 +244,16 @@ namespace Server
                 return -1;
             }
 
-            parameters.PreAttackCallback?.Invoke(parameters.SourceSkillExec);
-
             CharacterRuntimeData charSource = parameters.Source as CharacterRuntimeData;
+            CharacterRuntimeData charTarget = target as CharacterRuntimeData;
+
+            // autofill parameters that don't have to be filled-in externally
+            if (parameters.AttackElement == EntityElement.Unknown)
+                parameters.AttackElement = parameters.Source.GetOffensiveElement();
+            if (parameters.AttackWeaponType == EquipmentType.Unknown)
+                parameters.AttackWeaponType = parameters.Source.GetDefaultWeaponType(out _, out parameters.IsTwoHanded);
+
+            parameters.PreAttackCallback?.Invoke(parameters.SourceSkillExec);
 
             bool isPhysical = parameters.AttackType == AttackType.Physical;
 
@@ -299,12 +279,15 @@ namespace Server
             bool isCrit = false;
             if (parameters.CanCrit)
             {
-                parameters.Source.Crit.CopyTo(battleCalcStatFloat);
-                charSource?.ApplyModToStatAdd(EntityPropertyType.Crit_Mod_Add, ref battleCalcStatFloat, parameters);
+                parameters.Source.Crit.CopyTo(battleCalcStat1);
+                target.CritShield.CopyTo(battleCalcStat2);
+                charSource?.ApplyConditionalStats(EntityPropertyType.Crit, ref battleCalcStat1, parameters);
+                charTarget?.ApplyConditionalStats(EntityPropertyType.CritShield, ref battleCalcStat2, parameters);
 
-                float critChance = battleCalcStatFloat.Total - target.CritShield.Total;
+                float critChance = battleCalcStat1.Total - battleCalcStat2.Total;
 
-                isCrit = UnityEngine.Random.Range(0.0f, 1.0f) < critChance;
+                if(critChance > 0)
+                    isCrit = UnityEngine.Random.Range(0.0f, 1.0f) < critChance;
             }
 
             float attackPower;
@@ -322,38 +305,37 @@ namespace Server
 
                 if(parameters.Source.IsRanged())
                 {
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref battleCalcStat1, parameters);
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.RangedAtk_Mod_Add, ref battleCalcStat2, parameters);
-
-                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref battleCalcStat1, parameters);
-                    charSource?.ApplyModToStatMult(EntityPropertyType.RangedAtk_Mod_Mult, ref battleCalcStat2, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.RangedAtkMax, ref battleCalcStat1, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.RangedAtkMin, ref battleCalcStat2, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.RangedAtkBoth, ref battleCalcStat1, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.RangedAtkBoth, ref battleCalcStat2, parameters);
                 }
                 else
                 {
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref battleCalcStat1, parameters);
-                    charSource?.ApplyModToStatAdd(EntityPropertyType.MeleeAtk_Mod_Add, ref battleCalcStat2, parameters);
-
-                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref battleCalcStat1, parameters);
-                    charSource?.ApplyModToStatMult(EntityPropertyType.MeleeAtk_Mod_Mult, ref battleCalcStat2, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.MeleeAtkMax, ref battleCalcStat1, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.MeleeAtkMin, ref battleCalcStat2, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.MeleeAtkBoth, ref battleCalcStat1, parameters);
+                    charSource?.ApplyConditionalStats(EntityPropertyType.MeleeAtkBoth, ref battleCalcStat2, parameters);
                 }
-
-                maxAttack = battleCalcStat1.Total;
-                minAttack = battleCalcStat2.Total;
             }
             else
             {
                 parameters.Source.MatkMax.CopyTo(battleCalcStat1);
                 parameters.Source.MatkMin.CopyTo(battleCalcStat2);
 
-                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref battleCalcStat1, parameters);
-                charSource?.ApplyModToStatAdd(EntityPropertyType.Matk_Mod_Add, ref battleCalcStat2, parameters);
-
-                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref battleCalcStat1, parameters);
-                charSource?.ApplyModToStatMult(EntityPropertyType.Matk_Mod_Mult, ref battleCalcStat2, parameters);
-
-                maxAttack = battleCalcStat1.Total;
-                minAttack = battleCalcStat2.Total;
+                charSource?.ApplyConditionalStats(EntityPropertyType.MatkMax, ref battleCalcStat1, parameters);
+                charSource?.ApplyConditionalStats(EntityPropertyType.MatkMin, ref battleCalcStat2, parameters);
+                charSource?.ApplyConditionalStats(EntityPropertyType.MatkBoth, ref battleCalcStat1, parameters);
+                charSource?.ApplyConditionalStats(EntityPropertyType.MatkBoth, ref battleCalcStat2, parameters);
             }
+
+            charSource?.ApplyConditionalStats(EntityPropertyType.CurrentAtkMax, ref battleCalcStat1, parameters);
+            charSource?.ApplyConditionalStats(EntityPropertyType.CurrentAtkMin, ref battleCalcStat2, parameters);
+            charSource?.ApplyConditionalStats(EntityPropertyType.CurrentAtkBoth, ref battleCalcStat1, parameters);
+            charSource?.ApplyConditionalStats(EntityPropertyType.CurrentAtkBoth, ref battleCalcStat2, parameters);
+
+            maxAttack = battleCalcStat1.Total;
+            minAttack = battleCalcStat2.Total;
 
             if (isCrit)
             {
@@ -417,42 +399,36 @@ namespace Server
                 damage = Math.Max(attackPower * (1.0f - hardDefense) - softDefense, 0);
             }
 
-            // Cases could be made for or against calculating cards & elements before / after Soft-Def
+            // Cases could be made for or against calculating DamageDealt, DamageReceived & elements before / after Soft-Def
             // Softdef first: Increased SoftDef effect when modifiers overall increase damage
             // Softdef last: Increased SoftDef effect when modifiers overall decrease damage
-            EntityElement attackElement = parameters.OverrideElement;
-            if (attackElement == EntityElement.Unknown)
-                attackElement = parameters.Source.GetOffensiveElement();
-
             float modifier = 1.0f;
-            if(charSource != null
-                && charSource.ConditionalStats?.TryGetValue(EntityPropertyType.Damage_Mod_Mult, out var dmgList) == true)
+            if(charSource?.ConditionalStats?.TryGetValue(EntityPropertyType.DamageDealt, out var dmgList) == true)
             {
                 foreach(ConditionalStat stat in dmgList)
                 {
-                    if (!stat.Condition.Evaluate(parameters))
+                    if (!((ICondition)stat.Condition).Evaluate(parameters))
                         continue;
 
                     if (_multiplicativeModifierStacking)
-                        modifier *= 1 + stat.Value;
+                        modifier *= 1 + stat.Value.ModifiersMult;
                     else
-                        modifier += stat.Value;
+                        modifier += stat.Value.ModifiersMult;
                 }
             }
 
-            if(parameters.SourceSkillExec.EntityTargetTyped is CharacterRuntimeData charTarget
-                && charTarget.ConditionalStats?.TryGetValue(EntityPropertyType.DamageReduction_Mod_Add, out var defList) == true)
+            if(charTarget?.ConditionalStats?.TryGetValue(EntityPropertyType.DamageReceived, out var defList) == true)
             {
                 float reductionMod = 1.0f;
                 foreach(ConditionalStat stat in defList)
                 {
-                    if (!stat.Condition.Evaluate(parameters))
+                    if (!((ICondition)stat.Condition).Evaluate(parameters))
                         continue;
 
                     if(_multiplicativeModifierStacking)
-                        reductionMod /= 1 + stat.Value;
+                        reductionMod /= 1 + stat.Value.ModifiersMult;
                     else
-                        reductionMod -= stat.Value;
+                        reductionMod -= stat.Value.ModifiersMult;
 
                     modifier *= reductionMod;
                 }
@@ -461,8 +437,14 @@ namespace Server
             // In RO, the elemental damage bonus multiplies in at the very end, multiplicative with all other effects.
             // I think that's not too complicated, and doesn't need to be changed,
             // but it's worth noting that this _could_ also be changed via the above config value
+            // That would make elemental resistances interact rather oddly with DamageReceived-mods (75% Elemental Resist + 30% DamageReduction = -5% damage absorbed)
+            EntityElement attackElement = parameters.AttackElement;
             EntityElement defElement = target.GetDefensiveElement();
             modifier *= GetMultiplierForElementCombination(attackElement, defElement);
+
+            //TODO: Is this how we want Weapon-size modifiers to work?
+            if(isPhysical)
+                modifier *= GetSizeMultiplierForWeaponType(parameters.AttackWeaponType, target.Size, parameters.IsTwoHanded);
 
             damage *= modifier;
 
@@ -512,9 +494,9 @@ namespace Server
         }
 
         // TODO: Decide how to apply this best
-        private float GetSizeMultiplierForWeaponType(AttackWeaponType weaponType, EntitySize targetSize)
+        private float GetSizeMultiplierForWeaponType(EquipmentType weaponType, EntitySize targetSize, bool isTwoHanded)
         {
-            float modifier = SizeDatabase.GetMultiplierForWeaponAndSize(weaponType, targetSize);
+            float modifier = ASizeDatabase.GetMultiplierForWeaponAndSize(weaponType, targetSize, isTwoHanded);
             if (modifier < 0)
             {
                 OwlLogger.LogError($"Can't find size multiplier for size {targetSize}, type {weaponType}", GameComponent.Battle);

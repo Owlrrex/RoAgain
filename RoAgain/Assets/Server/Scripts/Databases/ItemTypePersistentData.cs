@@ -15,11 +15,8 @@ namespace Server
         public bool CanStack;
         public int Weight;
         public int SellPrice;
-        public int RequiredLevel;
-        public JobFilter RequiredJobs;
         public int NumTotalCardSlots;
         public ItemUsageMode UsageMode;
-        public int OnUseScriptId;
         public LocalizedStringId NameLocId;
         public LocalizedStringId FlavorLocId;
         public int VisualId;
@@ -62,16 +59,24 @@ namespace Server
     /// <summary>
     /// Persisted data for a single equippable item (including ammo)
     /// </summary>
+    [Serializable]
     public class EquippableTypePersistentData : ItemTypePersistentData
     {
-
+        public DictionarySerializationWrapper<EquipmentSlot, string> SlotCriteriumStringLists;
+        public int EquipScriptId;
+        public int UnquipScriptId;
+        public List<string> SimpleStatStrings;
+        public List<string> ConditionalStatStrings;
+        public EquipmentType EquipmentType;
     }
 
     /// <summary>
     /// Persisted data for a single usable item (excluding equipment & ammo)
     /// </summary>
-    public class UsableTypePersistentData : ItemTypePersistentData
+    public class ConsumableTypePersistentData : ItemTypePersistentData
     {
         public int UseScriptId;
+        public string UseCriteriumStringList;
+        // TODO: Values that allow configuring a usable item with various costs easier than doing it all in-script
     }
 }

@@ -4,68 +4,28 @@ using System.Collections.Generic;
 
 namespace Server
 {
-    // Can't move this to shared - can't use ServerBattleEntity there, and criteriums on Client-side probably also work too differently, even if they hold the same data
-
-
-    public class MinimumLevelBEC : BattleEntityCriterium
+    public class MinimumLevelBEC : AMinimumLevelBEC, IBattleEntityCriterium
     {
-        public override int Id => 1;
-
-        public int MinimumLevel;
-
-        public override bool Evaluate(ServerBattleEntity bEntity)
+        public bool Evaluate(ServerBattleEntity bEntity)
         {
             return bEntity.BaseLvl.Value >= MinimumLevel;
         }
-
-        public override bool ReadParams(string[] parts)
-        {
-            return int.TryParse(parts[1], out MinimumLevel);
-        }
-
-        public override string Serialize()
-        {
-            return BECParser.FormatParams(Id, MinimumLevel);
-        }
     }
 
-    public class RequiredJobsExactBEC : BattleEntityCriterium
+    public class RequiredJobsExactBEC : ARequiredJobsExactBEC, IBattleEntityCriterium
     {
-        public override int Id => 2;
-
-        public HashSet<JobId> JobIds = new();
-
-        public override bool Evaluate(ServerBattleEntity bEntity)
+        public bool Evaluate(ServerBattleEntity bEntity)
         {
             if (bEntity is not CharacterRuntimeData character)
                 return false;
 
             return JobIds.Contains(character.JobId);
         }
-
-        public override bool ReadParams(string[] parts)
-        {
-            bool success = true;
-            for (int i = 1; i < parts.Length; i++)
-            {
-                success |= int.TryParse(parts[i], out int jobIdInt);
-                JobIds.Add((JobId)jobIdInt);
-            }
-            return success;
-        }
-
-        public override string Serialize()
-        {
-            return BECParser.FormatParams(Id, JobIds);
-        }
     }
 
-    public class RequiredJobBaseBEC : BattleEntityCriterium
+    public class RequiredJobBaseBEC : ARequiredJobBaseBEC, IBattleEntityCriterium
     {
-        public override int Id => 3;
-        public HashSet<JobId> JobIds = new();
-
-        public override bool Evaluate(ServerBattleEntity bEntity)
+        public bool Evaluate(ServerBattleEntity bEntity)
         {
             if (bEntity is not CharacterRuntimeData character)
                 return false;
@@ -78,102 +38,111 @@ namespace Server
 
             return false;
         }
+    }
 
-        public override bool ReadParams(string[] parts)
+    public class BelowHpThresholdPercentBEC : ABelowHpThresholdPercentBEC, IBattleEntityCriterium
+    {
+        public bool Evaluate(ServerBattleEntity bEntity)
         {
-            bool success = true;
-            for (int i = 1; i < parts.Length; i++)
-            {
-                success |= int.TryParse(parts[i], out int jobIdInt);
-                JobIds.Add((JobId)jobIdInt);
-            }
-            return success;
-        }
-
-        public override string Serialize()
-        {
-            return BECParser.FormatParams(Id, JobIds);
+            return bEntity.CurrentHp / bEntity.MaxHp.Total <= Percentage;
         }
     }
 
-    public abstract class BattleEntityCriterium
+    public class RaceBEC : ARaceBEC, IBattleEntityCriterium
     {
-        public abstract int Id { get; }
-
-        /// <summary>
-        /// Writes this Criterium's Parameters from the given string data
-        /// </summary>
-        /// <param name="parts">strings that contain the parameters. parts[0] is the CriteriumId</param>
-        /// <returns>Were parameters parsed successfully or not?</returns>
-        public abstract bool ReadParams(string[] parts);
-
-        public abstract bool Evaluate(ServerBattleEntity bEntity);
-
-        /// <summary>
-        /// Strongly recommend using BECParser.FormatParams() inside this function to ensure a correctly formatted string.
-        /// </summary>
-        /// <returns>String representation of this Criterium</returns>
-        public abstract string Serialize();
+        public bool Evaluate(ServerBattleEntity bEntity)
+        {
+            if (bEntity == null)
+                return false;
+            return Races.Contains(bEntity.Race);
+        }
     }
 
-    public static class BECParser
+    public class DefaultWeaponTypeBEC : ADefaultWeaponTypeBEC, IBattleEntityCriterium
     {
-        public static string FormatParams(int id, params object[] parameters)
+        public bool Evaluate(ServerBattleEntity bEntity)
         {
-            string result = $"({id}";
-            foreach (object param in parameters)
-            {
-                result += param.ToString();
-            }
-            result += ")";
-            return result;
+            EquipmentType type = bEntity.GetDefaultWeaponType(out EquipmentSlot _, out bool isTwoHanded);
+            return type.HasFlag(WeaponType) && isTwoHanded == TwoHanded;
         }
+    }
 
-        public static List<BattleEntityCriterium> ParseCriteriumList(string listString)
+    public class EquipSlotsAreAllTypesBEC : AEquipSlotsAreAllTypesBEC, IBattleEntityCriterium
+    {
+        public bool Evaluate(ServerBattleEntity bEntity)
         {
-            List<BattleEntityCriterium> criteriums = new();
-            string[] parts = listString.Split(')');
-            foreach (string part in parts)
-            {
-                if (!part.StartsWith('('))
-                {
-                    // LogError
-                    continue;
-                }
+            if (bEntity is not CharacterRuntimeData character)
+                return false;
 
-                BattleEntityCriterium newCriterium = CreateCriterium(part.TrimStart('('));
-                if (newCriterium != null)
-                    criteriums.Add(newCriterium);
+            if (!AllowPartialMatch)
+            {
+                EquipmentSlot groupedSlots = character.EquipSet.GetGroupedSlots(TargetSlots);
+                if (groupedSlots != TargetSlots)
+                    return false;
             }
-            return criteriums;
+
+            foreach (EquipmentSlot slotToCheck in new EquipmentSlotIterator(TargetSlots))
+            {
+                EquippableItemType type = character.EquipSet.GetItemType(slotToCheck);
+                if (TargetTypes == EquipmentType.Unarmed && type == null)
+                    continue; // pass
+
+                if (!type?.EquipmentType.HasFlag(TargetTypes) == true)
+                    return false;
+            }
+
+            return true;
         }
+    }
 
-        public static BattleEntityCriterium CreateCriterium(string persistentData)
+    public class SlotsAreGroupedBEC : ASlotsAreGroupedBEC, IBattleEntityCriterium
+    {
+        public bool Evaluate(ServerBattleEntity bEntity)
         {
-            // TODO: Error logging
-            string[] parts = persistentData.Split(',');
-            if (parts.Length < 2)
-            {
-                return null;
-            }
+            if (bEntity is not CharacterRuntimeData character)
+                return false;
 
-            if (!int.TryParse(parts[0], out int id))
+            EquipmentSlot groupedSlots = character.EquipSet.GetGroupedSlots(TargetSlots);
+            if(AllowPartialMatch)
             {
-                return null;
+                return groupedSlots.HasFlag(TargetSlots);
             }
-
-            BattleEntityCriterium newCriterum = id switch
+            else
             {
+                return groupedSlots == TargetSlots;
+            }
+        }
+    }
+
+    public interface IBattleEntityCriterium
+    {
+        public int Id { get; }
+        public bool ReadParams(string[] parts);
+        public bool Evaluate(ServerBattleEntity bEntity);
+        public string Serialize();
+    }
+
+    public static class BECHelper
+    {
+        public static ABattleEntityCriterium IdResolver(int id)
+        {
+            return id switch
+            {
+                1 => new MinimumLevelBEC(),
+                2 => new RequiredJobsExactBEC(),
+                3 => new RequiredJobBaseBEC(),
+                4 => new BelowHpThresholdPercentBEC(),
+                5 => new RaceBEC(),
+                6 => new DefaultWeaponTypeBEC(),
+                7 => new EquipSlotsAreAllTypesBEC(),
+                8 => new SlotsAreGroupedBEC(),
                 _ => null
             };
+        }
 
-            if (newCriterum == null)
-            {
-                return null;
-            }
-
-            newCriterum.ReadParams(parts);
-            return newCriterum;
+        public static List<IBattleEntityCriterium> ParseCriteriumList(string listString)
+        {
+            return BecConditionParser.ParseCriteriumList<IBattleEntityCriterium>(listString, IdResolver);
         }
     }
 }

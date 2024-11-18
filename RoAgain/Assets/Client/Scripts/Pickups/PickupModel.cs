@@ -37,9 +37,16 @@ namespace Client
 
         private bool _lastCanPickup = false;
 
+        private bool _waitingForType = false;
+
         // Update is called once per frame
         protected void Update()
         {
+            if(_waitingForType)
+            {
+                Initialize(_pickup);
+            }
+
             _pickup.LifeTime.Update(Time.deltaTime); // Not the best spot to do it, but it doesn't matter if there's no model anyway
             _lifetimeHighlightTimer += Time.deltaTime;
             float lifetimeFrequencyTargetInterval = 0.2f + LIFETIME_HINT_BASE_FREQUENCY * _pickup.LifeTime.RemainingValue / LIFETIME_HINT_REFERENCE_LIFETIME;
@@ -77,29 +84,52 @@ namespace Client
 
         public void Initialize(PickupEntity pickup)
         {
-            OwlLogger.PrefabNullCheckAndLog(_mover, nameof(_mover), this, GameComponent.Items);
-            OwlLogger.PrefabNullCheckAndLog(_tooltip, nameof(_tooltip), this, GameComponent.Items);
-
             _pickup = pickup;
+
+            ItemType type = ClientMain.Instance.InventoryModule.GetKnownItemType(pickup.ItemTypeId);
+            if(type == null)
+            {
+                OwlLogger.LogError($"Tried to initialize Pickup for ItemType {pickup.ItemTypeId} that's not known!", GameComponent.Items);
+                _waitingForType = true;
+                return;
+            }
+            _waitingForType = false;
 
             Vector3 modelPos = _mover.Model.transform.localPosition;
             modelPos.x = Random.value - 0.5f;
             modelPos.z = Random.value - 0.5f;
             _mover.Model.transform.localPosition = modelPos;
 
-            ItemType type = ClientMain.Instance.InventoryModule.GetKnownItemType(pickup.ItemTypeId);
-            if(type == null)
-            {
-                OwlLogger.LogError($"Tried to initialize Pickup for ItemType {pickup.ItemTypeId} that's not known!", GameComponent.Items);
-                return;
-            }
-            _tooltip.Message = $"{pickup.Count}x {LocalizedStringTable.GetStringById(type.NameLocId)}";
+            SetTooltip();
 
             SetItemTypeDisplay();
 
             bool userCanPickup = CanLocalPlayerPickup();
             _lastCanPickup = userCanPickup;
             SetCanPickupHighlight(userCanPickup);
+
+            LocalizedStringTable.LanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnDestroy()
+        {
+            LocalizedStringTable.LanguageChanged -= OnLanguageChanged;
+        }
+
+        private void SetTooltip()
+        {
+            string typename = "UnknownType";
+            ItemType type = ClientMain.Instance.InventoryModule.GetKnownItemType(_pickup.ItemTypeId);
+            if (type != null)
+            {
+                typename = LocalizedStringTable.GetStringById(type.NameLocId);
+            }
+            _tooltip.Message = $"{_pickup.Count}x {typename}";
+        }
+
+        private void OnLanguageChanged()
+        {
+            SetTooltip();
         }
 
         private bool CanLocalPlayerPickup()

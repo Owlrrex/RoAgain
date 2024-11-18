@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using Server;
 using Client;
 using OwlLogging;
-using UnityEditor;
-using System.Runtime.CompilerServices;
+using Shared;
 
 public class DummyInternet : ADummyInternet
 {

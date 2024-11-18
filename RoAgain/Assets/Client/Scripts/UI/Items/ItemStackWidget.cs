@@ -26,6 +26,8 @@ namespace Client
         [SerializeField]
         private TMP_Text _itemCountText;
         [SerializeField]
+        private TMP_Text _itemNameText;
+        [SerializeField]
         private MouseTooltipTriggerString _tooltip;
 
         public ItemStack CurrentStack { get; private set; }
@@ -35,22 +37,33 @@ namespace Client
 
         public void Awake()
         {
-            if (!OwlLogger.PrefabNullCheckAndLog(_typeWidget, nameof(_typeWidget), this, GameComponent.UI))
+            if (_typeWidget != null)
                 _typeWidget.SetUseTooltip(false);
             OwlLogger.PrefabNullCheckAndLog(_tooltip, nameof(_tooltip), this, GameComponent.UI);
+            LocalizedStringTable.LanguageChanged += OnLanguageChanged;
         }
 
         public void SetData(ItemStack stack, ItemStackDragSource sourceType)
         {
             CurrentStack = stack;
-            _typeWidget.SetData(stack.ItemType);
+            if(_typeWidget != null)
+                _typeWidget.SetData(stack.ItemType);
             _itemCountText.text = stack.ItemCount.ToString();
-            DragSource = sourceType;
             // TODO: Build proper ItemType name from Modifiers
-            _tooltip.Message = LocalizedStringTable.GetStringById(stack.ItemType.NameLocId) + " x" + stack.ItemCount.ToString();
+            string typeName = LocalizedStringTable.GetStringById(stack.ItemType.NameLocId);
+            string fullText = typeName + " x" + stack.ItemCount.ToString();
+            if(_itemNameText)
+                _itemNameText.text = fullText;
+            _tooltip.Message = fullText;
+
+            DragSource = sourceType;
         }
 
-        // TODO: Try moving the Drag-&-Drop-logic to its own component, which somehow calls the Init-logic
+        private void OnLanguageChanged()
+        {
+            if(CurrentStack != null)
+                SetData(CurrentStack, DragSource);
+        }
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -63,6 +76,8 @@ namespace Client
         public void InitDragCopy(GameObject copy)
         {
             ItemStackWidget itemStackComp = copy.GetComponent<ItemStackWidget>();
+            if(itemStackComp._itemNameText != null)
+                itemStackComp._itemNameText.enabled = false;
             itemStackComp.SetData(CurrentStack, DragSource);
             if (EmptyUiCatcher.Instance != null)
                 EmptyUiCatcher.Instance.SetCatcherActive(true);
@@ -70,7 +85,8 @@ namespace Client
 
         public void InitDragSelf()
         {
-            
+            if (_itemNameText != null)
+                _itemNameText.enabled = false;
         }
     }
 }

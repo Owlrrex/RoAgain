@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace Client
 {
+    // TODO: replace string-based APIs with LocStringId-based APIs & use LocalizedText components, so that the dialog will auto-localize
     public class OneButtonNotification : MonoBehaviour
     {
         private Action _okCallback;

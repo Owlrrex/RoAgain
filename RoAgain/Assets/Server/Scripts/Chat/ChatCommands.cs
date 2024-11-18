@@ -563,6 +563,44 @@ namespace Server
         }
     }
 
+    public class EquipmentRequestChatCommand : AChatCommand
+    {
+        // args[1]: ItemType to equip
+        // args[2]: Slot/s to equip into
+        public override int Execute(CharacterRuntimeData sender, string[] args)
+        {
+            if (!VerifyArgCount(args, 3, 3))
+                return -1;
+
+            if (!long.TryParse(args[1], out long itemTypeId))
+            {
+                sender.Connection.Send(new LocalizedChatMessagePacket()
+                {
+                    ChannelTag = DefaultChannelTags.COMMAND_ERROR,
+                    MessageLocId = new(225)
+                });
+                OwlLogger.LogF("Tried to equip ItemType {0}, which doesn't exist", args[1], GameComponent.ChatCommands);
+                return -2;
+            }
+
+            if(!int.TryParse(args[2], out int slotsInt))
+            {
+                sender.Connection.Send(new LocalizedChatMessagePacket()
+                {
+                    ChannelTag = DefaultChannelTags.COMMAND_ERROR,
+                    MessageLocId = new(226)
+                });
+                OwlLogger.LogF("Tried to equip into EquipmentSlot, which isn't valid", args[2], GameComponent.ChatCommands);
+                return -2;
+            }
+
+            EquipmentSlot targetSlots = (EquipmentSlot)slotsInt;
+            AServer.Instance.EquipmentModule.ReceiveCharacterEquipRequest(sender, sender, targetSlots, itemTypeId);
+
+            return 0;
+        }
+    }
+
     public class TemplateChatCommand : AChatCommand
     {
         // args[1]: Does something.

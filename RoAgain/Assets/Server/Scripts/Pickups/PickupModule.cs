@@ -49,6 +49,7 @@ namespace Server
     {
         private MapInstance _map;
         private InventoryModule _invModule;
+        private ItemTypeModule _itemTypeModule;
 
         private HashSet<PickupEntity> _currentPickups = new();
 
@@ -60,7 +61,7 @@ namespace Server
 
         private List<PickupEntity> _queuedPickups = new();
 
-        public int Initialize(MapInstance map, InventoryModule inventoryModule)
+        public int Initialize(MapInstance map, InventoryModule inventoryModule, ItemTypeModule itemTypeModule)
         {
             if (map == null)
             {
@@ -74,8 +75,15 @@ namespace Server
                 return -2;
             }
 
+            if (itemTypeModule == null)
+            {
+                OwlLogger.LogError("Can't initialize PickupModule with null ItemTypeModule!", GameComponent.Items);
+                return -2;
+            }
+
             _map = map;
             _invModule = inventoryModule;
+            _itemTypeModule = itemTypeModule;
 
             return 0;
         }
@@ -150,7 +158,6 @@ namespace Server
                 {
                     _toRemoveBuffer.Add(pickup);
                 }
-                    
             }
             gained.ExceptWith(_toRemoveBuffer);
 
@@ -168,6 +175,17 @@ namespace Server
             stayed.ExceptWith(_toRemoveBuffer);
             lost.UnionWith(_toRemoveBuffer);
             _toRemoveBuffer.Clear();
+
+            if (observer is not CharacterRuntimeData character)
+                return;
+
+            foreach(GridEntity entity in gained)
+            {
+                if (entity is not PickupEntity pickup)
+                    continue;
+
+                _itemTypeModule.SendItemTypeDataToCharacterIfUnknown(character, pickup.ItemTypeId);
+            }
         }
 
         // Not part of the regular Visibility-updates, since that's covered by GridEntities already, but it may be useful for the AI of Looter-mobs

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Client
 {
+    // TODO: replace string-based APIs with LocStringId-based APIs & use LocalizedText components, so that the dialog will auto-localize
     public class ZeroButtonNotification : MonoBehaviour
     {
         [SerializeField]

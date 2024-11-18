@@ -1,3 +1,4 @@
+using OwlLogging;
 using Shared;
 using System;
 using System.Collections.Generic;
@@ -68,7 +69,7 @@ namespace Server
         public ServerBattleEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, int maxHp, int maxSp,
             int id = -1) : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, id)
         {
-            // TODO: More parameters to constructor
+            
         }
 
         // TODO: Skill List? Only if I want to have a skill List that an AI can dynamically interact with
@@ -102,9 +103,11 @@ namespace Server
             return false;
         }
 
-        public virtual AttackWeaponType GetWeaponType()
+        public virtual EquipmentType GetDefaultWeaponType(out EquipmentSlot usedSlot, out bool isTwoHanded)
         {
-            return AttackWeaponType.Unarmed;
+            usedSlot = EquipmentSlot.TwoHand;
+            isTwoHanded = true;
+            return EquipmentType.Unarmed;
         }
 
         public virtual EntityElement GetDefensiveElement()
@@ -123,6 +126,179 @@ namespace Server
                 return null;
 
             return AServer.Instance.MapModule?.GetMapInstance(MapId);
+        }
+
+        public virtual bool AddStat(EntityPropertyType type, Stat change)
+        {
+            switch (type)
+            {
+                case EntityPropertyType.Str:
+                    Str.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Agi:
+                    Agi.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Vit:
+                    Vit.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Int:
+                    Int.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Dex:
+                    Dex.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Luk:
+                    Luk.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.MaxHp:
+                    MaxHp.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.HpRegenAmount:
+                    HpRegenAmount.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.HpRegenTime:
+                    if (change.ModifiersAdd != 0)
+                        OwlLogger.LogError("Modifying HpRegenTime additively is not supported!", GameComponent.Battle);
+                    HpRegenTime *= change.ModifiersMult;
+                    break;
+                case EntityPropertyType.MaxSp:
+                    MaxSp.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.SpRegenAmount:
+                    SpRegenAmount.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.SpRegenTime:
+                    if (change.ModifiersAdd != 0)
+                        OwlLogger.LogError("Modifying SpRegenTime additively is not supported!", GameComponent.Battle);
+                    SpRegenTime *= change.ModifiersMult;
+                    break;
+                case EntityPropertyType.MeleeAtkMin:
+                    MeleeAtkMin.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.MeleeAtkMax:
+                    MeleeAtkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.MeleeAtkBoth:
+                    MeleeAtkMin.ModifyBoth(change);
+                    MeleeAtkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.RangedAtkMin:
+                    RangedAtkMin.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.RangedAtkMax:
+                    RangedAtkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.RangedAtkBoth:
+                    RangedAtkMin.ModifyBoth(change);
+                    RangedAtkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.CurrentAtkMin:
+                    MeleeAtkMin.ModifyBoth(change);
+                    RangedAtkMin.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.CurrentAtkMax:
+                    MeleeAtkMax.ModifyBoth(change);
+                    RangedAtkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.CurrentAtkBoth:
+                    MeleeAtkMin.ModifyBoth(change);
+                    RangedAtkMin.ModifyBoth(change);
+                    MeleeAtkMax.ModifyBoth(change);
+                    RangedAtkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.MatkMin:
+                    MatkMin.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.MatkMax:
+                    MatkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.MatkBoth:
+                    MatkMin.ModifyBoth(change);
+                    MatkMax.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.AnimationSpeed:
+                    AnimationSpeed.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.HardDef:
+                    HardDef.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.SoftDef:
+                    SoftDef.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.HardMDef:
+                    HardMDef.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.SoftMDef:
+                    SoftMDef.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Crit:
+                    Crit.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.CritShield:
+                    CritShield.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Flee:
+                    Flee.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.PerfectFlee:
+                    PerfectFlee.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.Hit:
+                    Hit.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceBleed:
+                    ResistanceBleed.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceBlind:
+                    ResistanceBlind.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceCurse:
+                    ResistanceCurse.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceFrozen:
+                    ResistanceFrozen.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistancePoison:
+                    ResistancePoison.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceSilence:
+                    ResistanceSilence.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceSleep:
+                    ResistanceSleep.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceStone:
+                    ResistanceStone.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.ResistanceStun:
+                    ResistanceStun.ModifyBoth(change);
+                    break;
+                case EntityPropertyType.FlinchSpeed:
+                    if (change.ModifiersAdd != 0)
+                        OwlLogger.LogError("Modifying FlinchSpeed additively is not supported!", GameComponent.Battle);
+                    FlinchSpeed.Value *= change.ModifiersMult;
+                    break;
+                case EntityPropertyType.Range:
+                    // TODO
+                    break;
+                case EntityPropertyType.Movespeed:
+                    if (change.ModifiersAdd != 0)
+                        OwlLogger.LogError("Modifying Movespeed additively is not supported!", GameComponent.Battle);
+                    Movespeed.Value *= change.ModifiersMult;
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+
+        public virtual bool RemoveStat(EntityPropertyType type, Stat change)
+        {
+            // TODO: profile if this allocates too much
+            Stat negative = new();
+            negative.ModifyAdd(-change.ModifiersAdd, false);
+            negative.ModifyMult(-change.ModifiersMult);
+            return AddStat(type, negative);
         }
     }
 }

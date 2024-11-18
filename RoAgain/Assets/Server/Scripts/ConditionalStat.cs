@@ -1,80 +1,98 @@
 using Shared;
+using UnityEngine;
 
 namespace Server
 {
-    public abstract class Condition
+    public interface ICondition
     {
         public virtual bool Evaluate(AttackParams attackParams)
         {
             return Evaluate(attackParams.SourceSkillExec);
         }
-        public abstract bool Evaluate(ServerSkillExecution skillExec);
-        public abstract bool IsMergeable(Condition other);
+        public bool Evaluate(ServerSkillExecution skillExec);
+        public string Serialize();
+        public bool IsMergeable(ACondition other);
+        public bool ReadParams(string[] parts);
     }
 
-    public class ConditionalStat
+    public class TargetRaceCondition : ATargetRaceCondition, ICondition
     {
-        public float Value;
-        public Condition Condition;
-    }
-
-    public class TargetRaceCondition : Condition
-    {
-        public EntityRace Race;
-
-        public override bool Evaluate(ServerSkillExecution skillExec)
+        public TargetRaceCondition()
         {
-            return skillExec.EntityTargetTyped?.Race == Race;
+            _bec = new RaceBEC();
         }
 
-        public override bool IsMergeable(Condition other)
+        public bool Evaluate(ServerSkillExecution skillExec)
         {
-            return other is TargetRaceCondition trc && trc.Race == Race;
+            return ((IBattleEntityCriterium)_bec).Evaluate(skillExec.EntityTargetTyped);
         }
     }
 
-    public class UserWeaponTypeCondition : Condition
+    public class UserAllSlotsAreTypesCondition : AUserAllSlotsAreTypesCondition, ICondition
     {
-        public AttackWeaponType WeaponType;
-
-        public override bool Evaluate(ServerSkillExecution skillExec)
+        public UserAllSlotsAreTypesCondition()
         {
-            return skillExec.UserTyped?.GetWeaponType() == WeaponType;
+            _bec = new EquipSlotsAreAllTypesBEC();
         }
 
-        public override bool IsMergeable(Condition other)
+        public bool Evaluate(ServerSkillExecution skillExec)
         {
-            return other is UserWeaponTypeCondition uwtc && uwtc.WeaponType == WeaponType;
+            return ((IBattleEntityCriterium)_bec).Evaluate(skillExec.UserTyped);
         }
     }
 
-    public class BelowHpThresholdPercentCondition : Condition
+    public class BelowHpThresholdPercentCondition : ABelowHpThresholdPercentCondition, ICondition
     {
-        public float Percentage;
-
-        public override bool Evaluate(ServerSkillExecution skillExec)
+        public BelowHpThresholdPercentCondition()
         {
-            return (skillExec.User.CurrentHp / (float)skillExec.User.MaxHp.Total) <= Percentage;
+            _bec = new BelowHpThresholdPercentBEC();
         }
 
-        public override bool IsMergeable(Condition other)
+        public bool Evaluate(ServerSkillExecution skillExec)
         {
-            return other is BelowHpThresholdPercentCondition otherTyped && otherTyped.Percentage == Percentage;
+            return ((IBattleEntityCriterium)_bec).Evaluate(skillExec.UserTyped);
         }
     }
 
-    public class SkillIdCondition : Condition
+    public class SkillIdCondition : ASkillIdCondition, ICondition
     {
-        public SkillId SkillId;
-
-        public override bool Evaluate(ServerSkillExecution skillExec)
+        public bool Evaluate(ServerSkillExecution skillExec)
         {
             return skillExec.SkillId == SkillId;
         }
+    }
 
-        public override bool IsMergeable(Condition other)
+    public class AttackWeaponTypeCondition : AAttackWeaponTypeCondition, ICondition
+    {
+        public AttackWeaponTypeCondition()
         {
-            return other is SkillIdCondition otherTyped && otherTyped.SkillId == SkillId;
+            _bec = new DefaultWeaponTypeBEC();
+        }
+
+        public virtual bool Evaluate(AttackParams attackParams)
+        {
+            return attackParams.AttackWeaponType == WeaponType && attackParams.IsTwoHanded == IsTwoHanded;
+        }
+
+        public bool Evaluate(ServerSkillExecution skillExec)
+        {
+            return ((IBattleEntityCriterium)_bec).Evaluate(skillExec.UserTyped);
+        }
+    }
+
+    public static class ConditionalStatHelpers
+    {
+        public static ACondition ConditionIdResolver(int id)
+        {
+            return id switch
+            {
+                1 => new TargetRaceCondition(),
+                2 => new UserAllSlotsAreTypesCondition(),
+                3 => new BelowHpThresholdPercentCondition(),
+                4 => new SkillIdCondition(),
+                5 => new AttackWeaponTypeCondition(),
+                _ => null
+            };
         }
     }
 }

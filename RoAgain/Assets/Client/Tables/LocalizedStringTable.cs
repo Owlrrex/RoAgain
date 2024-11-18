@@ -29,7 +29,7 @@ namespace Client
         // Contains only the strings for the currently loaded language
         // This Dictionary will probably get split up if String-banks are ever being added
         // or LocalizedStringId becomes a more complex type than just a single int
-        private Dictionary<int, string> _stringsById;
+        private Dictionary<int, string> _stringsById = new();
 
         private const string FILE_KEY = CachedFileAccess.CLIENT_DB_PREFIX + "LocStringTable";
 
@@ -81,8 +81,6 @@ namespace Client
                 return;
             }
             Dictionary<int, StringTableEntry> allLangData = rawData.ToDict();
-
-            _stringsById ??= new();
 
             _stringsById.Clear();
             foreach (KeyValuePair<int, StringTableEntry> kvp in allLangData)

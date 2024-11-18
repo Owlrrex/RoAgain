@@ -18,5 +18,6 @@ namespace Shared
         public const string SKILL_ERROR = "_skillerror";
         public const string COMMAND_FEEDBACK = "_cmdfeedback";
         public const string COMMAND_ERROR = "_cmderror";
+        public const string EQUIPMENT = "_equip";
     }
 }

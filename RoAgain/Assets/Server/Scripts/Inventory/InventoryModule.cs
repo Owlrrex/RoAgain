@@ -14,8 +14,6 @@ namespace Server
 
         private Dictionary<int, Inventory> _cachedInventories = new();
 
-        private Dictionary<int, HashSet<long>> _knownItemTypesByPlayerEntity = new();
-
         private Dictionary<int, CharacterRuntimeData> _characterInventories = new();
 
         public int Initialize(ItemTypeModule itemTypeModule, AInventoryDatabase invDb)
@@ -90,8 +88,16 @@ namespace Server
             if (!_cachedInventories.ContainsKey(inventoryId))
                 return;
 
-            AutoInitResourcePool<Inventory>.Return(_cachedInventories[inventoryId]);
+            Inventory removedInventory = _cachedInventories[inventoryId];
+            
             _cachedInventories.Remove(inventoryId);
+
+            foreach(ItemStack stack in removedInventory.ItemStacksByTypeId.Values)
+            {
+                DestroyItemStack(stack);
+            }
+
+            AutoInitResourcePool<Inventory>.Return(removedInventory);
         }
 
         private Inventory PersDataToInventory(InventoryPersistenceData persData)
@@ -157,14 +163,14 @@ namespace Server
             ItemStack stack = AutoInitResourcePool<ItemStack>.Acquire();
             stack.ItemType = type;
             stack.ItemCount = count;
-            _itemTypeModule.NotifyItemStackCreated(stack);
+            _itemTypeModule.NotifyItemTypeUsed(type.TypeId);
 
             return stack;
         }
 
         private void DestroyItemStack(ItemStack stack)
         {
-            _itemTypeModule.NotifyItemStackDestroyed(stack);
+            _itemTypeModule.NotifyItemTypeUseEnded(stack.ItemType.TypeId);
             AutoInitResourcePool<ItemStack>.Return(stack);
         }
 
@@ -355,7 +361,7 @@ namespace Server
 
         public int SendItemStackDataToCharacter(CharacterRuntimeData character, long itemTypeId)
         {
-            SendItemTypeDataToCharacterIfUnknown(character, itemTypeId);
+            _itemTypeModule.SendItemTypeDataToCharacterIfUnknown(character, itemTypeId);
 
             Inventory inventory = GetOrLoadInventory(character.InventoryId);
             int count = inventory.GetItemCountExact(itemTypeId);
@@ -379,86 +385,6 @@ namespace Server
             }    
 
             return character.Connection.Send(packet);
-        }
-
-        private bool IsItemTypeKnownToCharacter(CharacterRuntimeData character, long itemTypeId)
-        {
-            return _knownItemTypesByPlayerEntity.ContainsKey(character.Id)
-                && _knownItemTypesByPlayerEntity[character.Id].Contains(itemTypeId);
-        }
-
-        private int SendItemTypeDataToCharacterIfUnknown(CharacterRuntimeData character, long itemTypeId)
-        {
-            if (IsItemTypeKnownToCharacter(character, itemTypeId))
-                return 0;
-
-            ItemType type = _itemTypeModule.GetOrLoadItemType(itemTypeId);
-            if (type == null)
-                return -1;
-
-            return SendItemTypeDataToCharacterIfUnknown(character, type);
-        }
-
-        private int SendItemTypeDataToCharacterIfUnknown(CharacterRuntimeData character, ItemType type)
-        {
-            if (IsItemTypeKnownToCharacter(character, type.TypeId))
-                return 0;
-
-            int result = 0;
-            if (type.BaseTypeId != ItemConstants.BASETYPEID_NONE)
-            {
-                result += SendItemTypeDataToCharacterIfUnknown(character, type.BaseTypeId);
-            }
-            
-            if(type.HasAnyModifiers())
-            {
-                if(type.HasModifier(ModifierType.CardSlot_1))
-                {
-                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_1));
-                }
-
-                if (type.HasModifier(ModifierType.CardSlot_2))
-                {
-                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_2));
-                }
-
-                if (type.HasModifier(ModifierType.CardSlot_3))
-                {
-                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_3));
-                }
-
-                if (type.HasModifier(ModifierType.CardSlot_4))
-                {
-                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CardSlot_4));
-                }
-
-                if (type.HasModifier(ModifierType.CraftingAdditive_1))
-                {
-                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CraftingAdditive_1));
-                }
-
-                if (type.HasModifier(ModifierType.CraftingAdditive_2))
-                {
-                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CraftingAdditive_2));
-                }
-
-                if (type.HasModifier(ModifierType.CraftingAdditive_3))
-                {
-                    result += SendItemTypeDataToCharacterIfUnknown(character, type.GetModifierValue(ModifierType.CraftingAdditive_3));
-                }
-
-                // Other modifiers that refer to itemtypes here
-            }
-
-            Packet packet = type.ToPacket();
-            result += character.Connection.Send(packet);
-            if(result == 0)
-            {
-                if (!_knownItemTypesByPlayerEntity.ContainsKey(character.Id))
-                    _knownItemTypesByPlayerEntity[character.Id] = new();
-                _knownItemTypesByPlayerEntity[character.Id].Add(type.TypeId);
-            }
-            return result;
         }
 
         private void ModifyCharacterWeight(CharacterRuntimeData character, int weightDiff)

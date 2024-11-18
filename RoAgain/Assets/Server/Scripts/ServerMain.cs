@@ -22,9 +22,6 @@ namespace Server
         private ElementsDatabase _elementsDatabase;
 
         [SerializeField]
-        private SizeDatabase _sizeDatabase;
-
-        [SerializeField]
         private SkillTreeDatabase _skillTreeDatabase;
 
         void Start()
@@ -46,9 +43,6 @@ namespace Server
 
             if(!OwlLogger.PrefabNullCheckAndLog(_elementsDatabase, "elementsDatabase", this, GameComponent.Other))
                 _elementsDatabase.Register();
-
-            if(!OwlLogger.PrefabNullCheckAndLog(_sizeDatabase, "sizeDatabase", this, GameComponent.Other))
-                _sizeDatabase.Register();
 
             if(!OwlLogger.PrefabNullCheckAndLog(_skillTreeDatabase, "skillTreeDatabase", this, GameComponent.Other))
                 _skillTreeDatabase.Register();

@@ -1546,5 +1546,180 @@
 			"TextEnglish": "This item doesn't belong to you.",
 			"TextGerman": "Dieses Item gehört nicht dir."
 		}
+	},
+	{
+		"key": 221,
+		"value": {
+			"TextEnglish": "Can't equip item.",
+			"TextGerman": "Kann Gegenstand nicht anlegen."
+		}
+	},
+	{
+		"key": 222,
+		"value": {
+			"TextEnglish": "Can't unequip item.",
+			"TextGerman": "Kann Gegenstand nicht ablegen."
+		}
+	},
+	{
+		"key": 223,
+		"value": {
+			"TextEnglish": "Equipped Item {0} in {1}",
+			"TextGerman": "Gegenstand {0} ausgerüstet in {1}"
+		}
+	},
+	{
+		"key": 224,
+		"value": {
+			"TextEnglish": "Unequiped Item {0} from {1}",
+			"TextGerman": "Gegenstand {0} abgelegt von {1}"
+		}
+	},
+	{
+		"key": 225,
+		"value": {
+			"TextEnglish": "Invalid ItemType!",
+			"TextGerman": "Ungültiger ItemType!"
+		}
+	},
+	{
+		"key": 226,
+		"value": {
+			"TextEnglish": "Invalid EquipmentSlots-value!",
+			"TextGerman": "Ungültiger Ausrüstungs-Slot!"
+		}
+	},
+	{
+		"key": 227,
+		"value": {
+			"TextEnglish": "Head",
+			"TextGerman": "Kopf"
+		}
+	},
+	{
+		"key": 228,
+		"value": {
+			"TextEnglish": "Upper face",
+			"TextGerman": "Oberes Gesicht"
+		}
+	},
+	{
+		"key": 229,
+		"value": {
+			"TextEnglish": "Lower face",
+			"TextGerman": "Unteres Gesicht"
+		}
+	},
+	{
+		"key": 230,
+		"value": {
+			"TextEnglish": "Body",
+			"TextGerman": "Körper"
+		}
+	},
+	{
+		"key": 231,
+		"value": {
+			"TextEnglish": "Shoulders",
+			"TextGerman": "Schultern"
+		}
+	},
+	{
+		"key": 232,
+		"value": {
+			"TextEnglish": "Feet",
+			"TextGerman": "Füße"
+		}
+	},
+	{
+		"key": 233,
+		"value": {
+			"TextEnglish": "Offhand",
+			"TextGerman": "Nebenhand"
+		}
+	},
+	{
+		"key": 234,
+		"value": {
+			"TextEnglish": "Mainhand",
+			"TextGerman": "Haupthand"
+		}
+	},
+	{
+		"key": 235,
+		"value": {
+			"TextEnglish": "Accessory (left)",
+			"TextGerman": "Zubehör (links)"
+		}
+	},
+	{
+		"key": 236,
+		"value": {
+			"TextEnglish": "Accessory (right)",
+			"TextGerman": "Zubehör (rechts)"
+		}
+	},
+	{
+		"key": 237,
+		"value": {
+			"TextEnglish": "Ammo",
+			"TextGerman": "Munition"
+		}
+	},
+	{
+		"key": 238,
+		"value": {
+			"TextEnglish": "Head (Costume)",
+			"TextGerman": "Kopf (Kostüm)"
+		}
+	},
+	{
+		"key": 239,
+		"value": {
+			"TextEnglish": "Upper face (Costume)",
+			"TextGerman": "Oberes Gesicht (Kostüm)"
+		}
+	},
+	{
+		"key": 240,
+		"value": {
+			"TextEnglish": "Lower face (Costume)",
+			"TextGerman": "Unteres Gesicht (Kostüm)"
+		}
+	},
+	{
+		"key": 241,
+		"value": {
+			"TextEnglish": "Back (Costume)",
+			"TextGerman": "Rücken (Kostüm)"
+		}
+	},
+	{
+		"key": 242,
+		"value": {
+			"TextEnglish": "Equippable 1",
+			"TextGerman": "Ausrüstung 1"
+		}
+	},
+	{
+		"key": 243,
+		"value": {
+			"TextEnglish": "Mainhand for everyone",
+			"TextGerman": "Haupthand für jeden"
+		}
+	},
+	{
+		"key": 244,
+		"value": {
+			"TextEnglish": "Equippable 2",
+			"TextGerman": "Ausrüstung 2"
+		}
+	},
+	{
+		"key": 245,
+		"value": {
+			"TextEnglish": "Twohand for blvl 20+",
+			"TextGerman": "Zweihand für blvl 20+"
+		}
 	}
 ]}
