@@ -436,8 +436,11 @@ namespace Server
             Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId); // Preload inventory because we'll most likely need it
             _inventoryModule.RegisterCharacterInventory(charData);
             
-            EquipmentSetRuntime equipSet = _equipModule.LoadEquipSet(persData.EquipSet);
-            charData.EquipSet = equipSet;
+            int loadEquipResult = _equipModule.LoadEquipSet(charData, persData.EquipSet);
+            if(loadEquipResult != 0)
+            {
+                return null;
+            }
 
             // TODO: Apply Buffs/Debuffs from persistent data
 

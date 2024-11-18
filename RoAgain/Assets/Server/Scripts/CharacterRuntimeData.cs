@@ -34,7 +34,7 @@ namespace Server
         // Should this be a direct memory reference? Is there a point to a character being loaded without their inventory?
         // TODO: Persistence & adding to packet
         public int InventoryId;
-        public EquipmentSetRuntime EquipSet;
+        public EquipmentSetRuntime EquipSet = new();
         // Cosmetic references (if not contained in Equipment)
         
         public int RemainingSkillPoints;

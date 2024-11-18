@@ -28,7 +28,7 @@
     "UnquipScriptId": 0,
     "SimpleStatStrings": [
         "(21,{\"_base\":0.0,\"_modAdd\":50.0,\"_modMult\":0.0})",
-        "(26,{\"_base\":0.0,\"_modAdd\":10.0,\"_modMult\":0.0})"
+        "(26,{\"_base\":0.0,\"_modAdd\":0.1,\"_modMult\":0.0})"
     ],
     "ConditionalStatStrings": [
         "(24,((3,0.25),{\"_base\":0.0,\"_modAdd\":0.0,\"_modMult\":0.5}))"

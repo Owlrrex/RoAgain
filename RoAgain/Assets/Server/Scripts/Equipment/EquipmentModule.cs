@@ -8,7 +8,33 @@ namespace Server
     [Serializable]
     public class EquipmentSetPersistent
     {
-        public DictionarySerializationWrapper<EquipmentSlot, long> EquippedTypes = new();
+        [Serializable]
+        public class Entry
+        {
+            public long TypeId;
+            public EquipmentSlot GroupedSlots;
+        }
+        public DictionarySerializationWrapper<EquipmentSlot, Entry> EquippedTypes = new();
+
+        public static EquipmentSetPersistent FromRuntimeSet(EquipmentSetRuntime runtimeSet)
+        {
+            EquipmentSetPersistent data = new();
+            for(int i = 1; i < (int)EquipmentSlot.MAX; i <<= 1)
+            {
+                EquipmentSlot slot = (EquipmentSlot)i;
+                if (runtimeSet.HasItemEquippedInSlot(slot))
+                {
+                    EquippableItemType type = runtimeSet.GetItemType(slot);
+                    data.EquippedTypes.entries.Add(new() {
+                        key = slot,
+                        value = new() {
+                            TypeId = type.TypeId,
+                            GroupedSlots = runtimeSet.GetGroupedSlots(slot) }
+                    });
+                }
+            }
+            return data;
+        }
     }
 
     public class EquipmentSetRuntime : EquipmentSet<EquippableItemType>
@@ -187,7 +213,7 @@ namespace Server
         }
 
         /// <summary>
-        /// Equips an itemtype into onre or multiple slots on an Equipset.
+        /// Equips an itemtype into one or multiple slots on an Equipset.
         /// Automatically unequips items that occupy one of the targetSlots
         /// This function only performs basic error checking, assuming checks specific to the Equipset's owner have already been performed
         /// This function marks the itemType as "used" if the equipping is successful
@@ -345,28 +371,31 @@ namespace Server
             return (int)groupedSlots;
         }
 
-        public EquipmentSetRuntime LoadEquipSet(EquipmentSetPersistent persData)
+        public int LoadEquipSet(CharacterRuntimeData owner, EquipmentSetPersistent persData)
         {
             if (persData == null)
             {
                 OwlLogger.LogError("Can't load equipset for null PersistentData!", GameComponent.Items);
-                return null;
+                return -1;
             }
 
-            EquipmentSetRuntime equipSet = new();
+            EquipmentSetRuntime equipSet = owner.EquipSet;
+            if(equipSet == null)
+            {
+                OwlLogger.LogError("Owner's EquipSet must be assigned before persistent data is loaded!", GameComponent.Items);
+                return-2;
+            }
 
             foreach (var entry in persData.EquippedTypes.entries)
             {
-                if (_itemTypeModule.GetOrLoadItemType(entry.value) is not EquippableItemType type)
+                if (Equip(owner, entry.value.GroupedSlots, entry.value.TypeId) < 0)
                 {
-                    OwlLogger.LogError($"Failed to load ItemType {entry.value} for Equipset, or it's not equippable!", GameComponent.Items);
+                    OwlLogger.LogError($"Failed to equip ItemType {entry.value} for Equipset!", GameComponent.Items);
                     continue;
                 }
-
-                Equip(equipSet, entry.key, type);
             }
 
-            return equipSet;
+            return 0;
         }
 
         public void UnloadEquipSet(EquipmentSetRuntime equipSet)

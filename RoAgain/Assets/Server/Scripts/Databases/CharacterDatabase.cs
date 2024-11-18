@@ -39,8 +39,7 @@ namespace Server
         public float CurrentSP = -1;
         public int InventoryId;
 
-        // TODO: Equip
-        public EquipmentSetPersistent EquipSet = new();
+        public EquipmentSetPersistent EquipSet;
 
         public List<PersistentSkillListEntry> PermanentSkillList = new();
 
@@ -84,7 +83,8 @@ namespace Server
                 Gender = runtimeData.Gender.Value,
                 SaveMapId = runtimeData.SaveMapId,
                 SaveCoords = runtimeData.SaveCoords,
-                InventoryId = runtimeData.InventoryId
+                InventoryId = runtimeData.InventoryId,
+                EquipSet = EquipmentSetPersistent.FromRuntimeSet(runtimeData.EquipSet)
             };
 
             foreach(KeyValuePair<SkillId, int> kvp in runtimeData.PermanentSkills)

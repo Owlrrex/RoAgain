@@ -234,7 +234,7 @@ namespace Client
         public void SetDisplayGreyedOut(bool newGreyedOut)
         {
             _greyOutOverlay.enabled = newGreyedOut;
-            _levelSelectAnchor.gameObject.SetActive(!newGreyedOut);
+            _levelSelectAnchor.SetActive(!newGreyedOut);
             _iconDraggable.AllowDrag = !newGreyedOut;
         }
 

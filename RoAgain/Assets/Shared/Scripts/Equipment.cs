@@ -30,7 +30,7 @@ namespace Shared
         TwoHand             = Offhand | Mainhand,
         HeadUpMid           = HeadUpper | HeadMid,
         HeadLowMid          = HeadMid | HeadLower,
-        HeadFull            = HeadUpper | HeadMid | HeadLower
+        HeadFull            = HeadUpper | HeadMid | HeadLower,
     }
 
     public static class EquipmentSlotExtensions
@@ -197,14 +197,14 @@ namespace Shared
     public class EquipmentSet<I> where I : class
     {
         // Can create subclasses of this type to store per-equipslot data like autocast-cooldowns, 
-        private class EquipmentSetEntry
+        protected class EquipmentSetEntry
         {
             public I ItemType;
             public EquipmentSlot OccupiedSlots;
             // Some form of Set-definition
         }
 
-        private Dictionary<EquipmentSlot, EquipmentSetEntry> EquippedTypes = new();
+        protected Dictionary<EquipmentSlot, EquipmentSetEntry> _equippedTypes = new();
 
         /// <summary>
         /// This event is not broadcasted automatically by the EquipSet so that composite-actions (unequip & re-equip) are only broadcast once
@@ -225,15 +225,15 @@ namespace Shared
 
                 if (itemType != null)
                 {
-                    if (!EquippedTypes.ContainsKey(slot))
-                        EquippedTypes[slot] = new();
+                    if (!_equippedTypes.ContainsKey(slot))
+                        _equippedTypes[slot] = new();
 
-                    EquippedTypes[slot].ItemType = itemType;
-                    EquippedTypes[slot].OccupiedSlots = occupiedSlots;
+                    _equippedTypes[slot].ItemType = itemType;
+                    _equippedTypes[slot].OccupiedSlots = occupiedSlots;
                 }
                 else
                 {
-                    EquippedTypes.Remove(slot);
+                    _equippedTypes.Remove(slot);
                 }
             }
         }
@@ -263,10 +263,10 @@ namespace Shared
         /// <returns></returns>
         public I GetItemType(EquipmentSlot slot)
         {
-            if (!EquippedTypes.ContainsKey(slot))
+            if (!_equippedTypes.ContainsKey(slot))
                 return null;
 
-            EquipmentSetEntry entry = EquippedTypes[slot];
+            EquipmentSetEntry entry = _equippedTypes[slot];
             if (entry == null)
                 return null;
 
@@ -289,7 +289,7 @@ namespace Shared
                 if (!HasItemEquippedInSlot(slot))
                     continue;
 
-                EquipmentSetEntry entry = EquippedTypes[slot];
+                EquipmentSetEntry entry = _equippedTypes[slot];
                 if (entry == null)
                     continue;
 
