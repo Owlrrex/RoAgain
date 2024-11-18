@@ -81,6 +81,7 @@ namespace Client
             _colorPerMessageTag.TryAdd(DefaultChannelTags.PROXIMITY, Color.white);
             _colorPerMessageTag.TryAdd(DefaultChannelTags.SKILL_ERROR, Color.red);
             _colorPerMessageTag.TryAdd(DefaultChannelTags.WHISPER, Color.magenta);
+            _colorPerMessageTag.TryAdd(DefaultChannelTags.EQUIPMENT, Color.black);
         }
 
         public void EnableChatInput()
