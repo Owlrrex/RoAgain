@@ -456,7 +456,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DragSource: 0
   _itemContainer: {fileID: 3298562662725217387}
-  _itemStackWidgetPrefab: {fileID: 3424223170221783983, guid: 0aed5b3d3608a2b44adccb8c3b1efc2b,
+  _itemStackWidgetPrefab: {fileID: 8739117702595621694, guid: a2cb485d3ba739a4c9cc57161dd94b84,
     type: 3}
   _filterGroup: {fileID: 5192063744638767883}
   _closeButton: {fileID: 1529222874633883612}

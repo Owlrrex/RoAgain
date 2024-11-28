@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Shared;
 using System.IO;
 using System;
+using System.Threading.Tasks;
 
 namespace Server
 {
@@ -54,6 +55,8 @@ namespace Server
 
         private const float AUTOSAVE_INTERVAL = 30.0f;
         private float _autosaveTimer;
+
+        private Dictionary<int, Task> _loginFinishTasks = new();
 
         // Modules
         private ServerMapModule _mapModule;
@@ -330,16 +333,6 @@ namespace Server
                 connection.Send(packet);
             }
 
-            // TODO: Send Equipment
-            for(EquipmentSlot slot = EquipmentSlot.HeadUpper; slot < EquipmentSlot.MAX; slot++)
-            {
-                if(charData.EquipSet.HasItemEquippedInSlot(slot))
-                {
-                    _itemTypeModule.SendItemTypeDataToCharacterIfUnknown(charData, charData.EquipSet.GetItemType(slot));
-                    charData.NetworkQueue.EquipmentChanged(slot, charData);
-                }
-            }
-
             // TODO: Send buffs & debuffs
 
             // Send other data from the map to Client (other players, mobs, npcs, etc)
@@ -347,26 +340,45 @@ namespace Server
 
             // Character will be discovered (as a normal Entity) by VisibleEntities-update, no need to inform observers
 
-            CoroutineRunner.StartNewCoroutine(DelayedCharLoginFinish(charData, 0));
-        }
-
-        private System.Collections.IEnumerator DelayedCharLoginFinish(CharacterRuntimeData charData, int resultCode)
-        {
-            yield return new WaitForSeconds(0.5f); // mock delay to clear out previous login-data from the network
-
-            CharacterLoginResponsePacket resultPacket = new()
+            Task loginFinishTask = Task.Run(async () =>
             {
-                Result = resultCode,
-            };
-            charData.Connection.Send(resultPacket);
+                await Task.Delay(500);
+                if (!TryGetLoggedInCharacterByCharacterId(charData.CharacterId, out _))
+                    return;
 
-            Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId);
-            foreach (var kvp in inventory.ItemStacksByTypeId)
-            {
-                _inventoryModule.SendItemStackDataToCharacter(charData, kvp.Value.ItemType.TypeId);
-            }
+                CharacterLoginResponsePacket resultPacket = new()
+                {
+                    Result = 0,
+                };
+                charData.Connection.Send(resultPacket);
 
-            OwlLogger.LogF("Character login finished for character id {0}", charData.CharacterId, GameComponent.Other);
+                await Task.Delay(500);
+                if (!TryGetLoggedInCharacterByCharacterId(charData.CharacterId, out _))
+                    return;
+
+                Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId);
+                foreach (var kvp in inventory.ItemStacksByTypeId)
+                {
+                    _inventoryModule.SendItemStackDataToCharacter(charData, kvp.Value.ItemType.TypeId);
+                }
+
+                await Task.Delay(500);
+                if (!TryGetLoggedInCharacterByCharacterId(charData.CharacterId, out _))
+                    return;
+
+                for (EquipmentSlot slot = EquipmentSlot.HeadUpper; slot < EquipmentSlot.MAX; slot++)
+                {
+                    if (charData.EquipSet.HasItemEquippedInSlot(slot))
+                    {
+                        _itemTypeModule.SendItemTypeDataToCharacterIfUnknown(charData, charData.EquipSet.GetItemType(slot));
+                        charData.NetworkQueue.EquipmentChanged(slot, charData);
+                    }
+                }
+
+                OwlLogger.LogF("Character login finished for character id {0}", charData.CharacterId, GameComponent.Other);
+                _loginFinishTasks.Remove(charData.CharacterId);
+            });
+            _loginFinishTasks.Add(charData.CharacterId, loginFinishTask);
         }
 
         private CharacterRuntimeData CreateAndSetupCharacterInstance(ClientConnection connection, int characterId)
@@ -972,8 +984,7 @@ namespace Server
                 OwlLogger.LogError($"Character {connection.CharacterId} tried to pick up pickupId {pickupId} that's not on Grid!", GameComponent.Items);
                 return;
             }
-            PickupEntity pickup = gEntity as PickupEntity;
-            if(pickup == null)
+            if (gEntity is not PickupEntity pickup)
             {
                 OwlLogger.LogError($"Character {connection.CharacterId} tried to pick up pickupId {pickupId} that's not a Pickup!", GameComponent.Items);
                 return;
@@ -1046,6 +1057,8 @@ namespace Server
                 OwlLogger.LogError($"Received CharacterDisconnected for characterId {characterId} that wasn't logged in!", GameComponent.Other);
                 return;
             }
+
+            _loginFinishTasks.Remove(characterId);
 
             _inventoryModule.UnregisterCharacterInventory(charData);
 

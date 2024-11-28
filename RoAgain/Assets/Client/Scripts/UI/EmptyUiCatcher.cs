@@ -47,11 +47,11 @@ namespace Client
                 // Inventory -> empty UI: Drop Items
                 if(itemStackWidget.DragSource == ItemStackDragSource.OwnInventory)
                 {
-                    _currentItemDropProcess.ItemTypeId = itemStackWidget.CurrentStack.ItemType.TypeId;
+                    _currentItemDropProcess.ItemTypeId = itemStackWidget.CurrentType.TypeId;
                     _currentItemDropProcess.InventoryId = ClientMain.Instance.CurrentCharacterData.InventoryId;
 
-                    ClientMain.Instance.GeneralNumberInput.Show(0, itemStackWidget.CurrentStack.ItemCount,
-                        itemStackWidget.CurrentStack.ItemCount, OnItemDropAmountInputConfirm, null);
+                    ClientMain.Instance.GeneralNumberInput.Show(0, itemStackWidget.CurrentCount,
+                        itemStackWidget.CurrentCount, OnItemDropAmountInputConfirm, null);
                 }
             }
 

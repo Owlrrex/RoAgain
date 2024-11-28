@@ -32,22 +32,23 @@ namespace Client
             if (_defaultOptionsData == null)
             {
                 _defaultOptionsData = new();
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar11, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar12, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar13, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar14, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar15, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar16, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar17, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar18, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar19, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar10, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleCharMainWindow, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleChatInput, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleGameMenuWindow, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleHotbar, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleSkillWindow, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
-                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleStatWindow, new() { PrefabIndex = 0, Tab = OptionsMenuData.Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar11, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar12, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar13, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar14, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar15, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar16, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar17, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar18, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar19, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_Hotbar10, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleCharMainWindow, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleChatInput, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleGameMenuWindow, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleHotbar, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleSkillWindow, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleStatWindow, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
+                _defaultOptionsData.Data.Add(ConfigKey.Hotkey_ToggleEquipmentWindow, new() { PrefabIndex = 0, Tab = Tab.Hotkeys });
             }
 
             return _defaultOptionsData;

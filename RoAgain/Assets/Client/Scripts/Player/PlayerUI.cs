@@ -34,6 +34,9 @@ public class PlayerUI : MonoBehaviour
     [field: SerializeField]
     public InventoryWindow InventoryWindow { get; private set; }
 
+    [field: SerializeField]
+    public EquipmentWindow EquipmentWindow { get; private set; }
+
     [SerializeField]
     private ConfigWidgetRegistry _configWidgetRegistry;
 
@@ -101,6 +104,10 @@ public class PlayerUI : MonoBehaviour
 
         if(!OwlLogger.PrefabNullCheckAndLog(InventoryWindow, nameof(InventoryWindow), this, GameComponent.UI))
             InventoryWindow.gameObject.SetActive(false);
+
+        if (!OwlLogger.PrefabNullCheckAndLog(EquipmentWindow, nameof(EquipmentWindow), this, GameComponent.UI))
+            EquipmentWindow.gameObject.SetActive(false);
+
 
         gameObject.SetActive(false);
     }
@@ -253,6 +260,11 @@ public class PlayerUI : MonoBehaviour
                 InventoryWindow.SetData(ClientMain.Instance.InventoryModule.PlayerMainInventory);
                 InventoryWindow.gameObject.SetActive(true);
             }
+        }
+
+        if(KeyboardInput.Instance?.IsConfigurableHotkeyDown(ConfigKey.Hotkey_ToggleEquipmentWindow) == true)
+        {
+            EquipmentWindow.gameObject.SetActive(!EquipmentWindow.gameObject.activeSelf);
         }
     }
 

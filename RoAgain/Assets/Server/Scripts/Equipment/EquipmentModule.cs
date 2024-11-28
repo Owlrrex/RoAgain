@@ -129,7 +129,7 @@ namespace Server
         /// <param name="targetSlots">Slot to equip to</param>
         /// <param name="itemType">ItemType to equip</param>
         /// <returns>EquipType bitmask for slots that were changed by the operation, negative errorcode otherwise </returns>
-        public int Equip(CharacterRuntimeData character, EquipmentSlot targetSlots, long itemTypeId)
+        public int Equip(CharacterRuntimeData character, EquipmentSlot targetSlots, long itemTypeId, bool sendPacket = true)
         {
             if (character == null)
             {
@@ -183,9 +183,9 @@ namespace Server
                 return 0;
             }
 
-            int result = Equip(character.EquipSet, targetSlots, equipType);
+            int changedSlots = Equip(character.EquipSet, targetSlots, equipType);
 
-            if (result < 0)
+            if (changedSlots < 0)
             {
                 OwlLogger.LogError($"Character {character.Id} failed to equip item {itemTypeId} in slot {targetSlots}!", GameComponent.Items);
                 character.Connection.Send(new LocalizedChatMessagePacket() { ChannelTag = DefaultChannelTags.GENERIC_ERROR, MessageLocId = new(221) });
@@ -206,8 +206,10 @@ namespace Server
                 _itemTypeModule.NotifyItemTypeUseEnded(oldType.TypeId);
             }
 
-            // Slots that were empty to being with may not have been notified by Unequip()
-            character.NetworkQueue.EquipmentChanged(targetSlots, character);
+            if (sendPacket)
+            {
+                character.NetworkQueue.EquipmentChanged((EquipmentSlot)changedSlots, character);
+            }
 
             return 0;
         }
@@ -388,7 +390,7 @@ namespace Server
 
             foreach (var entry in persData.EquippedTypes.entries)
             {
-                if (Equip(owner, entry.value.GroupedSlots, entry.value.TypeId) < 0)
+                if (Equip(owner, entry.value.GroupedSlots, entry.value.TypeId, false) < 0)
                 {
                     OwlLogger.LogError($"Failed to equip ItemType {entry.value} for Equipset!", GameComponent.Items);
                     continue;

@@ -431,18 +431,33 @@ namespace Client
                 }
 
                 _equipSets.Add(ownerEntityId, new());
+                if(ownerEntityId == ClientMain.Instance.CurrentCharacterData.Id)
+                {
+                    PlayerUI.Instance.EquipmentWindow.SetSet(_equipSets[ownerEntityId]);
+                }
             }
             EquipmentSet modifiedSet = _equipSets[ownerEntityId];
 
             // Unequip current items, if any, in occupied slots
             // Don't use SetItemTypeOnGroup here, so we can send messages for each individual unequipped item
-            foreach(EquipmentSlot singleTargetSlot in new EquipmentSlotIterator(slot))
+            Dictionary<EquipmentSlot, EquippableItemType> oldItemTypes = new();
+            foreach (EquipmentSlot singleTargetSlot in new EquipmentSlotIterator(slot))
             {
                 if (!modifiedSet.HasItemEquippedInSlot(singleTargetSlot))
+                {
+                    oldItemTypes.Add(singleTargetSlot, null);
                     continue;
+                }
 
                 EquippableItemType singleTargetType = modifiedSet.GetItemType(singleTargetSlot);
                 EquipmentSlot groupedSlots = modifiedSet.GetGroupedSlots(singleTargetSlot);
+                foreach(EquipmentSlot groupedSlot in new EquipmentSlotIterator(groupedSlots))
+                {
+                    oldItemTypes.Add(groupedSlot, singleTargetType);
+                }
+                modifiedSet.SetItemTypeOnGroup(singleTargetSlot, null);
+
+                // Show chatmessage
                 string format = LocalizedStringTable.GetStringById(_unequipMsgLocId);
                 string fullTypeName = LocalizedStringTable.GetStringById(singleTargetType.NameLocId); // TODO: Get name with all modifiers
                 string slotName = groupedSlots.ToHumanReadableString();
@@ -453,8 +468,6 @@ namespace Client
                     Message = msg,
                 };
                 ClientMain.Instance.ChatModule.OnChatMessageReceived(data);
-
-                modifiedSet.SetItemTypeOnGroup(singleTargetSlot, null);
             }
 
             // Equip new itemtype, if any is given & available
@@ -470,7 +483,13 @@ namespace Client
                     ChannelTag = DefaultChannelTags.EQUIPMENT,
                     Message = msg,
                 };
-                ClientMain.Instance.ChatModule.OnChatMessageReceived(data);
+                ClientMain.Instance.ChatModule.OnChatMessageReceived(data);                
+            }
+
+            // Broadcast equip change to set
+            foreach (var kvp in oldItemTypes)
+            {
+                modifiedSet.EquipmentChanged?.Invoke(kvp.Key, kvp.Value);
             }
         }
 

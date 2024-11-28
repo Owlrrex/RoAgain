@@ -62,8 +62,9 @@ namespace Client
 
         Hotkey_ConfirmDialog,
         Hotkey_ToggleInventoryWindow,
+        Hotkey_ToggleEquipmentWindow,
 
-        Hotkey_END = Hotkey_ToggleInventoryWindow,
+        Hotkey_END = Hotkey_ToggleEquipmentWindow,
 
         SkillData_Hotbar10 = 200, // potentially used for 10th slot
         SkillData_Hotbar11,

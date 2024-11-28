@@ -37,7 +37,8 @@ namespace Client
 
             RectTransform rtf = transform as RectTransform;
             Rect size = rtf.rect;
-            Transform dragParent = GetComponentInParent<Canvas>().transform;
+            //Transform dragParent = GetComponentInParent<Canvas>().transform;
+            Transform dragParent = ClientMain.Instance.MainUiCanvas.transform;
             if (CreateNewOnDrag)
             {
                 GameObject dragIcon = Instantiate(_newDragPrefab, rtf.position, rtf.rotation, dragParent);

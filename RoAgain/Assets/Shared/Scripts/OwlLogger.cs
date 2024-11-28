@@ -167,6 +167,14 @@ namespace OwlLogging
             action?.Invoke(value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="oName"></param>
+        /// <param name="caller"></param>
+        /// <param name="component"></param>
+        /// <returns>o == null</returns>
         public static bool PrefabNullCheckAndLog(object o, string oName, object caller, GameComponent component)
         {
             if (o == null)
