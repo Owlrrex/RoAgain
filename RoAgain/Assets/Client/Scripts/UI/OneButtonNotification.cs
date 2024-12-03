@@ -58,9 +58,9 @@ namespace Client
 
         public void ResetStrings()
         {
-            _titleText.text = LocalizedStringTable.GetStringById(_defaultTitle);
-            _buttonText.text = LocalizedStringTable.GetStringById(_defaultButtonText);
-            _messageText.text = LocalizedStringTable.GetStringById(LocalizedStringId.INVALID);
+            _titleText.text = _defaultTitle.Resolve();
+            _buttonText.text = _defaultButtonText.Resolve();
+            _messageText.text = LocalizedStringId.INVALID.Resolve();
         }
 
         private void OnOkButtonCallback()

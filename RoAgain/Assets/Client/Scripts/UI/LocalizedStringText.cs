@@ -59,7 +59,7 @@ namespace Client
             if (_localizedStringId == LocalizedStringId.INVALID)
                 return;
 
-            _text.text = LocalizedStringTable.GetStringById(_localizedStringId);
+            _text.text = _localizedStringId.Resolve();
         }
     }
 }

@@ -37,8 +37,8 @@ namespace Client
 
         public void ResetStrings()
         {
-            _titleText.text = LocalizedStringTable.GetStringById(_defaultTitle);
-            _messageText.text = LocalizedStringTable.GetStringById(LocalizedStringId.INVALID);
+            _titleText.text = _defaultTitle.Resolve();
+            _messageText.text = LocalizedStringId.INVALID.Resolve();
         }
 
         public void Hide()

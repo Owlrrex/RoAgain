@@ -2,21 +2,12 @@ using OwlLogging;
 using Shared;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Client
 {
-    public enum ClientLanguage
+    public class LocalizedStringTable : ILocalizedStringTable
     {
-        Unknown,
-        English,
-        German
-    }
-
-    public class LocalizedStringTable
-    {
-        private static LocalizedStringTable _instance;
-        private static ClientLanguage _currentLanguage;
+        private static LocalizationLanguage _currentLanguage;
         public static event Action LanguageChanged;
 
         [Serializable]
@@ -35,34 +26,31 @@ namespace Client
 
         public void Register()
         {
-            if (_instance != null)
+            if (ILocalizedStringTable.Instance != null)
             {
-                if (_instance == this)
+                if (ILocalizedStringTable.Instance == this)
                     OwlLogger.LogError("Duplicate StringTable registration!", GameComponent.Other);
                 else
                     OwlLogger.LogError($"Tried to register StringTable while another is registered", GameComponent.Other);
                 return;
             }
 
-            _instance = this;
+            ILocalizedStringTable.Instance = this;
 
-            if(_currentLanguage != ClientLanguage.Unknown)
+            if(_currentLanguage != LocalizationLanguage.Unknown)
             {
                 LoadStringsForCurrentLanguage();
             }
         }
 
-        public static void SetClientLanguage(ClientLanguage newLanguage, bool forceReload = false)
+        public void SetClientLanguage(LocalizationLanguage newLanguage, bool forceReload = false)
         {
             if (_currentLanguage == newLanguage)
                 return;
 
-            if (_instance == null)
-                return;
-
             _currentLanguage = newLanguage;
-            
-            _instance.LoadStringsForCurrentLanguage(forceReload);
+
+            LoadStringsForCurrentLanguage(forceReload);
             LanguageChanged?.Invoke();
         }
 
@@ -87,8 +75,8 @@ namespace Client
             {
                 string text = _currentLanguage switch
                 {
-                    ClientLanguage.English => kvp.Value.TextEnglish,
-                    ClientLanguage.German => kvp.Value.TextGerman,
+                    LocalizationLanguage.English => kvp.Value.TextEnglish,
+                    LocalizationLanguage.German => kvp.Value.TextGerman,
                     _ => null
                 };
                 if(string.IsNullOrEmpty(text))
@@ -109,45 +97,36 @@ namespace Client
             CachedFileAccess.Purge(FILE_KEY);
         }
 
-        public static void ReloadStrings()
+        public void ReloadStrings()
         {
-            if (_instance == null)
-                return;
-
-            _instance.LoadStringsForCurrentLanguage(true);
+            LoadStringsForCurrentLanguage(true);
         }
 
-        public static string GetStringById(LocalizedStringId id)
+        public string GetStringById(LocalizedStringId id)
         {
-            if (_instance == null)
-            {
-                OwlLogger.LogError("Tried to get String by Id before StringTable was available", GameComponent.Other);
-                return null;
-            }
-
             if (id == LocalizedStringId.INVALID)
                 return "INVALID-LOCALIZED-STRING";
 
-            if (!_instance._stringsById.ContainsKey(id.Id))
+            if (!_stringsById.ContainsKey(id.Id))
                 return "MISSING-STRING-" + id;
 
-            return _instance._stringsById[id.Id];
+            return _stringsById[id.Id];
         }
 
         public static bool IsReady()
         {
-            return _instance != null;
+            return ILocalizedStringTable.Instance != null;
         }
 
         public static void Unregister()
         {
-            if (_instance == null)
+            if (ILocalizedStringTable.Instance == null)
             {
                 OwlLogger.LogWarning("Can't unregister LocalizedStringTable - none registered.", GameComponent.Other);
                 return;
             }
 
-            _instance = null;
+            ILocalizedStringTable.Instance = null;
         }
     }
 }

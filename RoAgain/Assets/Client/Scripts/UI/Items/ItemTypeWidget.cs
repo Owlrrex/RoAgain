@@ -31,7 +31,7 @@ namespace Client
             if(_useTooltip)
             {
                 // TODO: Build proper name for ItemType from its modifiers
-                _tooltip.Message = LocalizedStringTable.GetStringById(type.NameLocId);
+                _tooltip.Message = type.NameLocId.Resolve();
             }
 
             _type = type;

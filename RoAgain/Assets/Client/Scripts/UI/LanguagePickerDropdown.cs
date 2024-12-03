@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+using Shared;
 using TMPro;
 
 namespace Client
@@ -18,7 +15,7 @@ namespace Client
 
         private void OnValueChanged(int newValue)
         {
-            LocalizedStringTable.SetClientLanguage((ClientLanguage)(newValue+1)); // +1 to skip the "Unknown" entry
+            ILocalizedStringTable.Instance.SetClientLanguage((LocalizationLanguage)(newValue+1)); // +1 to skip the "Unknown" entry
         }
     }
 }

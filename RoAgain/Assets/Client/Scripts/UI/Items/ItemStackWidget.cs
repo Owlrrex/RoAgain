@@ -135,7 +135,7 @@ namespace Client
             }
 
             // TODO: Build proper ItemType name from Modifiers
-            string typeName = LocalizedStringTable.GetStringById(CurrentType.NameLocId);
+            string typeName = CurrentType.NameLocId.Resolve();
             string fullText = typeName;
             if (CurrentCount > 1 && _showCountInName)
             {

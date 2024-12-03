@@ -47,7 +47,7 @@ namespace Shared
             _builder.Clear();
             foreach(EquipmentSlot singleSlot in new EquipmentSlotIterator(slots))
             {
-                _builder.Append(singleSlot.ToString());
+                _builder.Append(singleSlot.ToLocStringId().Resolve());
                 _builder.Append(" + ");
             }
             _builder.Remove(_builder.Length - 3, 3); // remove last, unnecessary " + "
@@ -121,7 +121,7 @@ namespace Shared
 
         public IEnumerator<EquipmentSlot> GetEnumerator()
         {
-            for (int i = 1; i <= (int)EquipmentSlot.MAX; i = i << 1)
+            for (int i = 1; i <= (int)EquipmentSlot.MAX; i <<= 1)
             {
                 if (!_slots.HasFlag((EquipmentSlot)i))
                     continue;
@@ -152,10 +152,6 @@ namespace Shared
                 return null;
 
             int separatorIdx = str.IndexOf(',');
-            string typeStr = str[1..separatorIdx];
-            string changeStr = str[(separatorIdx + 1)..^1];
-            EntityPropertyType tmpType = (EntityPropertyType)int.Parse(typeStr);
-            Stat tmpChange = JsonUtility.FromJson<Stat>(changeStr);
             return new()
             {
                 Type = (EntityPropertyType)int.Parse(str[1..separatorIdx]),

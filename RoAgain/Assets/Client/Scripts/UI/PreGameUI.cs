@@ -146,7 +146,7 @@ namespace Client
                         ClientMain.Instance.DisplayOneButtonNotification(_loginFailAlreadyLoggedInLocId, ShowCharacterSelection);
                         return;
                     default:
-                        ClientMain.Instance.DisplayOneButtonNotification(string.Format(LocalizedStringTable.GetStringById(_loginFailUnknownLocId), _characterLogin.ResultCode), ShowCharacterSelection);
+                        ClientMain.Instance.DisplayOneButtonNotification(string.Format(_loginFailUnknownLocId.Resolve(), _characterLogin.ResultCode), ShowCharacterSelection);
                         return;
                 }
 

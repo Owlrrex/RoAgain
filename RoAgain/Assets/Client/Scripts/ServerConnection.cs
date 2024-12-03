@@ -570,7 +570,7 @@ namespace Client
             ChatMessageData data = new()
             {
                 SenderId = packet.SenderId,
-                Message = LocalizedStringTable.GetStringById(packet.MessageLocId),
+                Message = packet.MessageLocId.Resolve(),
                 SenderName = packet.SenderName,
                 ChannelTag = packet.ChannelTag
             };

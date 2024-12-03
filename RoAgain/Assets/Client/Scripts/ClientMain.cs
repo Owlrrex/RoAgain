@@ -167,7 +167,7 @@ namespace Client
             _stringTable.Register();
 
             // TODO: Use Config to store language
-            LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
+            ILocalizedStringTable.Instance.SetClientLanguage(LocalizationLanguage.English);
         }
 
         private void Update()
@@ -1023,8 +1023,8 @@ namespace Client
         private string CreateMessageForSkillError(SkillFailReason reason, SkillId skillId)
         {
             LocalizedStringId messageLocId = reason.GetErrorMessage();
-            string skillName = LocalizedStringTable.GetStringById(SkillClientDataTable.GetDataForId(skillId).NameId);
-            string format = LocalizedStringTable.GetStringById(messageLocId);
+            string skillName = SkillClientDataTable.GetDataForId(skillId).NameId.Resolve();
+            string format = messageLocId.Resolve();
             return string.Format(format, skillName);
         }
 
@@ -1058,7 +1058,7 @@ namespace Client
                 return;
             }
 
-            _oneButtonNotification.SetTitle(LocalizedStringTable.GetStringById(title));
+            _oneButtonNotification.SetTitle(title.Resolve());
         }
 
         public void SetOneButtonNotificationButtonText(LocalizedStringId buttonText)
@@ -1069,7 +1069,7 @@ namespace Client
                 return;
             }
 
-            _oneButtonNotification.SetButtonText(LocalizedStringTable.GetStringById(buttonText));
+            _oneButtonNotification.SetButtonText(buttonText.Resolve());
         }
 
         public void DisplayOneButtonNotification(LocalizedStringId message, Action callback, bool resetTitleAndButton = true)
@@ -1079,7 +1079,7 @@ namespace Client
                 _oneButtonNotification.ResetStrings();
             }
 
-            DisplayOneButtonNotification(LocalizedStringTable.GetStringById(message), callback);
+            DisplayOneButtonNotification(message.Resolve(), callback);
         }
 
         public void DisplayOneButtonNotification(string message, Action callback)
@@ -1112,10 +1112,10 @@ namespace Client
 
             if (title != LocalizedStringId.INVALID)
             {
-                _zeroButtonNotification.SetTitle(LocalizedStringTable.GetStringById(title));
+                _zeroButtonNotification.SetTitle(title.Resolve());
             }
 
-            DisplayZeroButtonNotification(LocalizedStringTable.GetStringById(message));
+            DisplayZeroButtonNotification(message.Resolve());
         }
 
         public void DisplayZeroButtonNotification(string message)

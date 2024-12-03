@@ -172,7 +172,7 @@ namespace Client
             }
             else
             {
-                _skillNameText.text = LocalizedStringTable.GetStringById(data.NameId);
+                _skillNameText.text = data.NameId.Resolve();
             }
         }
 

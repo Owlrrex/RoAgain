@@ -66,7 +66,7 @@ namespace Client
                 return;
             }
 
-            Show(LocalizedStringTable.GetStringById(locId), tooltipOwner);
+            Show(locId.Resolve(), tooltipOwner);
         }
 
         public void Hide()

@@ -122,7 +122,7 @@ namespace Client
             ItemType type = ClientMain.Instance.InventoryModule.GetKnownItemType(_pickup.ItemTypeId);
             if (type != null)
             {
-                typename = LocalizedStringTable.GetStringById(type.NameLocId);
+                typename = type.NameLocId.Resolve();
             }
             _tooltip.Message = $"{_pickup.Count}x {typename}";
         }

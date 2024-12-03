@@ -458,8 +458,8 @@ namespace Client
                 modifiedSet.SetItemTypeOnGroup(singleTargetSlot, null);
 
                 // Show chatmessage
-                string format = LocalizedStringTable.GetStringById(_unequipMsgLocId);
-                string fullTypeName = LocalizedStringTable.GetStringById(singleTargetType.NameLocId); // TODO: Get name with all modifiers
+                string format = _unequipMsgLocId.Resolve();
+                string fullTypeName = singleTargetType.NameLocId.Resolve(); // TODO: Get name with all modifiers
                 string slotName = groupedSlots.ToHumanReadableString();
                 string msg = string.Format(format, fullTypeName, slotName);
                 ChatMessageData data = new()
@@ -474,8 +474,8 @@ namespace Client
             if(type != null)
             {
                 modifiedSet.SetItemType(slot, type);
-                string format = LocalizedStringTable.GetStringById(_equipMsgLocId);
-                string fullTypeName = LocalizedStringTable.GetStringById(type.NameLocId); // TODO: Get name with all modifiers
+                string format = _equipMsgLocId.Resolve();
+                string fullTypeName = type.NameLocId.Resolve(); // TODO: Get name with all modifiers
                 string slotName = slot.ToHumanReadableString();
                 string msg = string.Format(format, fullTypeName, slotName);
                 ChatMessageData data = new()

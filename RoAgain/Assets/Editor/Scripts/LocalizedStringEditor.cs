@@ -16,7 +16,7 @@ namespace Client
                 loaded.Register();
             }
 
-            LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
+            ILocalizedStringTable.Instance.SetClientLanguage(LocalizationLanguage.English);
 
             LocalizedStringText text = (LocalizedStringText)target;
 
@@ -33,7 +33,7 @@ namespace Client
             {
                 LocalizedStringTable loaded = new();
                 loaded.Register();
-                LocalizedStringTable.SetClientLanguage(ClientLanguage.English);
+                loaded.SetClientLanguage(LocalizationLanguage.English);
             }
 
             if (!LocalizedStringTable.IsReady())
@@ -46,7 +46,7 @@ namespace Client
             EditorGUI.PropertyField(new Rect(newRect.x, newRect.y, newRect.width, 18), idProp, GUIContent.none);
 
             EditorGUI.indentLevel++;
-            string locValue = LocalizedStringTable.GetStringById((LocalizedStringId)property.boxedValue);
+            string locValue = ((LocalizedStringId)property.boxedValue).Resolve();
             newRect = EditorGUI.PrefixLabel(new Rect(position.x, position.y + EditorGUI.GetPropertyHeight(idProp) + 1, position.width, 18), new GUIContent("English string: "));
             EditorGUI.LabelField(newRect, locValue);
             EditorGUI.indentLevel--;
@@ -62,7 +62,7 @@ namespace Client
         [MenuItem("Localization/Reload Localization Table")]
         public static void ReloadLocTableEditor()
         {
-            LocalizedStringTable.ReloadStrings();
+            ILocalizedStringTable.Instance.ReloadStrings();
         }
     }
 }
