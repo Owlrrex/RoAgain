@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Shared
 {
+    /// <summary>
+    /// Represents a single or combination of Equipment Slots.
+    /// </summary>
     [Flags]
     public enum EquipmentSlot
     {
@@ -78,11 +81,38 @@ namespace Shared
         }
     }
 
+
+    /// <summary>
+    /// Allows iterating over all singular slots in a combined EquipmentSlot value.
+    /// </summary>
+    public class EquipmentSlotIterator : IEnumerable<EquipmentSlot>
+    {
+        private EquipmentSlot _slots;
+
+        public EquipmentSlotIterator(EquipmentSlot slots = (EquipmentSlot)(-1))
+        {
+            _slots = slots;
+        }
+
+        public IEnumerator<EquipmentSlot> GetEnumerator()
+        {
+            for (int i = 1; i <= (int)EquipmentSlot.MAX; i <<= 1)
+            {
+                if (!_slots.HasFlag((EquipmentSlot)i))
+                    continue;
+                yield return (EquipmentSlot)i;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    // TODO: Make this a long once I no longer depend on unity's Serializer, to allow more weapon/equip types
+
     /// <summary>
     /// For Equipment types that don't directly relate to their slot
     /// EquipmentSlot criteria can be used to create 1hnd or 2hnd variants, skills can check weapon type & its equip slot
     /// </summary>
-    // TODO: Make this a int once I no longer depend on unity's Serializer, to allow more weapon/equip types
     public enum EquipmentType : uint
     {
         Unknown         = 0,
@@ -110,28 +140,10 @@ namespace Shared
         Costume         = 1 << 21,
     }
 
-    public class EquipmentSlotIterator : IEnumerable<EquipmentSlot>
-    {
-        private EquipmentSlot _slots;
-
-        public EquipmentSlotIterator(EquipmentSlot slots = (EquipmentSlot)(-1))
-        {
-            _slots = slots;
-        }
-
-        public IEnumerator<EquipmentSlot> GetEnumerator()
-        {
-            for (int i = 1; i <= (int)EquipmentSlot.MAX; i <<= 1)
-            {
-                if (!_slots.HasFlag((EquipmentSlot)i))
-                    continue;
-                yield return (EquipmentSlot)i;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
+    /// <summary>
+    /// Represents a change to a particular stat on items, skills, etc.
+    /// Uses the Stat's Modifier-fields, but not its base value.
+    /// </summary>
     public class SimpleStatEntry
     {
         public EntityPropertyType Type;
@@ -160,6 +172,10 @@ namespace Shared
         }
     }
 
+    /// <summary>
+    /// Represents a change to a particular stat along with the condition to activate it, on items, skills, etc.
+    /// Uses the Stat's Modifier-fields, but not its base value.
+    /// </summary>
     public class ConditionalStatEntry
     {
         public EntityPropertyType Type;
@@ -190,6 +206,10 @@ namespace Shared
         }
     }
 
+    /// <summary>
+    /// Base class for Equipment-sets that contains logic common to Server & Client
+    /// </summary>
+    /// <typeparam name="I">The class used as ItemType - usually EquippableItemType of the respective assembly</typeparam>
     public class EquipmentSet<I> where I : class
     {
         // Can create subclasses of this type to store per-equipslot data like autocast-cooldowns, 

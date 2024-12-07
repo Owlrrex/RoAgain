@@ -2,15 +2,17 @@ using OwlLogging;
 using Shared;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Client
 {
     [RequireComponent(typeof(TMP_Text))]
     public class LocalizedStringText : MonoBehaviour
     {
-        [SerializeField]
-        private LocalizedStringId _localizedStringId = LocalizedStringId.INVALID;
-        public LocalizedStringId LocalizedStringId => _localizedStringId;
+        [SerializeField, FormerlySerializedAs("_localizedStringId")]
+        private LocalizedStringId _defaultLocStringId = LocalizedStringId.INVALID;
+
+        public ILocalizedString CurrentLocString { get; private set; }
 
         private TMP_Text _text;
 
@@ -22,6 +24,9 @@ namespace Client
                 OwlLogger.LogError($"No TMP_Text found for LocalizedStringText!", GameComponent.UI);
                 return;
             }
+
+            if (ILocalizedString.IsValid(_defaultLocStringId))
+                CurrentLocString = _defaultLocStringId;
 
             UpdateStringDisplay();
         }
@@ -37,12 +42,9 @@ namespace Client
             LocalizedStringTable.LanguageChanged -= OnLanguageChanged;
         }
 
-        public void SetLocalizedString(LocalizedStringId newStringId)
+        public void SetLocalizedString(ILocalizedString newLocString)
         {
-            if (newStringId == _localizedStringId)
-                return;
-
-            _localizedStringId = newStringId;
+            CurrentLocString = newLocString;
             UpdateStringDisplay();
         }
 
@@ -56,10 +58,10 @@ namespace Client
             if (_text == null)
                 return;
 
-            if (_localizedStringId == LocalizedStringId.INVALID)
+            if (!ILocalizedString.IsValid(CurrentLocString))
                 return;
 
-            _text.text = _localizedStringId.Resolve();
+            _text.text = CurrentLocString.Resolve();
         }
     }
 }

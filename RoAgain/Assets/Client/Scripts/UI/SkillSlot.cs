@@ -26,7 +26,7 @@ namespace Client
         private TMP_Text _skillParamText;
 
         [SerializeField]
-        private MouseTooltipTriggerString _tooltipTrigger;
+        private MouseTooltipTriggerLocalized _tooltipTriggerLoc;
 
         private SkillIcon _skillIcon = null;
         private ConfigKey _hotkey = ConfigKey.Unknown;
@@ -36,7 +36,7 @@ namespace Client
             OwlLogger.PrefabNullCheckAndLog(_iconSlot, nameof(_iconSlot), this, GameComponent.UI);
             OwlLogger.PrefabNullCheckAndLog(_hotkeyText, nameof(_hotkeyText), this, GameComponent.UI);
             OwlLogger.PrefabNullCheckAndLog(_skillParamText, nameof(_skillParamText), this, GameComponent.UI);
-            OwlLogger.PrefabNullCheckAndLog(_tooltipTrigger, nameof(_tooltipTrigger), this, GameComponent.UI);
+            OwlLogger.PrefabNullCheckAndLog(_tooltipTriggerLoc, nameof(_tooltipTriggerLoc), this, GameComponent.UI);
             UpdateTooltip();
         }
 
@@ -158,20 +158,25 @@ namespace Client
         {
             if (SkillId == SkillId.Unknown)
             {
-                _tooltipTrigger.Message = "Empty Skill Slot";
+                _tooltipTriggerLoc.LocalizedString = new LocalizedStringId(247);
             }
             else
             {
-                string hotkey = null;
+                string hotkeyStr = null;
                 if(_hotkey != ConfigKey.Unknown)
                 {
                     HotkeyConfigEntry entry = MixedConfiguration.Instance.GetHotkey(_hotkey);
-                    hotkey = entry?.ToString();
+                    hotkeyStr = entry?.ToString();
                 }
 
+                // TODO: Localized Skill Names
                 string skillName = SkillId.ToString();
                 string skillParam = _skillParamText != null ? _skillParamText.text : null;
-                _tooltipTrigger.Message = $"{hotkey}: {skillName} ({skillParam})";
+                _tooltipTriggerLoc.LocalizedString = new CompositeLocalizedString()
+                {
+                    FormatString = new LocalizedStringId(248),
+                    Arguments = { hotkeyStr, skillName, skillParam }
+                };
             }
         }
     }

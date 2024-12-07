@@ -25,6 +25,16 @@ namespace Shared
     public interface ILocalizedString
     {
         public string Resolve();
+
+        public bool IsValid();
+
+        public static bool IsValid(ILocalizedString locStr)
+        {
+            if (locStr == null)
+                return false;
+
+            return locStr.IsValid();
+        }
     }
 
     /// <summary>
@@ -122,6 +132,11 @@ namespace Shared
         {
             return ILocalizedStringTable.Instance.GetStringById(this);
         }
+
+        public bool IsValid()
+        {
+            return this != INVALID;
+        }
     }
 
     public class CompositeLocalizedString : ILocalizedString
@@ -156,7 +171,7 @@ namespace Shared
         public override int GetHashCode()
         {
             int hash = FormatString.GetHashCode();
-            foreach (ILocalizedString arg in Arguments)
+            foreach (object arg in Arguments)
             {
                 hash = HashCode.Combine(hash, arg.GetHashCode());
             }
@@ -165,5 +180,10 @@ namespace Shared
 
         public static bool operator ==(CompositeLocalizedString left, CompositeLocalizedString right) => left.Equals(right);
         public static bool operator !=(CompositeLocalizedString left, CompositeLocalizedString right) => !(left == right);
+
+        public bool IsValid()
+        {
+            return FormatString.IsValid();
+        }
     }
 }

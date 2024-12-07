@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Shared
 {
+    // This file contains abstract base classes for logic common between Client & Server, especially serialization.
+    // The functions that evaluate the criteriums & conditions can be found in their respective assemblys, so that
+    // they can operate on that assembly's data objects for entities & more.
+
     /// <summary>
     /// A Criterium that a BattleEntity can either fulfill or not fulfill.
     /// </summary>
@@ -347,7 +351,7 @@ namespace Shared
     /// <summary>
     /// A condition describes a check performed against certain objects that're more flexible than what BattleEntityCriteriums allow
     /// An example would be to choose a specific BattleEntity in some data object that contains many of them to apply a BEC to.
-    /// A condition should always be backed by one (or more) BECs.
+    /// A condition should be backed by one (or more) BECs, if possible.
     /// </summary>
     public abstract class ACondition
     {

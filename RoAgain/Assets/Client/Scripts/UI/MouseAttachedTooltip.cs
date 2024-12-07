@@ -58,15 +58,15 @@ namespace Client
             _tooltipOwner = tooltipOwner;
         }
 
-        public void Show(LocalizedStringId locId, object tooltipOwner)
+        public void Show(ILocalizedString locString, object tooltipOwner)
         {
-            if (locId == LocalizedStringId.INVALID)
+            if (!ILocalizedString.IsValid(locString))
             {
                 Hide();
                 return;
             }
 
-            Show(locId.Resolve(), tooltipOwner);
+            Show(locString.Resolve(), tooltipOwner);
         }
 
         public void Hide()

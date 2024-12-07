@@ -1110,7 +1110,7 @@ namespace Client
         {
             _zeroButtonNotification.ResetStrings();
 
-            if (title != LocalizedStringId.INVALID)
+            if (ILocalizedString.IsValid(title))
             {
                 _zeroButtonNotification.SetTitle(title.Resolve());
             }

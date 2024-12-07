@@ -16,7 +16,8 @@ namespace Client
         protected GridEntityMover _mover;
 
         [SerializeField]
-        protected MouseTooltipTriggerString _tooltip;
+        protected MouseTooltipTriggerLocalized _tooltipLoc;
+        protected CompositeLocalizedString _tooltipLocStr = new CompositeLocalizedString() { FormatString = new LocalizedStringId(246) };
 
         [SerializeField]
         protected float PICKUP_ANIM_LENGTH = 0.5f;
@@ -100,6 +101,7 @@ namespace Client
             modelPos.z = Random.value - 0.5f;
             _mover.Model.transform.localPosition = modelPos;
 
+            _tooltipLoc.LocalizedString = _tooltipLocStr;
             SetTooltip();
 
             SetItemTypeDisplay();
@@ -124,7 +126,9 @@ namespace Client
             {
                 typename = type.NameLocId.Resolve();
             }
-            _tooltip.Message = $"{_pickup.Count}x {typename}";
+            _tooltipLocStr.Arguments.Clear();
+            _tooltipLocStr.Arguments.Add(typename);
+            _tooltipLocStr.Arguments.Add(_pickup.Count);
         }
 
         private void OnLanguageChanged()
@@ -155,7 +159,7 @@ namespace Client
         public void StartPickupAnimation(Transform targetTransform)
         {
             _targetTransform = targetTransform;
-            _tooltip.enabled = false;
+            _tooltipLoc.enabled = false;
             if(_dropping)
             {
                 _dropping = false;

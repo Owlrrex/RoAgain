@@ -104,7 +104,7 @@ namespace Client
 
         public string GetStringById(LocalizedStringId id)
         {
-            if (id == LocalizedStringId.INVALID)
+            if (!ILocalizedString.IsValid(id))
                 return "INVALID-LOCALIZED-STRING";
 
             if (!_stringsById.ContainsKey(id.Id))

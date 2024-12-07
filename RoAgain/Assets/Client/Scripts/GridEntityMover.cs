@@ -171,7 +171,7 @@ namespace Client
                         _entityNameLocText.SetLocalizedString(LocalizedStringId.INVALID);
                     }
                 }
-                else if (_entity.LocalizedNameId != LocalizedStringId.INVALID
+                else if (ILocalizedString.IsValid(_entity.LocalizedNameId)
                     && _entityNameLocText != null)
                 {
                     _entityNameLocText.SetLocalizedString(_entity.LocalizedNameId);

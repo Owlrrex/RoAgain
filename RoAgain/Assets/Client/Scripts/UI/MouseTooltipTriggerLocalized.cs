@@ -2,19 +2,24 @@ using OwlLogging;
 using Shared;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace Client
 {
     public class MouseTooltipTriggerLocalized : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        public LocalizedStringId LocalizedStringId = LocalizedStringId.INVALID;
+        [SerializeField, FormerlySerializedAs("LocalizedStringId")]
+        private LocalizedStringId _defaultLocalizedStringId = LocalizedStringId.INVALID;
+
+        public ILocalizedString LocalizedString;
 
         void Awake()
         {
-            if (LocalizedStringId == LocalizedStringId.INVALID)
+            if (!ILocalizedString.IsValid(_defaultLocalizedStringId))
             {
-                OwlLogger.LogError("MouseTooltipTrigger doesn't have LocalizedStringId set!", GameComponent.UI);
+                OwlLogger.LogWarning("MouseTooltipTrigger doesn't have LocalizedStringId set!", GameComponent.UI);
             }
+            LocalizedString = _defaultLocalizedStringId;
         }
 
         public void OnDisable()
@@ -28,7 +33,7 @@ namespace Client
         {
             if(MouseAttachedTooltip.Instance != null)
             {
-                MouseAttachedTooltip.Instance.Show(LocalizedStringId, this);
+                MouseAttachedTooltip.Instance.Show(LocalizedString, this);
             }
         }
 

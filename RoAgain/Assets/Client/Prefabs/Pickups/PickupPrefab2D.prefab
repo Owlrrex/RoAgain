@@ -11,11 +11,11 @@ GameObject:
   - component: {fileID: 2737677067385707318}
   - component: {fileID: 999029018374449201}
   - component: {fileID: 1262658534094146252}
-  - component: {fileID: 3209840385793261770}
   - component: {fileID: 1923078841973938879}
+  - component: {fileID: 7815042135803532995}
   m_Layer: 7
   m_Name: PickupPrefab2D
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73,19 +73,6 @@ MonoBehaviour:
   _modelAnchor: {fileID: 892556437479672939}
   _entityNameText: {fileID: 0}
   _showOnHover: 0
---- !u!114 &3209840385793261770
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1690524198634084755}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52769d45cbc17a24283a6c8a71a1633c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Message: 
 --- !u!114 &1923078841973938879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,7 +86,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mover: {fileID: 1262658534094146252}
-  _tooltip: {fileID: 3209840385793261770}
+  _tooltipLoc: {fileID: 7815042135803532995}
   PICKUP_ANIM_LENGTH: 0.5
   DROP_ANIM_LENGTH: 0.1
   LIFETIME_HINT_BASE_FREQUENCY: 5
@@ -107,6 +94,20 @@ MonoBehaviour:
   _foreignPickupColor: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 0.7882353}
   _lifetimeHighlightColor: {r: 1, g: 0, b: 0, a: 0.5882353}
   LIFETIME_HINT_LENGTH: 0.1
+--- !u!114 &7815042135803532995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690524198634084755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a038186ef5d71a8488168978a2453e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultLocalizedStringId:
+    Id: 0
 --- !u!1 &4882155290367982064
 GameObject:
   m_ObjectHideFlags: 0

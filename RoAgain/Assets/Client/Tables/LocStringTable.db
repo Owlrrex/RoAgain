@@ -1721,5 +1721,26 @@
 			"TextEnglish": "Twohand for blvl 20+",
 			"TextGerman": "Zweihand für blvl 20+"
 		}
+	},
+	{
+		"key": 246,
+		"value": {
+			"TextEnglish": "{0} x{1}",
+			"TextGerman": "{0} x{1}"
+		}
+	},
+	{
+		"key": 247,
+		"value": {
+			"TextEnglish": "Empty Skill Slot",
+			"TextGerman": "Leerer Fähigkeiten-Slot"
+		}
+	},
+	{
+		"key": 248,
+		"value": {
+			"TextEnglish": "{0}: {1} ({2})",
+			"TextGerman": "{0}: {1} ({2})"
+		}
 	}
 ]}

@@ -26,6 +26,7 @@ namespace Client
             return true; // Keys with and without modifier are always valid
         }
 
+        // TODO: Localized Hotkey Strings (due to formatting?)
         public override string ToString()
         {
             if (Modifier != KeyCode.None)

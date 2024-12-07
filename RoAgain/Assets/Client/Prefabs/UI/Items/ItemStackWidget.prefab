@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3246712734886260140}
   - component: {fileID: 2433099035488179971}
   - component: {fileID: 6478698178844143543}
+  - component: {fileID: 4436364140428654206}
   m_Layer: 5
   m_Name: NameText
   m_TagString: Untagged
@@ -134,6 +135,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4436364140428654206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796876746231350054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a8a5b63d83c09e4d825e1d3ed972a99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultLocStringId:
+    Id: 0
 --- !u!1 &2166937014393696225
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,10 +295,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4477611290841546388}
   - component: {fileID: 1219543329622725778}
-  - component: {fileID: 2817228996110222392}
   - component: {fileID: 6043524989772174755}
   - component: {fileID: 1159505522602552653}
   - component: {fileID: 7325785059148792820}
+  - component: {fileID: 4660770721799229327}
   m_Layer: 5
   m_Name: ItemStackWidget
   m_TagString: Untagged
@@ -320,19 +335,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3876359467302315706}
   m_CullTransparentMesh: 1
---- !u!114 &2817228996110222392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3876359467302315706}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52769d45cbc17a24283a6c8a71a1633c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Message: 
 --- !u!114 &6043524989772174755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -347,12 +349,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _showIcon: 1
   _showName: 1
-  _showCountInName: 1
+  _showCountInText: 1
   _showCountInIcon: 1
   _typeWidget: {fileID: 6213083727719121215}
   _itemCountText: {fileID: 4410502338710809389}
   _itemNameText: {fileID: 6478698178844143543}
-  _tooltip: {fileID: 2817228996110222392}
+  _itemNameLocText: {fileID: 4436364140428654206}
+  _tooltipLoc: {fileID: 4660770721799229327}
   _iconToTheRight: 0
   <DragSource>k__BackingField: 0
 --- !u!114 &1159505522602552653
@@ -382,6 +385,20 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &4660770721799229327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3876359467302315706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a038186ef5d71a8488168978a2453e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultLocalizedStringId:
+    Id: 0
 --- !u!1001 &8781489517752428818
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using OwlLogging;
+using Shared;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -27,7 +28,7 @@ namespace Client
         [SerializeField]
         private bool _showName;
         [SerializeField]
-        private bool _showCountInName;
+        private bool _showCountInText;
         [SerializeField]
         private bool _showCountInIcon;
         [SerializeField]
@@ -35,9 +36,11 @@ namespace Client
         [SerializeField]
         private TMP_Text _itemCountText;
         [SerializeField]
-        private TMP_Text _itemNameText;
+        private TMP_Text _itemNameText; // For Layouting
         [SerializeField]
-        private MouseTooltipTriggerString _tooltip;
+        private LocalizedStringText _itemNameLocText; // For setting string on _itemNameText
+        [SerializeField]
+        private MouseTooltipTriggerLocalized _tooltipLoc;
         [SerializeField]
         private bool _iconToTheRight;
 
@@ -56,16 +59,22 @@ namespace Client
                 return;
 
             if(_showName)
+            {
+                OwlLogger.PrefabNullCheckAndLog(_itemNameLocText, nameof(_itemNameLocText), this, GameComponent.UI);
                 OwlLogger.PrefabNullCheckAndLog(_itemNameText, nameof(_itemNameText), this, GameComponent.UI);
+            }
+                
 
             if(_showIcon)
             {
-                if (OwlLogger.PrefabNullCheckAndLog(_typeWidget, nameof(_typeWidget), this, GameComponent.UI))
+                if (!OwlLogger.PrefabNullCheckAndLog(_typeWidget, nameof(_typeWidget), this, GameComponent.UI))
                     _typeWidget.SetUseTooltip(false);
             }
 
-            OwlLogger.PrefabNullCheckAndLog(_tooltip, nameof(_tooltip), this, GameComponent.UI);
-            LocalizedStringTable.LanguageChanged += OnLanguageChanged;
+            if(!OwlLogger.PrefabNullCheckAndLog(_tooltipLoc, nameof(_tooltipLoc), this, GameComponent.UI))
+            {
+                _tooltipLoc.LocalizedString = new CompositeLocalizedString() { FormatString = new LocalizedStringId(-1) };
+            }
         }
 
         private void Update()
@@ -135,28 +144,30 @@ namespace Client
             }
 
             // TODO: Build proper ItemType name from Modifiers
-            string typeName = CurrentType.NameLocId.Resolve();
-            string fullText = typeName;
-            if (CurrentCount > 1 && _showCountInName)
+            ILocalizedString locText;
+            if (CurrentCount > 1 && _showCountInText)
             {
-                fullText += " x" + CurrentCount.ToString();
+                locText = new CompositeLocalizedString()
+                {
+                    FormatString = new LocalizedStringId(246),
+                    Arguments = { CurrentType.NameLocId, CurrentCount }
+                };
             }
-            if (_showName)
-                _itemNameText.text = fullText;
-            _itemNameText.enabled = _showName;
+            else
+            {
+                locText = CurrentType.NameLocId;
+            }
 
-            _tooltip.Message = fullText;
+            if (_showName)
+            {
+                _itemNameLocText.SetLocalizedString(locText);
+            }
+            _tooltipLoc.LocalizedString = locText;
         }
 
         public void SetData(ItemStack stack, ItemStackDragSource sourceType)
         {
             SetData(stack.ItemType, stack.ItemCount, sourceType);
-        }
-
-        private void OnLanguageChanged()
-        {
-            if(CurrentType != null)
-                SetData(CurrentType, CurrentCount, DragSource);
         }
 
         public void OnPointerClick(PointerEventData eventData)

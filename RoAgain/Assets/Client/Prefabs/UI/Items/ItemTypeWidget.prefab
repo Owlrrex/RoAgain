@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3451816200789977133}
   - component: {fileID: 1219543329622725778}
   - component: {fileID: 4709157154406454769}
-  - component: {fileID: 2817228996110222392}
+  - component: {fileID: 8582872741366381382}
   m_Layer: 5
   m_Name: ItemTypeWidget
   m_TagString: Untagged
@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30134fecb5ece3144acc68649c04b840, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tooltip: {fileID: 2817228996110222392}
+  _tooltipLoc: {fileID: 8582872741366381382}
   _typeIcon: {fileID: 4709157154406454769}
 --- !u!222 &1219543329622725778
 CanvasRenderer:
@@ -91,7 +91,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2817228996110222392
+--- !u!114 &8582872741366381382
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -100,7 +100,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 3876359467302315706}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52769d45cbc17a24283a6c8a71a1633c, type: 3}
+  m_Script: {fileID: 11500000, guid: a038186ef5d71a8488168978a2453e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Message: 
+  _defaultLocalizedStringId:
+    Id: 0
