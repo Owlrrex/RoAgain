@@ -166,4 +166,58 @@ public static class JobIdExtensions
                 return false;
         }
     }
+
+    public static LocalizedStringId LocalizedName(this JobId jobId, bool isFemale)
+    {
+        return jobId switch
+        {
+            JobId.Novice => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            JobId.Swordman => isFemale ? new LocalizedStringId(251) : new LocalizedStringId(252),
+            JobId.Mage => isFemale ? new LocalizedStringId(253) : new LocalizedStringId(254),
+            JobId.Acolyte => isFemale ? new LocalizedStringId(255) : new LocalizedStringId(256),
+            JobId.Thief => isFemale ? new LocalizedStringId(257) : new LocalizedStringId(258),
+            JobId.Archer => isFemale ? new LocalizedStringId(259) : new LocalizedStringId(260),
+            JobId.Merchant => isFemale ? new LocalizedStringId(261) : new LocalizedStringId(262),
+            JobId.Taekwon => isFemale ? new LocalizedStringId(263) : new LocalizedStringId(264),
+            //JobId.Gunslinger => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Ninja => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.SuperNovice => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighNovice => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighSwordman => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighMage => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighAcolyte => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighThief => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighArcher => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighMerchant => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Knight => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Crusader => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Wizard => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Sage => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Priest => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Monk => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Assassin => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Rogue => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Hunter => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Bard => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Dancer => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Blacksmith => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Alchemist => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.StarGladiator => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.SoulLinker => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.LordKnight => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Paladin => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighWizard => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Professor => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.HighPriest => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Champion => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.AssassinCross => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Stalker => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Sniper => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Minstrel => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Gypsy => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Whitesmith => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            //JobId.Creator => isFemale ? new LocalizedStringId(249) : new LocalizedStringId(250),
+            _ => LocalizedStringId.INVALID,
+        };
+    }
 }

@@ -1742,5 +1742,117 @@
 			"TextEnglish": "{0}: {1} ({2})",
 			"TextGerman": "{0}: {1} ({2})"
 		}
+	},
+	{
+		"key": 249,
+		"value": {
+			"TextEnglish": "Novice",
+			"TextGerman": "Novize"
+		}
+	},
+	{
+		"key": 250,
+		"value": {
+			"TextEnglish": "Novice",
+			"TextGerman": "Novizin"
+		}
+	},
+	{
+		"key": 251,
+		"value": {
+			"TextEnglish": "Swordman",
+			"TextGerman": "Schwertkämpfer"
+		}
+	},
+	{
+		"key": 252,
+		"value": {
+			"TextEnglish": "Swordwoman",
+			"TextGerman": "Schwertkämpferin"
+		}
+	},
+	{
+		"key": 253,
+		"value": {
+			"TextEnglish": "Magician",
+			"TextGerman": "Magier"
+		}
+	},
+	{
+		"key": 254,
+		"value": {
+			"TextEnglish": "Magician",
+			"TextGerman": "Magierin"
+		}
+	},
+	{
+		"key": 255,
+		"value": {
+			"TextEnglish": "Acolyte",
+			"TextGerman": "Akolyth"
+		}
+	},
+	{
+		"key": 256,
+		"value": {
+			"TextEnglish": "Acolyte",
+			"TextGerman": "Akolyth"
+		}
+	},
+	{
+		"key": 257,
+		"value": {
+			"TextEnglish": "Thief",
+			"TextGerman": "Dieb"
+		}
+	},
+	{
+		"key": 258,
+		"value": {
+			"TextEnglish": "Thief",
+			"TextGerman": "Diebin"
+		}
+	},
+	{
+		"key": 259,
+		"value": {
+			"TextEnglish": "Archer",
+			"TextGerman": "Bogenschütze"
+		}
+	},
+	{
+		"key": 260,
+		"value": {
+			"TextEnglish": "Archer",
+			"TextGerman": "Bogenschützin"
+		}
+	},
+	{
+		"key": 261,
+		"value": {
+			"TextEnglish": "Merchant",
+			"TextGerman": "Händler"
+		}
+	},
+	{
+		"key": 262,
+		"value": {
+			"TextEnglish": "Merchant",
+			"TextGerman": "Händlerin"
+		}
+	},
+	{
+		"key": 263,
+		"value": {
+			"TextEnglish": "Taekwon Kid",
+			"TextGerman": "Taekwon Lehrling"
+		}
+	},
+	{
+		"key": 264,
+		"value": {
+			"TextEnglish": "Taekwon Kid",
+			"TextGerman": "Taekwon Lehrling"
+		}
 	}
 ]}
