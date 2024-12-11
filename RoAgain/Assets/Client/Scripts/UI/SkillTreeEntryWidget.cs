@@ -33,7 +33,7 @@ namespace Client
         private TMP_Text _requirementSkillLevelText;
 
         [SerializeField]
-        private TMP_Text _skillNameText;
+        private LocalizedStringText _skillNameText;
 
         [SerializeField]
         private GameObject _contentContainer;
@@ -168,11 +168,11 @@ namespace Client
             SkillClientData data = SkillClientDataTable.GetDataForId(SkillId);
             if (data == null)
             {
-                _skillNameText.text = "Unknown";
+                _skillNameText.SetLocalizedString(LocalizedStringId.INVALID);
             }
             else
             {
-                _skillNameText.text = data.NameId.Resolve();
+                _skillNameText.SetLocalizedString(data.NameId);
             }
         }
 

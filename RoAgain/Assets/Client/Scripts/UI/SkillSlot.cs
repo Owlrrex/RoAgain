@@ -169,7 +169,8 @@ namespace Client
                     hotkeyStr = entry?.ToString();
                 }
 
-                ILocalizedString skillName = SkillId.LocalizedName();
+                SkillClientData skillData = SkillClientDataTable.GetDataForId(SkillId);
+                ILocalizedString skillName = skillData.NameId;
                 string skillParam = _skillParamText != null ? _skillParamText.text : null;
                 _tooltipTriggerLoc.LocalizedString = new CompositeLocalizedString()
                 {

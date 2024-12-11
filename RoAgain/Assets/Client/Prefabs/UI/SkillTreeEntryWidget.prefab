@@ -670,7 +670,7 @@ MonoBehaviour:
   _maxLevelText: {fileID: 2462260964560333643}
   _plannedSkillPointsText: {fileID: 2826330876778644419}
   _requirementSkillLevelText: {fileID: 4966518974180889006}
-  _skillNameText: {fileID: 3394174509265911383}
+  _skillNameText: {fileID: 6304279905782405447}
   _contentContainer: {fileID: 3264587613763539902}
   _greyOutOverlay: {fileID: 5339374034210358118}
   _levelSelectAnchor: {fileID: 771171155548536782}
@@ -1045,6 +1045,7 @@ GameObject:
   - component: {fileID: 4150553583750560006}
   - component: {fileID: 2682321107115351275}
   - component: {fileID: 3394174509265911383}
+  - component: {fileID: 6304279905782405447}
   m_Layer: 0
   m_Name: SkillNameText
   m_TagString: Untagged
@@ -1168,6 +1169,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6304279905782405447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7526699336992345958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a8a5b63d83c09e4d825e1d3ed972a99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultLocStringId:
+    Id: 0
 --- !u!1 &7732165110426064463
 GameObject:
   m_ObjectHideFlags: 0
