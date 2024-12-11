@@ -9,7 +9,7 @@ namespace Client
     {
         public JobId JobId;
         public Action<ACharacterEntity> JobChanged;
-        public int Gender;
+        public int Gender; // 0 = Male, 1 = Female
 
         protected ACharacterEntity(Coordinate coordinates, LocalizedStringId locNameId, int modelId, float movespeed, float maxHp, float maxSp,
             int baseLvl, JobId jobId, int gender, int id = -1) : base(coordinates, locNameId, modelId, movespeed, maxHp, maxSp, baseLvl, id)

@@ -19,7 +19,7 @@ namespace Server
         public JobId JobId;
         public Action<CharacterRuntimeData> JobChanged;
         public WatchableProperty<int, EntityPropertyType> JobLvl = new(EntityPropertyType.JobLvl);
-        public WatchableProperty<int, EntityPropertyType> Gender = new(EntityPropertyType.Gender);
+        public WatchableProperty<int, EntityPropertyType> Gender = new(EntityPropertyType.Gender); // 0 = Male, 1 = Female
 
         // these watchable? Or are packets handled by ExpSystem?
         public int CurrentBaseExp;

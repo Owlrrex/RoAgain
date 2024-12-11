@@ -11,7 +11,7 @@ namespace Client
         private TMP_Text _characterNameText;
 
         [SerializeField]
-        private TMP_Text _characterJobText;
+        private LocalizedStringText _characterJobText;
 
         [SerializeField]
         private TMP_Text _hpText;
@@ -126,10 +126,8 @@ namespace Client
 
         public void UpdateExpDisplay()
         {
-            // If CurrentExp resets to 0 upon levelup:
             _baseExpSlider.value = _character.RequiredBaseExp != 0 ? _character.CurrentBaseExp / (float)_character.RequiredBaseExp : 0;
             _jobExpSlider.value = _character.RequiredJobExp != 0 ? _character.CurrentJobExp / (float)_character.RequiredJobExp : 0;
-            // with CurrentExp staying continuous: Would require the client knowing at what exp values a levelup happened
             // TODO: Tooltip
         }
 
@@ -155,9 +153,8 @@ namespace Client
 
         public void UpdateCharacterDisplay()
         {
-            // TODO: Fetch localized names of class
             _characterNameText.text = _character.NameOverride;
-            _characterJobText.text = _character.JobId.ToString();
+            _characterJobText.SetLocalizedString(_character.JobId.LocalizedName(_character.Gender == 1));
         }
     }
 }
