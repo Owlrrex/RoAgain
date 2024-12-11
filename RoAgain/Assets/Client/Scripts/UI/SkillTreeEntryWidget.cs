@@ -165,6 +165,9 @@ namespace Client
 
         private void SetSkillNameText()
         {
+            if (SkillId == SkillId.Unknown)
+                return;
+
             SkillClientData data = SkillClientDataTable.GetDataForId(SkillId);
             if (data == null)
             {

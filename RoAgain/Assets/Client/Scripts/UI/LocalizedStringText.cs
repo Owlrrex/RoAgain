@@ -25,7 +25,8 @@ namespace Client
                 return;
             }
 
-            if (ILocalizedString.IsValid(_defaultLocStringId))
+            if (!ILocalizedString.IsValid(CurrentLocString)
+                && ILocalizedString.IsValid(_defaultLocStringId))
                 CurrentLocString = _defaultLocStringId;
 
             UpdateStringDisplay();
