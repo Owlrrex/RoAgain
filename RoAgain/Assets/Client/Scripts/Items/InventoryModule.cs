@@ -433,10 +433,12 @@ namespace Client
                 _equipSets.Add(ownerEntityId, new());
                 if(ownerEntityId == ClientMain.Instance.CurrentCharacterData.Id)
                 {
-                    PlayerUI.Instance.EquipmentWindow.SetSet(_equipSets[ownerEntityId]);
+                    SetUpLocalCharacterEquipSet();
                 }
             }
             EquipmentSet modifiedSet = _equipSets[ownerEntityId];
+
+            bool showChatMessage = ClientMain.Instance.IsCharacterLoginCompleted();
 
             // Unequip current items, if any, in occupied slots
             // Don't use SetItemTypeOnGroup here, so we can send messages for each individual unequipped item
@@ -457,33 +459,39 @@ namespace Client
                 }
                 modifiedSet.SetItemTypeOnGroup(singleTargetSlot, null);
 
-                // Show chatmessage
-                string format = _unequipMsgLocId.Resolve();
-                string fullTypeName = singleTargetType.NameLocId.Resolve(); // TODO: Get name with all modifiers
-                string slotName = groupedSlots.ToHumanReadableString();
-                string msg = string.Format(format, fullTypeName, slotName);
-                ChatMessageData data = new()
+                if(showChatMessage)
                 {
-                    ChannelTag = DefaultChannelTags.EQUIPMENT,
-                    Message = msg,
-                };
-                ClientMain.Instance.ChatModule.OnChatMessageReceived(data);
+                    string format = _unequipMsgLocId.Resolve();
+                    string fullTypeName = singleTargetType.NameLocId.Resolve(); // TODO: Get name with all modifiers
+                    string slotName = groupedSlots.ToHumanReadableString();
+                    string msg = string.Format(format, fullTypeName, slotName);
+                    ChatMessageData data = new()
+                    {
+                        ChannelTag = DefaultChannelTags.EQUIPMENT,
+                        Message = msg,
+                    };
+                    ClientMain.Instance.ChatModule.OnChatMessageReceived(data);
+                }
             }
 
             // Equip new itemtype, if any is given & available
             if(type != null)
             {
                 modifiedSet.SetItemType(slot, type);
-                string format = _equipMsgLocId.Resolve();
-                string fullTypeName = type.NameLocId.Resolve(); // TODO: Get name with all modifiers
-                string slotName = slot.ToHumanReadableString();
-                string msg = string.Format(format, fullTypeName, slotName);
-                ChatMessageData data = new()
+
+                if (showChatMessage)
                 {
-                    ChannelTag = DefaultChannelTags.EQUIPMENT,
-                    Message = msg,
-                };
-                ClientMain.Instance.ChatModule.OnChatMessageReceived(data);                
+                    string format = _equipMsgLocId.Resolve();
+                    string fullTypeName = type.NameLocId.Resolve(); // TODO: Get name with all modifiers
+                    string slotName = slot.ToHumanReadableString();
+                    string msg = string.Format(format, fullTypeName, slotName);
+                    ChatMessageData data = new()
+                    {
+                        ChannelTag = DefaultChannelTags.EQUIPMENT,
+                        Message = msg,
+                    };
+                    ClientMain.Instance.ChatModule.OnChatMessageReceived(data);
+                }
             }
 
             // Broadcast equip change to set
@@ -500,6 +508,13 @@ namespace Client
                 _pendingEquipSlots.Add(itemTypeId, new());
 
             _pendingEquipSlots[itemTypeId].Add(newEntry);
+        }
+
+        public void SetUpLocalCharacterEquipSet()
+        {
+            int localCharEntityId = ClientMain.Instance.CurrentCharacterData?.Id ?? 0;
+            if (_equipSets.ContainsKey(localCharEntityId))
+                PlayerUI.Instance.EquipmentWindow.SetSet(_equipSets[localCharEntityId]);
         }
     }
 }

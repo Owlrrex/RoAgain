@@ -346,16 +346,6 @@ namespace Server
                 if (!TryGetLoggedInCharacterByCharacterId(charData.CharacterId, out _))
                     return;
 
-                CharacterLoginResponsePacket resultPacket = new()
-                {
-                    Result = 0,
-                };
-                charData.Connection.Send(resultPacket);
-
-                await Task.Delay(500);
-                if (!TryGetLoggedInCharacterByCharacterId(charData.CharacterId, out _))
-                    return;
-
                 Inventory inventory = _inventoryModule.GetOrLoadInventory(charData.InventoryId);
                 foreach (var kvp in inventory.ItemStacksByTypeId)
                 {
@@ -374,6 +364,16 @@ namespace Server
                         charData.NetworkQueue.EquipmentChanged(slot, charData);
                     }
                 }
+
+                await Task.Delay(500);
+                if (!TryGetLoggedInCharacterByCharacterId(charData.CharacterId, out _))
+                    return;
+
+                CharacterLoginResponsePacket resultPacket = new()
+                {
+                    Result = 0,
+                };
+                charData.Connection.Send(resultPacket);
 
                 OwlLogger.LogF("Character login finished for character id {0}", charData.CharacterId, GameComponent.Other);
                 _loginFinishTasks.Remove(charData.CharacterId);

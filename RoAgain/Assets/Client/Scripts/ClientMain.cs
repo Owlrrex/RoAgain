@@ -410,9 +410,17 @@ namespace Client
                 }
             }
 
+            // In case equipdata was received earlier than this point, it's not recognized as the local character yet - this fixes that.
+            InventoryModule.SetUpLocalCharacterEquipSet();
+
             InventoryModule.OnInventoryIdReceived(CurrentCharacterData.InventoryId, CurrentCharacterData.Id);
 
             ConnectionToServer.LocalCharacterDataReceived += OnLocalCharacterDataReceived;
+        }
+
+        public bool IsCharacterLoginCompleted()
+        {
+            return CurrentCharacterData != null && CurrentCharacterData.Id != 0;
         }
 
         private void OnGameplaySceneLoadCompleted(AsyncOperation _)

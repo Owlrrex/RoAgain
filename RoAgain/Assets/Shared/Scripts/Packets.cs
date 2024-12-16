@@ -12,8 +12,6 @@ namespace Shared
         public int SessionId;
         public abstract int PacketType { get; }
 
-
-
         public virtual bool Validate() { return true; }
 
         public byte[] SerializeJson()

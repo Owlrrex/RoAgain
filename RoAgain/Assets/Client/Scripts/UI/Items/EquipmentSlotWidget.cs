@@ -1,27 +1,34 @@
 using OwlLogging;
 using Shared;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Client
 {
-    public class EquipmentSlotWidget : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+    public class EquipmentSlotWidget : MonoBehaviour
     {
         [SerializeField]
         private ItemStackWidget _itemWidget;
-        [SerializeField]
-        private GameObject _hoverHighlight;
 
         [field: SerializeField]
         public EquipmentSlot CurrentSlot { get; private set; }
 
         private EquipmentSet _currentSet;
 
+        public Action ItemDropped;
+
+        [SerializeField]
+        private List<EquipmentSlotGroupIndicator> _groupIndicators;
+
         private void Awake()
         {
             OwlLogger.PrefabNullCheckAndLog(_itemWidget, nameof(_itemWidget), this, GameComponent.UI);
-            if (!OwlLogger.PrefabNullCheckAndLog(_hoverHighlight, nameof(_hoverHighlight), this, GameComponent.UI))
-                _hoverHighlight.SetActive(false);
+            foreach (EquipmentSlotGroupIndicator indicator in _groupIndicators)
+            {
+                indicator.ItemDropped += OnItemDropped;
+                indicator.gameObject.SetActive(false);
+            }
         }
 
         public void SetData(EquipmentSlot slot, EquipmentSet equipSet)
@@ -83,35 +90,22 @@ namespace Client
             DisplayDataIfComplete();
         }
 
-        public void OnDrop(PointerEventData eventData)
+        public void SetGroupIndicatorActive(int groupIndex, bool newActive, EquipmentSlot groupedSlots)
         {
-            if (eventData.pointerDrag == null)
-                return;
-
-            if (eventData.pointerDrag.TryGetComponent(out ItemStackWidget itemStackWidget))
+            if(groupIndex >= _groupIndicators.Count)
             {
-                // TODO: Try to equip item
+                // TODO: Gracefully handle too-large groupIndexes
+                return;
             }
 
-            _hoverHighlight.SetActive(false);
+            EquipmentSlotGroupIndicator indicator = _groupIndicators[groupIndex];
+            indicator.GroupedSlots = groupedSlots;
+            indicator.gameObject.SetActive(newActive);
         }
-
-        public void OnPointerEnter(PointerEventData eventData)
+        
+        private void OnItemDropped()
         {
-            if (!eventData.dragging
-                || eventData.pointerDrag == null)
-                return;
-
-            if (eventData.pointerDrag.TryGetComponent(out ItemStackWidget itemStackWidget))
-            {
-                // TODO: Check more detailed equippability conditions & determining which slots to highlight
-                _hoverHighlight.SetActive(true);
-            }
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            _hoverHighlight.SetActive(false);
+            ItemDropped?.Invoke();
         }
     }
 }
